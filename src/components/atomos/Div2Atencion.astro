@@ -1,0 +1,9 @@
+---
+const { estilo } = Astro.props;
+---
+
+<div
+  class={`${estilo} h-full flex bg-white shadow-sm  p-3 rounded-lg border -hidden items-start justify-normal`}
+>
+  <slot />
+</div>

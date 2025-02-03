@@ -1,0 +1,20 @@
+---
+const { title, dataIds, h1 } = Astro.props;
+---
+
+<main
+  class="top-12 md:right-0 z-0  w-full mt-10 md:mb-16  print:hidden flex flex-col items-center justify-center"
+>
+  {
+    h1 && (
+      <div class="w-full ">
+        <h1 class="text-xl ml-4 font-semibold text-primary-textoTitle ">{h1}</h1>
+      </div>
+    )
+  }
+  <div
+    class="w-full py flex flex-col px-4  items-center justify- rounded-lg h-full"
+  >
+    <slot />
+  </div>
+</main>

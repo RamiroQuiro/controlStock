@@ -1,0 +1,81 @@
+---
+import {
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  LayoutDashboard,
+  LogOut,
+  Package,
+  Settings,
+} from "lucide-react";
+
+const menuItems = [
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { icon: Package, label: "Stock", path: "/stock" },
+  { icon: ClipboardList, label: "Conteo", path: "/count" },
+  { icon: LogOut, label: "Egreso", path: "/outbound" },
+  { icon: BarChart3, label: "Reportes", path: "/reportes" },
+  { icon: Settings, label: "Ajustes", path: "/asjustes" },
+];
+---
+
+<sidebar
+  id="sidebar"
+  class="expanded duration-300  print:hidden overflow-hidden  bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[10vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items-start justify-normal md:gap- pt-10"
+>
+  <div
+    class="w-full h-1/  mb-5 hidden md:flex flex-col items-end justify-start pt- gap-2"
+  >
+    <button
+      id="collapse-button"
+      class="p-1.5 cursor-pointer z-20 block duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
+    >
+      <ChevronLeft size={20} />
+    </button>
+    <div class=" overflow- flex items-start justify-start oveh">
+      <img
+        src="./ramaCode.png"
+        id="logo"
+        alt="ramaCode"
+        width="200"
+        height={"200"}
+        class="duration-200 -translate-y-7-scale-down"
+      />
+    </div>
+  </div>
+  <div class="flex flex-col items-start w-full">
+    {
+      menuItems.map((item) => (
+        <a href={item.path} class="flex items-center px-3 py-3 cursor-pointer text-white/80 hover:text-white hover:bg-primary-100/10 text-sm transition-colors">
+          <item.icon size={20} />
+          <span class="spanSidebar ml-4">{item.label}</span>
+        </a>
+      ))
+    }
+  </div>
+</sidebar>
+
+<script>
+  const btnCollaps = document.getElementById("collapse-button");
+  const sidebar = document.getElementById("sidebar");
+  const logo = document.getElementById("logo");
+  const spanesSiedebar = document.querySelectorAll(".spanSidebar");
+  btnCollaps?.addEventListener("click", () => {
+    if (sidebar.style.width === "4vw") {
+      btnCollaps.style.transform = "rotate(0deg)";
+      logo.style.opacity = "100";
+      sidebar.style.width = "10vw"; // Ancho expandido
+      spanesSiedebar.forEach((span) => {
+        span.style.opacity = "100";
+      });
+    } else {
+      btnCollaps.style.transform = "rotate(180deg)";
+      logo.style.opacity = "0";
+      sidebar.style.width = "4vw"; // Ancho colapsado
+      spanesSiedebar.forEach((span) => {
+        span.style.opacity = "0";
+      });
+    }
+  });
+</script>

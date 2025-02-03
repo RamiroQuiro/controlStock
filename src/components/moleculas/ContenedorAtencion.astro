@@ -1,0 +1,18 @@
+---
+
+
+interface StringProps{
+    labelButton: string,
+    labelH3: string,
+    idButton:string
+}
+
+const {labelButton, labelH3,idButton}=Astro.props as StringProps
+---
+
+<div
+  class=" w-full  flex items-start justify-normal flex-col "
+>
+
+  <slot />
+</div>

@@ -1,0 +1,26 @@
+---
+import { DiamondPlus } from 'lucide-react';
+import Etiquetas from '../../../../components/atomos/Etiquetas.astro';
+import ContenedeorModal from '../../../../components/organismo/ContenedeorModal.astro';
+import FormularioDeBusqueda from '../../../../components/organismo/FormularioDeBusqueda';
+import FormularioPaciente from '../../pacientes/FormularioPaciente.astro';
+const { arrayPacientes, isClickend } = Astro.props;
+const { user, session } = Astro.locals;
+---
+
+<div class="mb-4 w-full flex items-center gap-2 justify-center bg">
+  <Etiquetas><DiamondPlus className="w-4 inline-block mr-4" /> Nueva Consulta</Etiquetas>
+  <div class="w-2/3">
+    <FormularioDeBusqueda
+      arrayABuscar={arrayPacientes}
+      opcionesFiltrado={['nombre', 'apellido', 'dni']}
+      placeholder={`Busqueda de pacientes...`}
+      client:load
+      isClickend={isClickend}
+    />
+  </div>
+
+  <ContenedeorModal open="Crear Paciente" id="modal-PacienteDashboard">
+    <FormularioPaciente user={user} />
+  </ContenedeorModal>
+</div>

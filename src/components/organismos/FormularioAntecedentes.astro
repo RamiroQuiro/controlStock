@@ -1,0 +1,132 @@
+---
+import Button1 from "../atomos/Button1.astro";
+import FormCont from "../atomos/FormCont.astro";
+import ContenedorInputForm from "../moleculas/ContenedorInputForm.astro";
+import ContenedorInputSelected from "../moleculas/ContenedorInputSelected.astro";
+
+const { pacienteId } = Astro.params;
+const options = [
+  {
+    id: 1,
+    value: "personal",
+  },
+  {
+    id: 2,
+    value: "familiar",
+  },
+];
+---
+
+<FormCont id="formularioAntecedentes" title="Nuevo Antecedentes">
+  <div
+    id="datapacienteId"
+    data-id={pacienteId}
+    class="flex md:flex-row items-center gap-2 w-full justify-normal"
+  >
+    <ContenedorInputForm
+      label="antecedente"
+      type="text"
+      name="antecedente"
+      styleInput=""
+    />
+    <ContenedorInputForm
+      label="fecha del diagnostico"
+      type="date"
+      name="fechaDiagnostico"
+      styleInput=""
+    />
+  </div>
+
+  <div
+    data-user-id
+    class="flex flex-col items-start gap-2 w-full justify-normal bg-primary-bg-componentes"
+  >
+    <label for="observaciones" class="text-xs text-primary-texto capitalize"
+      >Observaciones</label
+    >
+    <textarea
+    class="w-full text-sm p-2 text-primary-texto bg-primary-bg-componentes outline-none ring-0"
+    rows="10"
+    name="observaciones"
+    id="observaciones"
+    placeholder="Escriba sus obercaciones aqui"
+    ></textarea>
+  </div>
+  <div
+    data-user-id
+    class="flex md:flex-row items-center gap-2 w-full justify-normal"
+  >
+    <ContenedorInputSelected
+      options={options}
+      label="tipo de antecedente"
+      name="tipo"
+    />
+    <ContenedorInputSelected
+      label="estado"
+      name="estado"
+      options={[
+        { id: 1, value: "activo" },
+        { id: 2, value: "controlado" },
+        { id: 4, value: "critico" },
+        { id: 3, value: "curado" },
+      ]}
+    />
+  </div>
+
+  <div class="w-full items-center justify-end flex py-2">
+    <Button1 id="envioAntecedentes">agregar</Button1>
+  </div>
+</FormCont>
+
+<script>
+import formDataToJson from "../../utils/formatJson";
+
+
+
+  const formularioAntedecente = document.getElementById("formularioAntecedentes");
+  const pacienteId = document.getElementById("datapacienteId")?.dataset.id;
+  const btnEnviar=document.getElementById('envioAntecedentes')
+  
+  // Función para convertir FormData a JSON
+
+  const enviarDatos = async () => {
+      if (!formularioAntedecente) {
+        console.error("El formulario no fue encontrado");
+        return;
+      }
+
+      // Crear FormData directamente desde el formulario
+      const formData = new FormData(formularioAntedecente);
+const formularioJson=formDataToJson(formData)
+      try {
+        const response = await fetch(
+          `/api/pacientes/antecedentes/${pacienteId}`,
+          {
+            method: "POST",
+            body: JSON.stringify(formularioJson), // Enviar FormData directamente
+          }
+        );
+
+        // Manejo de la respuesta
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Datos enviados con éxito:", data);
+          if (data.status === 200) {
+            document.location.reload();
+          }
+        } else {
+          console.error("Error al enviar los datos:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error al realizar la solicitud:", error);
+      }
+    };
+
+
+  // Evento de envío del formulario
+  btnEnviar?.addEventListener("click", async(event) => {
+    event.preventDefault(); // Prevenir el comportamiento por defecto
+console.log(formularioAntedecente)
+    enviarDatos(); // Llamar a la función de envío
+  });
+</script>

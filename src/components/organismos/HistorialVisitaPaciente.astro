@@ -1,0 +1,86 @@
+---
+import formatDate from "../../utils/formatDate";
+import Button1 from "../atomos/Button1.astro";
+import ContenedorTitleBotonera from "../atomos/ContenedorTitleBotonera.astro";
+import DivBox1 from "../atomos/DivBox1.astro";
+
+interface Visitas {
+  fecha: string;
+  motivo: string;
+  doctor?: string;
+  department?: string;
+  tratamiento?:string;
+  diagnosticos?:string
+}
+
+interface RecentVisitsProps {
+  visitas: Visitas[];
+}
+
+const { visitas,colorMap } = Astro.props as RecentVisitsProps;
+const cabeceraColumn = [
+  {
+    id: 1,
+    label: "fecha",
+  },
+  {
+    id: 2,
+    label: "motivo",
+  },
+  {
+    id: 3,
+    label: "diagnostico",
+  },
+  {
+    id: 4,
+    label: "tratamiento",
+  },
+];
+---
+
+<DivBox1>
+  <ContenedorTitleBotonera>
+    <h2 class="text-lg font-semibold">Visitas Recientes</h2>
+    <div>
+      <Button1>ver historial</Button1>
+    </div>
+  </ContenedorTitleBotonera>
+
+  <div
+    class="overflow-x-auto w-full bg-primary-bg-componentes rounded-lg border"
+  >
+    <table class="w-full">
+      <thead class="w-full">
+        <tr class="text-left border-b">
+          {
+            cabeceraColumn?.map((colum) => (
+              <th class="py-3 pl-2 text-sm font-medium capitalize">
+                {colum.label}
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+      <tbody>
+        {
+          visitas.map((visit, index) => (
+            <tr
+            onclick={`document.location.href='/dashboard/consultas/${visit.id}'`}
+            style={{
+              backgroundColor: colorMap[visit.id]}}
+            class="border-b cursor-pointer  last:border-0 odd:bg-primary-bg-componentes/50">
+              <td class=" text-xs  px-2 py-2.5">{formatDate(visit.fecha,1)}</td>
+              <td class=" text-xs break-all  px-2 py-2.5">{visit.motivo}</td>
+              <td class=" text-xs  px-2 py-2.5">{visit.diagnosticos}</td>
+              <td class=" text-xs  px-2 py-2.5 break-after-all">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary line-clamp-2 ">
+                  {visit.tratamiento}
+                </span>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</DivBox1>

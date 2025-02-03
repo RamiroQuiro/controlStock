@@ -1,0 +1,30 @@
+---
+import DivBox1 from '@/components/atomos/DivBox1.astro';
+import type { LucideIcon } from 'lucide-react';
+
+interface StatsCardProps {
+  title: string;
+  value: string | number;
+  icon: LucideIcon;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
+  color?: string;
+}
+const { title, value, icon: Icon, trend, color = '#5FA5FA', index } = Astro.props as StatsCardProps;
+---
+
+<DivBox1 key={index} styleDiv="w-full md:h-28">
+  <div class="flex w-full items-center justify-between">
+    <div>
+      <p class="text-sm font-medium text-gray-600">{value.title}</p>
+      <h3 class="mt-1 text-2xl font-semibold">{value.value}</h3>
+      {value.subtitle && <p class="text-sm font-medium text-gray-600">{value.subtitle}</p>}
+    </div>
+    <div class={`rounded-full bg-primary-150 p-2`}>
+      <Icon className="w-5" />
+    </div>
+  </div>
+  <div class="mt-4"></div>
+</DivBox1>

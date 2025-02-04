@@ -1,0 +1,7 @@
+export {clientes} from './clientes';
+export {detalleVentas} from './detalleVentas';
+export {movimientosStock} from './movimientosStock';
+export {productos} from './productos';
+export {proveedores} from './proveedores';
+export {users} from './users';
+export {ventas} from './ventas';

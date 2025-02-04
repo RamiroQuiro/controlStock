@@ -1,0 +1,83 @@
+---
+import Button1 from '../../../../components/atomos/Button1.astro'
+import FormCont from '../../../../components/atomos/FormCont.astro'
+import LabelForm from '../../../../components/atomos/LabelForm.astro'
+import ContenedorInputForm from '../../../../components/moleculas/ContenedorInputForm.astro'
+---
+<FormCont title="Agregar Producto" id="formularioCargaProducto">
+    <div
+      class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
+    >
+      <ContenedorInputForm
+        name="codigoBarra"
+        type="text"
+        label="codigo de barra"
+      />
+      <div
+        class="w-full flex items flex-col items-start gap- duration-300 group -md"
+      >
+        <LabelForm name={"descripcion"}>{"descripcion"}</LabelForm>
+        <textarea
+          class="flex-1 w-full text-sm p-2 text-primary-texto outline-none ring-0 border-gray-300 ring-primary-200/60 focus:ring-1 focus:border-primary-200/60 border-b rounded-lg"
+          rows="3"
+          placeholder="Color, tamaño, categoria, trata o que describe al producto..."
+          name="descipcion"
+          id="descipcion"></textarea>
+      </div>
+    </div>
+    <div class="w-full flex gap-2 items-start justify-between">
+      <ContenedorInputForm
+        name="pCompra"
+        label="Precio Compra"
+        type="text"
+      />
+      <ContenedorInputForm
+        name="pVenta"
+        label="Precio Compra"
+        type="text"
+      />
+    </div>
+    <div class="w-full flex gap-2 items-start justify-between">
+      <ContenedorInputForm name="stock" label="Stock" type="number" />
+      <ContenedorInputForm
+        name="cantidadAlerta"
+        label="Cantidad de Alerta"
+        type="number"
+      />
+    </div>
+    <div class="w-full flex items-center justify-end my-3">
+      <Button1 id="btnCargarProducto">Guardar</Button1>
+    </div>
+  </FormCont>
+
+  <script>
+const formulario = document.getElementById('formularioCargaProducto') as HTMLFormElement
+const btnGuardar = document.getElementById('btnCargarProducto')
+
+btnGuardar?.addEventListener('click', async (e) => {
+  e.preventDefault()
+  
+  const formData = new FormData(formulario)
+  const data = Object.fromEntries(formData)
+
+  try {
+    const response = await fetch('/api/productos/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+
+    const dataResponse = await response.json()
+    console.log(dataResponse)
+
+    if(dataResponse.status === 200) {
+      formulario.reset()
+    }
+
+  } catch (error) {
+    console.log(error)
+  }
+})
+  </script>

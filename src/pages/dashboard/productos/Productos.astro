@@ -9,6 +9,7 @@ import FormularioPagoBusqueda from "../../../components/organismos/FormularioPag
 import FormCont from "../../../components/atomos/FormCont.astro";
 import ContenedorInputForm from "../../../components/moleculas/ContenedorInputForm.astro";
 import LabelForm from "../../../components/atomos/LabelForm.astro";
+import FormularioCargaProducto from "./components/FormularioCargaProducto.astro";
 let productosData;
 
 const productosEjemplo = [
@@ -70,51 +71,7 @@ productosData = productosEjemplo.map((prod, i) => {
     <div class="w-full flex items-center justify-between gap-2">
       <FormularioDeBusqueda placeholder={"Filtrar producto..."} />
       <ContenedeorModal open="Agregar" id="agregarProducto">
-        <FormCont title="Agregar Producto">
-          <div
-            class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
-          >
-            <ContenedorInputForm
-              name="codigoBarra"
-              type="text"
-              label="codigo de barra"
-            />
-            <div
-              class="w-full flex items flex-col items-start gap- duration-300 group -md"
-            >
-              <LabelForm name={"descripcion"}>{"descripcion"}</LabelForm>
-              <textarea
-                class="flex-1 w-full text-sm p-2 text-primary-texto outline-none ring-0 border-gray-300 ring-primary-200/60 focus:ring-1 focus:border-primary-200/60 border-b rounded-lg"
-                rows="5"
-                placeholder="Color, tamaño, categoria, trata o que describe al producto..."
-                name="descipcion"
-                id="descipcion"></textarea>
-            </div>
-          </div>
-          <div class="w-full flex gap-2 items-start justify-between">
-            <ContenedorInputForm
-              name="pCompra"
-              label="Precio Compra"
-              type="text"
-            />
-            <ContenedorInputForm
-              name="pVenta"
-              label="Precio Compra"
-              type="text"
-            />
-          </div>
-          <div class="w-full flex gap-2 items-start justify-between">
-            <ContenedorInputForm name="stock" label="Stock" type="number" />
-            <ContenedorInputForm
-              name="cantidadAlerta"
-              label="Cantidad de Alerta"
-              type="number"
-            />
-          </div>
-          <div class="w-full flex items-center justify-end my-3">
-            <Button1>Guardar</Button1>
-          </div>
-        </FormCont>
+      <FormularioCargaProducto/>
       </ContenedeorModal>
       <Button1>excel</Button1>
       <Button1>pdf</Button1>

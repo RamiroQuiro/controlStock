@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import Button3 from '../atomos/Button3';
-import { ref, getDownloadURL, uploadBytes } from 'firebase/storage';
-import { storage } from '@/firebase/client';
 import { showToast } from '../Toast/toastShow';
 import { loader } from '../loader/showLoader';
 
@@ -35,42 +33,8 @@ export default function FormularioDni({ cliente }) {
         }
 
         try {
-            let urlFrente = previewUrlFrente;
-            let urlReverso = previewUrlReverso;
-
-            if (fileFrente) {
-                const fileExtensionFrente = fileFrente.name.split('.').pop();
-                const fileRef = ref(storage, `usuario/${cliente.usuarioId}/clientes/${cliente.id}/dniFrente.${fileExtensionFrente}`);
-                const uploadTask = await uploadBytes(fileRef, fileFrente);
-                urlFrente = await getDownloadURL(uploadTask.ref);
-            }
-
-            if (fileReverso) {
-                const fileExtensionReverso = fileReverso.name.split('.').pop();
-                const fileRefReverso = ref(storage, `usuario/${cliente.usuarioId}/clientes/${cliente.id}/dniReverso.${fileExtensionReverso}`);
-                const uploadTaskReverso = await uploadBytes(fileRefReverso, fileReverso);
-                urlReverso = await getDownloadURL(uploadTaskReverso.ref);
-            }
-
-            const fetching = await fetch(`/api/clientes/${cliente.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    srcDniFrente: urlFrente,
-                    srcDniReverso: urlReverso
-                })
-            });
-
-            const response = await fetching.json();
-            if (fetching.ok) {
-                loader(false)
-                showToast('Cambios guardados',{
-                    background:'bg-green-600'
-                });
-            }
-            console.log(response);
+    
+           
         } catch (error) {
             loader(false)
             console.error('Error al subir la imagen', error);

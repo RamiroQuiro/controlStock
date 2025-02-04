@@ -21,5 +21,11 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
-
+  vite: {
+    resolve: {
+      alias: {
+        '@': '/src'
+      }
+    }
+  }
 });

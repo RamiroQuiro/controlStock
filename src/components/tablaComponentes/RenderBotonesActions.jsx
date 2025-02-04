@@ -1,8 +1,6 @@
-import React from 'react'
 import BotonEditar from '../moleculas/BotonEditar';
 import BotonEliminar from '../moleculas/BotonEliminar';
 import { atencion, dataFormularioContexto } from '../../context/store';
-import { showToast } from '../../utils/toast/toastShow';
 
 
 //   botonera de acciones
@@ -10,7 +8,7 @@ export const RenderActionsPacientes = (data) => (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
         <button
             className="bg-primary-100 text-white px-1 py-0.5 rounded hover:bg-primary-100/80 duration-150"
-            onClick={() => (document.location.href = `/dashboard/pacientes/${data.id}`)}
+            onClick={() => (document.location.href = `/dashboard/productos/${data.id}`)}
         >
             ficha
         </button>

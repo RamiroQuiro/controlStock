@@ -6,9 +6,14 @@ const productos = sqliteTable("productos", {
   id: text("id").primaryKey(),
   nombre: text("nombre").notNull(),
   proveedorId: text("proveedorId").references(() => proveedores.id),
+  codigoBarra:text('codigoBarra'),
   categoria: text("categoria"),
-  precio: integer("precio", { mode: "number" }).notNull(),
+  descripcion:text('descripcion'),
+  pCompra: integer("pCompra", { mode: "number" }),
+  pVenta: integer("pVenta", { mode: "number" }),
+  utilidad:integer('utilidad',{mode:'number'}),
   stock: integer("stock").notNull(),
+  userUpdate:text('userUpdate'),
   ultimaActualizacion: integer("ultimaActualizacion") // Timestamp Unix
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),

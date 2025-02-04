@@ -24,6 +24,7 @@ export default function TBody({ arrayBody, renderBotonActions }) {
 
   return (
     <tbody>
+      
       {!sortedData.length ? (
         <tr>
           <td

@@ -1,8 +1,9 @@
 ---
-import Loader from '../../utils/loader/Loader.astro';
-import NavDash from '../organismos/NavDash.astro';
-import Sidebar from '../organismos/Sidebar.astro';
-
+import { LogOut, LucideOutdent, Outdent } from "lucide-react";
+import Loader from "../../utils/loader/Loader.astro";
+import NavDash from "../organismos/NavDash.astro";
+import Sidebar from "../organismos/Sidebar.astro";
+import NavDashboard from "../organismos/NavDashboard.astro";
 
 interface Props {
   title: string;
@@ -11,7 +12,6 @@ interface Props {
 }
 
 const { title, dataCliente, userData } = Astro.props;
-
 
 const url = Astro.url;
 ---
@@ -27,15 +27,18 @@ const url = Astro.url;
     <title>{title}</title>
   </head>
   <body
-    class="bg-primary-bg-componentes md:min-h-[125vh] text-primary-texto  relative overflow-x-hidden  flex"
+    class="bg-primary-bg-componentes md:min-h-[125vh] text-primary-texto relative overflow-x-hidden flex"
   >
     <!-- <LoaderGral/> -->
 
     <Sidebar />
     <!-- <NavDash dataCliente={dataCliente} userData={userData} /> -->
     <Loader />
-    <div class="min-h-screen  flex w-full items-start justify-end ">
-
+    <div
+      class="min-h-screen flex flex-col w-full items-start justify-start bg-primary-bg-componentes"
+    >
+    <NavDashboard/>
+      </nav>
       <slot />
     </div>
   </body>

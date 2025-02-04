@@ -1,0 +1,124 @@
+---
+import DivBox1 from "../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../components/atomos/MainDashboard.astro";
+import ConfeccionTabla from "./components/ConfeccionTabla";
+import FormularioDeBusqueda from "../../../components/organismos/FormularioDeBusqueda";
+import Button1 from "../../../components/atomos/Button1.astro";
+import ContenedeorModal from "../../../components/organismos/ContenedeorModal.astro";
+import FormularioPagoBusqueda from "../../../components/organismos/FormularioPagoBusqueda.astro";
+import FormCont from "../../../components/atomos/FormCont.astro";
+import ContenedorInputForm from "../../../components/moleculas/ContenedorInputForm.astro";
+import LabelForm from "../../../components/atomos/LabelForm.astro";
+let productosData;
+
+const productosEjemplo = [
+  {
+    id: "PROD001",
+    descripcion: "Paracetamol 500mg",
+    codigoBarra: "PROV001",
+    categoria: "Analgésicos",
+    pCompra: 5000,
+    pVenta: 7500,
+    utilidad: 2500,
+    stock: 100,
+    ultimaActualizacion: Date.now(),
+  },
+  {
+    id: "PROD002",
+    descripcion: "Ibuprofeno 400mg",
+    codigoBarra: "PROV002",
+    categoria: "Antiinflamatorios",
+    pCompra: 4500,
+    pVenta: 6800,
+    utilidad: 2300,
+    stock: 150,
+    ultimaActualizacion: Date.now(),
+  },
+  {
+    id: "PROD003",
+    descripcion: "Amoxicilina 500mg",
+    codigoBarra: "PROV001",
+    categoria: "Antibióticos",
+    pCompra: 8000,
+    pVenta: 12000,
+    utilidad: 4000,
+    stock: 80,
+    ultimaActualizacion: Date.now(),
+  },
+];
+
+productosData = productosEjemplo.map((prod, i) => {
+  const dateNow = new Date(prod.ultimaActualizacion);
+  const fechaISO = dateNow.toLocaleDateString();
+  return {
+    href: `/dashboard/consultas/producto/${prod.id}`,
+    id: prod.id,
+    n: i + 1,
+    codigoBarra: prod.codigoBarra,
+    descripcion: prod.descripcion,
+    categoria: prod.categoria,
+    pCompra: `$${prod.pCompra.toLocaleString()}`,
+    pVenta: `$${prod.pVenta.toLocaleString()}`,
+    stock: prod.stock,
+    ultimaActualizacion: fechaISO,
+  };
+});
+---
+
+<MainDashboard h1="Productos">
+  <DivBox1 styleDiv="w-full">
+    <div class="w-full flex items-center justify-between gap-2">
+      <FormularioDeBusqueda placeholder={"Filtrar producto..."} />
+      <ContenedeorModal open="Agregar" id="agregarProducto">
+        <FormCont title="Agregar Producto">
+          <div
+            class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
+          >
+            <ContenedorInputForm
+              name="codigoBarra"
+              type="text"
+              label="codigo de barra"
+            />
+            <div
+              class="w-full flex items flex-col items-start gap- duration-300 group -md"
+            >
+              <LabelForm name={"descripcion"}>{"descripcion"}</LabelForm>
+              <textarea
+                class="flex-1 w-full text-sm p-2 text-primary-texto outline-none ring-0 border-gray-300 ring-primary-200/60 focus:ring-1 focus:border-primary-200/60 border-b rounded-lg"
+                rows="5"
+                placeholder="Color, tamaño, categoria, trata o que describe al producto..."
+                name="descipcion"
+                id="descipcion"></textarea>
+            </div>
+          </div>
+          <div class="w-full flex gap-2 items-start justify-between">
+            <ContenedorInputForm
+              name="pCompra"
+              label="Precio Compra"
+              type="text"
+            />
+            <ContenedorInputForm
+              name="pVenta"
+              label="Precio Compra"
+              type="text"
+            />
+          </div>
+          <div class="w-full flex gap-2 items-start justify-between">
+            <ContenedorInputForm name="stock" label="Stock" type="number" />
+            <ContenedorInputForm
+              name="cantidadAlerta"
+              label="Cantidad de Alerta"
+              type="number"
+            />
+          </div>
+          <div class="w-full flex items-center justify-end my-3">
+            <Button1>Guardar</Button1>
+          </div>
+        </FormCont>
+      </ContenedeorModal>
+      <Button1>excel</Button1>
+      <Button1>pdf</Button1>
+    </div>
+    <ConfeccionTabla client:load productosData={productosData} />
+  </DivBox1>
+</MainDashboard>

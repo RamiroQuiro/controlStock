@@ -12,6 +12,7 @@ export default function Tr({ id, data, styleTr, onClick, renderBotonActions }) {
       id={id}
       className={`${styleTr} border-b last:border-0 odd:bg-white   hover:bg-primary-bg-componentes/80 bg-primary-bg-componentes/40`}
     >
+      
       {Object?.values(dataSinId)?.map((value, i) => (
         <Td estado={data.estado} key={i}>
           {value}

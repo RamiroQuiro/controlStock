@@ -1,0 +1,83 @@
+---
+import { DollarSign, ShoppingCart } from "lucide-react";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import H2 from "../../../../components/atomos/H2.astro";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import FormularioDeBusqueda from "../../../../components/organismos/FormularioDeBusqueda";
+import ResultadDeBusqueda from './ResultadoDeBusqueda';
+import CarritoVenta from './CarritoVenta';
+import db from "../../../../db";
+import { productos } from "../../../../db/schema";
+import { eq } from "drizzle-orm";
+
+
+let productosData;
+let productosDataBase = [];
+const user = {
+  id: "1",
+  nombre: "Juan",
+  apellido: "Perez",
+  email: "rama@gmail.com",
+};
+const trayendoProductos = async (userId) => {
+  const dataDB = await db
+    .select({
+      id: productos.id,
+      codigoBarra: productos.codigoBarra,
+      descripcion: productos.descripcion,
+      categoria: productos.categoria,
+      pCompra: productos.pCompra,
+      pVenta: productos.pVenta,
+      stock: productos.stock,
+    })
+    .from(productos)
+    .where(eq(productos.userId, userId))
+    console.log(dataDB)
+  return dataDB;
+};
+
+try {
+  productosDataBase = await trayendoProductos(user.id);
+} catch (error) {
+  console.log(error);
+}
+productosData = productosDataBase?.map((prod, i) => {
+  return {
+    id: prod.id,
+    codigoBarra: prod.codigoBarra,
+    descripcion: prod.descripcion,
+    categoria: prod.categoria,
+    pCompra: `$${prod.pCompra.toLocaleString()}`,
+    pVenta: `$${prod.pVenta.toLocaleString()}`,
+    stock: prod.stock,
+  };
+});
+
+---
+
+<MainDashboard h1="Ventas">
+    <div class="flex  items-start justify-between gap-3 w-full">
+    <div class="flex flex-col items-start justify-between gap-3 w-3/4">
+        
+        <DivBox1 styleDiv="w-full">
+            <H2>Producto</H2>
+            <!-- ver si con que buscador queda mejor -->
+            <FormularioDeBusqueda arrayABuscar={productosData} opcionesFiltrado={['codigoBarra','descripcion']} placeholder={"Busqueda de producto..."} client:load/>
+        </DivBox1>
+        <DivBox1 styleDiv="w-full">
+            <H2>Resultado</H2>
+           <ResultadDeBusqueda client:load/>
+        </DivBox1>
+    </div>
+    <!-- acrrito de compras -->
+    <div class="flex flex-col items-start justify-between gap-3 w-1/4">
+        <DivBox1 styleDiv="w-full">
+            <div class="flex items-center  w-full justify-start ">
+
+                <ShoppingCart className="h-5 w-5 text-primary-textoTitle mr-4" /><H2> Carrito</H2>
+                <CarritoVenta client:load/>
+            </div>
+        </DivBox1>
+        </div>
+    </div>
+</MainDashboard>

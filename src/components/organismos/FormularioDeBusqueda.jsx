@@ -1,6 +1,6 @@
 import { useStore } from '@nanostores/react';
 import { nanoid } from 'nanoid';
-import { busqueda } from '../../context/store';
+import { busqueda, filtroBusqueda } from '../../context/store';
 import useBusquedaFiltros from '../../hook/useBusquedaFiltro';
 
 export default function FormularioDeBusqueda({
@@ -16,21 +16,13 @@ export default function FormularioDeBusqueda({
   // const [clientSelect, setClientSelect] = useState([])
   const arr = [];
   const $pacienteSelect = useStore(busqueda);
-
   const { encontrado, handleSearch, search, setSearch } = useBusquedaFiltros(
     arrayABuscar,
     opcionesFiltrado
   );
 
-  const handleClick = leg => {
-    busqueda.set({
-      pacienteSelect: leg,
-    });
-    if (opcionesFiltrado?.length >= 1 && isClickend) {
-      const idAtencion = nanoid(13);
-      document.location.href = `/dashboard/consultas/aperturaPaciente/${leg.id}/${idAtencion}`;
-      setSearch('');
-    }
+  const handleClick = prodducto => {
+    filtroBusqueda.set({ filtro: prodducto });
     setSearch('');
   };
 

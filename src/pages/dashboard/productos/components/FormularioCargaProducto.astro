@@ -3,9 +3,13 @@ import Button1 from '../../../../components/atomos/Button1.astro'
 import FormCont from '../../../../components/atomos/FormCont.astro'
 import LabelForm from '../../../../components/atomos/LabelForm.astro'
 import ContenedorInputForm from '../../../../components/moleculas/ContenedorInputForm.astro'
+
+const {user}=Astro.props
 ---
-<FormCont title="Agregar Producto" id="formularioCargaProducto">
+<FormCont  title="Agregar Producto" id="formularioCargaProducto">
     <div
+    id="idCargaUsuario"
+    data-initUser={user.id}
       class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
     >
       <ContenedorInputForm
@@ -45,15 +49,17 @@ import ContenedorInputForm from '../../../../components/moleculas/ContenedorInpu
         type="number"
       />
     </div>
-    <div class="w-full flex items-center justify-end my-3">
+    <div class="w-full flex items-center  justify-end my-3">
       <Button1 id="btnCargarProducto">Guardar</Button1>
     </div>
+    <div class="text-xs font-semibold h-6 w-full text-center tracking-wide uppercase animate-aparecer text-primary-400"id="erroresMsg"></div>
   </FormCont>
 
-  <script>
+  <script >
 const formulario = document.getElementById('formularioCargaProducto') as HTMLFormElement
 const btnGuardar = document.getElementById('btnCargarProducto')
-
+const erroresMsg = document.getElementById('erroresMsg')
+const userId=document.getElementById('idCargaUsuario').dataset
 btnGuardar?.addEventListener('click', async (e) => {
   e.preventDefault()
   
@@ -61,6 +67,11 @@ btnGuardar?.addEventListener('click', async (e) => {
   const data = Object.fromEntries(formData)
 
   try {
+    if(data.codigoBarra === '' || data.descripcion === '' || data.pCompra === '' || data.pVenta === '' || data.stock === '' || data.cantidadAlerta === '') {
+      erroresMsg.textContent = 'Todos los campos son obligatorios'
+      return
+    }
+    data.userId=userId.inituser
     const response = await fetch('/api/productos/create', {
       method: 'POST',
       headers: {
@@ -74,10 +85,14 @@ btnGuardar?.addEventListener('click', async (e) => {
 
     if(dataResponse.status === 200) {
       formulario.reset()
+      window.location.reload()
+    }else if(dataResponse.status !== 200) {
+      erroresMsg.textContent = dataResponse.msg
     }
 
   } catch (error) {
-    console.log(error)
+    console.log(error)}
+    erroresMsg.textContent = error.message
   }
-})
+)
   </script>

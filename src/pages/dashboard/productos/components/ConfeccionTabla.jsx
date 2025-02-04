@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Table from '../../../../components/tablaComponentes/Table'
 import { useStore } from '@nanostores/react';
 import { filtroBusqueda } from '../../../../context/store';
-import { RenderActionsPacientes } from '../../../../components/tablaComponentes/RenderBotonesActions';
+import {  RenderActionsProductos } from '../../../../components/tablaComponentes/RenderBotonesActions';
 export default function ConfeccionTabla({productosData}) {
 
     const [pacientesFiltrados, setPacientesFiltrados] = useState(productosData); // Estado inicial igual a los datos completos
@@ -70,7 +70,7 @@ export default function ConfeccionTabla({productosData}) {
         <Table
           columnas={columnas}
           arrayBody={pacientesFiltrados}
-          renderBotonActions={RenderActionsPacientes}
+          renderBotonActions={RenderActionsProductos}
         />
       </div>
     );

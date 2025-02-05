@@ -48,6 +48,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
             .where(eq(productos.id, prod.id));
 
             const fechaActual=Temporal.Now.toString();
+            console.log(fechaActual)
           // Registrar el movimiento de stock
           await trx.insert(movimientosStock).values({
             id: nanoid(),

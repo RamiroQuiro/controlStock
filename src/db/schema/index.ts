@@ -5,3 +5,4 @@ export {productos} from './productos';
 export {proveedores} from './proveedores';
 export {users} from './users';
 export {ventas} from './ventas';
+export {stockActual} from './stockActual';

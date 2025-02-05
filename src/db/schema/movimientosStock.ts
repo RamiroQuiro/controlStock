@@ -1,9 +1,10 @@
+import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { productos } from "./productos";
 import { users } from "./users";
 import { proveedores } from "./proveedores";
 import { clientes } from "./clientes";
-import { sql } from "drizzle-orm";
+
 
 // Tabla de movimientos de stock
 export const movimientosStock = sqliteTable("movimientosStock", {

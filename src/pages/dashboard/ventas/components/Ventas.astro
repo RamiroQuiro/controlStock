@@ -4,7 +4,7 @@ import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 import H2 from "../../../../components/atomos/H2.astro";
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import FormularioDeBusqueda from "../../../../components/organismos/FormularioDeBusqueda";
-import ResultadDeBusqueda from './ResultadoDeBusqueda';
+import DetallesVentas from './DetallesVentas';
 import CarritoVenta from './CarritoVenta';
 import db from "../../../../db";
 import { productos } from "../../../../db/schema";
@@ -48,7 +48,7 @@ productosData = productosDataBase?.map((prod, i) => {
     codigoBarra: prod.codigoBarra,
     descripcion: prod.descripcion,
     categoria: prod.categoria,
-    precio: `$${prod.pVenta.toLocaleString()}`,
+    precio: prod.pVenta,
     cantidad:''
   };
 });
@@ -66,7 +66,7 @@ productosData = productosDataBase?.map((prod, i) => {
         </DivBox1>
         <DivBox1 styleDiv="w-full">
             <H2>Resultado</H2>
-           <ResultadDeBusqueda client:load/>
+           <DetallesVentas client:load/>
         </DivBox1>
     </div>
     <!-- acrrito de compras -->
@@ -75,8 +75,8 @@ productosData = productosDataBase?.map((prod, i) => {
             <div class="flex items-center  w-full justify-start ">
 
                 <ShoppingCart className="h-5 w-5 text-primary-textoTitle mr-4" /><H2> Carrito</H2>
-                <CarritoVenta client:load/>
             </div>
+            <CarritoVenta client:load userId={user.id}/>
         </DivBox1>
         </div>
     </div>

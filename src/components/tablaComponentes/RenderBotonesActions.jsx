@@ -1,104 +1,121 @@
-import BotonEditar from '../moleculas/BotonEditar';
-import BotonEliminar from '../moleculas/BotonEliminar';
-import { atencion, dataFormularioContexto } from '../../context/store';
-import { CircleMinus, CirclePlus, Copy, Delete, Edit2, Minus } from 'lucide-react';
-
+import BotonEditar from "../moleculas/BotonEditar";
+import BotonEliminar from "../moleculas/BotonEliminar";
+import { atencion, dataFormularioContexto } from "../../context/store";
+import {
+  CircleMinus,
+  CirclePlus,
+  Copy,
+  Delete,
+  Edit2,
+  Minus,
+} from "lucide-react";
 
 //   botonera de acciones
 export const RenderActionsProductos = (data) => (
-    <div className="flex gap-2 pr-5 justify-end items-center text-xs">
-        <button
-            className="text-primary-100  hover:text-white  px-1 py-0.5 rounded hover:bg-primary-100/80 duration-150"
-            onClick={() => (document.location.href = `/dashboard/productos/${data.id}`)}
-        >
-         <Copy className='w-4 h-6'/>
-        </button>
-        <button
-            className="text-green-400 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
-            onClick={(e) => {
-                e.stopPropagation();
-                document.location.href = data.href;
-            }}
-        >
-            <CircleMinus className='w-4 h-6'/>
-        </button>
-        <button
-            className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
-            onClick={(e) => {
-                e.stopPropagation();
-                document.location.href = data.href;
-            }}
-        >
-            <CirclePlus className='w-4 h-6'/>
-        </button>
-        <button
-            className="text-orange-400 hover:text-white   px-1 py-0.5 rounded hover:bg-orange-400/80 duration-150"
-            onClick={(e) => {
-                e.stopPropagation();
-                alert(`Eliminar: ${data.id}`);
-            }}
-        >
-            <Edit2 className='w-4 h-6'/>
-        </button>
-        <button
-            className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
-            onClick={(e) => {
-                e.stopPropagation();
-                alert(`Eliminar: ${data.id}`);
-            }}
-        >
-            <Delete className='w-4 h-6'/>
-        </button>
-    </div>
+  <div className="flex gap-2 pr-5 justify-end items-center text-xs">
+    <button
+      className="text-primary-100  hover:text-white  px-1 py-0.5 rounded hover:bg-primary-100/80 duration-150"
+      onClick={() =>
+        (document.location.href = `/dashboard/productos/${data.id}`)
+      }
+    >
+      <Copy className="w-4 h-6" />
+    </button>
+    <button
+      className="text-green-400 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+      onClick={(e) => {
+        e.stopPropagation();
+        document.location.href = data.href;
+      }}
+    >
+      <CircleMinus className="w-4 h-6" />
+    </button>
+    <button
+      className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+      onClick={(e) => {
+        e.stopPropagation();
+        document.location.href = data.href;
+      }}
+    >
+      <CirclePlus className="w-4 h-6" />
+    </button>
+    <button
+      className="text-orange-400 hover:text-white   px-1 py-0.5 rounded hover:bg-orange-400/80 duration-150"
+      onClick={(e) => {
+        e.stopPropagation();
+        alert(`Eliminar: ${data.id}`);
+      }}
+    >
+      <Edit2 className="w-4 h-6" />
+    </button>
+    <button
+      className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
+      onClick={(e) => {
+        e.stopPropagation();
+        alert(`Eliminar: ${data.id}`);
+      }}
+    >
+      <Delete className="w-4 h-6" />
+    </button>
+  </div>
 );
 
 // botoner para acciones de diagnosticos
 
-export const RenderActionsEditDeletDiagnostico = (data) =>{
-    const handleEditModal=(data)=>{
-        dataFormularioContexto.set(data)
-        const modal = document.getElementById("modal-dialogDiagnostico");
-          modal.showModal();
-          // e.showModal()
-    }
-
-    const handleDeletDiag = async ({id}) => {
-        const newDiagnosticos=atencion.get().diagnosticos.filter(diag=>diag.id!=id)
-        atencion.set({
-            ...atencion.get(),
-            diagnosticos:newDiagnosticos
-        })
-    }
-
-    return(
+//   botonera de acciones
+export const RenderActionsVentas = (
+  data,
+  restarCantidad,
+  sumarCantidad,
+  eliminarProducto
+) => {
+  return (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
-        <BotonEditar handleClick={()=>handleEditModal(data)}/>
-        <BotonEliminar handleClick={()=>handleDeletDiag(data)} />
+      <button
+        className="text-green-400 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+        onClick={restarCantidad(data)}
+      >
+        <CircleMinus className="w-4 h-6" />
+      </button>
+      <button
+        className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+        onClick={sumarCantidad(data)}
+      >
+        <CirclePlus className="w-4 h-6" />
+      </button>
+
+      <button
+        className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
+        onClick={eliminarProducto(data)}
+      >
+        <Delete className="w-4 h-6" />
+      </button>
     </div>
-);}
+  );
+};
 
+export const RenderActionsEditDeletMedicamentos = (data) => {
+  const handleEditModal = (data) => {
+    dataFormularioContexto.set(data);
+    const modal = document.getElementById(`dialog-modal-medicamentos`);
+    modal.showModal();
+    // e.showModal()
+  };
 
+  const handleDeletMed = async ({ id }) => {
+    const newMedicamentos = atencion
+      .get()
+      .medicamentos.filter((med) => med.id != id);
+    atencion.set({
+      ...atencion.get(),
+      medicamentos: newMedicamentos,
+    });
+  };
 
-export const RenderActionsEditDeletMedicamentos = (data) =>{
-    const handleEditModal=(data)=>{
-        dataFormularioContexto.set(data)
-        const modal = document.getElementById(`dialog-modal-medicamentos`);
-          modal.showModal();
-          // e.showModal()
-    }
-
-    const handleDeletMed = async ({id}) => {
-        const newMedicamentos=atencion.get().medicamentos.filter(med=>med.id!=id)
-            atencion.set({
-                ...atencion.get(),
-                medicamentos:newMedicamentos
-            })
-       
-    }
-
-    return(
+  return (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
-        <BotonEditar handleClick={()=>handleEditModal(data)}/>
-        <BotonEliminar handleClick={()=>handleDeletMed(data)} />
+      <BotonEditar handleClick={() => handleEditModal(data)} />
+      <BotonEliminar handleClick={() => handleDeletMed(data)} />
     </div>
-);}
+  );
+};

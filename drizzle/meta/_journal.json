@@ -15,6 +15,13 @@
       "when": 1738640128471,
       "tag": "0001_faulty_dazzler",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1738797757149,
+      "tag": "0002_early_inertia",
+      "breakpoints": true
     }
   ]
 }

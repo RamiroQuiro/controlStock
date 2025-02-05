@@ -31,6 +31,7 @@ export default function FormularioDeBusqueda({
       className={`${'styleContenedor'} w-full flex  items relative flex-col items-start gap- duration-300 group -md border rounded-lg`}
     >
       <input
+      tabIndex={0}
         onChange={handleSearch}
         placeholder={placeholder}
         value={search}

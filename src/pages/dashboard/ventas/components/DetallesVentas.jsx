@@ -42,6 +42,7 @@ export default function DetallesVentas() {
     { label: "descripcion", id: 3, selector: (row) => row.descripcion },
     { label: "categoria", id: 4, selector: (row) => row.categoria },
     { label: "Precio", id: 6, selector: (row) => row.precio },
+    { label: "Stock", id: 7, selector: (row) => row.stock },
     { label: "Cantidad", id: 7, selector: (row) => row.cantidad },
     { label: "Acciones", id: 8, selector: "" },
   ];

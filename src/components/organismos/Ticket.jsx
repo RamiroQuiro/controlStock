@@ -5,10 +5,9 @@ const Ticket = ({ ticket, handleNuevaVenta,productos ,totalVenta,setModalConfirm
   return (
     <div className="ticket bg-white p-6 border rounded-lg shadow-lg w-full max-w-md">
       {/* Encabezado del ticket */}
-      <button onClick={()=>setModalConfirmacion(false)}>X</button>
       <div className="text-center mb-4">
         <img
-          src="/logo.png"
+          src="./ramaCode.png"
           alt="Logo del negocio"
           className="w-16 h-16 mx-auto mb-2"
         />
@@ -25,16 +24,16 @@ const Ticket = ({ ticket, handleNuevaVenta,productos ,totalVenta,setModalConfirm
       {/* Detalle de la venta */}
       <div className="border-t border-gray-300 mt-4 pt-4">
         <h3 className="font-semibold text-lg mb-2">Productos:</h3>
-        <ul className="text-sm text-gray-700 space-y-2">
+        <ul className="text-xs text-gray-700 space-y-2">
           {productos.map((producto, index) => (
             <li
               key={index}
-              className="flex flex-col justify-between capitalize border-b pb-1 border-dashed"
+              className="flex -col justify-between capitalize border-b py-0.5 border-dashed"
             >
+                <div className="flex justify-between w-full">
               <span>
               {producto.descripcion}
                 </span>
-                <div className="flex justify-between w-full">
 
               <span>
                  ({producto.cantidad} x ${producto.precio})
@@ -71,7 +70,7 @@ const Ticket = ({ ticket, handleNuevaVenta,productos ,totalVenta,setModalConfirm
         </button>
         <button
           className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-md shadow-md hover:bg-gray-600"
-          onClick={()=>setModalConfirmacion(false)}
+          onClick={()=>window.location.reload()}
         >
           <X className="h-5 w-5" />
           cerrar

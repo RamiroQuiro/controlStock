@@ -4,12 +4,14 @@ import { productosSeleccionadosVenta } from "../../../../context/store";
 import { Captions } from "lucide-react";
 import { showToast } from "../../../../utils/toast/toastShow";
 import ModalConfirmacion from "./ModalConfirmacion";
+import Ticket from "../../../../components/organismos/ticket";
+import { loader } from "../../../../utils/loader/showLoader";
 
 export default function CarritoVenta({ userId }) {
   const $productos = useStore(productosSeleccionadosVenta);
   const [totalVenta, setTotalVenta] = useState(0);
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
-  const [ticketOk, setTicketOk] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const sumaTotal = $productos.reduce(
       (acc, producto) => acc + producto.precio * producto.cantidad,
@@ -25,6 +27,7 @@ export default function CarritoVenta({ userId }) {
     }).format(number);
 
   const finalizarCompra = async () => {
+    loader(true);
     if (totalVenta == 0) {
       showToast("monto total 0", {
         background: "bg-primary-400",
@@ -47,34 +50,73 @@ export default function CarritoVenta({ userId }) {
       if (data.status == 200) {
         showToast(data.msg, { background: "bg-green-600" });
         setTotalVenta(0);
-        setTicketOk(true)
+        setModalConfirmacion(true);
+        loader(false);
         // setTimeout(()=>window.location.reload(),1000)
       }
     } catch (error) {
       console.log(error);
+      loader(false);
       showToast("error al transaccionar", { background: "bg-primary-400" });
     }
   };
 
-
   return (
     <>
-      <div className="w-full flex flex-col mt-5 ">
+      <div className="w-full flex flex-col items-start justify-start h-full mt-5 ">
+        <div className="flex flex-col items-start justify-start mt-2  w-full pb-3 mb-3">
+          <p className="text-sm font-semibold">Resumen de la venta:</p>
+          <ul className="text-  space- mt-2 w-full overflow-y-auto space-y-0.5">
+            {$productos.map((producto, index) => (
+              <li
+                key={index}
+                className="flex justify-between py-0.5 boder-b items-center bg-primary-bg-componentes px-0.5  text-sm gap-3 font-IndieFlower  w-full capitalize "
+              >
+                <span>
+                  {producto.descripcion} ({producto.cantidad} x $
+                  {producto.precio})
+                </span>
+                <span className="text text-primary-textoTitle">
+                  ${producto.cantidad * producto.precio}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
         <p className="md:text-3xl -tracking-wider text-primary-textoTitle font-mono now">
           $ {formateoTotal(totalVenta)}
         </p>
 
-        <button
-          disabled={totalVenta == 0 ? true : false}
-          onClick={()=>setModalConfirmacion(true)}
-          className="rounded-lg disabled:bg-blue-600/50 text-white flex items-center pl-4 justify-start hover:bg-blue-600/80 duration-300 mt-10 mb-4 border-2 border-gray-200 h-16 w-full bg-blue-600"
-        >
-          <Captions className="w-10 h-10" />{" "}
-          <p className="text-3xl ml-4 font-semibold font-mono widest ">Pagar</p>
-        </button>
+        <div className="flex flex-col items-start justify-normal w-full space-y-2">
+          <button
+            disabled={totalVenta == 0 ? true : false}
+            onClick={finalizarCompra}
+            className="rounded-lg disabled:bg-blue-600/50 text-white flex items-center pl-4 justify-start hover:bg-blue-600/80 duration-300 mt-10 m border-2 border-gray-200 h-16 w-full bg-blue-600"
+          >
+            <Captions className="w-10 h-10" />{" "}
+            <p className="text-3xl ml-4 font-semibold font-mono widest ">
+              Pagar
+            </p>
+          </button>
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded-lg disabled:bg-blue-600/50 -translate-y- flex items-center pl-4 justify-start hover:bg-blue-600/40 duration-300 mt-10 mb-4 border-2 border-primary-texto h-16 w-full bg-gray-100 text-primary-texto"
+          >
+            <Captions className="w-10 h-10" />{" "}
+            <p className="text-3xl ml-4 font-semibold font-mono widest ">
+              Cancelar
+            </p>
+          </button>
+        </div>
       </div>
+
       {modalConfirmacion && (
-       <ModalConfirmacion ticketOk={ticketOk} setModalConfirmacion={setModalConfirmacion} finalizarCompra={finalizarCompra} productos={$productos} totalVenta={totalVenta} />
+        <ModalConfirmacion
+          setModalConfirmacion={setModalConfirmacion}
+          finalizarCompra={finalizarCompra}
+          productos={$productos}
+          totalVenta={totalVenta}
+        />
       )}
     </>
   );

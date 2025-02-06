@@ -17,7 +17,14 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     userId,
     totalVenta,
   } = await request.json();
-  console.log(productosSeleccionados, userId, totalVenta);
+  // console.log(productosSeleccionados, userId, totalVenta);
+
+  if (totalVenta==0) {
+    return new Response(JSON.stringify({
+      status:402,
+      msg:'monto total 0'
+    }))
+  }
   try {
     const ventaDB = await db
       .transaction(async (trx) => {

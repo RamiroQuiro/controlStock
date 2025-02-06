@@ -18,7 +18,7 @@ const [loading, setLoading] = useState(false)
       {
        !ticketOk?<ConfirmacionVenta setModalConfirmacion={setModalConfirmacion} finalizarCompra={finalizarCompra} productos={productos} totalVenta={totalVenta} />
        :
-       <Ticket productos={productos} setTicksetModalConfirmacionetOk={setModalConfirmacion}/>
+       <Ticket productos={productos} setModalConfirmacion={setModalConfirmacion}/>
        }
       </div>
     </div>

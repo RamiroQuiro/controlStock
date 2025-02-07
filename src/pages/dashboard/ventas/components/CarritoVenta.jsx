@@ -6,12 +6,14 @@ import { showToast } from "../../../../utils/toast/toastShow";
 import ModalConfirmacion from "./ModalConfirmacion";
 import Ticket from "../../../../components/organismos/ticket";
 import { loader } from "../../../../utils/loader/showLoader";
+import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 
 export default function CarritoVenta({ userId }) {
   const $productos = useStore(productosSeleccionadosVenta);
   const [totalVenta, setTotalVenta] = useState(0);
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [pagaCon, setPagaCon] = useState(0)
+  const [vueltoCalculo, setVueltoCalculo] = useState(0)
   useEffect(() => {
     const sumaTotal = $productos.reduce(
       (acc, producto) => acc + producto.precio * producto.cantidad,
@@ -19,6 +21,24 @@ export default function CarritoVenta({ userId }) {
     );
     setTotalVenta(sumaTotal);
   }, [$productos]);
+
+
+const vuelto = (e) => {
+  const montoIngresado = Number(e.target.value);
+  const sumaTotal = $productos.reduce(
+    (acc, producto) => acc + producto.precio * producto.cantidad,
+    0
+  );
+  const vueltoCalculado = montoIngresado - sumaTotal;
+  return formateoTotal(vueltoCalculado >= 0 ? vueltoCalculado : 0)
+}
+
+
+const handlePagaCon=(e)=>{
+  setPagaCon(e)
+  
+  setVueltoCalculo(vuelto(e))
+}
 
   const formateoTotal = (number) =>
     new Intl.NumberFormat("ar-AR", {
@@ -83,15 +103,22 @@ export default function CarritoVenta({ userId }) {
             ))}
           </ul>
         </div>
-        <p className="md:text-3xl -tracking-wider text-primary-textoTitle font-mono now">
+        <p className="md:text-3xl w-full text-end -tracking-wider text-primary-textoTitle font-mono now">
           $ {formateoTotal(totalVenta)}
         </p>
-
+        <div className="w-full mt-3 inline-flex">
+<p className="text-3xl mr-2">$</p>
+<InputComponenteJsx name={'dineroAbonado'} placeholder={'Paga con ...'}handleChange={handlePagaCon}/>
+        </div>
+        <div className="w-full text-primary-textoTitle font- text-2xl text-end flex flex-col items-end justify-between mt-3">
+<p className="text-lg">Su vuelto:</p>
+<span className="">${vueltoCalculo}</span>
+        </div>
         <div className="flex flex-col items-start justify-normal w-full space-y-2">
           <button
             disabled={totalVenta == 0 ? true : false}
             onClick={finalizarCompra}
-            className="rounded-lg disabled:bg-blue-600/50 text-white flex items-center pl-4 justify-start hover:bg-blue-600/80 duration-300 mt-10 m border-2 border-gray-200 h-16 w-full bg-blue-600"
+            className="rounded-lg disabled:bg-blue-600/50 text-white flex items-center pl-4 justify-start hover:bg-blue-600/80 duration-300 mt-8 m border-2 border-gray-200 h-16 w-full bg-blue-600"
           >
             <Captions className="w-10 h-10" />{" "}
             <p className="text-3xl ml-4 font-semibold font-mono widest ">

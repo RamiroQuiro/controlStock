@@ -10,7 +10,7 @@ export default function InputComponenteJsx({
   return (
     <div className="w-full">
       <input
-        className="w-full py-2 px-3 text-primary-textoTitle rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+        className="w-full text-end py-2 px-3 text-primary-textoTitle rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50"
         name={name}
         type={type}
         disabled={disable}

@@ -1,35 +1,79 @@
 ---
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import StatsStock from "./StatsStock.astro";
+import {
+  ChartColumnDecreasing,
+  DollarSign,
+  Package,
+  SignalLow,
+  Sparkles,
+  StarOffIcon,
+  Sticker,
+  StickyNote,
+  WifiLow,
+} from "lucide-react";
+import FormularioDeBusqueda from "../../../../components/organismos/FormularioDeBusqueda";
+import H2 from "../../../../components/atomos/H2.astro";
+import ListradoProductos from "./ListradoProductos.astro";
+import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso.astro";
+
+const infoStats = [
+  {
+    icono: Package,
+    h2: "40",
+    bgColor: "from-primary-100 to-blue-700",
+    title: "Productos en Stock",
+  },
+  {
+    h2: "$40000",
+    icono: ChartColumnDecreasing,
+    bgColor: "from-amber-400 to-amber-700",
+    title: "Productos de Stock bajo",
+  },
+  {
+    icono: Sticker,
+    h2: "$40000",
+    bgColor: "from-lime-500 to-lime-700",
+    title: "Precio del Stock",
+  },
+  {
+    icono: StickyNote,
+    h2: "$40000",
+    bgColor: "from-orange-400 to-orange-700",
+    title: "Costo del Stock",
+  },
+];
 ---
 
 <MainDashboard h1="Stock">
   <DivBox1 styleDiv="w-full">
     <div class="w-full flex items-center justify-between gap-2">
-      <div
-        class="rounded-lg p-4 bg-cyan-600 h-28 w-full text-white flex flex-col"
-      >
-        <h2 class="text-2xl">4</h2>
-        <p>Productos en Inentario</p>
-      </div>
-      <div
-        class="rounded-lg p-4 bg-amber-500 h-28 w-full text-white flex flex-col"
-      >
-        <h2 class="text-2xl">$40000</h2>
-        <p>Precio del Stock</p>
-      </div>
-      <div
-        class="rounded-lg p-4 bg-lime-600 h-28 w-full text-white flex flex-col"
-      >
-        <h2 class="text-2xl">$40000</h2>
-        <p>Costo del Stock</p>
-      </div>
-      <div
-        class="rounded-lg p-4 bg-orange-600 h-28 w-full text-white flex flex-col"
-      >
-        <h2 class="text-2xl">$40000</h2>
-        <p>Utilidad del Stock</p>
-      </div>
+      {
+        infoStats.map((info, index) => {
+          let Icon = info.icono;
+          return (
+            <StatsStock
+              icon={Icon}
+              h2={info.h2}
+              bgColor={info.bgColor}
+              key={index}
+            >
+              {info.title}
+            </StatsStock>
+          );
+        })
+      }
     </div>
   </DivBox1>
+  <div class="flex w-full mt-3 gap-2 items-start justify-start">
+ <ListradoProductos/>
+ 
+    <DivBox1 styleDiv="w-1/3">
+      <div class="flex items-center justify-between gap-2">
+        <H2>Top Egresos</H2>
+      </div>
+    <ContenedorTablaTopEgreso/>
+    </DivBox1>
+  </div>
 </MainDashboard>

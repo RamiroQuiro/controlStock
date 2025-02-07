@@ -1,25 +1,31 @@
 ---
-import Button1 from '../../../../components/atomos/Button1.astro'
-import FormCont from '../../../../components/atomos/FormCont.astro'
-import LabelForm from '../../../../components/atomos/LabelForm.astro'
-import ContenedorInputForm from '../../../../components/moleculas/ContenedorInputForm.astro'
+import Button1 from "../../../../components/atomos/Button1.astro";
+import FormCont from "../../../../components/atomos/FormCont.astro";
+import LabelForm from "../../../../components/atomos/LabelForm.astro";
+import ContenedorInputForm from "../../../../components/moleculas/ContenedorInputForm.astro";
+import InputFile from "../../../../components/moleculas/InputFile";
 
-const {user}=Astro.props
+const { user } = Astro.props;
 ---
-<FormCont  title="Agregar Producto" id="formularioCargaProducto">
-    <div
+
+<FormCont title="Agregar Producto" id="formularioCargaProducto">
+  <div
     id="idCargaUsuario"
     data-initUser={user.id}
-      class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
+    class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
+  >
+    <ContenedorInputForm
+      name="codigoBarra"
+      type="text"
+      label="codigo de barra"
+    />
+    <div
+      class="w-full flex items  items-start my-2 duration-300 group -md"
     >
-      <ContenedorInputForm
-        name="codigoBarra"
-        type="text"
-        label="codigo de barra"
-      />
-      <div
-        class="w-full flex items flex-col items-start gap- duration-300 group -md"
-      >
+      <div class="w-full flex gap-2 items-center justify-center">
+        <InputFile client:load name="srcPhoto"/>
+      </div>
+      <div class="w-full flex flex-col gap-2 items-start justify-between">
         <LabelForm name={"descripcion"}>{"descripcion"}</LabelForm>
         <textarea
           class="flex-1 w-full text-sm p-2 text-primary-texto outline-none ring-0 border-gray-300 ring-primary-200/60 focus:ring-1 focus:border-primary-200/60 border-b rounded-lg"
@@ -29,70 +35,93 @@ const {user}=Astro.props
           id="descripcion"></textarea>
       </div>
     </div>
-    <div class="w-full flex gap-2 items-start justify-between">
-      <ContenedorInputForm
-        name="pCompra"
-        label="Precio Compra"
-        type="number"
-      />
-      <ContenedorInputForm
-        name="pVenta"
-        label="Precio Compra"
-        type="number"
-      />
-    </div>
-    <div class="w-full flex gap-2 items-start justify-between">
-      <ContenedorInputForm name="stock" label="Stock" type="number" />
-      <ContenedorInputForm
-        name="cantidadAlerta"
-        label="Cantidad de Alerta"
-        type="number"
-      />
-    </div>
-    <div class="w-full flex items-center  justify-end my-3">
-      <Button1 id="btnCargarProducto">Guardar</Button1>
-    </div>
-    <div class="text-xs font-semibold h-6 w-full text-center tracking-wide uppercase animate-aparecer text-primary-400"id="erroresMsg"></div>
-  </FormCont>
+  </div>
+  <div class="w-full flex gap-2 items-start justify-between">
+    <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
+    <ContenedorInputForm name="pVenta" label="Precio Compra" type="number" />
+    <ContenedorInputForm name="pVenta" label="Localizacion" type="text" />
+  </div>
+  <div class="w-full flex gap-2 items-start justify-between">
+    <ContenedorInputForm name="stock" label="Categoria" type="text" />
+    <ContenedorInputForm name="stock" label="Stock" type="number" />
+    <ContenedorInputForm
+      name="cantidadAlerta"
+      label="Cantidad de Alerta"
+      type="number"
+    />
+  </div>
+  <div class="w-full flex items-center justify-end my-3">
+    <Button1 id="btnCargarProducto">Guardar</Button1>
+  </div>
+  <div
+    class="text-xs font-semibold h-6 w-full text-center tracking-wide uppercase animate-aparecer text-primary-400"
+    id="erroresMsg"
+  >
+  </div>
+</FormCont>
 
-  <script >
-const formulario = document.getElementById('formularioCargaProducto') as HTMLFormElement
-const btnGuardar = document.getElementById('btnCargarProducto')
-const erroresMsg = document.getElementById('erroresMsg')
-const userId=document.getElementById('idCargaUsuario').dataset
-btnGuardar?.addEventListener('click', async (e) => {
-  e.preventDefault()
-  
-  const formData = new FormData(formulario)
-  const data = Object.fromEntries(formData)
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const formulario = document.getElementById("formularioCargaProducto");
+    const btnGuardar = document.getElementById("btnCargarProducto");
+    const erroresMsg = document.getElementById("erroresMsg");
+    const userId = document.getElementById("idCargaUsuario")?.dataset.inituser;
 
-  try {
-    if(data.codigoBarra === '' || data.descripcion === '' || data.pCompra === '' || data.pVenta === '' || data.stock === '' || data.cantidadAlerta === '') {
-      erroresMsg.textContent = 'Todos los campos son obligatorios'
-      return
-    }
-    data.userId=userId.inituser
-    const response = await fetch('/api/productos/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-
-    const dataResponse = await response.json()
-    console.log(dataResponse)
-
-    if(dataResponse.status === 200) {
-      formulario.reset()
-      window.location.reload()
-    }else if(dataResponse.status !== 200) {
-      erroresMsg.textContent = dataResponse.msg
+    if (!formulario || !btnGuardar || !erroresMsg || !userId) {
+      console.error("Faltan elementos clave en el DOM");
+      return;
     }
 
-  } catch (error) {
-    console.log(error)}
-    erroresMsg.textContent = error.message
-  }
-)
-  </script>
+    btnGuardar.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(formulario);
+
+      // Validación de campos obligatorios
+      const requiredFields = [
+        "codigoBarra",
+        "descripcion",
+        "pCompra",
+        "pVenta",
+        "stock",
+        "cantidadAlerta",
+      ];
+
+      for (const field of requiredFields) {
+        if (!formData.get(field)) {
+          erroresMsg.textContent = "Todos los campos son obligatorios";
+          return;
+        }
+      }
+
+      // Agregar userId al FormData
+      formData.append("userId", userId);
+
+      try {
+        const response = await fetch("/api/productos/create", {
+          method: "POST",
+          body: formData, // El navegador gestiona el Content-Type automáticamente
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          erroresMsg.textContent = errorData.msg || "Error en el servidor";
+          return;
+        }
+
+        const dataResponse = await response.json();
+        console.log(dataResponse);
+
+        if (dataResponse.status === 200) {
+          formulario.reset();
+          window.location.reload();
+        } else {
+          erroresMsg.textContent = dataResponse.msg || "Error al guardar el producto";
+        }
+      } catch (error) {
+        console.error("Error al enviar el formulario:", error);
+        erroresMsg.textContent = "Ocurrió un error inesperado";
+      }
+    });
+  });
+</script>

@@ -14,7 +14,7 @@ export default function THead({ columnas }) {
 
   return (
     <thead className="bg-gray-100">
-      <tr>
+      <tr >
         {columnas?.map(columna => (
           <Th
             key={columna.id}

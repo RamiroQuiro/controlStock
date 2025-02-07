@@ -1,0 +1,35 @@
+---
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+---
+
+<MainDashboard h1="Stock">
+  <DivBox1 styleDiv="w-full">
+    <div class="w-full flex items-center justify-between gap-2">
+      <div
+        class="rounded-lg p-4 bg-cyan-600 h-28 w-full text-white flex flex-col"
+      >
+        <h2 class="text-2xl">4</h2>
+        <p>Productos en Inentario</p>
+      </div>
+      <div
+        class="rounded-lg p-4 bg-amber-500 h-28 w-full text-white flex flex-col"
+      >
+        <h2 class="text-2xl">$40000</h2>
+        <p>Precio del Stock</p>
+      </div>
+      <div
+        class="rounded-lg p-4 bg-lime-600 h-28 w-full text-white flex flex-col"
+      >
+        <h2 class="text-2xl">$40000</h2>
+        <p>Costo del Stock</p>
+      </div>
+      <div
+        class="rounded-lg p-4 bg-orange-600 h-28 w-full text-white flex flex-col"
+      >
+        <h2 class="text-2xl">$40000</h2>
+        <p>Utilidad del Stock</p>
+      </div>
+    </div>
+  </DivBox1>
+</MainDashboard>

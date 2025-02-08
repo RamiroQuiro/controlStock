@@ -21,7 +21,7 @@ const { user } = Astro.props;
     />
     <div class="w-full flex items items-start my-2 duration-300 group -md">
       <div class="w-full flex gap-2 items-center justify-center">
-        <InputFile client:load name="srcPhoto" />
+        <InputFile client:load name="fotoProducto" />
       </div>
       <div class="w-full flex flex-col gap-2 items-start justify-between">
         <LabelForm name={"descripcion"}>{"descripcion"}</LabelForm>
@@ -72,7 +72,7 @@ const { user } = Astro.props;
 
     let fileData: File | null = null; // Declaramos el tipo explícitamente
 
-    const inputFile = document.getElementById('srcPhoto');
+    const inputFile = document.getElementById('fotoProducto');
     inputFile?.addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file && file.type.startsWith("image/")) {
@@ -92,7 +92,7 @@ const { user } = Astro.props;
 
       
       if (fileData) {
-        formData.set('srcPhoto', fileData);
+        formData.set('fotoProducto', fileData);
       }
       // Opcional: Verificar contenido del FormData
       for (const [key, value] of formData.entries()) {

@@ -49,8 +49,8 @@ productosData = productosDataBase?.map((prod, i) => {
     codigoBarra: prod.codigoBarra,
     descripcion: prod.descripcion,
     categoria: prod.categoria,
-    pCompra: `$${prod.pCompra.toLocaleString()}`,
-    pVenta: `$${prod.pVenta.toLocaleString()}`,
+    pCompra: `$${prod.pCompra?.toLocaleString()}`,
+    pVenta: `$${prod.pVenta?.toLocaleString()}`,
     stock: prod.stock,
     ultimaActualizacion: fechaISO,
   };

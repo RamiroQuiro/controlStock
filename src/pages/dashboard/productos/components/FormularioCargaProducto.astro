@@ -35,12 +35,14 @@ const { user } = Astro.props;
     </div>
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
-    <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
-    <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
+    <ContenedorInputForm name="marca" label="Marca" type="text" />
+    <ContenedorInputForm name="modelo" label="Modelo" type="number" />
+    <ContenedorInputForm name="categoria" label="Categoria" type="text" />
     <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
-    <ContenedorInputForm name="categoria" label="Categoria" type="text" />
+    <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
+    <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
     <ContenedorInputForm name="stock" label="Stock" type="number" />
     <ContenedorInputForm
       name="cantidadAlerta"

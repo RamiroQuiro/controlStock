@@ -12,37 +12,16 @@ import H2 from "../../../../components/atomos/H2.astro";
 import ListradoProductos from "./ListradoProductos.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso.astro";
 import db from "../../../../db";
-import { productos } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
+import { productos, stockActual } from "../../../../db/schema";
+import {  eq } from "drizzle-orm";
+import { formateoMoneda } from "../../../../utils/formateoMoneda";
 
 const user={id:"1",nombre:"ramiro"}
-const infoStats = [
-  {
-    icono: Package,
-    h2: "40",
-    bgColor: "from-primary-100 to-blue-700",
-    title: "Productos en Stock",
-  },
-  {
-    h2: "$40000",
-    icono: ChartColumnDecreasing,
-    bgColor: "from-amber-400 to-amber-700",
-    title: "Productos de Stock bajo",
-  },
-  {
-    icono: Sticker,
-    h2: "$40000",
-    bgColor: "from-lime-500 to-lime-700",
-    title: "Precio del Stock",
-  },
-  {
-    icono: StickyNote,
-    h2: "$40000",
-    bgColor: "from-orange-400 to-orange-700",
-    title: "Costo del Stock",
-  },
-];
-let listaProductos;
+
+let listaProductos=[]
+let productosStockBajos=[]
+let totalStockPrecio=0
+let totalStockCosto=0
 const trayendoProductos = async (userId) => {
   const dataDB = await db
     .select({
@@ -54,18 +33,65 @@ const trayendoProductos = async (userId) => {
       pVenta: productos.pVenta,
       stock: productos.stock,
       srcPhoto:productos.srcPhoto,
+      localizacion:stockActual.localizacion,
+      alertaStock:stockActual.alertaStock,
       ultimaActualizacion: productos.ultimaActualizacion,
-    })
+      })
     .from(productos)
+    .innerJoin(stockActual,eq(stockActual.productoId,productos.id))
     .where(eq(productos.userId, userId))
   return dataDB;
 };
+// consultar si es mejor hacerlo en la base de datos esta condicion
+const obtenerStockBajoProductos=(array:[])=>{
+    return array.filter((prod)=>prod.stock<=prod.alertaStock)
+}
+
 try {
   listaProductos= await trayendoProductos(user.id)
-  console.log(listaProductos)
+  productosStockBajos=obtenerStockBajoProductos(listaProductos)
+ totalStockPrecio= listaProductos.reduce(
+      (acc, producto) => acc + producto.pVenta * producto.stock,
+      0
+    );
+    totalStockCosto= listaProductos.reduce(
+      (acc, producto) => acc + producto.pCompra * producto.stock,
+      0
+    );
+
 } catch (error) {
   console.log(error)
 }
+
+
+const infoStats = [
+  {
+    icono: Package,
+    h2: listaProductos?.length,
+    bgColor: "from-primary-100 to-blue-700",
+    title: "Productos en Stock",
+  },
+  {
+    h2: productosStockBajos.length,
+    icono: ChartColumnDecreasing,
+    bgColor: "from-red-400 to-amber-700",
+    title: "Productos de Stock bajo",
+  },
+  {
+    icono: Sticker,
+    h2: formateoMoneda.format(totalStockPrecio),
+    bgColor: "from-lime-500 to-lime-700",
+    title: "Precio del Stock",
+  },
+  {
+    icono: StickyNote,
+    h2: formateoMoneda.format(totalStockCosto),
+    bgColor: "from-orange-400 to-orange-700",
+    title: "Costo del Stock",
+  },
+];
+
+
 ---
 
 <MainDashboard h1="Stock">
@@ -88,9 +114,11 @@ try {
       }
     </div>
   </DivBox1>
+  <DivBox1>
+<button>Crear</button>
+  </DivBox1>
   <div class="flex w-full mt-3 gap-2 items-start justify-start">
     <ListradoProductos productosArray={listaProductos} />
-
     <DivBox1 styleDiv="w-1/3">
       <div class="flex items-center justify-between gap-2">
         <H2>Top Egresos</H2>

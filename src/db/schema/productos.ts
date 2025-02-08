@@ -10,6 +10,8 @@ export const productos = sqliteTable("productos",{
     proveedorId: text("proveedorId").references(() => proveedores.id),
     codigoBarra: text("codigoBarra").notNull(),
     categoria: text("categoria"),
+    marca:text('marca'),
+    modelo:text('modelo'),
     descripcion: text("descripcion").notNull(),
     pCompra: integer("pCompra", { mode: "number" }),
     pVenta: integer("pVenta", { mode: "number" }),

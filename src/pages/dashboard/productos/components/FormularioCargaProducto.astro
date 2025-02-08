@@ -19,11 +19,9 @@ const { user } = Astro.props;
       type="text"
       label="codigo de barra"
     />
-    <div
-      class="w-full flex items  items-start my-2 duration-300 group -md"
-    >
+    <div class="w-full flex items items-start my-2 duration-300 group -md">
       <div class="w-full flex gap-2 items-center justify-center">
-        <InputFile client:load name="srcPhoto"/>
+        <InputFile client:load name="srcPhoto" />
       </div>
       <div class="w-full flex flex-col gap-2 items-start justify-between">
         <LabelForm name={"descripcion"}>{"descripcion"}</LabelForm>
@@ -38,11 +36,11 @@ const { user } = Astro.props;
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
-    <ContenedorInputForm name="pVenta" label="Precio Compra" type="number" />
-    <ContenedorInputForm name="pVenta" label="Localizacion" type="text" />
+    <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
+    <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
-    <ContenedorInputForm name="stock" label="Categoria" type="text" />
+    <ContenedorInputForm name="categoria" label="Categoria" type="text" />
     <ContenedorInputForm name="stock" label="Stock" type="number" />
     <ContenedorInputForm
       name="cantidadAlerta"
@@ -66,16 +64,40 @@ const { user } = Astro.props;
     const btnGuardar = document.getElementById("btnCargarProducto");
     const erroresMsg = document.getElementById("erroresMsg");
     const userId = document.getElementById("idCargaUsuario")?.dataset.inituser;
-
     if (!formulario || !btnGuardar || !erroresMsg || !userId) {
       console.error("Faltan elementos clave en el DOM");
       return;
     }
 
-    btnGuardar.addEventListener("click", async (e) => {
+
+    let fileData: File | null = null; // Declaramos el tipo explícitamente
+
+    const inputFile = document.getElementById('srcPhoto');
+    inputFile?.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        fileData = file; // Guardamos el archivo para usarlo después
+        console.log("Archivo de imagen válido:", file.name);
+      } else {
+        console.error("Por favor selecciona un archivo de imagen válido");
+        event.target.value = '';
+        fileData = null;
+      }
+    });
+
+    formulario.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const formData = new FormData(formulario);
+
+      
+      if (fileData) {
+        formData.set('srcPhoto', fileData);
+      }
+      // Opcional: Verificar contenido del FormData
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
 
       // Validación de campos obligatorios
       const requiredFields = [
@@ -93,10 +115,8 @@ const { user } = Astro.props;
           return;
         }
       }
-
       // Agregar userId al FormData
       formData.append("userId", userId);
-
       try {
         const response = await fetch("/api/productos/create", {
           method: "POST",
@@ -116,7 +136,8 @@ const { user } = Astro.props;
           formulario.reset();
           window.location.reload();
         } else {
-          erroresMsg.textContent = dataResponse.msg || "Error al guardar el producto";
+          erroresMsg.textContent =
+            dataResponse.msg || "Error al guardar el producto";
         }
       } catch (error) {
         console.error("Error al enviar el formulario:", error);

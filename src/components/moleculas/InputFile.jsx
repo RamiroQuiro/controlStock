@@ -3,18 +3,19 @@ import { showToast } from "../../utils/toast/toastShow";
 
 export default function InputFile({ name }) {
   const [previewUrlFrente, setPreviewUrlFrente] = useState(null);
-  const [fileFrente, setFileFrente] = useState(null);
 
   const handleImageFrente = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("image/")) {
       setPreviewUrlFrente(URL.createObjectURL(file));
-      setFileFrente(file);
     } else {
       console.error("Por favor selecciona un archivo de imagen válido");
       showToast("Por favor selecciona un archivo de imagen válido", {
         background: "bg-red-600",
       });
+      // Limpiar el input
+      event.target.value = '';
+      setPreviewUrlFrente(null);
     }
   };
 
@@ -33,12 +34,13 @@ export default function InputFile({ name }) {
                 name={name}
                 onChange={handleImageFrente}
                 id={name}
-                className="hidden"
+                className="hidden absolute inset-0 w-full cursor-pointer"
+                accept="image/*"
               />
             </label>
             <img
               src={previewUrlFrente}
-              alt="frente"
+              alt="Vista previa"
               width={"200px"}
               height={"150px"}
               className="object-cover w-full h-full"
@@ -49,13 +51,14 @@ export default function InputFile({ name }) {
             htmlFor={name}
             className="border-dashed border rounded-lg  border-primary-100 w-full h-full items-center justify-center flex uppercase font-semibold  m-auto cursor-pointer hover:bg-primary-100/40 duration-300 hover:text-white text-xs"
           >
-            Dni Frente
+            Subir Imagen
             <input
               type="file"
               name={name}
               onChange={handleImageFrente}
               id={name}
-              className="hidden"
+              className="hidden absolute inset-0  cursor-pointer"
+              accept="image/*"
             />
           </label>
         )}

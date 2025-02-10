@@ -4,11 +4,11 @@ import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import ConfeccionTabla from "./components/ConfeccionTabla";
 import FormularioDeBusqueda from "../../../components/organismos/FormularioDeBusqueda";
 import Button1 from "../../../components/atomos/Button1.astro";
-import ContenedeorModal from "../../../components/organismos/ContenedeorModal.astro";
 import FormularioCargaProducto from "./components/FormularioCargaProducto.astro";
 import db from "../../../db";
 import { productos } from "../../../db/schema";
 import { eq } from "drizzle-orm";
+import Modal from "../../../components/moleculas/Modal.astro";
 let productosData;
 let productosDataBase = [];
 const user = {
@@ -65,9 +65,9 @@ productosData = productosDataBase?.map((prod, i) => {
         arrayABuscar={productosData}
         opcionesFiltrado={["codigo", "categoria"]}
       />
-      <ContenedeorModal open="Agregar" id="agregarProducto">
+      <Modal label="Agregar" id="agregarProducto">
         <FormularioCargaProducto user={user} />
-      </ContenedeorModal>
+      </Modal>
       <Button1>excel</Button1>
       <Button1>pdf</Button1>
     </div>

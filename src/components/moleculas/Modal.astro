@@ -2,28 +2,39 @@
 import Button1 from "../atomos/Button1.astro";
 import DialogModal from "../atomos/DialogModal.astro";
 
-const { id, open } = Astro.props;
+const { id, label } = Astro.props;
 ---
+<div data-id={id} id="dataId">
+  <Button1  id={`modal-${id}`}>{label}</Button1>
 
-<Button1 id={id}>{open}</Button1>
+  <dialog
+    id={`dialog-modal-${id}`}
+    class="modal print:hidden relative duration-300 open:fixed open:flex flex-col w-full md:min-w-[50vw] md:open:max-w-[60vw] open:min-h-[50vh] rounded-lg border-l-2 border-primary-100 backdrop:bg-primary-texto/80 open:backdrop:backdrop-blur-sm"
+  >
+    <div
+      id="dataId"
+      class="relative flex flex-col w-full h-full p-3 print:hidden modal"
+    >
+      <form method="dialog">
+        <Button1 slot="close" id="cerrarModal" className="absolute top-1 right-1 "
+          >✕</Button1
+        >
+      </form>
+      <slot />
 
-<DialogModal id={id}>
-  <div id="dataId" data-id={id} class="relative flex flex-col w-full h-full p-3 print:hidden modal">
-    <slot name="main" />
-    <form method="dialog">
-      <slot name="close" />
-    </form>
-  </div>
-</DialogModal>
-<script >
-import { dataFormularioContexto } from "../../context/store";
+      <!-- <DiagnosticosContenedor client:load  isExistDiagnosticos={isExistDiagnosticos}/> -->
+    </div>
+  </dialog>
+</div>
+<script define:vars={{id}} >
 
-  const data=document.getElementById('dataId')?.dataset.id
+  
 
-  const btnModal = document.getElementById(`${data}`);
-  const modal = document.getElementById(`modal-${data}`);
+
+  const btnModal = document.getElementById(`modal-${id}`);
+  console.log(id)
   btnModal?.addEventListener("click", (e) => {
-    dataFormularioContexto.set({})
+    const modal = document.getElementById(`dialog-modal-${id}`);
     modal.showModal();
     // e.showModal()
   });

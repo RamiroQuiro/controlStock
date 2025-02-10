@@ -10,7 +10,7 @@ export const movimientosStock = sqliteTable("movimientosStock", {
   id: text("id").primaryKey(),
   productoId: text("productoId").notNull().references(() => productos.id),
   cantidad: integer("cantidad").notNull(),
-  tipo: text("tipo") // 'recarga', 'devolucion', 'vencimiento', 'movimiento'
+  tipo: text("tipo") // 'egreso','ingreso'
     .notNull()
     .default("recarga"),
   fecha: integer("fecha") // Timestamp Unix
@@ -18,7 +18,7 @@ export const movimientosStock = sqliteTable("movimientosStock", {
     .default(sql`(strftime('%s', 'now'))`),
   userId: text("userId").notNull().references(() => users.id),
   proveedorId: text("proveedorId").references(() => proveedores.id),
-  motivo: text("motivo"), // Breve razón del movimiento
+  motivo: text("motivo"),// 'recarga', 'devolucion', 'vencimiento', 'movimiento','ajustes
   observacion: text("observacion"), // Detalles adicionales opcionales
   clienteId: text("clienteId").references(() => clientes.id),
 });

@@ -12,21 +12,23 @@ import H2 from "../../../../components/atomos/H2.astro";
 import ListradoProductos from "./ListradoProductos.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso.astro";
 import db from "../../../../db";
-import { productos, stockActual } from "../../../../db/schema";
+import { clientes, productos, proveedores, proveedores, stockActual } from "../../../../db/schema";
 import {  eq } from "drizzle-orm";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import Etiquetas from "../../../../components/atomos/Etiquetas.astro";
 import FormularioIngresoEgreso from "../../../../components/moleculas/FormularioIngresoEgreso";
+import ModalComponents from "../../../../components/moleculas/ModalComponents";
+import Modal from "../../../../components/moleculas/Modal.astro";
 
 const user={id:"1",nombre:"ramiro"}
 
-let listaProductos=[]
+let queryDB=[]
 let productosStockBajos=[]
 let totalStockPrecio=0
 let totalStockCosto=0
 const trayendoProductos = async (userId) => {
-  const dataDB = await db
-    .select({
+  const dataDB = await db.transaction(async(trx)=>{
+    const listaProductos=  await trx.select({
       id: productos.id,
       codigoBarra: productos.codigoBarra,
       descripcion: productos.descripcion,
@@ -42,7 +44,12 @@ const trayendoProductos = async (userId) => {
     .from(productos)
     .innerJoin(stockActual,eq(stockActual.productoId,productos.id))
     .where(eq(productos.userId, userId))
-  return dataDB;
+  
+  const proveedoresData=await trx.select().from(proveedores).where(eq(proveedores.userId,userId))
+  const clientesData= await trx.select().from(clientes).where(eq(clientes.userId,userId))
+return {listaProductos,proveedoresData,clientesData}  
+})
+    return dataDB;
 };
 // consultar si es mejor hacerlo en la base de datos esta condicion
 const obtenerStockBajoProductos=(array:[])=>{
@@ -50,13 +57,15 @@ const obtenerStockBajoProductos=(array:[])=>{
 }
 
 try {
-  listaProductos= await trayendoProductos(user.id)
-  productosStockBajos=obtenerStockBajoProductos(listaProductos)
- totalStockPrecio= listaProductos.reduce(
+queryDB= await trayendoProductos(user.id)
+
+productosStockBajos=obtenerStockBajoProductos(queryDB?.listaProductos)
+  
+ totalStockPrecio= queryDB?.listaProductos?.reduce(
       (acc, producto) => acc + producto.pVenta * producto.stock,
       0
     );
-    totalStockCosto= listaProductos.reduce(
+    totalStockCosto= queryDB?.listaProductos?.reduce(
       (acc, producto) => acc + producto.pCompra * producto.stock,
       0
     );
@@ -64,8 +73,7 @@ try {
 } catch (error) {
   console.log(error)
 }
-
-
+const  {listaProductos,proveedoresData,clientesData}=queryDB
 const infoStats = [
   {
     icono: Package,
@@ -119,11 +127,13 @@ const infoStats = [
   <DivBox1 styleDiv="mt-3 w-full">
     <div class="flex items-center justify-evenly w-full">
 
-    <FormularioIngresoEgreso client:load>
-Ingreso
-    </FormularioIngresoEgreso>
-      <Etiquetas>Ingreso</Etiquetas>
-      <Etiquetas>Egreso</Etiquetas>
+
+    <Modal id="modalIngreso" label="Ingreso">
+        <FormularioIngresoEgreso tipo="Ingreso" proveedoresData={proveedoresData} clientesData={clientesData} listaProductos={listaProductos} userId={user.id}  client:visible/>
+    </Modal>
+    <Modal id="modalEgreso" label="egreso">
+        <FormularioIngresoEgreso tipo="egresol" client:visible/>
+    </Modal>
     </div>
   </DivBox1>
   <div class="flex w-full mt-3 gap-2 items-start justify-start">

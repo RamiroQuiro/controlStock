@@ -26,7 +26,6 @@ export default function ConfeccionListadoProductos({productosArray}) {
       setFiltradoPaceiente(filtrados);
     }, [$filtro, productosArray]); // Ejecutar cada vez que cambie $filtro o pacientesData
   
-console.log('este es el filtro ->',$filtro)
  
     return filtradoPaceiente?.map((prod, i) => <CardProductosStock prod={prod} key={i} />)
   

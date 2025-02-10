@@ -22,6 +22,13 @@
       "when": 1738797757149,
       "tag": "0002_early_inertia",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1739157532601,
+      "tag": "0003_breezy_stingray",
+      "breakpoints": true
     }
   ]
 }

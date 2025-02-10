@@ -6,18 +6,19 @@ import { proveedores } from "./proveedores";
 import { clientes } from "./clientes";
 
 
-// Tabla de movimientos de stock
 export const movimientosStock = sqliteTable("movimientosStock", {
-    id: text("id").primaryKey(),
-    productoId: text("productoId").notNull().references(() => productos.id),
-    cantidad: integer("cantidad").notNull(),
-    tipo: text("tipo") // 'ingreso' o 'egreso'
-      .notNull()
-      .default("ingreso"),
-    fecha: integer("fecha") // Timestamp Unix
-      .notNull()
-      .default(sql`(strftime('%s', 'now'))`),
-    userId: text("userId").notNull().references(() => users.id),
-    proveedorId: text("proveedorId").references(() => proveedores.id),
-    clienteId: text("clienteId").references(() => clientes.id),
-  });
+  id: text("id").primaryKey(),
+  productoId: text("productoId").notNull().references(() => productos.id),
+  cantidad: integer("cantidad").notNull(),
+  tipo: text("tipo") // 'recarga', 'devolucion', 'vencimiento', 'movimiento'
+    .notNull()
+    .default("recarga"),
+  fecha: integer("fecha") // Timestamp Unix
+    .notNull()
+    .default(sql`(strftime('%s', 'now'))`),
+  userId: text("userId").notNull().references(() => users.id),
+  proveedorId: text("proveedorId").references(() => proveedores.id),
+  motivo: text("motivo"), // Breve razón del movimiento
+  observacion: text("observacion"), // Detalles adicionales opcionales
+  clienteId: text("clienteId").references(() => clientes.id),
+});

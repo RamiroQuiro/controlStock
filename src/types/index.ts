@@ -1,14 +1,16 @@
-export type pacienteType = {
-  id: string;
-  nombre: string;
-  apellido: string;
-  sexo: string;
-  dni: number;
-  fNacimiento: string;
-  updated_at?: string;
-  created_at: string;
-  deleted_at?: string;
+export type MovimientoStock = {
+  id: string; // ID único del movimiento
+  productoId: string; // ID del producto asociado al movimiento
+  cantidad: number; // Cantidad involucrada en el movimiento
+  tipo: "recarga" | "devolucion" | "vencimiento" | "movimiento"; // Tipo de movimiento
+  fecha: string; // Fecha del movimiento (timestamp Unix)
+  userId: string; // ID del usuario que realizó el movimiento
+  proveedorId?: string; // ID del proveedor (si aplica)
+  clienteId?: string; // ID del cliente (si aplica)
+  motivo?: string; // Breve razón del movimiento (opcional)
+  observacion?: string; // Descripción adicional del movimiento (opcional)
 };
+
 
 export type fichaPaciente = {
   id: string;

@@ -40,7 +40,6 @@ const ModalProducto = ({ productoId, onClose }) => {
   }, [productoId]);
 
   if (!productoId) return null;
-  console.log(infoProducto);
   return (
     <div
       className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm"

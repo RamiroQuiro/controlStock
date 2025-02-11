@@ -12,12 +12,12 @@ export default function FormularioIngresoEgreso({
   listaProductos,
 }) {
   const [formulario, setFormulario] = useState({
-    proveedorId:'',
-    productoId:'',
-    fecha:'',
-    motivo:'',
-    cantidad:'',
-    observaciones:'',
+    proveedorId: "",
+    productoId: "",
+    fecha: "",
+    motivo: "",
+    cantidad: "",
+    observaciones: "",
     tipo: "ingreso",
   });
   const [productoSelect, setProductoSelect] = useState({});
@@ -25,17 +25,21 @@ export default function FormularioIngresoEgreso({
   const $filtrado = useStore(filtroBusqueda)?.filtro;
   useEffect(() => {
     if ($filtrado) {
-      console.log($filtrado)
+      console.log($filtrado);
       if (!formulario.productoId) {
         setProductoSelect(() => $filtrado);
-        setFormulario((formulario)=>({ ...formulario, productoId: $filtrado.id }));
+        setFormulario((formulario) => ({
+          ...formulario,
+          productoId: $filtrado.id,
+        }));
         filtroBusqueda.set({ filtro: "" });
-        return
+        return;
       }
       setDataSelect($filtrado);
       setFormulario({
         ...formulario,
-        [formulario.tipo === "ingreso" ? "proveedorId" : "clienteId"]: $filtrado.id,
+        [formulario.tipo === "ingreso" ? "proveedorId" : "clienteId"]:
+          $filtrado.id,
       });
       filtroBusqueda.set({ filtro: "" });
     }
@@ -44,11 +48,11 @@ export default function FormularioIngresoEgreso({
   const handleSelect = (tipo) => {
     setFormulario({ ...formulario, tipo: tipo });
   };
-  const handleChange=(e)=>{
-const {value,name}=e.target
+  const handleChange = (e) => {
+    const { value, name } = e.target;
 
-setFormulario((state)=>({...state,[name]:value}))
-  }
+    setFormulario((state) => ({ ...state, [name]: value }));
+  };
   const handleClick = async () => {
     try {
       const responseFetch = await fetch(`/api/movimientos/${userId}`, {
@@ -159,8 +163,8 @@ setFormulario((state)=>({...state,[name]:value}))
                 Motivo
               </label>
               <select
-              onChange={handleChange}
-              name="motivo"
+                onChange={handleChange}
+                name="motivo"
                 id="motivo"
                 className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
               >
@@ -186,8 +190,8 @@ setFormulario((state)=>({...state,[name]:value}))
                 Fecha
               </label>
               <input
-              onChange={handleChange}
-              name="fecha"
+                onChange={handleChange}
+                name="fecha"
                 type="date"
                 id="fecha"
                 className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -204,8 +208,8 @@ setFormulario((state)=>({...state,[name]:value}))
               Cantidad
             </label>
             <input
-            name="cantidad"
-            onChange={handleChange}
+              name="cantidad"
+              onChange={handleChange}
               type="number"
               id="cantidad"
               min="0"
@@ -218,12 +222,13 @@ setFormulario((state)=>({...state,[name]:value}))
         <div className="mb-6">
           <label
             for="observaciones"
+            name="observaciones"
             className="block text-sm font-medium text-gray-700"
           >
             Observaciones
           </label>
           <textarea
-          onChange={handleChange}
+            onChange={handleChange}
             id="observaciones"
             name="observaciones"
             rows="4"

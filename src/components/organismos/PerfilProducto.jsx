@@ -89,7 +89,7 @@ export default function PerfilProducto({ infoProducto }) {
         <h3 className="text-lg font-bold text-gray-700 mb-2">
           Historial de Movimiento
         </h3>
-        <Table arrayBody={[]} columnas={columnas} />
+        <Table arrayBody={infoProducto.stockMovimiento} columnas={columnas} />
       </div>
     </div>
   );

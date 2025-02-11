@@ -14,6 +14,7 @@ export default function SelectorProductos({listaProductos,productoSelect}) {
           "codigoBarra",
           "descripcion",
           "categoria",
+          'stock',
           "marca",
           "modelo",
         ]}
@@ -31,6 +32,12 @@ export default function SelectorProductos({listaProductos,productoSelect}) {
               Producto :{" "}
               <span className="uppercase text-primary- font-semibold">
                 {productoSelect.descripcion}
+              </span>
+            </p>
+            <p>
+           Stock:{" "}
+              <span className="text-primary- font-semibold">
+                {productoSelect.stock}
               </span>
             </p>
             <p>

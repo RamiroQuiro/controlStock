@@ -9,6 +9,7 @@ export const clientes = sqliteTable("clientes", {
     userId:text('userId').references(()=>users.id),
     nombre: text("nombre").notNull(),
     telefono: text("telefono"),
+    dni:integer('dni',{mode:'number'}),
     email: text("email"),
     direccion: text("direccion"),
     observaciones: text("observaciones"),

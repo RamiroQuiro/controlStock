@@ -2,28 +2,53 @@ import { useStore } from "@nanostores/react";
 import FormularioDeBusqueda from "../organismos/FormularioDeBusqueda";
 import { filtroBusqueda } from "../../context/store";
 import { useEffect, useState } from "react";
+import SelectorProveedoresClientes from "./SelectorProveedoresClientes";
+import SelectorProductos from "./SelectorProductos";
 
-export default function FormularioIngresoEgreso({ userId, proveedoresData,clientesData,listaProductos }) {
+export default function FormularioIngresoEgreso({
+  userId,
+  proveedoresData,
+  clientesData,
+  listaProductos,
+}) {
   const [formulario, setFormulario] = useState({
-    tipo:'ingreso'
+    proveedorId:'',
+    productoId:'',
+    fecha:'',
+    motivo:'',
+    cantidad:'',
+    observaciones:'',
+    tipo: "ingreso",
   });
-  const [productoSelect, setProductoSelect] = useState({})
+  const [productoSelect, setProductoSelect] = useState({});
+  const [dataSelect, setDataSelect] = useState({});
   const $filtrado = useStore(filtroBusqueda)?.filtro;
-
-  console.log(proveedoresData)
   useEffect(() => {
-    if($filtrado){
-      setProductoSelect(()=>($filtrado))
-      setFormulario({...formulario,productoId:$filtrado.id})
-      filtroBusqueda.set({filtro:''})
+    if ($filtrado) {
+      console.log($filtrado)
+      if (!formulario.productoId) {
+        setProductoSelect(() => $filtrado);
+        setFormulario((formulario)=>({ ...formulario, productoId: $filtrado.id }));
+        filtroBusqueda.set({ filtro: "" });
+        return
+      }
+      setDataSelect($filtrado);
+      setFormulario({
+        ...formulario,
+        [formulario.tipo === "ingreso" ? "proveedorId" : "clienteId"]: $filtrado.id,
+      });
+      filtroBusqueda.set({ filtro: "" });
     }
-  
-  }, [])
-  
+  }, [$filtrado, productoSelect]);
 
   const handleSelect = (tipo) => {
     setFormulario({ ...formulario, tipo: tipo });
   };
+  const handleChange=(e)=>{
+const {value,name}=e.target
+
+setFormulario((state)=>({...state,[name]:value}))
+  }
   const handleClick = async () => {
     try {
       const responseFetch = await fetch(`/api/movimientos/${userId}`, {
@@ -89,26 +114,17 @@ export default function FormularioIngresoEgreso({ userId, proveedoresData,client
     },
   ];
 
-  console.log(productoSelect);
+  console.log(formulario);
   return (
     <div className=" mx-auto mt-1 p-6 w-full rounded-lg">
       <form>
         <div className="flex flex-col  gap-2 mb-6 ">
-          <FormularioDeBusqueda
-            placeholder={
-              "Buscar producto por codigo de barra, descripcion, marca, modelo..."
-            }
-            arrayABuscar={listaProductos}
-            opcionesFiltrado={[
-              "codigoBarra",
-              "descripcion",
-              "categoria",
-              "marca",
-              "modelo",
-            ]}
+          {/* selector de productos */}
+          <SelectorProductos
+            listaProductos={listaProductos}
+            productoSelect={productoSelect}
+            key={0}
           />
-          <div className="w-full bg-red- py-1 text-sm bg-primary-300/50 text-center rounded-md shadow-md text-primary-texto">Producto : <span className="text-primary-textoTitle font-semibold">{productoSelect.descripcion}</span> codigo: <span className="text-primary-textoTitle font-semibold">
-          {productoSelect.codigoBarra}</span></div>
           <div className="flex justify-around my-3 border-b">
             <div
               onClick={() => handleSelect("ingreso")}
@@ -125,9 +141,15 @@ export default function FormularioIngresoEgreso({ userId, proveedoresData,client
               Egreso de Mercadería
             </div>
           </div>
-<div>
-  <FormularioDeBusqueda arrayABuscar={proveedoresData} opcionesFiltrado={['nombre','email']}/>
-</div>
+          {/* buscar proveedor o cliente, segun corresponda */}
+          <div>
+            <SelectorProveedoresClientes
+              proveedoresData={proveedoresData}
+              clientesData={clientesData}
+              dataSelect={dataSelect}
+              formulario={formulario}
+            />
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <label
@@ -137,11 +159,13 @@ export default function FormularioIngresoEgreso({ userId, proveedoresData,client
                 Motivo
               </label>
               <select
+              onChange={handleChange}
+              name="motivo"
                 id="motivo"
                 className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Seleccione</option>
-                {formulario.tipoMovimiento === "ingreso"
+                {formulario.tipo === "egreso"
                   ? motivoEgreso.map((motivo) => (
                       <option key={motivo.id} value={motivo.value}>
                         {motivo.label}
@@ -162,6 +186,8 @@ export default function FormularioIngresoEgreso({ userId, proveedoresData,client
                 Fecha
               </label>
               <input
+              onChange={handleChange}
+              name="fecha"
                 type="date"
                 id="fecha"
                 className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -172,11 +198,14 @@ export default function FormularioIngresoEgreso({ userId, proveedoresData,client
           <div>
             <label
               for="cantidad"
+              name="cantidad"
               className="block text-sm font-medium text-gray-700"
             >
               Cantidad
             </label>
             <input
+            name="cantidad"
+            onChange={handleChange}
               type="number"
               id="cantidad"
               min="0"
@@ -194,7 +223,9 @@ export default function FormularioIngresoEgreso({ userId, proveedoresData,client
             Observaciones
           </label>
           <textarea
+          onChange={handleChange}
             id="observaciones"
+            name="observaciones"
             rows="4"
             className="mt-1 block w-full p-2 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
             placeholder="Agregue comentarios o detalles adicionales..."
@@ -209,7 +240,7 @@ export default function FormularioIngresoEgreso({ userId, proveedoresData,client
             Limpiar
           </button>
           <button
-            type="submit"
+            onClick={handleClick}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Guardar Movimiento

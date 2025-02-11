@@ -8,6 +8,7 @@ export const proveedores = sqliteTable("proveedores", {
     id: text("id").primaryKey(),
     nombre: text("nombre").notNull(),
     contacto: text("contacto"),
+    dni:integer('dni',{mode:'number'}),
     celular:text('celular'),
     email:text('email'),
     userId:text('userId').references(()=>users.id),

@@ -6,12 +6,14 @@ import { stockActual, productos, movimientosStock } from "../../../db/schema";
 export async function POST({ request, params }: APIContext): Promise<Response> {
   const { userId } = params;
   const body = await request.json();
+  console.log(body)
   // fatla autenticacion con lucia auth
 
   try {
     const id = nanoid(13);
     const insertarData = await db.insert(movimientosStock).values({
       id,
+      userId,
       ...body,
     });
 

@@ -128,11 +128,8 @@ const infoStats = [
     <div class="flex items-center justify-evenly w-full">
 
 
-    <Modal id="modalIngreso" label="Ingreso">
-        <FormularioIngresoEgreso tipo="Ingreso" proveedoresData={proveedoresData} clientesData={clientesData} listaProductos={listaProductos} userId={user.id}  client:visible/>
-    </Modal>
-    <Modal id="modalEgreso" label="egreso">
-        <FormularioIngresoEgreso tipo="egresol" client:visible/>
+    <Modal id="modalIngreso" label="Movimiento">
+        <FormularioIngresoEgreso  proveedoresData={proveedoresData} clientesData={clientesData} listaProductos={listaProductos} userId={user.id}  client:visible/>
     </Modal>
     </div>
   </DivBox1>

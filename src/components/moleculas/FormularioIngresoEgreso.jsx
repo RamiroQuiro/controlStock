@@ -4,6 +4,7 @@ import { filtroBusqueda } from "../../context/store";
 import { useEffect, useState } from "react";
 import SelectorProveedoresClientes from "./SelectorProveedoresClientes";
 import SelectorProductos from "./SelectorProductos";
+import { showToast } from "../../utils/toast/toastShow";
 
 export default function FormularioIngresoEgreso({
   userId,
@@ -21,6 +22,7 @@ export default function FormularioIngresoEgreso({
   });
   const [productoSelect, setProductoSelect] = useState({});
   const [dataSelect, setDataSelect] = useState({});
+  const [error, setError] = useState({msg:'',status:0})
   const $filtrado = useStore(filtroBusqueda)?.filtro;
   useEffect(() => {
     if ($filtrado) {
@@ -52,7 +54,8 @@ export default function FormularioIngresoEgreso({
 
     setFormulario((state) => ({ ...state, [name]: value }));
   };
-  const handleClick = async () => {
+  const handleClick = async (e) => {
+    e.preventDefault()
     try {
       const responseFetch = await fetch(`/api/movimientos/${userId}`, {
         method: "POST",
@@ -64,7 +67,15 @@ export default function FormularioIngresoEgreso({
 
       const data = await responseFetch.json();
       console.log(data);
-    } catch (error) {}
+      if (responseFetch.status == 400) {
+        setError({error:data.error});
+      } else if (data.status == 200) {
+        showToast("registro exitoso");
+        setTimeout(() => window.location.reload(), 1500);
+      }
+    } catch (error) {
+      setError({error:data.error});
+    }
   };
 
   const motivoEgreso = [
@@ -118,7 +129,7 @@ export default function FormularioIngresoEgreso({
   ];
 
   return (
-    <div className=" mx-auto mt-1 p-6 w-full rounded-lg">
+    <div className=" mx-auto mt-1 p-6 w-full  rounded-lg">
       <form>
         <div className="flex flex-col  gap-2 mb-6 ">
           {/* selector de productos */}
@@ -235,19 +246,25 @@ export default function FormularioIngresoEgreso({
           ></textarea>
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex flex-col mb-1 justify-between  bottom-0 left-0 w-full">
+                    <div className="w-full h-6  text-center mx-auto">
+                        <p className="p text-sm font-semibold text-primary-400">{error.error}</p>
+                    </div>
+          <div className="w-full items-center justify-evenly flex">
+
           <button
             type="reset"
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-          >
+            >
             Limpiar
           </button>
           <button
             onClick={handleClick}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
+            >
             Guardar Movimiento
           </button>
+            </div>
         </div>
       </form>
     </div>

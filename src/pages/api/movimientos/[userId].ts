@@ -16,7 +16,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
 
   try {
     const body = await request.json();
-
+console.log(body)
     // Validación de los datos de entrada
     if (!body.productoId || !body.cantidad || !body.tipo) {
       return new Response(
@@ -28,13 +28,17 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       );
     }
 
-    // Autenticación (placeholder, implementar con Lucia)
-    // if (!isAuthenticated(userId)) {
-    //   return new Response(
-    //     JSON.stringify({ status: 401, msg: "No autorizado" }),
-    //     { status: 401 }
-    //   );
-    // }
+    // Validar que cantidad sea un número positivo
+    const cantidad = Number(body.cantidad);
+    if (isNaN(cantidad) || cantidad <= 0) {
+      return new Response(
+        JSON.stringify({
+          status: 400,
+          msg: "La cantidad debe ser un número positivo",
+        }),
+        { status: 400 }
+      );
+    }
 
     const transaccionDataBase = await db.transaction(async (trx) => {
       // Verificar si el producto existe
@@ -44,6 +48,10 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
 
       if (!producto) {
         throw new Error("El producto no existe");
+      }
+
+      if (isNaN(producto.stock)) {
+        throw new Error("El stock actual del producto no es válido");
       }
 
       // Generar ID para el movimiento
@@ -59,11 +67,10 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         })
         .returning();
 
+        console.log('entrada de body ->',body,'movimientoInsertado',movimientoInsertado,'producto',producto)
       // Calcular nuevo stock
       const nuevoStock =
-        movimientoInsertado.tipo === "ingreso"
-          ? producto.stock + body.cantidad
-          : producto.stock - body.cantidad;
+        producto.stock + (movimientoInsertado.tipo === "ingreso" ? cantidad : -cantidad);
 
       if (nuevoStock < 0) {
         throw new Error("El stock no puede ser negativo");

@@ -12,7 +12,6 @@ export default function FormularioIngresoEgreso({
   listaProductos,
 }) {
   const [formulario, setFormulario] = useState({
-    proveedorId: "",
     productoId: "",
     fecha: "",
     motivo: "",
@@ -118,7 +117,6 @@ export default function FormularioIngresoEgreso({
     },
   ];
 
-  console.log(formulario);
   return (
     <div className=" mx-auto mt-1 p-6 w-full rounded-lg">
       <form>

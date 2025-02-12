@@ -163,8 +163,8 @@ export default function FormularioIngresoEgreso({
               formulario={formulario}
             />
           </div>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="w-full">
               <label
                 for="unidad"
                 className="block text-sm font-medium text-gray-700"
@@ -191,7 +191,7 @@ export default function FormularioIngresoEgreso({
                     ))}
               </select>
             </div>
-            <div>
+            <div className="w-full">
               <label
                 for="fecha"
                 className="block text-sm font-medium text-gray-700"
@@ -208,7 +208,7 @@ export default function FormularioIngresoEgreso({
             </div>
           </div>
 
-          <div>
+          <div className="w-full flex flex-col my-3">
             <label
               for="cantidad"
               name="cantidad"

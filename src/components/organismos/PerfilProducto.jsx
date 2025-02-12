@@ -1,6 +1,7 @@
 import React from "react";
 import Button3 from "../atomos/Button3";
 import Table from "../tablaComponentes/Table";
+import formatDate from "../../utils/formatDate";
 
 export default function PerfilProducto({ infoProducto }) {
   const columnas = [
@@ -14,12 +15,13 @@ export default function PerfilProducto({ infoProducto }) {
 
   const newArray = infoProducto.stockMovimiento?.map((mov, i) => {
     const efectuado=mov.tipo=='egreso'?'clienteId':'productoId'
+    const fecha=formatDate(mov.fecha)
     return {
       "N°": i + 1,
       tipo: mov.tipo,
       cantidad: mov.cantidad,
       efectuado:mov.tipo=='egreso'?mov.clienteId:mov.proveedorId,
-      fecha: mov.fecha,
+      fecha: fecha,
     };
   });
   return (
@@ -46,7 +48,7 @@ export default function PerfilProducto({ infoProducto }) {
         </div>
 
         {/* Sección de detalles */}
-        <div className="w-full md:w-1/2 flex flex-col relative gap-4">
+        <div className="w-full md:w-1/2 flex flex-col relative gap-">
           <h2 className="text-xl font-bold text-gray-800">
             Detalles del Producto
           </h2>

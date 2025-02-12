@@ -31,13 +31,8 @@ export default function PerfilProducto({ infoProducto }) {
             />
           </div>
           <div className="w-full items-center justify-evenly flex gap-4 mt-6">
-            <Button3 className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
-              Ingreso
-            </Button3>
-            <Button3 className="bg-green-600 hover:bg-green-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
-              Egreso
-            </Button3>
-            <Button3 className="bg-orange-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
+          
+            <Button3 className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
               Editar
             </Button3>
             <Button3 className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">

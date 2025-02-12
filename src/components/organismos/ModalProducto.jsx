@@ -27,6 +27,7 @@ const ModalProducto = ({ productoId, onClose }) => {
           throw new Error("Error al obtener los datos del producto");
         }
         const data = await response.json();
+        console.log(data)
         setInfoProducto(data.data);
         // console.log("atencion consultada", data.data);
       } catch (err) {

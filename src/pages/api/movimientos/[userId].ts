@@ -16,7 +16,6 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
 
   try {
     const body = await request.json();
-console.log(body)
     // Validación de los datos de entrada
     if (!body.productoId || !body.cantidad || !body.tipo) {
       return new Response(
@@ -67,7 +66,6 @@ console.log(body)
         })
         .returning();
 
-        console.log('entrada de body ->',body,'movimientoInsertado',movimientoInsertado,'producto',producto)
       // Calcular nuevo stock
       const nuevoStock =
         producto.stock + (movimientoInsertado.tipo === "ingreso" ? cantidad : -cantidad);

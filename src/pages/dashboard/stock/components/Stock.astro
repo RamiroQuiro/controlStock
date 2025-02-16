@@ -4,16 +4,27 @@ import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 import StatsStock from "./StatsStock.astro";
 import {
   ChartColumnDecreasing,
+  DollarSign,
   Package,
   Sticker,
   StickyNote,
+  TrendingUp,
+  Warehouse,
 } from "lucide-react";
 import H2 from "../../../../components/atomos/H2.astro";
 import ListradoProductos from "./ListradoProductos.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso.astro";
 import db from "../../../../db";
-import { clientes, productos, proveedores, proveedores, stockActual } from "../../../../db/schema";
-import {  eq } from "drizzle-orm";
+import {
+  clientes,
+  detalleVentas,
+  movimientosStock,
+  productos,
+  proveedores,
+  proveedores,
+  stockActual,
+} from "../../../../db/schema";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import Etiquetas from "../../../../components/atomos/Etiquetas.astro";
 import FormularioIngresoEgreso from "../../../../components/moleculas/FormularioIngresoEgreso";
@@ -21,91 +32,340 @@ import ModalComponents from "../../../../components/moleculas/ModalComponents";
 import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
 
-const user={id:"1",nombre:"ramiro"}
+const user = { id: "1", nombre: "ramiro" };
 
-let queryDB=[]
-let productosStockBajos=[]
-let totalStockPrecio=0
-let totalStockCosto=0
-const trayendoProductos = async (userId) => {
-  const dataDB = await db.transaction(async(trx)=>{
-    const listaProductos=  await trx.select({
-      id: productos.id,
-      codigoBarra: productos.codigoBarra,
-      descripcion: productos.descripcion,
-      categoria: productos.categoria,
-      pCompra: productos.pCompra,
-      pVenta: productos.pVenta,
-      stock: productos.stock,
-      srcPhoto:productos.srcPhoto,
-      localizacion:stockActual.localizacion,
-      alertaStock:stockActual.alertaStock,
-      ultimaActualizacion: productos.ultimaActualizacion,
+let queryDB = [];
+let productosStockBajos = [];
+let totalStockPrecio = 0;
+let totalStockCosto = 0;
+const trayendoProductos = async (userId: string) => {
+  const dataDB = await db.transaction(async (trx) => {
+    const listaProductos = await trx
+      .select({
+        id: productos.id,
+        codigoBarra: productos.codigoBarra,
+        descripcion: productos.descripcion,
+        categoria: productos.categoria,
+        pCompra: productos.pCompra,
+        pVenta: productos.pVenta,
+        stock: productos.stock,
+        srcPhoto: productos.srcPhoto,
+        localizacion: stockActual.localizacion,
+        alertaStock: stockActual.alertaStock,
+        ultimaActualizacion: productos.ultimaActualizacion,
       })
-    .from(productos)
-    .innerJoin(stockActual,eq(stockActual.productoId,productos.id))
-    .where(eq(productos.userId, userId))
-  
-  const proveedoresData=await trx.select().from(proveedores).where(eq(proveedores.userId,userId))
-  const clientesData= await trx.select().from(clientes).where(eq(clientes.userId,userId))
-return {listaProductos,proveedoresData,clientesData}  
-})
-    return dataDB;
+      .from(productos)
+      .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
+      .where(eq(productos.userId, userId));
+
+    const proveedoresData = await trx
+      .select()
+      .from(proveedores)
+      .where(eq(proveedores.userId, userId));const trayendoProductos = async (userId: string) => {
+        try {
+          // Validar que userId no esté vacío
+          if (!userId) {
+            throw new Error('ID de usuario es requerido');
+          }
+      
+          const dataDB = await db.transaction(async (trx) => {
+            // 1. Consulta de productos con stock actual
+            const listaProductos = await trx
+              .select({
+                id: productos.id,
+                codigoBarra: productos.codigoBarra,
+                descripcion: productos.descripcion,
+                categoria: productos.categoria,
+                pCompra: productos.pCompra,
+                pVenta: productos.pVenta,
+                stock: productos.stock,
+                srcPhoto: productos.srcPhoto,
+                localizacion: stockActual.localizacion,
+                alertaStock: stockActual.alertaStock,
+                ultimaActualizacion: productos.ultimaActualizacion,
+              })
+              .from(productos)
+              .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
+              .where(eq(productos.userId, userId));
+      
+            // Validar que existan productos
+            if (listaProductos.length === 0) {
+              console.warn(`No se encontraron productos para el usuario ${userId}`);
+            }
+      
+            // 2. Consultas auxiliares de proveedores y clientes
+            const [proveedoresData, clientesData] = await Promise.all([
+              trx
+                .select()
+                .from(proveedores)
+                .where(eq(proveedores.userId, userId)),
+              trx
+                .select()
+                .from(clientes)
+                .where(eq(clientes.userId, userId))
+            ]);
+      
+            // 3. Función auxiliar para consultas de ventas con parámetros flexibles
+            const consultaVentas = async (
+              options: { 
+                orderDirection?: 'desc' | 'asc', 
+                limit?: number,
+                minVentas?: number 
+              } = {}
+            ) => {
+              const {
+                orderDirection = 'desc', 
+                limit = 10,
+                minVentas = 0
+              } = options;
+      
+              return await trx
+                .select({
+                  producto: productos,
+                  totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as('totalVendido'),
+                })
+                .from(detalleVentas)
+                .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
+                .where(
+                  and(
+                    eq(productos.userId, userId),
+                    sql`sum(${detalleVentas.cantidad}) > ${minVentas}`
+                  )
+                )
+                .groupBy(productos.id)
+                .orderBy(orderDirection === 'desc' ? desc(sql`totalVendido`) : asc(sql`totalVendido`))
+                .limit(limit);
+            };
+      
+            // 4. Top productos más y menos vendidos con opciones flexibles
+            const topMasVendidos = await consultaVentas({ orderDirection: 'desc' });
+            const topMenosVendidos = await consultaVentas({ 
+              orderDirection: 'asc',
+              minVentas: 1  // Evitar productos sin ventas
+            });
+      
+            // 5. Consulta de movimientos de stock con múltiples joins
+            const stockMovimiento = await trx
+              .select({
+                producto: productos,
+                totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as('totalVendido'),
+                totalIngresos: sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'ingreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as('totalIngresos'),
+                totalEgresos: sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'egreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as('totalEgresos'),
+              })
+              .from(productos)
+              .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
+              .leftJoin(movimientosStock, eq(movimientosStock.productoId, productos.id))
+              .where(eq(productos.userId, userId))
+              .groupBy(productos.id)
+              .orderBy(desc(sql`totalVendido`))
+              .limit(10);
+      
+            // Registro de métricas para análisis
+            console.log('Métricas de consulta:', {
+              totalProductos: listaProductos.length,
+              topMasVendidosCount: topMasVendidos.length,
+              topMenosVendidosCount: topMenosVendidos.length,
+            });
+      
+            // 6. Retorna todos los datos recopilados
+            return { 
+              listaProductos, 
+              proveedoresData, 
+              clientesData, 
+              topMasVendidos, 
+              topMenosVendidos, 
+              stockMovimiento 
+            };
+          });
+      
+          return dataDB;
+        } catch (error) {
+          // Manejo centralizado de errores
+          console.error('Error en trayendoProductos:', error);
+          
+          // Puedes personalizar el error según tus necesidades
+          throw new Error(`Error al recuperar datos de productos: ${error.message}`);
+        }
+      };
+    const clientesData = await trx
+      .select()
+      .from(clientes)
+      .where(eq(clientes.userId, userId));
+    const topMasVendidos = await trx
+      .select({
+        producto: productos,
+        totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
+          "totalVendido"
+        ),
+      })
+      .from(detalleVentas)
+      .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
+      .where(eq(productos.userId, userId))
+      .groupBy(productos.id)
+      .orderBy(desc(sql`totalVendido`))
+      .limit(10);
+
+      const topMenosVendidos = await trx
+      .select({
+        producto: productos,
+        totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
+          "totalVendido"
+        ),
+      })
+      .from(detalleVentas)
+      .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
+      .where(eq(productos.userId, userId))
+      .groupBy(productos.id)
+      .orderBy(asc(sql`totalVendido`))
+      .limit(10);
+
+      const stockMovimiento = await trx
+  .select({
+    producto: productos,
+    totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as("totalVendido"),
+    totalIngresos: sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'ingreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as("totalIngresos"),
+    totalEgresos: sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'egreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as("totalEgresos"),
+  })
+  .from(productos)
+  .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id)) // Ventas
+  .leftJoin(movimientosStock, eq(movimientosStock.productoId, productos.id)) // Movimientos de stock
+  .where(eq(productos.userId, userId))
+  .groupBy(productos.id)
+  .orderBy(desc(sql`totalVendido`))
+  .limit(10);
+
+
+    return { listaProductos, proveedoresData, clientesData, topMasVendidos, topMenosVendidos ,stockMovimiento};
+  });
+  return dataDB;
 };
 // consultar si es mejor hacerlo en la base de datos esta condicion
-const obtenerStockBajoProductos=(array:[])=>{
-    return array.filter((prod)=>prod.stock<=prod.alertaStock)
-}
+const obtenerStockBajoProductos = (array: []) => {
+  return array.filter((prod) => prod.stock <= prod.alertaStock);
+};
 
 try {
-queryDB= await trayendoProductos(user.id)
+  queryDB = await trayendoProductos(user.id);
 
-productosStockBajos=obtenerStockBajoProductos(queryDB?.listaProductos)
-  
- totalStockPrecio= queryDB?.listaProductos?.reduce(
-      (acc, producto) => acc + producto.pVenta * producto.stock,
-      0
-    );
-    totalStockCosto= queryDB?.listaProductos?.reduce(
-      (acc, producto) => acc + producto.pCompra * producto.stock,
-      0
-    );
+  productosStockBajos = obtenerStockBajoProductos(queryDB?.listaProductos);
 
+  totalStockPrecio = queryDB?.listaProductos?.reduce(
+    (acc, producto) => acc + producto.pVenta * producto.stock,
+    0
+  );
+  totalStockCosto = queryDB?.listaProductos?.reduce(
+    (acc, producto) => acc + producto.pCompra * producto.stock,
+    0
+  );
 } catch (error) {
-  console.log(error)
+  console.log(error);
 }
-const  {listaProductos,proveedoresData,clientesData}=queryDB
+const { listaProductos, proveedoresData, clientesData, topMasVendidos, topMenosVendidos ,stockMovimiento} = queryDB;
+// metricas sugeridad
+// Análisis de productos más vendidos
+const topProductos = topMasVendidos.map(item => ({
+  nombre: item.producto.descripcion,
+  cantidadVendida: item.totalVendido,
+  precioVenta: item.producto.pVenta,
+  ingresosTotales: item.totalVendido * item.producto.pVenta
+}));
+
+// Análisis de movimientos de stock
+const analisisStock = stockMovimiento.map(item => ({
+  nombre: item.producto.descripcion,
+  totalVendido: item.totalVendido,
+  totalIngresos: item.totalIngresos,
+  totalEgresos: item.totalEgresos,
+  stockActual: item.producto.stock,
+  // Calcula la diferencia entre ingresos y egresos
+  diferenciaMovimiento: item.totalIngresos - item.totalEgresos
+}));
+
+// Identificar productos con bajo movimiento
+const productosBajoMovimiento = topMenosVendidos.filter(item => 
+  item.totalVendido < 5 // Productos con menos de 5 ventas
+);
+
+const totalMasVendidos=topMasVendidos.reduce((total, producto) => 
+total + (producto.totalVendido * producto.producto.pVenta), 0)
+
+const totalIngresosStock=stockMovimiento.reduce((total, producto) => 
+total + (producto.totalIngresos), 0)
+
+const balanceMovimiento= analisisStock.reduce((total, item) => 
+total + (item.totalIngresos - item.totalEgresos), 0)
+
+const totalEgresosStock=stockMovimiento.reduce((total, producto) =>
+total + (producto.totalEgresos), 0)
+
+// stats 
 const infoStats = [
   {
     icono: Package,
     h2: listaProductos?.length,
     bgColor: "from-primary-100 to-blue-700",
     title: "Productos en Stock",
+    tooltip: `Total de productos únicos en inventario`
   },
+
   {
-    h2: productosStockBajos.length,
     icono: ChartColumnDecreasing,
+    h2: productosStockBajos.length,
     bgColor: "from-red-400 to-amber-700",
-    title: "Productos de Stock bajo",
+    title: "Productos de Stock Bajo",
+    tooltip: `Productos que requieren reposición inmediata`
   },
+  
   {
-    icono: Sticker,
-    h2: formateoMoneda.format(totalStockPrecio),
+    icono: TrendingUp,
+    h2: formateoMoneda.format(totalMasVendidos),
     bgColor: "from-lime-500 to-lime-700",
-    title: "Precio del Stock",
+    title: "Ingresos por Ventas Top",
+    tooltip: `Ingresos generados por los productos más vendidos`
   },
+
   {
     icono: StickyNote,
     h2: formateoMoneda.format(totalStockCosto),
     bgColor: "from-orange-400 to-orange-700",
-    title: "Costo del Stock",
+    title: "Costo de Inventario",
+    tooltip: `Valor de reposición de todo el inventario`
+  },
+  {
+    icono: Sticker,
+    h2: formateoMoneda.format(totalStockPrecio),
+    bgColor: "from-purple-500 to-purple-700",
+    title: "Precio de  Inventario",
   },
 ];
 
 
+
+// console.log('top productos',topProductos);
+// console.log('analisis de strock',analisisStock);
+// console.log('productos bajo movimiento',productosBajoMovimiento);
+
 ---
 
 <MainDashboard h1="Stock">
+  <div
+    slot={"menu"}
+    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+  >
+    <Modal label="Crear" id="agregarProducto">
+      <FormularioCargaProducto user={user} />
+    </Modal>
+
+    <Modal id="modalIngreso" label="Movimiento">
+      <FormularioIngresoEgreso
+        proveedoresData={proveedoresData}
+        clientesData={clientesData}
+        listaProductos={listaProductos}
+        userId={user.id}
+        client:visible
+      />
+    </Modal>
+  </div>
   <DivBox1 styleDiv="w-full">
     <div class="w-full flex items-center justify-between gap-2">
       {
@@ -125,24 +385,22 @@ const infoStats = [
       }
     </div>
   </DivBox1>
-  <DivBox1 styleDiv="mt-3 w-full">
-    <div class="flex items-center justify-evenly w-full">
-      <Modal label="Agregar" id="agregarProducto">
-        <FormularioCargaProducto user={user} />
-      </Modal>
 
-    <Modal id="modalIngreso" label="Movimiento">
-        <FormularioIngresoEgreso  proveedoresData={proveedoresData} clientesData={clientesData} listaProductos={listaProductos} userId={user.id}  client:visible/>
-    </Modal>
-    </div>
-  </DivBox1>
   <div class="flex w-full mt-3 gap-2 items-start justify-start">
     <ListradoProductos productosArray={listaProductos} />
     <DivBox1 styleDiv="w-1/3">
-      <div class="flex items-center justify-between gap-2">
-        <H2>Top Egresos</H2>
+      <div class="w-full">
+        <div class="flex items-center justify-between gap-2">
+          <H2>Más Vendidos</H2>
+        </div>
+        <ContenedorTablaTopEgreso />
       </div>
-      <ContenedorTablaTopEgreso />
+      <div class="w-full">
+        <div class="flex items-center justify-between gap-2">
+          <H2>Menos Vendidos</H2>
+        </div>
+        <ContenedorTablaTopEgreso />
+      </div>
     </DivBox1>
   </div>
 </MainDashboard>

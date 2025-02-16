@@ -6,10 +6,10 @@ export default function ConfeccionTablaEgresoTop() {
     const [sortDirection, setSortDirection] = useState("asc");
     const columnas = [
         { label: 'N°', id: 1, selector: (row, index) => index + 1},
-        { label: 'descripcion', id: 3, selector: row => row.descripcion },
-        { label: 'categoria', id: 4, selector: row => row.categoria },
-        { label: 'Vendida', id: 7, selector: row => row.Stock },
-        { label: 'Stock', id: 8, selector: row => row.Stock },
+        { label: 'Descripcion', id: 3, selector: row => row.descripcion },
+        { label: 'Categoria', id: 4, selector: row => row.categoria },
+        { label: 'Vendida', id: 7, selector: row => row.vendida },
+        { label: 'Stock', id: 8, selector: row => row.stock },
       ];
 
     const handleSort = (columnId) => {

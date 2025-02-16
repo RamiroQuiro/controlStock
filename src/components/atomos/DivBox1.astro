@@ -1,8 +1,9 @@
 ---
-const { styleDiv } = Astro.props;
+const { slot,styleDiv } = Astro.props;
 ---
 
 <div
+slot={slot}
   class={`${styleDiv}  bg-white border--150 rounded-lg  flex items-start focus:border-primary-100 border justify-between p-4  text-primary-texto`}
 >
   <div class="flex flex-col gap-y-2 items-start w-full justify-between">

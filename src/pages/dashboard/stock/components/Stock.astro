@@ -289,14 +289,6 @@ const productosBajoMovimiento = topMenosVendidos.filter(item =>
 const totalMasVendidos=topMasVendidos.reduce((total, producto) => 
 total + (producto.totalVendido * producto.producto.pVenta), 0)
 
-const totalIngresosStock=stockMovimiento.reduce((total, producto) => 
-total + (producto.totalIngresos), 0)
-
-const balanceMovimiento= analisisStock.reduce((total, item) => 
-total + (item.totalIngresos - item.totalEgresos), 0)
-
-const totalEgresosStock=stockMovimiento.reduce((total, producto) =>
-total + (producto.totalEgresos), 0)
 
 // stats 
 const infoStats = [
@@ -393,13 +385,13 @@ const infoStats = [
         <div class="flex items-center justify-between gap-2">
           <H2>Más Vendidos</H2>
         </div>
-        <ContenedorTablaTopEgreso />
+        <ContenedorTablaTopEgreso productosArray={topMasVendidos} />
       </div>
       <div class="w-full">
         <div class="flex items-center justify-between gap-2">
           <H2>Menos Vendidos</H2>
         </div>
-        <ContenedorTablaTopEgreso />
+        <ContenedorTablaTopEgreso productosArray={topMenosVendidos} />
       </div>
     </DivBox1>
   </div>

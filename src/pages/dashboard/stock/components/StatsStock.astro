@@ -3,10 +3,13 @@ import type { LucideIcon } from "lucide-react"
 
 
 interface PropsDataType{ 
-    h2: string,
+    h2: string | number;
     bgColor: string,
     icon: LucideIcon;
+    title: string;
+    tooltip?: string;
 }
+
 
 const {h2,bgColor,icon:Icon }=Astro.props as PropsDataType
 

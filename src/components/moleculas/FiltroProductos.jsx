@@ -1,28 +1,54 @@
-import { useState } from 'react';
-import { filtroBusqueda } from '../../context/store';
-export default function FiltroProductos() {
-  const [search, setSearch] = useState('');
+import { useState } from "react";
+import { busqueda } from "../../context/store";
+import { Search } from "lucide-react";
 
-  const handleSearch = e => {
-    setSearch(state => {
-      filtroBusqueda.set({ filtro: e.target.value.toLowerCase() });
-      return e.target.value.toLowerCase();
-    });
+export default function FiltroProductos() {
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(null);
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value.toLowerCase());
+    console.log('value ->', e.target.value);
+  
+    if (timer) clearTimeout(timer); // 🔥 Limpiamos el timer anterior
+  
+    if (e.target.value === '') {
+      busqueda.set({ productosBuscados: null }); // ✅ Ahora guarda `null` en vez de "todos"
+    } else {
+      setTimer(
+        setTimeout(() => {
+          fetchProductos(e.target.value.toLowerCase());
+        }, 300) // ⏳ Debounce de 300ms
+      );
+    }
+  };
+  
+
+  const fetchProductos = async (query) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/productos/productos?search=${query}`);
+      const data = await res.json();
+      busqueda.set({productosBuscados:data.data}); // 🔥 Guardamos los productos en el store
+      console.log(data)
+    } catch (error) {
+      console.error("Error en la búsqueda de productos:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div
-      className={`${'styleContenedor'} w-full flex  items relative flex-col items-start gap- duration-300 group -md border rounded-lg`}
-    >
+    <div className="w-full flex flex-col relative">
       <input
         onChange={handleSearch}
-        placeholder={'Ingrese codigo de barra, descripcion, localizacion, categoria, stock,...'}
+        placeholder="Ingrese código de barra, descripción, etc."
         value={search}
         type="search"
-        name="busquedaProducto"
-        id="busquedaProducto"
-        className=" w-full text-sm bg-white  rounded-lg group-hover:ring-2  border-gray-300  ring-primary-100/70 focus:ring-2  outline-none transition-colors duration-200 ease-in-out px-2 py-2"
+        className="w-full text-sm bg-white rounded-lg px-2 py-2 border-gray-300 focus:ring-2 outline-none transition duration-200"
       />
+      {loading && <div className="text-sm py-3 flex items-center justify-center bg-white border top-12 rounded-lg shadow-lg text-center font-semibold animate-aparecer w-full text-gray-500 absolute"><Search/> Buscando...</div>}
     </div>
   );
 }

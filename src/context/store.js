@@ -1,7 +1,7 @@
 import { atom } from 'nanostores';
 
 const busqueda = atom({
-  pacienteSelect: '',
+  productosBuscados: null,
 });
 
 const filtroBusqueda = atom({

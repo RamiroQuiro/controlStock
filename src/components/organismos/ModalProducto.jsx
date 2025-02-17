@@ -43,11 +43,14 @@ const ModalProducto = ({ productoId, onClose }) => {
   if (!productoId) return null;
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm"
+    style={{margin:0,
+      position:'fixed'
+    }}
+      className="fixed top-0 left-0 mt-0 w-full h-screen z-[80] bg-black bg-opacity-50 flex items-center  justify-center backdrop-blur-sm"
       onClick={() => onClose(false)} // Detectar clic fuera del modal
     >
       <div
-        className="bg-primary-bg-componentes relative rounded-lg overflow-hidden border-l-2 text-border-primary-100/80 shadow-lg h-[95vh] overflow-y-auto  w-2/3"
+        className="bg-primary-bg-componentes relative rounded-lg overflow-hidden border-l-2  text-border-primary-100/80 shadow-lg h-[95vh] overflow-y-auto  w-2/3"
         onClick={(e) => e.stopPropagation()} // Evitar cerrar el modal al hacer clic dentro de él
       >
         <button

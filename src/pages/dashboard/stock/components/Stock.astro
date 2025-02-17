@@ -19,6 +19,7 @@ import Etiquetas from "../../../../components/atomos/Etiquetas.astro";
 import FormularioIngresoEgreso from "../../../../components/moleculas/FormularioIngresoEgreso";
 import ModalComponents from "../../../../components/moleculas/ModalComponents";
 import Modal from "../../../../components/moleculas/Modal.astro";
+import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
 
 const user={id:"1",nombre:"ramiro"}
 
@@ -126,7 +127,9 @@ const infoStats = [
   </DivBox1>
   <DivBox1 styleDiv="mt-3 w-full">
     <div class="flex items-center justify-evenly w-full">
-
+      <Modal label="Agregar" id="agregarProducto">
+        <FormularioCargaProducto user={user} />
+      </Modal>
 
     <Modal id="modalIngreso" label="Movimiento">
         <FormularioIngresoEgreso  proveedoresData={proveedoresData} clientesData={clientesData} listaProductos={listaProductos} userId={user.id}  client:visible/>

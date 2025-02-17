@@ -1,26 +1,32 @@
 import React from "react";
 import Button3 from "../atomos/Button3";
 import Table from "../tablaComponentes/Table";
+import formatDate from "../../utils/formatDate";
 
 export default function PerfilProducto({ infoProducto }) {
   const columnas = [
     { label: "N°", id: 1, selector: (row, index) => "N°" },
     { label: "Tipo", id: 2, selector: (row) => row.tipo },
     { label: "Cantidad", id: 3, selector: (row) => row.cantidad },
+    { label: "cliente/proveed", id: 5, selector: (row) => row.proveed },
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
+
   ];
 
   const newArray = infoProducto.stockMovimiento?.map((mov, i) => {
+    const efectuado=mov.tipo=='egreso'?'clienteId':'productoId'
+    const fecha=formatDate(mov.fecha)
     return {
       "N°": i + 1,
       tipo: mov.tipo,
       cantidad: mov.cantidad,
-      fecha: mov.fecha,
+      efectuado:mov.tipo=='egreso'?mov.clienteId:mov.proveedorId,
+      fecha: fecha,
     };
   });
   return (
-    <div className="w-full flex flex-col gap-6   rounded-lg items-stretch p-3">
-      <div className="flex items-start justify-normal bg-white w-full gap-5 sticky  top-5">
+    <div className="w-full flex flex-col gap-6   rounded-lg items-stretch ">
+      <div className="flex items-start justify-normal bg-white w-full gap-5 sticky  top-0 p-3">
         {/* Sección de imagen */}
         <div className="w-full flex flex-col md:w-3/4 items-center justify-start relative pb-8 rounded-lg overflow-hidden ">
           <div className="h-[80%] flex w-full  items-center ">
@@ -42,7 +48,7 @@ export default function PerfilProducto({ infoProducto }) {
         </div>
 
         {/* Sección de detalles */}
-        <div className="w-full md:w-1/2 flex flex-col gap-4">
+        <div className="w-full md:w-1/2 flex flex-col relative gap-">
           <h2 className="text-xl font-bold text-gray-800">
             Detalles del Producto
           </h2>
@@ -81,7 +87,7 @@ export default function PerfilProducto({ infoProducto }) {
         </div>
       </div>
       {/* Historial de movimiento */}
-      <div className="mt-6">
+      <div className="mt- px-3">
         <h3 className="text-lg font-bold text-gray-700 mb-2">
           Historial de Movimiento
         </h3>

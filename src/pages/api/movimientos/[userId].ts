@@ -16,6 +16,10 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
 
   try {
     const body = await request.json();
+<<<<<<< HEAD
+=======
+
+>>>>>>> e0a3b0698236239285f475f29ccee4e9b2daf691
     // Validación de los datos de entrada
     if (!body.productoId || !body.cantidad || !body.tipo) {
       return new Response(
@@ -39,70 +43,92 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       );
     }
 
-    const transaccionDataBase = await db.transaction(async (trx) => {
-      // Verificar si el producto existe
-      const producto = (
-        await trx.select().from(productos).where(eq(productos.id, body.productoId))
-      ).at(0);
+    // Ejecutar transacción
+    try {
+      await db.transaction(async (trx) => {
+        // Verificar si el producto existe
+        const producto = (
+          await trx.select().from(productos).where(eq(productos.id, body.productoId))
+        ).at(0);
 
-      if (!producto) {
-        throw new Error("El producto no existe");
-      }
+        if (!producto) {
+          throw new Error("El producto no existe");
+        }
 
-      if (isNaN(producto.stock)) {
-        throw new Error("El stock actual del producto no es válido");
-      }
+        if (isNaN(producto.stock)) {
+          throw new Error("El stock actual del producto no es válido");
+        }
 
-      // Generar ID para el movimiento
-      const movimientoId = nanoid(13);
+        // Generar ID para el movimiento
+        const movimientoId = nanoid(13);
 
-      // Insertar el movimiento de stock
-      const [movimientoInsertado] = await trx
-        .insert(movimientosStock)
-        .values({
-          id: movimientoId,
-          userId,
-          ...body,
-        })
-        .returning();
+        // Insertar el movimiento de stock
+        const [movimientoInsertado] = await trx
+          .insert(movimientosStock)
+          .values({
+            id: movimientoId,
+            userId,
+            ...body,
+          })
+          .returning();
 
+<<<<<<< HEAD
       // Calcular nuevo stock
       const nuevoStock =
         producto.stock + (movimientoInsertado.tipo === "ingreso" ? cantidad : -cantidad);
+=======
+        console.log(
+          "Entrada de body ->",
+          body,
+          "movimientoInsertado",
+          movimientoInsertado,
+          "producto",
+          producto
+        );
+>>>>>>> e0a3b0698236239285f475f29ccee4e9b2daf691
 
-      if (nuevoStock < 0) {
-        throw new Error("El stock no puede ser negativo");
-      }
+        // Calcular nuevo stock
+        const nuevoStock =
+          producto.stock + (movimientoInsertado.tipo === "ingreso" ? cantidad : -cantidad);
 
-      // Actualizar el stock del producto
-      await trx
-        .update(productos)
-        .set({ stock: nuevoStock })
-        .where(eq(productos.id, body.productoId));
+        if (nuevoStock < 0) {
+          throw new Error("El stock no puede ser negativo");
+        }
 
-      // Actualizar stock actual
-      await trx
-        .update(stockActual)
-        .set({ cantidad: nuevoStock })
-        .where(eq(stockActual.productoId, body.productoId));
-    });
+        // Actualizar el stock del producto
+        await trx
+          .update(productos)
+          .set({ stock: nuevoStock })
+          .where(eq(productos.id, body.productoId));
+
+        // Actualizar stock actual
+        await trx
+          .update(stockActual)
+          .set({ cantidad: nuevoStock })
+          .where(eq(stockActual.productoId, body.productoId));
+      });
+    } catch (error) {
+      // Captura errores dentro de la transacción y los relanza para ser manejados más adelante
+      throw new Error(error.message || "Error en la transacción");
+    }
 
     return new Response(
       JSON.stringify({
         status: 200,
         msg: "Movimiento registrado con éxito",
-      })
+      }),
+      { status: 200 }
     );
   } catch (error) {
     console.error("Error al registrar el movimiento:", error);
 
     return new Response(
       JSON.stringify({
-        status: 500,
-        msg: "Error interno del servidor",
+        status: 400,
+        msg: "Error al procesar la solicitud",
         error: error.message || "Error desconocido",
       }),
-      { status: 500 }
+      { status: 400 }
     );
   }
 }

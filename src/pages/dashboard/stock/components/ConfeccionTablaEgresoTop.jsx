@@ -1,18 +1,27 @@
 import React, { useState } from 'react'
 import Table from '../../../../components/tablaComponentes/Table'
 
-export default function ConfeccionTablaEgresoTop() {
+export default function ConfeccionTablaEgresoTop({arrayProduct}) {
     const [sortColumn, setSortColumn] = useState(null);
     const [sortDirection, setSortDirection] = useState("asc");
     const columnas = [
         { label: 'N°', id: 1, selector: (row, index) => index + 1},
-        { label: 'descripcion', id: 3, selector: row => row.descripcion },
-        { label: 'categoria', id: 4, selector: row => row.categoria },
-        { label: 'Vendida', id: 7, selector: row => row.Stock },
-        { label: 'Stock', id: 8, selector: row => row.Stock },
+        { label: 'Descripcion', id: 3, selector: row => row.descripcion },
+        { label: 'Categoria', id: 4, selector: row => row.categoria },
+        { label: 'Vendido', id: 7, selector: row => row.vendida },
+        { label: 'Stock', id: 8, selector: row => row.stock },
       ];
 
-    const handleSort = (columnId) => {
+      const newArray=arrayProduct?.map((prod,i)=>{
+        return {
+          "N°":i+1,
+          descripcion:prod?.producto?.descripcion,
+          categoria:prod?.producto?.categoria,
+          vendida:prod?.totalVendido,
+          stock:prod?.producto?.stock,
+        }
+      })
+      const handleSort = (columnId) => {
       if (sortColumn === columnId) {
         setSortDirection(sortDirection === "asc" ? "desc" : "asc");
       } else {
@@ -21,13 +30,8 @@ export default function ConfeccionTablaEgresoTop() {
       }
     };
   
-    const rows = [
-        { descripcion: "Producto A", categoria: "Categoría 1", Vendida: 100, Stock: 50 },
-        { descripcion: "Producto B", categoria: "Categoría 2", Vendida: 80, Stock: 30 },
-        { descripcion: "Producto C", categoria: "Categoría 3", Vendida: 120, Stock: 20 },
-      ];
 
-      const sortedRows = [...rows].sort((a, b) => {
+      const sortedRows = [...newArray].sort((a, b) => {
         if (!sortColumn) return 0;
         const column = columnas.find(col => col.id === sortColumn);
         const valueA = column.selector(a);

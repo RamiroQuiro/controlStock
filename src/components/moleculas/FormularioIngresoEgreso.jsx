@@ -129,7 +129,7 @@ export default function FormularioIngresoEgreso({
   ];
 
   return (
-    <div className=" mx-auto mt-1 p-6 w-full  rounded-lg">
+    <div className=" mx-auto mt-1 p-6 w-full text-sm  rounded-lg">
       <form>
         <div className="flex flex-col  gap-2 mb-6 ">
           {/* selector de productos */}
@@ -208,7 +208,7 @@ export default function FormularioIngresoEgreso({
             </div>
           </div>
 
-          <div className="w-full flex flex-col my-3">
+          <div className="w-full flex flex-col m">
             <label
               for="cantidad"
               name="cantidad"
@@ -222,13 +222,13 @@ export default function FormularioIngresoEgreso({
               type="number"
               id="cantidad"
               min="0"
-              className="mt-1  py-2 px-1 block w-full border-gray-300 rounded-lg shadow-sm outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1  py-2 px-1 block w-full border-gray-300 text rounded-lg shadow-sm outline-none focus:ring-blue-500 focus:border-blue-500"
               placeholder="Ej: 50"
             />
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-">
           <label
             for="observaciones"
             name="observaciones"
@@ -240,8 +240,8 @@ export default function FormularioIngresoEgreso({
             onChange={handleChange}
             id="observaciones"
             name="observaciones"
-            rows="4"
-            className="mt-1 block w-full p-2 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            rows="3"
+            className="mt-1 block w-full p-2 ring-primary-15 ring-1 rounded-lg shadow-sm focus:ring-blue- outline-none focus:border-blue-500"
             placeholder="Agregue comentarios o detalles adicionales..."
           ></textarea>
         </div>

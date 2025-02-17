@@ -5,13 +5,18 @@ const { title, dataIds, h1 } = Astro.props;
 <main
   class="top-12 md:right-0 z-0  w-full mt-5 md:mb-16  print:hidden flex flex-col items-center justify-center"
 >
-  {
-    h1 && (
-      <div class="w-full ">
-        <h1 class="text-xl ml-6 mb-4 font-semibold text-primary-textoTitle ">{h1}</h1>
+ <div class="w-full flex items-center justify-start gap-4">
+
+   {
+     h1 && (
+       <div class="w- ">
+        <h1 class="text-xl ml-6 mb-2 font-semibold text-primary-textoTitle ">{h1}</h1>
       </div>
     )
+
   }
+  <slot name="menu"/>
+  </div>
   <div
     class="w-full py flex flex-col px-6  items-center justify- rounded-lg h-full"
   >

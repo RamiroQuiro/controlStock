@@ -25,7 +25,7 @@ const menuItems = [
 
 <sidebar
   id="sidebar"
-  class="expanded duration-300 group h-full  print:hidden overflow-hidden  bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[4vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items-start justify-normal md:gap- pt-10"
+  class="expanded duration-300 group h-full items-stretch  print:hidden overflow-hidden   bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[4vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items- justify-normal md:gap- pt-10"
 >
   <div
     class="w-full h-1/  mb-5 hidden md:flex flex-col items-end justify-start pt- gap-2"
@@ -47,7 +47,7 @@ const menuItems = [
       />
     </div>
   </div>
-  <div class="flex flex-col items-start w-full">
+  <div class="flex flex-col  items-start w-full">
     {
       menuItems.map((item) => (
         <a href={item.path} class="flex items-center px-3 py-3 cursor-pointer text-white/80 hover:text-white hover:bg-primary-100/10 text-sm transition-colors">

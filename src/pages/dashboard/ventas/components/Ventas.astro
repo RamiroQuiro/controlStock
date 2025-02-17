@@ -31,7 +31,6 @@ const trayendoProductos = async (userId) => {
     })
     .from(productos)
     .where(eq(productos.userId, userId));
-  console.log(dataDB);
   return dataDB;
 };
 

@@ -8,6 +8,7 @@ export default function PerfilProducto({ infoProducto }) {
     { label: "N°", id: 1, selector: (row, index) => "N°" },
     { label: "Tipo", id: 2, selector: (row) => row.tipo },
     { label: "Cantidad", id: 3, selector: (row) => row.cantidad },
+    { label: "Motivo", id: 3, selector: (row) => row.motivo },
     { label: "cliente/proveed", id: 5, selector: (row) => row.proveed },
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
 
@@ -20,12 +21,13 @@ export default function PerfilProducto({ infoProducto }) {
       "N°": i + 1,
       tipo: mov.tipo,
       cantidad: mov.cantidad,
+      motivo:mov.motivo,
       efectuado:mov.tipo=='egreso'?mov.clienteId:mov.proveedorId,
       fecha: fecha,
     };
   });
   return (
-    <div className="w-full flex flex-col gap-6   rounded-lg items-stretch ">
+    <div className="w-full flex flex-col gap-6 pb-5  rounded-lg items-stretch ">
       <div className="flex items-start justify-normal bg-white w-full gap-5 sticky  top-0 p-3">
         {/* Sección de imagen */}
         <div className="w-full flex flex-col md:w-3/4 items-center justify-start relative pb-8 rounded-lg overflow-hidden ">

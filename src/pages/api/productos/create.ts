@@ -1,7 +1,7 @@
 import type { APIContext, APIRoute } from "astro";
 import db from "../../../db";
 import { nanoid } from "nanoid";
-import { productos, stockActual } from "../../../db/schema";
+import { movimientosStock, productos, stockActual } from "../../../db/schema";
 import { sql } from "drizzle-orm";
 import path from "path";
 import { promises as fs } from "fs";
@@ -77,7 +77,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       .jpeg({ quality: 80 })
       .toFile(rutaGuardado);
     const rutaRelativa = `/element/imgs/${userId}/productos/${nombreArchivo}`;
-    console.log("ruta userId", userId);
+    // console.log("ruta userId", userId);
     const creacionProducto = await db.transaction(async (trx) => {
       const id = nanoid(10);
       const [insterProduct] = await trx
@@ -109,6 +109,19 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         localizacion,
         updatedAt: sql`(strftime('%s','now'))`,
       });
+
+      await trx.insert(movimientosStock).values({
+        id: nanoid(10),
+        productoId: insterProduct.id,
+        cantidad: stock,
+        userId,
+        clienteId: null,
+        proveedorId: null,
+        fecha: sql`(strftime('%s','now'))`,
+        tipo: "ingreso",
+        motivo:"StockInicial",
+
+      })
     });
 
     return new Response(

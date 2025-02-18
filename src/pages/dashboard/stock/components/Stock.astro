@@ -20,15 +20,9 @@ import { trayendoProductos } from "../../../../lib/stockFunctions";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos.astro";
 const user = { id: "1", nombre: "ramiro" };
 
-// consultar si es mejor hacerlo en la base de datos esta condicion
 const obtenerStockBajoProductos = (array: []) => {
   return array.filter((prod) => prod.stock <= prod.alertaStock);
 };
-
-const queryDB = await trayendoProductos(user.id);
-
-const productosStockBajos = obtenerStockBajoProductos(queryDB?.listaProductos);
-
 const totalStockPrecio = queryDB?.listaProductos?.reduce(
   (acc, producto) => acc + producto.pVenta * producto.stock,
   0

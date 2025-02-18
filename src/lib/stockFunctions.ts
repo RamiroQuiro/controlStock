@@ -2,9 +2,13 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import db from "../db";
 import { clientes, detalleVentas, movimientosStock, productos, proveedores, stockActual } from "../db/schema";
 
+<<<<<<< HEAD
 export const trayendoProductos = async (userId: string, page:number=0,limit:number=20) => {
   const offset = page * limit;
 
+=======
+export const trayendoProductos = async (userId: string) => {
+>>>>>>> c9dce22c1ec836786b690d1ccff21e7f2e489546
     const dataDB = await db.transaction(async (trx) => {
       const listaProductos = await trx
         .select({
@@ -22,6 +26,7 @@ export const trayendoProductos = async (userId: string, page:number=0,limit:numb
         })
         .from(productos)
         .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
+<<<<<<< HEAD
         .where(eq(productos.userId, userId))
         .limit(limit) // 🔥 Establece el límite de productos a traer
         .offset(offset); // 🔥 Define desde dónde empezar
@@ -33,6 +38,10 @@ export const trayendoProductos = async (userId: string, page:number=0,limit:numb
         .from(productos)
         .where(eq(productos.userId, userId))).at(0)?.count ?? 0
 
+=======
+        .where(eq(productos.userId, userId));
+  
+>>>>>>> c9dce22c1ec836786b690d1ccff21e7f2e489546
       const proveedoresData = await trx
         .select()
         .from(proveedores)
@@ -101,7 +110,10 @@ export const trayendoProductos = async (userId: string, page:number=0,limit:numb
         topMasVendidos,
         topMenosVendidos,
         stockMovimiento,
+<<<<<<< HEAD
         totalProductos
+=======
+>>>>>>> c9dce22c1ec836786b690d1ccff21e7f2e489546
       };
     });
     return dataDB;

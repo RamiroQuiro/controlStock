@@ -42,7 +42,7 @@ const ModalProducto = ({ productoId, onClose }) => {
   if (!productoId) return null;
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm"
+      className="fixed inset-0 h-screen w-screen z-[60] bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm"
       onClick={() => onClose(false)} // Detectar clic fuera del modal
     >
       <div

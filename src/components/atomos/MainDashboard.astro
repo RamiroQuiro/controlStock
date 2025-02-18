@@ -3,7 +3,7 @@ const { title, dataIds, h1 } = Astro.props;
 ---
 
 <main
-  class="top-12 md:right-0 z-0  w-full mt-5 md:mb-16  print:hidden flex flex-col items-center justify-center"
+  class="top-12 md:right-0 z-0  w-full mt-5 md:16  print:hidden flex flex-col items-center justify-center"
 >
  <div class="w-full flex items-center justify-start gap-4">
 
@@ -18,7 +18,7 @@ const { title, dataIds, h1 } = Astro.props;
   <slot name="menu"/>
   </div>
   <div
-    class="w-full py flex flex-col px-6  items-center justify- rounded-lg h-full"
+    class="w-full py flex flex-col px-6 gap-2  overflow-y-auto items-center justify- rounded-lg h-[85vh] pb-10"
   >
     <slot />
   </div>

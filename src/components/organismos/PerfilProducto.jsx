@@ -39,7 +39,7 @@ export default function PerfilProducto({ infoProducto }) {
             />
           </div>
           <div className="w-full items-center justify-evenly flex gap-4 mt-6">
-       
+          
             <Button3 className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
               Editar
             </Button3>

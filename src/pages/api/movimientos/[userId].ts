@@ -16,7 +16,10 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
 
   try {
     const body = await request.json();
+<<<<<<< HEAD
+=======
 
+>>>>>>> e0a3b0698236239285f475f29ccee4e9b2daf691
     // Validación de los datos de entrada
     if (!body.productoId || !body.cantidad || !body.tipo) {
       return new Response(
@@ -69,6 +72,11 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           })
           .returning();
 
+<<<<<<< HEAD
+      // Calcular nuevo stock
+      const nuevoStock =
+        producto.stock + (movimientoInsertado.tipo === "ingreso" ? cantidad : -cantidad);
+=======
         console.log(
           "Entrada de body ->",
           body,
@@ -77,6 +85,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           "producto",
           producto
         );
+>>>>>>> e0a3b0698236239285f475f29ccee4e9b2daf691
 
         // Calcular nuevo stock
         const nuevoStock =

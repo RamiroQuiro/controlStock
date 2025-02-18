@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import db from "../../../../db";
 import { movimientosStock, productos, stockActual } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ params }) => {
@@ -49,7 +49,8 @@ export const GET: APIRoute = async ({ params }) => {
       const stockMovimiento = await trx
         .select()
         .from(movimientosStock)
-        .where(eq(movimientosStock.productoId, productoId));
+        .where(eq(movimientosStock.productoId, productoId)).
+        orderBy(desc(movimientosStock.fecha))
 
       // Devuelve ambos resultados como un objeto
       return { productData, stockMovimiento };

@@ -50,7 +50,7 @@ const ModalProducto = ({ productoId, onClose }) => {
       onClick={() => onClose(false)} // Detectar clic fuera del modal
     >
       <div
-        className="bg-primary-bg-componentes relative rounded-lg overflow-hidden border-l-2  text-border-primary-100/80 shadow-lg h-[95vh] overflow-y-auto  w-2/3"
+        className="bg-primary-bg-componentes relative rounded-lg overflow-hidden border-l-2  text-border-primary-100/80 mt-0 shadow-lg h-[95vh] overflow-y-auto w-[95vw]  md:w-[80vw]"
         onClick={(e) => e.stopPropagation()} // Evitar cerrar el modal al hacer clic dentro de él
       >
         <button

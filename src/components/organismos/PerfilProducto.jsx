@@ -1,7 +1,15 @@
-import React from "react";
-import Button3 from "../atomos/Button3";
 import Table from "../tablaComponentes/Table";
 import formatDate from "../../utils/formatDate";
+import DivReact from "../atomos/DivReact";
+import {
+  ArrowRightLeft,
+  DollarSign,
+  LucideLineChart,
+  SendToBack,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { formateoMoneda } from "../../utils/formateoMoneda";
 
 export default function PerfilProducto({ infoProducto }) {
   const columnas = [
@@ -11,89 +19,179 @@ export default function PerfilProducto({ infoProducto }) {
     { label: "Motivo", id: 3, selector: (row) => row.motivo },
     { label: "cliente/proveed", id: 5, selector: (row) => row.proveed },
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
-
   ];
 
   const newArray = infoProducto.stockMovimiento?.map((mov, i) => {
-    const efectuado=mov.tipo=='egreso'?'clienteId':'productoId'
-    const fecha=formatDate(mov.fecha)
+    const stockInicial = mov?.motivo === "StockInicial";
+
+    if (stockInicial) {
+      console.log('este es el movimiento del stcock actualk',mov);
+    }
+    const efectuado = mov.tipo == "egreso" ? "clienteId" : "productoId";
+    const fecha = formatDate(mov.fecha);
+    const esEgreso = mov.tipo === "egreso";
+    const stockActual=esEgreso?stockInicial-mov.cantidad:stockInicial+mov.cantidad;
+    console.log(stockActual);
     return {
       "N°": i + 1,
-      tipo: mov.tipo,
+      tipo:
+        mov.tipo === "ingreso" ? (
+          <p className="flex items-center justify gap-2 text-green-600 normal">
+            <TrendingUp className="h-4 w-4" /> ingreso
+          </p>
+        ) : (
+          <p className="flex text-primary-400 items-center justify-normal gap-2">
+            <TrendingDown className="h-4 w-4" /> egreso
+          </p>
+        ),
       cantidad: mov.cantidad,
-      motivo:mov.motivo,
-      efectuado:mov.tipo=='egreso'?mov.clienteId:mov.proveedorId,
+      motivo: mov.motivo,
+      efectuado: mov.tipo == "egreso" ? mov.clienteId : mov.proveedorId,
       fecha: fecha,
+      stockRestante: stockActual,
     };
   });
-  return (
-    <div className="w-full flex flex-col gap-6 pb-5  rounded-lg items-stretch ">
-      <div className="flex items-start justify-normal bg-white w-full gap-5 sticky  top-0 p-3">
-        {/* Sección de imagen */}
-        <div className="w-full flex flex-col md:w-3/4 items-center justify-start relative pb-8 rounded-lg overflow-hidden ">
-          <div className="h-[80%] flex w-full  items-center ">
-            <img
-              src={infoProducto.productData?.srcPhoto}
-              alt={infoProducto.productData?.descripcion}
-              className=" object-cover w-full h-60  hover:scale-110 duration-500"
-            />
-          </div>
-          <div className="w-full items-center justify-evenly flex gap-4 mt-6">
-          
-            <Button3 className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
-              Editar
-            </Button3>
-            <Button3 className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-md transition duration-300">
-              Eliminar
-            </Button3>
-          </div>
-        </div>
 
-        {/* Sección de detalles */}
-        <div className="w-full md:w-1/2 flex flex-col relative gap-">
-          <h2 className="text-xl font-bold text-gray-800">
-            Detalles del Producto
-          </h2>
-          <div className="flex flex-col gap-2">
-            <p>
-              <span className="font-medium text-gray-600">ID:</span>{" "}
-              {infoProducto.productData?.id}
-            </p>
-            <p>
-              <span className="font-medium text-gray-600">Descripción:</span>{" "}
-              {infoProducto.productData?.descripcion}
-            </p>
-            <p>
-              <span className="font-medium text-gray-600">Categoría:</span>{" "}
-              {infoProducto.productData?.categoria}
-            </p>
-            <p>
-              <span className="font-medium text-gray-600">Localización:</span>{" "}
-              {infoProducto.productData?.localizacion}
-            </p>
-            <p>
-              <span className="font-medium text-gray-600">Marca:</span>{" "}
-              {infoProducto.productData?.marca}
-            </p>
-            <p>
-              <span className="font-medium text-gray-600">Stock:</span>{" "}
-              {infoProducto.productData?.stock}
-            </p>
-            <p>
-              <span className="font-medium text-gray-600">
-                Alerta de Stock:
-              </span>{" "}
-              {infoProducto.productData?.alertaStock}
-            </p>
+  const totalStockProducto =
+    infoProducto.productData?.pVenta * infoProducto.productData?.stock;
+
+  const margenGanancia =
+    ((infoProducto.productData?.pVenta - infoProducto.productData?.pCompra) /
+      infoProducto.productData?.pCompra) *
+    100;
+
+  const ultimaRepo =
+    infoProducto.stockMovimiento.filter((mov) => mov.tipo === "ingreso")[0]
+      ?.fecha || null;
+
+  return (
+    <div className="w-full flex flex-col  px-3 -translate-y-5 rounded-lg items-stretch  ">
+      <h2 className="text-lg font-semibold mb-3 text-primary-textoTitle">
+        Detalle del Producto
+      </h2>
+      <div className="flex flex-col w-full -mt- items-center justify-normal gap-3">
+        <DivReact>
+          {/* Sección de imagen */}
+          <div className="flex items-start justify-normal gap-3">
+            <div className="w-full flex flex-col md:w-[60%] items-center justify-start relative rounded-lg overflow-hidden ">
+              <div className="h-[80%] flex w-full rounded-lg  items-center ">
+                <img
+                  src={infoProducto.productData?.srcPhoto}
+                  alt={infoProducto.productData?.descripcion}
+                  className=" object-cover w-full h-60 rounded-lg overflow-hidden hover:scale-105 duration-500"
+                />
+              </div>
+            </div>
+
+            {/* Sección de detalles */}
+            <div className="w-full md:w-1/3 flex text-sm flex-col relative gap-">
+              <div className="flex flex-col gap-1">
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Codigo/ID:</span>
+                  <p className="font-medium text-primary-textoTitle">
+                    {" "}
+                    {infoProducto.productData?.id}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Descripción:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.descripcion}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Categoria:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.categoria}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Localización:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.localizacion}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Marca:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.marca}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Stock:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.stock}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Alerta de Stock:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.alertaStock}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Codigo de Barra:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.codigoBarra}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Ultima Reposición:</span>
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {formatDate(ultimaRepo)}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      {/* Historial de movimiento */}
-      <div className="mt- px-3">
-        <h3 className="text-lg font-bold text-gray-700 mb-2">
-          Historial de Movimiento
-        </h3>
-        <Table arrayBody={newArray} columnas={columnas} />
+        </DivReact>
+        <DivReact>
+          <div className="w-full flex items-center justify-around">
+            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
+              <div className="flex items-center gap-1">
+                <DollarSign className="stroke-primary-100" />
+                <p className="text-primary-textoTitle">Precio de Costo</p>
+              </div>
+              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
+                {formateoMoneda.format(infoProducto.productData?.pCompra)}
+              </p>
+            </div>
+            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
+              <div className="flex items-center gap-1">
+                <DollarSign className="stroke-primary-100" />
+                <p className="text-primary-textoTitle">Precio de Venta</p>
+              </div>
+              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
+                {formateoMoneda.format(infoProducto.productData?.pVenta)}
+              </p>
+            </div>
+            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
+              <div className="flex items-center gap-1">
+                <SendToBack className="stroke-primary-100" />
+                <p className="text-primary-textoTitle">Precio Stock</p>
+              </div>
+              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
+                {formateoMoneda.format(totalStockProducto)}
+              </p>
+            </div>
+            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
+              <div className="flex items-center gap-1">
+                <LucideLineChart className="stroke-primary-100" />
+                <p className="text-primary-textoTitle">Margen Ganancia</p>
+              </div>
+              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
+                %{margenGanancia.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </DivReact>
+        {/* Historial de movimiento */}
+        <DivReact>
+          <h3 className="flex  items-center gap-4 text-lg font-semibold text-gray-700 mb-2">
+            <ArrowRightLeft /> Historial de Movimiento
+          </h3>
+          <Table arrayBody={newArray} columnas={columnas} />
+        </DivReact>
       </div>
     </div>
   );

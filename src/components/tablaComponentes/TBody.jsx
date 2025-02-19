@@ -36,7 +36,7 @@ export default function TBody({ arrayBody, renderBotonActions }) {
         </tr>
       ) : (
         sortedData.map((item, i) => (
-          <Tr key={item.id || i} data={item} renderBotonActions={renderBotonActions} />
+          <Tr key={i} data={item} renderBotonActions={renderBotonActions} />
         ))
       )}
     </tbody>

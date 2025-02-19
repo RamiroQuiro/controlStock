@@ -14,7 +14,7 @@ export default function FormularioIngresoEgreso({
 }) {
   const [formulario, setFormulario] = useState({
     productoId: "",
-    fecha: "",
+    fecha: Date.now(),
     motivo: "",
     cantidad: "",
     observaciones: "",

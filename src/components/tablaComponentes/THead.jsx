@@ -15,9 +15,9 @@ export default function THead({ columnas }) {
   return (
     <thead className="bg-gray-100">
       <tr >
-        {columnas?.map(columna => (
+        {columnas?.map((columna,i) => (
           <Th
-            key={columna.id}
+            key={i}
             onClick={() => handleSort(columna.selector)}
             styleTh={`cursor-pointer hover:bg-gray-200 transition-colors ${
               $columnSelect.seleccion === columna.selector ? 'bg-gray-200' : ''

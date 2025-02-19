@@ -16,22 +16,27 @@ export default function PerfilProducto({ infoProducto }) {
     { label: "N°", id: 1, selector: (row, index) => "N°" },
     { label: "Tipo", id: 2, selector: (row) => row.tipo },
     { label: "Cantidad", id: 3, selector: (row) => row.cantidad },
-    { label: "Motivo", id: 3, selector: (row) => row.motivo },
+    { label: "Motivo", id: 4, selector: (row) => row.motivo },
     { label: "cliente/proveed", id: 5, selector: (row) => row.proveed },
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
+    { label: "Stock Restante", id: 7, selector: (row) => row.stockRestante },
   ];
-
-  const newArray = infoProducto.stockMovimiento?.map((mov, i) => {
-    const stockInicial = mov?.motivo === "StockInicial";
-
-    if (stockInicial) {
-      console.log('este es el movimiento del stcock actualk',mov);
+  
+  const stockInicial=infoProducto.stockMovimiento?.filter((mov)=>mov.motivo=="StockInicial")[0].cantidad
+  let stockActual=0
+  const newArray = infoProducto.stockMovimiento?.sort((a,b)=>a.fecha-b.fecha).map((mov, i) => {
+    if(mov.motivo=="StockInicial") {
+      stockActual=stockInicial
     }
-    const efectuado = mov.tipo == "egreso" ? "clienteId" : "productoId";
-    const fecha = formatDate(mov.fecha);
-    const esEgreso = mov.tipo === "egreso";
-    const stockActual=esEgreso?stockInicial-mov.cantidad:stockInicial+mov.cantidad;
-    console.log(stockActual);
+     const esEgreso = mov.tipo === "egreso";
+     if (mov.motivo !== "StockInicial") {
+       stockActual = esEgreso
+       ? stockActual - mov.cantidad
+       : stockActual + mov.cantidad;
+      }
+      const efectuado = mov.tipo == "egreso" ? "clienteId" : "productoId";
+      const fecha = formatDate(mov.fecha);
+
     return {
       "N°": i + 1,
       tipo:
@@ -190,7 +195,7 @@ export default function PerfilProducto({ infoProducto }) {
           <h3 className="flex  items-center gap-4 text-lg font-semibold text-gray-700 mb-2">
             <ArrowRightLeft /> Historial de Movimiento
           </h3>
-          <Table arrayBody={newArray} columnas={columnas} />
+          <Table arrayBody={newArray.reverse()} columnas={columnas} />
         </DivReact>
       </div>
     </div>

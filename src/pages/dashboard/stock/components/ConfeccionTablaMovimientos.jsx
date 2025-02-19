@@ -12,7 +12,6 @@ export default function ConfeccionTablaMovimientos({arrayProduct}) {
       ];
 
       const newArray=arrayProduct?.map((prod,i)=>{
-        console.log(prod)
         return {
           "N°":i+1,
           descripcion:prod?.producto?.descripcion,

@@ -69,6 +69,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           .returning();
 
         console.log(
+          
           "Entrada de body ->",
           body,
           "movimientoInsertado",

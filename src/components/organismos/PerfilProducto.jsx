@@ -13,46 +13,54 @@ import { formateoMoneda } from "../../utils/formateoMoneda";
 
 export default function PerfilProducto({ infoProducto }) {
   const columnas = [
-    { label: "N°", id: 1, selector: (row, index) => "N°" },
+    { label: "N°", id: 1, selector: (row, index) => index + 1 },
     { label: "Tipo", id: 2, selector: (row) => row.tipo },
     { label: "Cantidad", id: 3, selector: (row) => row.cantidad },
     { label: "Motivo", id: 4, selector: (row) => row.motivo },
-    { label: "cliente/proveed", id: 5, selector: (row) => row.proveed },
+    { label: "Cliente/Proveedor", id: 5, selector: (row) => row.efectuado },
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
     { label: "Stock Restante", id: 7, selector: (row) => row.stockRestante },
   ];
-  
-  const stockInicial=infoProducto.stockMovimiento?.filter((mov)=>mov.motivo=="StockInicial")[0].cantidad
-  let stockActual=0
-  const newArray = infoProducto.stockMovimiento?.sort((a,b)=>a.fecha-b.fecha).map((mov, i) => {
-    if(mov.motivo=="StockInicial") {
-      stockActual=stockInicial
+
+  // **Obtener el stock inicial**
+  const stockInicial = infoProducto.stockMovimiento?.find(
+    (mov) => mov.motivo === "StockInicial"
+  )?.cantidad ?? 0;
+
+  // **Obtener movimientos ordenados por fecha**
+  const movimientosOrdenados = [...(infoProducto.stockMovimiento || [])].sort(
+    (a, b) => new Date(a.fecha) - new Date(b.fecha)
+  );
+
+  // **Inicializar stock con el stock inicial**
+  let stockActual = stockInicial;
+
+  // **Mapear los movimientos con el cálculo correcto del stock**
+  const newArray = movimientosOrdenados.map((mov, i) => {
+    // Determinar si es egreso
+    const esEgreso = mov.tipo === "egreso";
+
+    // Actualizar el stock
+    if (mov.motivo !== "StockInicial") {
+      stockActual = esEgreso ? stockActual - mov.cantidad : stockActual + mov.cantidad;
     }
-     const esEgreso = mov.tipo === "egreso";
-     if (mov.motivo !== "StockInicial") {
-       stockActual = esEgreso
-       ? stockActual - mov.cantidad
-       : stockActual + mov.cantidad;
-      }
-      const efectuado = mov.tipo == "egreso" ? "clienteId" : "productoId";
-      const fecha = formatDate(mov.fecha);
 
     return {
-      "N°": i + 1,
+      n: i + 1,
       tipo:
         mov.tipo === "ingreso" ? (
           <p className="flex items-center justify gap-2 text-green-600 normal">
-            <TrendingUp className="h-4 w-4" /> ingreso
+            <TrendingUp className="h-4 w-4" /> Ingreso
           </p>
         ) : (
           <p className="flex text-primary-400 items-center justify-normal gap-2">
-            <TrendingDown className="h-4 w-4" /> egreso
+            <TrendingDown className="h-4 w-4" /> Egreso
           </p>
         ),
       cantidad: mov.cantidad,
       motivo: mov.motivo,
-      efectuado: mov.tipo == "egreso" ? mov.clienteId : mov.proveedorId,
-      fecha: fecha,
+      efectuado: mov.tipo === "egreso" ? mov.clienteId : mov.proveedorId,
+      fecha: formatDate(mov.fecha),
       stockRestante: stockActual,
     };
   });

@@ -14,9 +14,21 @@ import ModalProducto from "../../../../components/organismos/ModalProducto.jsx";
 export default function CardProductosStock({ prod }) {
   const [modalActive, setModalActive] = useState(false)
   const totalStock = prod?.pVenta * prod?.stock;
+
+
+  const resta = prod.stock - prod.alertaStock;
+  const intensidad = Math.max(0, Math.min(1, 1 - prod.stock / prod.alertaStock)); 
+// Solo se pinta de rojo si el stock está por debajo de la alerta
+const backgroundColor = prod.stock <= prod.alertaStock 
+  ? `rgba(239, 68, 68, ${0.2 + intensidad * 0.8})` // Va de 0.2 a 1
+  : "transparent"; // Sin color si hay stock suficiente
   return (
 <>
-    <div onClick={()=>setModalActive(true)} className="bg-white rounded-lg py-1 px-2 flex items-center shadow-md hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full">
+    <div onClick={()=>setModalActive(true)}
+    style={{
+      backgroundColor: backgroundColor
+    }}
+    className={`bg-red-500/[5/${resta}] rounded-lg py-1 px-2 flex items-center shadow-md hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full`}>
       <div className="min-w-[75%] flex items-center justify-start gap-2 capitalize">
         <div className="bg-gray-200 w-1/3">
           <img

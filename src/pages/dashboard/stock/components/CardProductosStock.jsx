@@ -35,7 +35,7 @@ export default function CardProductosStock({ prod }) {
           <img
             src={prod?.srcPhoto}
             alt="logo"
-            className="rounded-lg h-20 object-cover w-full"
+            className="rounded-lg h-20 object-contain w-full"
           />
         </div>
         <div className="flex flex-col items-start justify-normal">

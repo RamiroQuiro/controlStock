@@ -10,10 +10,11 @@ import DetalleFotoDetalleProducto from "../../pages/dashboard/stock/components/D
 import { calcularMargenGanancia, calcularPrecioStock, calcularStockInicial, obtenerMovimientosOrdenados, obtenerUltimaReposicion } from "../../lib/detallesProducto";
 import { useState } from "react";
 import { showToast } from "../../utils/toast/toastShow";
+import ModalConfirmacion from "../moleculas/ModalConfirmacion";
 
 export default function PerfilProducto({ infoProducto }) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false)
-
+const [disableEdit, setDisableEdit] = useState(false)
   const columnas = [
     { label: "N°", id: 1, selector: (row, index) => index + 1 },
     { label: "Tipo", id: 2, selector: (row) => row.tipo },
@@ -32,12 +33,11 @@ export default function PerfilProducto({ infoProducto }) {
 
   // **Inicializar stock con el stock inicial**
   let stockActual = stockInicial;
-
   // **Mapear los movimientos con el cálculo correcto del stock**
+  console.log(infoProducto.productData)
   const newArray = movimientosOrdenados.map((mov, i) => {
     // Determinar si es egreso
     const esEgreso = mov.tipo === "egreso";
-
     // Actualizar el stock
     if (mov.motivo !== "StockInicial") {
       stockActual = esEgreso ? stockActual - mov.cantidad : stockActual + mov.cantidad;
@@ -48,11 +48,11 @@ export default function PerfilProducto({ infoProducto }) {
       tipo:
         mov.tipo === "ingreso" ? (
           <p className="flex items-center justify gap-2 text-green-600 normal">
-            <TrendingUp className="h-4 w-4" /> Ingreso
+            <TrendingDown className="h-4 w-4" /> Ingreso
           </p>
         ) : (
           <p className="flex text-primary-400 items-center justify-normal gap-2">
-            <TrendingDown className="h-4 w-4" /> Egreso
+            <TrendingUp className="h-4 w-4" /> Egreso
           </p>
         ),
       cantidad: mov.cantidad,
@@ -62,14 +62,12 @@ export default function PerfilProducto({ infoProducto }) {
       stockRestante: stockActual,
     };
   });
-
-  const confirmarConModal=()=>{
+  const confirmarConModal = () => {
     setModalConfirmacion(true)
   }
-
   const handleEliminar = async (e) => {
     e.preventDefault()
-  
+
     try {
       const res = await fetch(`/api/productos/productos?search=${infoProducto.productData.id}`, {
         method: 'DELETE',
@@ -83,26 +81,19 @@ export default function PerfilProducto({ infoProducto }) {
       showToast('error al eliminar', { backgorund: 'bg-red-500' })
     }
   }
-
+const handleEdit=()=>{
+  setDisableEdit(true)
+}
 
   return (
-    
+
     <div className="w-full flex flex-col h-full text-sm px-3 relative -translate-y-5 rounded-lg items-stretch  ">
       {
-        modalConfirmacion&&(
-          <div className="fixed h-full inset-0 flex items-center justify-center -translate-y-3 backdrop-blur-sm bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-4 rounded-md absolute top-16 shadow-md">
-              <h3 className="text-lg font-semibold mb-2">¿Estás seguro de eliminar este producto?</h3>  
-              <div className="flex justify-evenly gap-2">
-                <button onClick={() => setModalConfirmacion(false)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
-                  Cancelar
-                </button>
-                <button onClick={handleEliminar} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
+        modalConfirmacion && (
+          <ModalConfirmacion
+            handleCancelar={() => setModalConfirmacion(false)}
+            handleConfirmar={handleEliminar}
+          />
         )
       }
       <div className="flex justify-between pr-16 items-center mb-4">
@@ -110,7 +101,7 @@ export default function PerfilProducto({ infoProducto }) {
           Detalle del Producto
         </h2>
         {/* botonera */}
-        <ContenedorBotonera  handleDelete={confirmarConModal}/>
+        <ContenedorBotonera handleDelete={confirmarConModal} />
       </div>
       <div className="flex flex-col w-full -mt- items-center justify-normal gap-3">
         {/* info dle prodcutos */}

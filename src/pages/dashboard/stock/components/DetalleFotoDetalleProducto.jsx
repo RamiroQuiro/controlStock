@@ -12,7 +12,7 @@ export default function DetalleFotoDetalleProducto({ infoProducto,ultimaRepo }) 
           <img
             src={infoProducto.productData?.srcPhoto}
             alt={infoProducto.productData?.descripcion}
-            className=" object-cover w-full h-60 rounded-lg overflow-hidden hover:scale-105 duration-500"
+            className=" object-scale-down w-full h-60 rounded-lg overflow-hidden hover:scale-105 duration-500"
           />
         </div>
       </div>

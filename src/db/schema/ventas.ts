@@ -9,5 +9,6 @@ export const ventas = sqliteTable("ventas", {
     fecha: integer("fecha") // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
+    clienteId: text("clienteId").notNull().default("00"),
     total: integer("total", { mode: "number" }).notNull(),
   });

@@ -13,6 +13,7 @@ export default function CarritoVenta({ userId }) {
   const [totalVenta, setTotalVenta] = useState(0);
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [pagaCon, setPagaCon] = useState(0)
+  const [cliente, setCliente] = useState({})
   const [vueltoCalculo, setVueltoCalculo] = useState(0)
   useEffect(() => {
     const sumaTotal = $productos.reduce(
@@ -23,23 +24,25 @@ export default function CarritoVenta({ userId }) {
   }, [$productos]);
 
 
-const vuelto = (e) => {
-  const montoIngresado = Number(e.target.value);
-  const sumaTotal = $productos.reduce(
-    (acc, producto) => acc + producto.precio * producto.cantidad,
-    0
-  );
-  const vueltoCalculado = montoIngresado - sumaTotal;
-  return formateoTotal(vueltoCalculado >= 0 ? vueltoCalculado : 0)
-}
+  const vuelto = (e) => {
+    const montoIngresado = Number(e.target.value);
+    const sumaTotal = $productos.reduce(
+      (acc, producto) => acc + producto.precio * producto.cantidad,
+      0
+    );
+    const vueltoCalculado = montoIngresado - sumaTotal;
+    return formateoTotal(vueltoCalculado >= 0 ? vueltoCalculado : 0)
+  }
 
 
-const handlePagaCon=(e)=>{
-  setPagaCon(e)
-  
-  setVueltoCalculo(vuelto(e))
-}
+  const handlePagaCon = (e) => {
+    setPagaCon(e)
+    setVueltoCalculo(vuelto(e))
+  }
 
+  const handleCliente=(e)=>{
+    setCliente(e)
+  }
   const formateoTotal = (number) =>
     new Intl.NumberFormat("ar-AR", {
       style: "currency",
@@ -64,6 +67,7 @@ const handlePagaCon=(e)=>{
           productos: $productos,
           totalVenta,
           userId,
+          clienteId: "1",
         }),
       });
       const data = await responseFetch.json();
@@ -107,12 +111,15 @@ const handlePagaCon=(e)=>{
           $ {formateoTotal(totalVenta)}
         </p>
         <div className="w-full mt-3 inline-flex">
-<p className="text-3xl mr-2">$</p>
-<InputComponenteJsx name={'dineroAbonado'} placeholder={'Paga con ...'}handleChange={handlePagaCon}/>
+          <InputComponenteJsx name={'cliente'} placeholder={'Busqueda Cliente'} handleChange={handleCliente} />
+        </div>
+        <div className="w-full mt-3 inline-flex">
+          <p className="text-3xl mr-2">$</p>
+          <InputComponenteJsx name={'dineroAbonado'} placeholder={'Paga con ...'} handleChange={handlePagaCon} />
         </div>
         <div className="w-full text-primary-textoTitle font- text-2xl text-end flex flex-col items-end justify-between mt-3">
-<p className="text-lg">Su vuelto:</p>
-<span className="">${vueltoCalculo}</span>
+          <p className="text-lg">Su vuelto:</p>
+          <span className="">${vueltoCalculo}</span>
         </div>
         <div className="flex flex-col items-start justify-normal w-full space-y-2">
           <button

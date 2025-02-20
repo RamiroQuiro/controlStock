@@ -1,5 +1,4 @@
 import type { APIContext } from "astro";
-import { Temporal } from "temporal-polyfill";
 import db from "../../../db";
 import {
   detalleVentas,
@@ -12,20 +11,37 @@ import { nanoid } from "nanoid";
 import { eq, sql } from "drizzle-orm";
 
 export async function POST({ request, params }: APIContext): Promise<Response> {
-  const {
+  try {
+    
+    const {
     productos: productosSeleccionados,
     userId,
     totalVenta,
+    clienteId,
   } = await request.json();
-  // console.log(productosSeleccionados, userId, totalVenta);
+  console.log(productosSeleccionados, userId, totalVenta, clienteId);
 
-  if (totalVenta==0) {
-    return new Response(JSON.stringify({
-      status:402,
-      msg:'monto total 0'
-    }))
+  // Validaciones previas
+  if (!productosSeleccionados?.length || !userId || !clienteId) {
+    return new Response(
+      JSON.stringify({
+        status: 400,
+        msg: "Datos inválidos o incompletos",
+      }),
+      { status: 400 }
+    );
   }
-  try {
+
+  if (totalVenta <= 0) {
+    return new Response(
+      JSON.stringify({
+        status: 402,
+        msg: "El monto total de la venta debe ser mayor a 0",
+      }),
+      { status: 402 }
+    );
+  }
+ 
     const ventaDB = await db
       .transaction(async (trx) => {
         const ventaFinalizada = await trx
@@ -63,6 +79,17 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
                 updatedAt: sql`(strftime('%s','now'))`,
               })
               .where(eq(stockActual.productoId, prod.id));
+            await trx.insert(movimientosStock).values({
+              id: nanoid(12),
+              productoId: prod.id,
+              cantidad: prod.cantidad,
+              tipo: "egreso",
+              fecha: sql`(strftime('%s','now'))`,
+              userId,
+              proveedorId: null,
+              motivo: "venta",
+              clienteId,
+            });
           })
         );
 

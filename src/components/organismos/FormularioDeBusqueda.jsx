@@ -4,14 +4,11 @@ import { busqueda, filtroBusqueda } from '../../context/store';
 import useBusquedaFiltros from '../../hook/useBusquedaFiltro';
 
 export default function FormularioDeBusqueda({
-  value,
   arrayABuscar,
-  id,
   placeholder,
   opcionesFiltrado,
   onACtion,
   handleNoHayRegistro,
-  isClickend,
 }) {
   // const [clientSelect, setClientSelect] = useState([])
   const arr = [];

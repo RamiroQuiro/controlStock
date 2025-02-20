@@ -1,17 +1,19 @@
-import Table from "../tablaComponentes/Table";
 import formatDate from "../../utils/formatDate";
-import DivReact from "../atomos/DivReact";
 import {
-  ArrowRightLeft,
-  DollarSign,
-  LucideLineChart,
-  SendToBack,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { formateoMoneda } from "../../utils/formateoMoneda";
+import ContenedorBotonera from "../moleculas/ContenedorBotonera";
+import HistorialMovimientosDetalleProducto from "../../pages/dashboard/stock/components/HistorialMovimientosDetalleProducto";
+import StatsInfoDetalleProducto from "../../pages/dashboard/stock/components/StatsInfoDetalleProducto";
+import DetalleFotoDetalleProducto from "../../pages/dashboard/stock/components/DetalleFotoDetalleProducto";
+import { calcularMargenGanancia, calcularPrecioStock, calcularStockInicial, obtenerMovimientosOrdenados, obtenerUltimaReposicion } from "../../lib/detallesProducto";
+import { useState } from "react";
+import { showToast } from "../../utils/toast/toastShow";
 
 export default function PerfilProducto({ infoProducto }) {
+  const [modalConfirmacion, setModalConfirmacion] = useState(false)
+
   const columnas = [
     { label: "N°", id: 1, selector: (row, index) => index + 1 },
     { label: "Tipo", id: 2, selector: (row) => row.tipo },
@@ -22,15 +24,11 @@ export default function PerfilProducto({ infoProducto }) {
     { label: "Stock Restante", id: 7, selector: (row) => row.stockRestante },
   ];
 
-  // **Obtener el stock inicial**
-  const stockInicial = infoProducto.stockMovimiento?.find(
-    (mov) => mov.motivo === "StockInicial"
-  )?.cantidad ?? 0;
-
-  // **Obtener movimientos ordenados por fecha**
-  const movimientosOrdenados = [...(infoProducto.stockMovimiento || [])].sort(
-    (a, b) => new Date(a.fecha) - new Date(b.fecha)
-  );
+  const stockInicial = calcularStockInicial(infoProducto.stockMovimiento)
+  const movimientosOrdenados = obtenerMovimientosOrdenados(infoProducto.stockMovimiento)
+  const totalStockProducto = calcularPrecioStock(infoProducto.productData)
+  const margenGanancia = calcularMargenGanancia(infoProducto.productData?.pVenta, infoProducto.productData?.pCompra);
+  const ultimaRepo = obtenerUltimaReposicion(infoProducto.stockMovimiento)
 
   // **Inicializar stock con el stock inicial**
   let stockActual = stockInicial;
@@ -65,146 +63,62 @@ export default function PerfilProducto({ infoProducto }) {
     };
   });
 
-  const totalStockProducto =
-    infoProducto.productData?.pVenta * infoProducto.productData?.stock;
+  const confirmarConModal=()=>{
+    setModalConfirmacion(true)
+  }
 
-  const margenGanancia =
-    ((infoProducto.productData?.pVenta - infoProducto.productData?.pCompra) /
-      infoProducto.productData?.pCompra) *
-    100;
+  const handleEliminar = async (e) => {
+    e.preventDefault()
+  
+    try {
+      const res = await fetch(`/api/productos/productos?search=${infoProducto.productData.id}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        window.location.href = '/dashboard/stock'
+      }
+    } catch (error) {
+      console.log(error)
+      setModalConfirmacion(false)
+      showToast('error al eliminar', { backgorund: 'bg-red-500' })
+    }
+  }
 
-  const ultimaRepo =
-    infoProducto.stockMovimiento.filter((mov) => mov.tipo === "ingreso")[0]
-      ?.fecha || null;
 
   return (
-    <div className="w-full flex flex-col  px-3 -translate-y-5 rounded-lg items-stretch  ">
-      <h2 className="text-lg font-semibold mb-3 text-primary-textoTitle">
-        Detalle del Producto
-      </h2>
+    
+    <div className="w-full flex flex-col h-full text-sm px-3 relative -translate-y-5 rounded-lg items-stretch  ">
+      {
+        modalConfirmacion&&(
+          <div className="fixed h-full inset-0 flex items-center justify-center -translate-y-3 backdrop-blur-sm bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-4 rounded-md absolute top-16 shadow-md">
+              <h3 className="text-lg font-semibold mb-2">¿Estás seguro de eliminar este producto?</h3>  
+              <div className="flex justify-evenly gap-2">
+                <button onClick={() => setModalConfirmacion(false)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
+                  Cancelar
+                </button>
+                <button onClick={handleEliminar} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+      <div className="flex justify-between pr-16 items-center mb-4">
+        <h2 className="text-lg  font-semibold text-primary-textoTitle">
+          Detalle del Producto
+        </h2>
+        {/* botonera */}
+        <ContenedorBotonera  handleDelete={confirmarConModal}/>
+      </div>
       <div className="flex flex-col w-full -mt- items-center justify-normal gap-3">
-        <DivReact>
-          {/* Sección de imagen */}
-          <div className="flex items-start justify-normal gap-3">
-            <div className="w-full flex flex-col md:w-[60%] items-center justify-start relative rounded-lg overflow-hidden ">
-              <div className="h-[80%] flex w-full rounded-lg  items-center ">
-                <img
-                  src={infoProducto.productData?.srcPhoto}
-                  alt={infoProducto.productData?.descripcion}
-                  className=" object-cover w-full h-60 rounded-lg overflow-hidden hover:scale-105 duration-500"
-                />
-              </div>
-            </div>
-
-            {/* Sección de detalles */}
-            <div className="w-full md:w-1/3 flex text-sm flex-col relative gap-">
-              <div className="flex flex-col gap-1">
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Codigo/ID:</span>
-                  <p className="font-medium text-primary-textoTitle">
-                    {" "}
-                    {infoProducto.productData?.id}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Descripción:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.descripcion}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Categoria:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.categoria}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Localización:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.localizacion}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Marca:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.marca}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Stock:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.stock}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Alerta de Stock:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.alertaStock}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Codigo de Barra:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.codigoBarra}
-                  </p>
-                </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Ultima Reposición:</span>
-                  <p className="capitalize font-medium text-primary-textoTitle">
-                    {formatDate(ultimaRepo)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </DivReact>
-        <DivReact>
-          <div className="w-full flex items-center justify-around">
-            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
-              <div className="flex items-center gap-1">
-                <DollarSign className="stroke-primary-100" />
-                <p className="text-primary-textoTitle">Precio de Costo</p>
-              </div>
-              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
-                {formateoMoneda.format(infoProducto.productData?.pCompra)}
-              </p>
-            </div>
-            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
-              <div className="flex items-center gap-1">
-                <DollarSign className="stroke-primary-100" />
-                <p className="text-primary-textoTitle">Precio de Venta</p>
-              </div>
-              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
-                {formateoMoneda.format(infoProducto.productData?.pVenta)}
-              </p>
-            </div>
-            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
-              <div className="flex items-center gap-1">
-                <SendToBack className="stroke-primary-100" />
-                <p className="text-primary-textoTitle">Precio Stock</p>
-              </div>
-              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
-                {formateoMoneda.format(totalStockProducto)}
-              </p>
-            </div>
-            <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
-              <div className="flex items-center gap-1">
-                <LucideLineChart className="stroke-primary-100" />
-                <p className="text-primary-textoTitle">Margen Ganancia</p>
-              </div>
-              <p className=" font-bold text-2xl trakin text-primary-textoTitle">
-                %{margenGanancia.toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </DivReact>
-        {/* Historial de movimiento */}
-        <DivReact>
-          <h3 className="flex  items-center gap-4 text-lg font-semibold text-gray-700 mb-2">
-            <ArrowRightLeft /> Historial de Movimiento
-          </h3>
-          <Table arrayBody={newArray.reverse()} columnas={columnas} />
-        </DivReact>
+        {/* info dle prodcutos */}
+        <DetalleFotoDetalleProducto infoProducto={infoProducto} ultimaRepo={ultimaRepo} />
+        {/* info stats */}
+        <StatsInfoDetalleProducto infoProducto={infoProducto} totalStockProducto={totalStockProducto} margenGanancia={margenGanancia} />
+        {/* historial Movimientos */}
+        <HistorialMovimientosDetalleProducto newArray={newArray} columnas={columnas} />
       </div>
     </div>
   );

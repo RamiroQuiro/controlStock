@@ -71,7 +71,7 @@ export default function FormularioIngresoEgreso({
         setError({error:data.error});
       } else if (data.status == 200) {
         showToast("registro exitoso");
-        setTimeout(() => window.location.reload(), 1500);
+        setTimeout(() => window.location.reload(), 500);
       }
     } catch (error) {
       setError({error:data.error});

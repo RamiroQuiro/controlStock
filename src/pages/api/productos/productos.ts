@@ -103,3 +103,44 @@ console.log(transacciones)
     );
   }
 };
+
+
+export const PUT: APIRoute = async ({ request, params }) => {
+const data=await request.json()
+  const url = new URL(request.url);
+  const query = url.searchParams.get("search");
+  console.log('est es la actualizacion del producto ->',data,query)
+
+  try {
+
+    const transaccionar=await db.transaction(async(trx)=>{
+
+      const actualizarProducto=await trx.update(productos).set(
+        data).where(eq(productos.id,query)).returning()
+          await trx.update(stockActual).set(
+            {
+              alertaStock:data.alertaStock,
+              localizacion:data.localizacion,
+              
+            }
+          )
+    })
+      return new Response(JSON.stringify({
+        status:200,
+        msg:'producto actualizado'
+      }),{
+        status:200
+      })
+
+  } catch (error) {
+    console.log(error);
+
+    return new Response(JSON.stringify({
+      status:500,
+      msg:'error al actualizar producto'
+    }),{
+      status:500,
+      headers:{'Content-Type':'application/json'}
+    })
+  }
+}

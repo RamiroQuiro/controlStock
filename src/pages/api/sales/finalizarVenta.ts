@@ -84,7 +84,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
               productoId: prod.id,
               cantidad: prod.cantidad,
               tipo: "egreso",
-              fecha: sql`(strftime('%s','now'))`,
+              fecha:new Date(),
               userId,
               proveedorId: null,
               motivo: "venta",

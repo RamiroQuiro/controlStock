@@ -37,7 +37,7 @@ export const GET: APIRoute = async ({ request, params }) => {
       )
       .limit(10); // 🔥 Solo traemos 10 resultados
 
-    console.log(resultados);
+    // console.log(resultados);
     // Respuesta exitosa con los datos obtenidos
     return new Response(
       JSON.stringify({

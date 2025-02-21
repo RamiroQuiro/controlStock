@@ -1,19 +1,24 @@
 import { useStore } from "@nanostores/react";
 import React, { useEffect, useState } from "react";
 import { productosSeleccionadosVenta } from "../../../../context/store";
-import { Captions } from "lucide-react";
 import { showToast } from "../../../../utils/toast/toastShow";
 import ModalConfirmacion from "./ModalConfirmacion";
-import Ticket from "../../../../components/organismos/ticket";
 import { loader } from "../../../../utils/loader/showLoader";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
+import BusquedaCliente from "./BusquedaCliente";
+import BotoneraCarrito from "./BotoneraCarrito";
+import Table from "../../../../components/tablaComponentes/Table";
+import { clienteColumns } from "../../../../types/columnasTables";
 
 export default function CarritoVenta({ userId }) {
   const $productos = useStore(productosSeleccionadosVenta);
   const [totalVenta, setTotalVenta] = useState(0);
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [pagaCon, setPagaCon] = useState(0)
-  const [cliente, setCliente] = useState({})
+  const [isResultados, setIsResultados] = useState(false)
+  const [cliente, setCliente] = useState("");
+  const [clientesEncontrados, setClientesEncontrados] = useState([]);
+
   const [vueltoCalculo, setVueltoCalculo] = useState(0)
   useEffect(() => {
     const sumaTotal = $productos.reduce(
@@ -40,9 +45,36 @@ export default function CarritoVenta({ userId }) {
     setVueltoCalculo(vuelto(e))
   }
 
-  const handleCliente=(e)=>{
-    setCliente(e)
-  }
+  const handleCliente = async (e) => {
+    e.preventDefault();
+    const valor = e.target.value;
+    setCliente(valor);
+
+    if (valor.trim() === "") {
+      setClientesEncontrados([]); // Resetea resultados si el input está vacío
+      return;
+    }
+
+    if (valor.length >= 3) {
+      try {
+        const responseFetch = await fetch(`/api/clientes/buscarCliente?search=${valor}`);
+        const data = await responseFetch.json();
+
+        if (data.status === 200) {
+          setClientesEncontrados(data.data); // Suponiendo que `data.clientes` es un array
+          setIsResultados(true)
+        } else {
+          setClientesEncontrados([]);
+          showToast(data.msg, { background: "bg-primary-400" });
+        }
+      } catch (error) {
+        console.error("Error en la búsqueda de clientes:", error);
+        setClientesEncontrados([]);
+        showToast("Error al buscar clientes", { background: "bg-red-500" });
+      }
+    }
+  };
+
   const formateoTotal = (number) =>
     new Intl.NumberFormat("ar-AR", {
       style: "currency",
@@ -85,8 +117,28 @@ export default function CarritoVenta({ userId }) {
     }
   };
 
+  const armandoNewArray = (newArray) => {
+    return newArray.map((element, i) => {
+      return {
+        id: element.id,
+        "N°": i + 1,
+        nombre: element.nombre,
+        dni: element.dni,
+        email: element.email,
+        celular: element.celular
+      }
+    })
+  }
+
   return (
     <>
+      {
+        isResultados &&
+        <div className="top-0 left-0 fixed  w-screen h-screen flex items-center justify-center  -blur-sm">
+          <div className="w-4/5 bg-white border shadow-md animate-apDeArriba shadow-black/60 h-96 flex items-center justify-normal gap-2 rounded-lg">
+            <Table arrayBody={clientesEncontrados} columnas={clienteColumns} />
+          </div>
+        </div>}
       <div className="w-full flex flex-col items-start justify-start h-full mt-5 ">
         <div className="flex flex-col items-start justify-start mt-2  w-full pb-3 mb-3">
           <p className="text-sm font-semibold">Resumen de la venta:</p>
@@ -110,9 +162,7 @@ export default function CarritoVenta({ userId }) {
         <p className="md:text-3xl w-full text-end -tracking-wider text-primary-textoTitle font-mono now">
           $ {formateoTotal(totalVenta)}
         </p>
-        <div className="w-full mt-3 inline-flex">
-          <InputComponenteJsx name={'cliente'} placeholder={'Busqueda Cliente'} handleChange={handleCliente} />
-        </div>
+        <BusquedaCliente handleCliente={handleCliente} />
         <div className="w-full mt-3 inline-flex">
           <p className="text-3xl mr-2">$</p>
           <InputComponenteJsx name={'dineroAbonado'} placeholder={'Paga con ...'} handleChange={handlePagaCon} />
@@ -121,27 +171,7 @@ export default function CarritoVenta({ userId }) {
           <p className="text-lg">Su vuelto:</p>
           <span className="">${vueltoCalculo}</span>
         </div>
-        <div className="flex flex-col items-start justify-normal w-full space-y-2">
-          <button
-            disabled={totalVenta == 0 ? true : false}
-            onClick={finalizarCompra}
-            className="rounded-lg disabled:bg-blue-600/50 text-white flex items-center pl-4 justify-start hover:bg-blue-600/80 duration-300 mt-8 m border-2 border-gray-200 h-16 w-full bg-blue-600"
-          >
-            <Captions className="w-10 h-10" />{" "}
-            <p className="text-3xl ml-4 font-semibold font-mono widest ">
-              Pagar
-            </p>
-          </button>
-          <button
-            onClick={() => window.location.reload()}
-            className="rounded-lg disabled:bg-blue-600/50 -translate-y- flex items-center pl-4 justify-start hover:bg-blue-600/40 duration-300 mt-10 mb-4 border-2 border-primary-texto h-16 w-full bg-gray-100 text-primary-texto"
-          >
-            <Captions className="w-10 h-10" />{" "}
-            <p className="text-3xl ml-4 font-semibold font-mono widest ">
-              Cancelar
-            </p>
-          </button>
-        </div>
+        <BotoneraCarrito totalVenta={totalVenta} finalizarCompra={finalizarCompra} />
       </div>
 
       {modalConfirmacion && (

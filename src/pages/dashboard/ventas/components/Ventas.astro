@@ -51,6 +51,8 @@ productosData = productosDataBase?.map((prod, i) => {
     cantidad: "",
   };
 });
+
+
 ---
 
 <MainDashboard h1="Ventas">
@@ -86,3 +88,27 @@ productosData = productosDataBase?.map((prod, i) => {
     </div>
   </div>
 </MainDashboard>
+
+
+<script>
+const inputBusqueda = document.getElementById('busquedaCliente')
+const btnPagar= document.getElementById('btnPagar')
+const busquedaInputCliente=document.getElementById('inputBusquedaCliente')
+window.addEventListener('keydown', (e) => {
+        if(e.key === 'F2'){
+          e.preventDefault()
+            inputBusqueda.focus()
+        }
+        if(e.key === 'F3'){
+          e.preventDefault()
+          console.log(e, busquedaInputCliente)
+          busquedaInputCliente.focus()
+        }
+        if(e.key === 'F4'){
+          e.preventDefault()
+          btnPagar.click()
+        }
+      
+})
+
+</script>

@@ -166,7 +166,7 @@ export default function FormularioIngresoEgreso({
           <div className="flex items-center justify-between gap-4">
             <div className="w-full">
               <label
-                for="unidad"
+                htmlFor="unidad"
                 className="block text-sm font-medium text-gray-700"
               >
                 Motivo
@@ -193,7 +193,7 @@ export default function FormularioIngresoEgreso({
             </div>
             <div className="w-full">
               <label
-                for="fecha"
+                htmlFor="fecha"
                 className="block text-sm font-medium text-gray-700"
               >
                 Fecha
@@ -210,7 +210,7 @@ export default function FormularioIngresoEgreso({
 
           <div className="w-full flex flex-col m">
             <label
-              for="cantidad"
+              htmlFor="cantidad"
               name="cantidad"
               className="block text-sm font-medium text-gray-700"
             >
@@ -230,7 +230,7 @@ export default function FormularioIngresoEgreso({
 
         <div className="mb-">
           <label
-            for="observaciones"
+            htmlFor="observaciones"
             name="observaciones"
             className="block text-sm font-medium text-gray-700"
           >

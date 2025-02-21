@@ -10,7 +10,7 @@ import {
   calcularStockInicial,
   obtenerMovimientosOrdenados,
   obtenerUltimaReposicion,
-} from "../../lib/detallesProducto";
+} from "../../utils/detallesProducto";
 import { useState } from "react";
 import { showToast } from "../../utils/toast/toastShow";
 import ModalConfirmacion from "../moleculas/ModalConfirmacion";

@@ -8,7 +8,7 @@ export default function Tr({ id, data, styleTr, onClick, renderBotonActions }) {
 
   return (
     <tr
-      onClick={onClick}
+      onClick={()=>onClick(data)}
       id={id}
       className={`${styleTr} border-b last:border-0 odd:bg-white   hover:bg-primary-bg-componentes/80 bg-primary-bg-componentes/40`}
     >

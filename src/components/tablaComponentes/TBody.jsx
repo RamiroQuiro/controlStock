@@ -2,7 +2,7 @@ import { useStore } from '@nanostores/react';
 import { columnSelectTable } from '../../context/store';
 import Tr from './Tr';
 
-export default function TBody({ arrayBody, renderBotonActions }) {
+export default function TBody({ arrayBody, renderBotonActions, onClickRegistro}) {
   const $columnSelect = useStore(columnSelectTable);
 
   const sortData = data => {
@@ -26,8 +26,9 @@ export default function TBody({ arrayBody, renderBotonActions }) {
     <tbody>
       
       {!sortedData.length ? (
-        <tr>
+        <tr >
           <td
+          cols
             colSpan={Object.keys(arrayBody[0] || {}).length + 1}
             className="border-b last:border-0 text-xs font-semibold bg-white text-center p-4"
           >
@@ -36,7 +37,7 @@ export default function TBody({ arrayBody, renderBotonActions }) {
         </tr>
       ) : (
         sortedData.map((item, i) => (
-          <Tr key={i} data={item} renderBotonActions={renderBotonActions} />
+          <Tr onClick={onClickRegistro}  key={i} data={item} renderBotonActions={renderBotonActions} />
         ))
       )}
     </tbody>

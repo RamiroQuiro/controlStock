@@ -32,7 +32,6 @@ const { id, label } = Astro.props;
 
 
   const btnModal = document.getElementById(`modal-${id}`);
-  console.log(id)
   btnModal?.addEventListener("click", (e) => {
     const modal = document.getElementById(`dialog-modal-${id}`);
     modal.showModal();

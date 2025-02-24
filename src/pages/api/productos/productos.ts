@@ -1,5 +1,10 @@
 import { eq, like, or } from "drizzle-orm";
-import { detalleVentas, movimientosStock, productos, stockActual } from "../../../db/schema";
+import {
+  detalleVentas,
+  movimientosStock,
+  productos,
+  stockActual,
+} from "../../../db/schema";
 import db from "../../../db";
 import type { APIRoute } from "astro";
 
@@ -8,7 +13,6 @@ export const GET: APIRoute = async ({ request, params }) => {
   // Extraer el `productoId` de los parámetros
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
-  
 
   // Validación inicial: comprobar si el `productoId` está presente
   if (!query) {
@@ -66,18 +70,21 @@ export const GET: APIRoute = async ({ request, params }) => {
 };
 
 export const DELETE: APIRoute = async ({ request, params }) => {
-
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
   try {
-    const transacciones=await db.transaction(async(trx)=>{
-          await trx.delete(movimientosStock).where(eq(movimientosStock.productoId,query));
-          await trx.delete(detalleVentas).where(eq(detalleVentas.productoId,query))
-          await trx.delete(stockActual).where(eq(stockActual.productoId,query))
-          await trx.delete(productos).where(eq(productos.id,query));
-    })
+    const transacciones = await db.transaction(async (trx) => {
+      await trx
+        .delete(movimientosStock)
+        .where(eq(movimientosStock.productoId, query));
+      await trx
+        .delete(detalleVentas)
+        .where(eq(detalleVentas.productoId, query));
+      await trx.delete(stockActual).where(eq(stockActual.productoId, query));
+      await trx.delete(productos).where(eq(productos.id, query));
+    });
 
-console.log(transacciones)
+    console.log(transacciones);
 
     return new Response(
       JSON.stringify({
@@ -104,43 +111,46 @@ console.log(transacciones)
   }
 };
 
-
 export const PUT: APIRoute = async ({ request, params }) => {
-const data=await request.json()
+  const data = await request.json();
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
-  console.log('est es la actualizacion del producto ->',data,query)
+  console.log("est es la actualizacion del producto ->", data, query);
 
   try {
-
-    const transaccionar=await db.transaction(async(trx)=>{
-
-      const actualizarProducto=await trx.update(productos).set(
-        data).where(eq(productos.id,query)).returning()
-          await trx.update(stockActual).set(
-            {
-              alertaStock:data.alertaStock,
-              localizacion:data.localizacion,
-              
-            }
-          )
-    })
-      return new Response(JSON.stringify({
-        status:200,
-        msg:'producto actualizado'
-      }),{
-        status:200
-      })
-
+    const transaccionar = await db.transaction(async (trx) => {
+      const actualizarProducto = await trx
+        .update(productos)
+        .set(data)
+        .where(eq(productos.id, query))
+        .returning();
+      await trx.update(stockActual).set({
+        deposito: data.deposito,
+        alertaStock: data.alertaStock,
+        localizacion: data.localizacion,
+      }).where(eq(stockActual.productoId, query))
+    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        msg: "producto actualizado",
+      }),
+      {
+        status: 200,
+      }
+    );
   } catch (error) {
     console.log(error);
 
-    return new Response(JSON.stringify({
-      status:500,
-      msg:'error al actualizar producto'
-    }),{
-      status:500,
-      headers:{'Content-Type':'application/json'}
-    })
+    return new Response(
+      JSON.stringify({
+        status: 500,
+        msg: "error al actualizar producto",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
-}
+};

@@ -3,7 +3,7 @@ import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
 import { productos, ventas } from "../schema";
 
 
-export const detalleVentas = sqliteTable("detalle_ventas", {
+export const detalleVentas = sqliteTable("detalleVentas", {
   id: text("id").primaryKey(),
   ventaId: text("ventaId").notNull().references(() => ventas.id),
   productoId: text("productoId").notNull().references(() => productos.id),

@@ -46,7 +46,7 @@ export default function FiltroProductos() {
         placeholder="Ingrese código de barra, descripción, etc."
         value={search}
         type="search"
-        className="w-full text-sm bg-white rounded-lg px-2 py-2 border-gray-300 focus:ring-2 outline-none transition duration-200"
+        className="w-full text-sm bg-white rounded-lg px-2 py-2 border-primary-textoTitle focus:ring-2 outline-none transition duration-200"
       />
       {loading && <div className="text-sm py-3 flex items-center justify-center bg-white border top-12 rounded-lg shadow-lg text-center font-semibold animate-aparecer w-full text-gray-500 absolute"><Search/> Buscando...</div>}
     </div>

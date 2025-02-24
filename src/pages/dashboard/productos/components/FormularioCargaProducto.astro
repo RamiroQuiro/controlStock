@@ -3,9 +3,63 @@ import Button1 from "../../../../components/atomos/Button1.astro";
 import FormCont from "../../../../components/atomos/FormCont.astro";
 import LabelForm from "../../../../components/atomos/LabelForm.astro";
 import ContenedorInputForm from "../../../../components/moleculas/ContenedorInputForm.astro";
+import ContenedorInputSelected from "../../../../components/moleculas/ContenedorInputSelected.astro";
 import InputFile from "../../../../components/moleculas/InputFile";
 
 const { user } = Astro.props;
+
+const impuestos = [
+  {
+    id: "1",
+    name: "21% IVA",
+    value: "iva21",
+    defaultSelect: true,
+  },
+  {
+    id: "2",
+    name: "27% IVA",
+    value: "iva27",
+  },
+  {
+    id: "3",
+    name: "10% IVA",
+    value: "iva10",
+  },
+  {
+    id: "4",
+    name: "No Aplica",
+    value: "0",
+  },
+];
+
+const unidadMedida = [
+  {
+    id: "1",
+    name: "Kilogramo",
+    value: "kg",
+    defaultSelect: true,
+  },
+  {
+    id: "2",
+    name: "Litro",
+    value: "l",
+  },
+  {
+    id: "3",
+    name: "Unidad",
+    value: "und",
+  },
+  {
+    id: "4",
+    name: "decena",
+    value: "decena",
+  },
+  {
+    id: "5",
+    name: "No Aplica",
+    value: "0",
+  }
+]
 ---
 
 <FormCont title="Agregar Producto" id="formularioCargaProducto">
@@ -38,10 +92,13 @@ const { user } = Astro.props;
     <ContenedorInputForm name="marca" label="Marca" type="text" />
     <ContenedorInputForm name="modelo" label="Modelo" type="number" />
     <ContenedorInputForm name="categoria" label="Categoria" type="text" />
-    <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
+    <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
+    <ContenedorInputForm name="deposito" value="deposito 1"  label="Deposito" type="text" />
     <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
+  </div>
+  <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
     <ContenedorInputForm name="stock" label="Stock" type="number" />
     <ContenedorInputForm
@@ -49,6 +106,11 @@ const { user } = Astro.props;
       label="Cantidad de Alerta"
       type="number"
     />
+  </div>
+  <div class="w- flex gap-2 items-start justify-between">
+    <ContenedorInputSelected options={impuestos} label="Impuesto" />
+    <ContenedorInputForm name="descuento" label="Descuento" type="text" />
+    <ContenedorInputSelected options={unidadMedida} label="Unidad de Medida" />
   </div>
   <div class="w-full flex items-center justify-end my-3">
     <Button1 id="btnCargarProducto">Guardar</Button1>
@@ -71,18 +133,17 @@ const { user } = Astro.props;
       return;
     }
 
-
     let fileData: File | null = null; // Declaramos el tipo explícitamente
 
-    const inputFile = document.getElementById('fotoProducto');
-    inputFile?.addEventListener('change', (event) => {
+    const inputFile = document.getElementById("fotoProducto");
+    inputFile?.addEventListener("change", (event) => {
       const file = event.target.files[0];
       if (file && file.type.startsWith("image/")) {
         fileData = file; // Guardamos el archivo para usarlo después
         console.log("Archivo de imagen válido:", file.name);
       } else {
         console.error("Por favor selecciona un archivo de imagen válido");
-        event.target.value = '';
+        event.target.value = "";
         fileData = null;
       }
     });
@@ -92,9 +153,8 @@ const { user } = Astro.props;
 
       const formData = new FormData(formulario);
 
-      
       if (fileData) {
-        formData.set('fotoProducto', fileData);
+        formData.set("fotoProducto", fileData);
       }
       // Opcional: Verificar contenido del FormData
       for (const [key, value] of formData.entries()) {

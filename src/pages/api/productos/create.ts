@@ -7,8 +7,6 @@ import path from "path";
 import { promises as fs } from "fs";
 import sharp from "sharp";
 
-
-
 export async function POST({ request, params }: APIContext): Promise<Response> {
   const data = await request.formData();
   const nombre = data.get("nombre")?.toString() || "";
@@ -19,6 +17,9 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
   const pVenta = data.get("pVenta");
   const pCompra = data.get("pCompra");
   const categoria = data.get("categoria");
+  const deposito=data.get('deposito')
+  const impuesto=data.get('impuesto')
+  const descuento=data.get('descuento')
   const modelo = data.get("modelo");
   const marca = data.get("marca");
   const localizacion = data.get("pCompra");
@@ -27,6 +28,8 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
   );
   const codigoBarra = data.get("codigoBarra")?.toString() || "";
   const fotoProducto = data.get("fotoProducto") as File;
+
+console.log('deposito ->',deposito)
 
   const userDir = path.join(
     process.cwd(),
@@ -92,6 +95,8 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           pVenta,
           codigoBarra,
           modelo,
+          descuento,
+          impuesto,
           marca,
           updatedAt: sql`(strftime('%s','now'))`,
           stock,
@@ -107,6 +112,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         cantidad: stock,
         alertaStock: cantidadAlerta,
         localizacion,
+        deposito,
         updatedAt: sql`(strftime('%s','now'))`,
       });
 
@@ -119,9 +125,8 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         proveedorId: null,
         fecha: sql`(strftime('%s','now'))`,
         tipo: "ingreso",
-        motivo:"StockInicial",
-
-      })
+        motivo: "StockInicial",
+      });
     });
 
     return new Response(

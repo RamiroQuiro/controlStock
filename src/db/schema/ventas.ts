@@ -4,11 +4,13 @@ import { users } from "./users";
 
 
 export const ventas = sqliteTable("ventas", {
-    id: text("id").primaryKey(),
-    userId: text("userId").references(() => users.id),
-    fecha: integer("fecha") // Timestamp Unix
-      .notNull()
-      .default(sql`(strftime('%s', 'now'))`),
-    clienteId: text("clienteId").notNull().default("00"),
-    total: integer("total", { mode: "number" }).notNull(),
-  });
+  id: text("id").primaryKey(),
+  userId: text("userId").references(() => users.id),
+  fecha: integer("fecha") // Timestamp Unix
+    .notNull()
+    .default(sql`(strftime('%s', 'now'))`),
+  clienteId: text("clienteId").notNull().default("00"),
+  total: integer("total", { mode: "number" }).notNull(),
+  impuesto: integer("impuesto", { mode: "number" }).notNull().default(0), // Almacena el total del IVA aplicado
+  descuento: integer("descuento", { mode: "number" }).notNull().default(0), // Almacena el descuento total aplicado
+});

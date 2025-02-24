@@ -8,6 +8,9 @@ import {
   Delete,
   Edit2,
   Minus,
+  MinusCircle,
+  Tag,
+  Target,
 } from "lucide-react";
 
 //   botonera de acciones
@@ -67,6 +70,7 @@ export const RenderActionsVentas = (
   data,
   restarCantidad,
   sumarCantidad,
+  aplicaDescuento,
   eliminarProducto
 ) => {
   return (
@@ -82,6 +86,12 @@ export const RenderActionsVentas = (
         onClick={sumarCantidad(data)}
       >
         <CirclePlus className="w-4 h-6" />
+      </button>
+      <button
+        className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+        onClick={aplicaDescuento()}
+      >
+        <Tag className="w-4 h-6" />
       </button>
 
       <button

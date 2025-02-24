@@ -6,11 +6,12 @@ import {
   filtroBusqueda,
   productosSeleccionadosVenta,
 } from "../../../../context/store";
+import ModalCliente from "./ModalCliente";
 
 export default function DetallesVentas() {
   const $filtro = useStore(filtroBusqueda).filtro;
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
-
+  const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
     if ($filtro && Object.keys($filtro).length > 0) {
       setProductosSeleccionados((prev) => {
@@ -83,26 +84,38 @@ export default function DetallesVentas() {
     productosSeleccionadosVenta.set(newArray);
   };
 
+  const aplicaDescuento = (data) => () => {
+   setOpenModal(true)
+  };
+
   return (
-    <div className="w-full p-4 rounded-lg bg-primarycomponentes">
-      {productosSeleccionados.length === 0 ? (
-        <div className="p-3">
-          <p>No hay elementos para mostrar</p>
-        </div>
-      ) : (
-        <Table
-          arrayBody={productosSeleccionados}
-          columnas={columnas}
-          renderBotonActions={(data) =>
-            RenderActionsVentas(
-              data,
-              restarCantidad,
-              sumarCantidad,
-              eliminarProducto
-            )
-          }
-        />
-      )}
-    </div>
+    <>{
+      openModal&&
+      <ModalCliente onClose={()=>setOpenModal(false)}>
+        hola
+      </ModalCliente>
+    }
+      <div className="w-full p-4 rounded-lg bg-primarycomponentes">
+        {productosSeleccionados.length === 0 ? (
+          <div className="p-3">
+            <p>No hay elementos para mostrar</p>
+          </div>
+        ) : (
+          <Table
+            arrayBody={productosSeleccionados}
+            columnas={columnas}
+            renderBotonActions={(data) =>
+              RenderActionsVentas(
+                data,
+                restarCantidad,
+                sumarCantidad,
+                aplicaDescuento,
+                eliminarProducto
+              )
+            }
+          />
+        )}
+      </div>
+    </>
   );
 }

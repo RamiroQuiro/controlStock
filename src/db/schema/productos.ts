@@ -11,6 +11,8 @@ export const productos = sqliteTable("productos",{
     codigoBarra: text("codigoBarra").notNull(),
     categoria: text("categoria"),
     marca:text('marca'),
+    impuesto:text('impuesto'),
+    descuento:text('descuento'),
     modelo:text('modelo'),
     descripcion: text("descripcion").notNull(),
     pCompra: integer("pCompra", { mode: "number" }),

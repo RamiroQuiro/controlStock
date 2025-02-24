@@ -125,7 +125,6 @@ export default function PerfilProducto({ infoProducto }) {
   const handleChangeForm = (e) => {
     const { name, value } = e.target;
     setFormulario((formulario) => ({ ...formulario, [name]: value }));
-    console.log(formulario);
   };
   return (
     <div className="w-full flex flex-col h-full text-sm px-3 relative -translate-y-5 rounded-lg items-stretch  ">

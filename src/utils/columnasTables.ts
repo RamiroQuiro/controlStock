@@ -18,3 +18,4 @@ export const clienteColumns: ColumnaType[] = [
     { label: 'email', id: 4, selector: (row: ClienteRow) => row.categoria },
     { label: 'celular', id: 5, selector: (row: ClienteRow) => row.pCompra },
 ]
+

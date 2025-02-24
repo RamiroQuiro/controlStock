@@ -5,21 +5,36 @@ import { showToast } from "../../../../utils/toast/toastShow";
 import ModalConfirmacion from "./ModalConfirmacion";
 import { loader } from "../../../../utils/loader/showLoader";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
-import BusquedaCliente from "./BusquedaCliente";
 import BotoneraCarrito from "./BotoneraCarrito";
-import Table from "../../../../components/tablaComponentes/Table";
-import { clienteColumns } from "../../../../types/columnasTables";
+import ModalCliente from "./ModalCliente";
+import BtnBusquedaCliente from "./BtnBusquedaCliente";
+import BusquedaClientes from "./BusquedaClientes";
+import ClientesSelect from "./ClientesSelect";
+import ImpuestosDescuentos from "./ImpuestosDescuentos";
+import { formateoMoneda } from "../../../../utils/formateoMoneda";
 
 export default function CarritoVenta({ userId }) {
   const $productos = useStore(productosSeleccionadosVenta);
   const [totalVenta, setTotalVenta] = useState(0);
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
-  const [pagaCon, setPagaCon] = useState(0)
-  const [isResultados, setIsResultados] = useState(false)
-  const [cliente, setCliente] = useState("");
-  const [clientesEncontrados, setClientesEncontrados] = useState([]);
+  const [pagaCon, setPagaCon] = useState(0);
+  const [descuento, setDescuento] = useState(0);
+  const [impuestos, setImpuestos] = useState(0);
+  const [cliente, setCliente] = useState({
+    nombre: "consumidor final",
+    dni: "00000000",
+    celular: "0000000000",
+    id: "1",
+  });
+  const formularioVenta = {
+    clienteId: cliente.id,
+    pagaCon: 0,
+    descuento: 0,
+    impuesto: 0,
+    totalVenta: 0,
+  };
 
-  const [vueltoCalculo, setVueltoCalculo] = useState(0)
+  const [vueltoCalculo, setVueltoCalculo] = useState(0);
   useEffect(() => {
     const sumaTotal = $productos.reduce(
       (acc, producto) => acc + producto.precio * producto.cantidad,
@@ -28,7 +43,6 @@ export default function CarritoVenta({ userId }) {
     setTotalVenta(sumaTotal);
   }, [$productos]);
 
-
   const vuelto = (e) => {
     const montoIngresado = Number(e.target.value);
     const sumaTotal = $productos.reduce(
@@ -36,50 +50,13 @@ export default function CarritoVenta({ userId }) {
       0
     );
     const vueltoCalculado = montoIngresado - sumaTotal;
-    return formateoTotal(vueltoCalculado >= 0 ? vueltoCalculado : 0)
-  }
-
-
-  const handlePagaCon = (e) => {
-    setPagaCon(e)
-    setVueltoCalculo(vuelto(e))
-  }
-
-  const handleCliente = async (e) => {
-    e.preventDefault();
-    const valor = e.target.value;
-    setCliente(valor);
-
-    if (valor.trim() === "") {
-      setClientesEncontrados([]); // Resetea resultados si el input está vacío
-      return;
-    }
-
-    if (valor.length >= 3) {
-      try {
-        const responseFetch = await fetch(`/api/clientes/buscarCliente?search=${valor}`);
-        const data = await responseFetch.json();
-
-        if (data.status === 200) {
-          setClientesEncontrados(data.data); // Suponiendo que `data.clientes` es un array
-          setIsResultados(true)
-        } else {
-          setClientesEncontrados([]);
-          showToast(data.msg, { background: "bg-primary-400" });
-        }
-      } catch (error) {
-        console.error("Error en la búsqueda de clientes:", error);
-        setClientesEncontrados([]);
-        showToast("Error al buscar clientes", { background: "bg-red-500" });
-      }
-    }
+    return formateoTotal(vueltoCalculado >= 0 ? vueltoCalculado : 0);
   };
 
-  const formateoTotal = (number) =>
-    new Intl.NumberFormat("ar-AR", {
-      style: "currency",
-      currency: "ARS",
-    }).format(number);
+  const handlePagaCon = (e) => {
+    setPagaCon(e);
+    setVueltoCalculo(vuelto(e));
+  };
 
   const finalizarCompra = async () => {
     loader(true);
@@ -99,7 +76,7 @@ export default function CarritoVenta({ userId }) {
           productos: $productos,
           totalVenta,
           userId,
-          clienteId: "1",
+          clienteId: cliente.id,
         }),
       });
       const data = await responseFetch.json();
@@ -117,29 +94,17 @@ export default function CarritoVenta({ userId }) {
     }
   };
 
-  const armandoNewArray = (newArray) => {
-    return newArray.map((element, i) => {
-      return {
-        id: element.id,
-        "N°": i + 1,
-        nombre: element.nombre,
-        dni: element.dni,
-        email: element.email,
-        celular: element.celular
-      }
-    })
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormularioVenta({
+      ...formularioVenta,
+      [name]: value,
+    });
+  };
 
   return (
     <>
-      {
-        isResultados &&
-        <div className="top-0 left-0 fixed  w-screen h-screen flex items-center justify-center  -blur-sm">
-          <div className="w-4/5 bg-white border shadow-md animate-apDeArriba shadow-black/60 h-96 flex items-center justify-normal gap-2 rounded-lg">
-            <Table arrayBody={clientesEncontrados} columnas={clienteColumns} />
-          </div>
-        </div>}
-      <div className="w-full flex flex-col items-start justify-start h-full mt-5 ">
+      <div className="w-full flex flex-col items-start justify-start h-full mt- ">
         <div className="flex flex-col items-start justify-start mt-2  w-full pb-3 mb-3">
           <p className="text-sm font-semibold">Resumen de la venta:</p>
           <ul className="text-  space- mt-2 w-full overflow-y-auto space-y-0.5">
@@ -159,19 +124,44 @@ export default function CarritoVenta({ userId }) {
             ))}
           </ul>
         </div>
-        <p className="md:text-3xl w-full text-end -tracking-wider text-primary-textoTitle font-mono now">
-          $ {formateoTotal(totalVenta)}
-        </p>
-        <BusquedaCliente handleCliente={handleCliente} />
+
+        {/* select cliente */}
+        <ClientesSelect cliente={cliente} setCliente={setCliente} />
+        {/* impuestos y descuentos */}
+        <ImpuestosDescuentos
+          formularioVenta={formularioVenta}
+          handleChange={handleChange}
+        />
         <div className="w-full mt-3 inline-flex">
           <p className="text-3xl mr-2">$</p>
-          <InputComponenteJsx name={'dineroAbonado'} placeholder={'Paga con ...'} handleChange={handlePagaCon} />
+          <InputComponenteJsx
+            name={"dineroAbonado"}
+            placeholder={"Paga con ..."}
+            handleChange={handlePagaCon}
+          />
         </div>
-        <div className="w-full text-primary-textoTitle font- text-2xl text-end flex flex-col items-end justify-between mt-3">
-          <p className="text-lg">Su vuelto:</p>
-          <span className="">${vueltoCalculo}</span>
+        <div className="w-full text-primary-textoTitle font- text-end flex flex-col items-end justify-between mt-3">
+          <div className="w-full flex gap-4 justify-between border-t border-primary-150 items-center">
+            <p className="text-lg capitalize">subtotal:</p>
+            <p className="md:text-xl text-end -tracking-wider text-primary-textoTitle font-mono now">
+              {formateoMoneda.format(totalVenta)}
+            </p>
+          </div>
+          <div className="w-full flex gap-4 justify-between border-y border-primary-150 items-center">
+            <p className="text-lg capitalize">total:</p>
+            <p className="md:text-3xl text-end -tracking-wider text-primary-textoTitle font-mono now">
+              {formateoMoneda.format(totalVenta)}
+            </p>
+          </div>
+          <div className="w-full flex gap-4 justify-between text-2xl  border-b border-primary-150 items-center">
+            <p className="text-lg">Su vuelto:</p>
+            <span className="">${vueltoCalculo}</span>
+          </div>
         </div>
-        <BotoneraCarrito totalVenta={totalVenta} finalizarCompra={finalizarCompra} />
+        <BotoneraCarrito
+          totalVenta={totalVenta}
+          finalizarCompra={finalizarCompra}
+        />
       </div>
 
       {modalConfirmacion && (

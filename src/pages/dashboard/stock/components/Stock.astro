@@ -16,7 +16,7 @@ import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import FormularioIngresoEgreso from "../../../../components/moleculas/FormularioIngresoEgreso";
 import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
-import { trayendoProductos } from "../../../../lib/stockFunctions";
+import { trayendoProductos } from "../../../../utils/stockFunctions";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos.astro";
 const user = { id: "1", nombre: "ramiro" };
 const queryDB = await trayendoProductos(user.id);

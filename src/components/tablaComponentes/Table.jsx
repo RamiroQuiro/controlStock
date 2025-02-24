@@ -3,9 +3,10 @@ import THead from "./THead";
 import TBody from "./TBody";
 import { reportPDF } from "../../context/store";
 
-export default function Table({ columnas, arrayBody, styleTable, renderBotonActions }) {
+export default function Table({ columnas, arrayBody, styleTable, renderBotonActions,onClickRegistro }) {
   const onClick = (e) => {
     // Acción en caso de clic (vacío por ahora)
+    onClickRegistro(e);
   };
 
   reportPDF.set({
@@ -19,7 +20,7 @@ export default function Table({ columnas, arrayBody, styleTable, renderBotonActi
     >
       <THead columnas={columnas} arrayBody={arrayBody} />
       <TBody
-        onClickFila={onClick}
+        onClickRegistro={onClick}
         arrayBody={arrayBody}
         renderBotonActions={renderBotonActions} // Corregido
       />

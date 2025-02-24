@@ -38,8 +38,12 @@ export const GET: APIRoute = async ({ params }) => {
           pCompra: productos.pCompra,
           pVenta: productos.pVenta,
           alertaStock: stockActual.alertaStock,
+          impuesto:productos.impuesto,
+          descuento:productos.descuento,
+          modelo:productos.modelo,
           cantidadReservada: stockActual.reservado,
           localizacion: stockActual.localizacion,
+          deposito:stockActual.deposito
         })
         .from(productos)
         .innerJoin(stockActual, eq(stockActual.productoId, productos.id))

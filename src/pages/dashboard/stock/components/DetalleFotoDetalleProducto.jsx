@@ -72,60 +72,114 @@ export default function DetalleFotoDetalleProducto({
               />
             </div>
             <div className="flex w-full items-center justify-start gap-3 ">
-            <div className="flex w-full items-center justify-start gap-3 ">
-              <span className="">Categoria:</span>
-              <InputFormularioSolicitud
-                disabled={disableEdit}
-                onchange={handleChangeForm}
-                className={
-                  "text-primary-textoTitle font-semibold animate-aparecer"
-                }
-                value={
-                  disableEdit
-                    ? infoProducto.productData?.categoria
-                    : formulario?.categoria
-                }
-                name={"categoria"}
-                type={"text"}
-              />
+              <div className="flex w-full items-center justify-start gap-3 ">
+                <span className="">Categoria:</span>
+                <InputFormularioSolicitud
+                  disabled={disableEdit}
+                  onchange={handleChangeForm}
+                  className={
+                    "text-primary-textoTitle font-semibold animate-aparecer"
+                  }
+                  value={
+                    disableEdit
+                      ? infoProducto.productData?.categoria
+                      : formulario?.categoria
+                  }
+                  name={"categoria"}
+                  type={"text"}
+                />
+              </div>
+              <div className="flex w-full items-center justify-start gap-3 ">
+                <span className="">Marca:</span>
+                <InputFormularioSolicitud
+                  className={
+                    "text-primary-textoTitle font-semibold animate-aparecer"
+                  }
+                  value={
+                    disableEdit
+                      ? infoProducto.productData?.marca
+                      : formulario?.marca
+                  }
+                  name={"marca"}
+                  type={"text"}
+                  onchange={handleChangeForm}
+                  disabled={disableEdit}
+                />
+              </div>
             </div>
             <div className="flex w-full items-center justify-start gap-3 ">
-              <span className="">Marca:</span>
-              <InputFormularioSolicitud
-                className={
-                  "text-primary-textoTitle font-semibold animate-aparecer"
-                }
-                value={
-                  disableEdit
-                    ? infoProducto.productData?.marca
-                    : formulario?.marca
-                }
-                name={"marca"}
-                type={"text"}
-                onchange={handleChangeForm}
-                disabled={disableEdit}
-              />
-            </div>
+            <div className="flex w-full items-center justify-start gap-3 ">
+                <span className="">Modelo:</span>
+                <InputFormularioSolicitud
+                  className={
+                    "text-primary-textoTitle font-semibold animate-aparecer"
+                  }
+                  value={
+                    disableEdit
+                      ? infoProducto.productData?.modelo
+                      : formulario?.modelo
+                  }
+                  name={"modelo"}
+                  type={"text"}
+                  onchange={handleChangeForm}
+                  disabled={disableEdit}
+                />
+              </div>
+            <div className="flex w-full items-center justify-start gap-3 ">
+                <span className="">Reservado:</span>
+                <InputFormularioSolicitud
+                  className={
+                    "text-primary-textoTitle font-semibold animate-aparecer"
+                  }
+                  value={
+                    disableEdit
+                      ? infoProducto.productData?.reservado
+                      : formulario?.reservado
+                  }
+                  name={"reservado"}
+                  type={"text"}
+                  onchange={handleChangeForm}
+                  disabled={disableEdit}
+                />
+              </div>
+              </div>
+            <div className="flex w-full items-center justify-start gap-3 ">
+              <div className="flex w-full items-center justify-start gap-3 ">
+                <span className="">Deposito:</span>
+                <InputFormularioSolicitud
+                  disabled={disableEdit}
+                  onchange={handleChangeForm}
+                  className={
+                    "text-primary-textoTitle font-semibold capitalize animate-aparecer"
+                  }
+                  value={
+                    disableEdit
+                      ? infoProducto.productData?.deposito
+                      : formulario?.deposito
+                  }
+                  name={"deposito"}
+                  type={"text"}
+                />
+              </div>
+              <div className="flex w-full items-center justify-start gap-3 ">
+                <span className="">Localización:</span>
+                <InputFormularioSolicitud
+                  disabled={disableEdit}
+                  onchange={handleChangeForm}
+                  className={
+                    "text-primary-textoTitle font-semibold animate-aparecer"
+                  }
+                  value={
+                    disableEdit
+                      ? infoProducto.productData?.localizacion
+                      : formulario?.localizacion
+                  }
+                  name={"localizacion"}
+                  type={"text"}
+                />
+              </div>
             </div>
 
-            <div className="flex w-full items-center justify-start gap-3 ">
-              <span className="">Localización:</span>
-              <InputFormularioSolicitud
-                disabled={disableEdit}
-                onchange={handleChangeForm}
-                className={
-                  "text-primary-textoTitle font-semibold animate-aparecer"
-                }
-                value={
-                  disableEdit
-                    ? infoProducto.productData?.localizacion
-                    : formulario?.localizacion
-                }
-                name={"localizacion"}
-                type={"text"}
-              />
-            </div>
-           
             <div className="flex w-full items-center justify-start gap-3 ">
               <div className="flex w-full items-center justify-start gap-3 ">
                 <span className="">Stock:</span>
@@ -154,23 +208,35 @@ export default function DetalleFotoDetalleProducto({
               </div>
             </div>
             <div className="flex w-full items-center justify-start gap-3 ">
-            <div className="flex w-full items-center justify-start gap-3 ">
+              <div className="flex w-full items-center justify-start gap-3 ">
                 <span className="">Impuesto:</span>
-                {
-                    disableEdit? <p className="capitalize font-medium text-primary-textoTitle">
-                  {infoProducto.productData?.impuesto}
-                </p>:
-                <select name="impuesto" id="impuesto" className="w-full rounded-lg px-2 py-1 text-primary-textoTitle capitalize">
-                  <option value="iva21" className="px-3 w-full">Iva 21%</option>
-                  <option value="iva10" className="px-3 w-full">Iva 10%</option>
-                  <option value="iva5" className="px-3 w-full">Iva 5%</option>
-                </select>
-                }
+                {disableEdit ? (
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.impuesto}
+                  </p>
+                ) : (
+                  <select
+                    name="impuesto"
+                    id="impuesto"
+                    className="w-full rounded-lg px-2 py-1 text-primary-textoTitle capitalize"
+                  >
+                    <option value="iva21" className="px-3 w-full">
+                      Iva 21%
+                    </option>
+                    <option value="iva27" className="px-3 w-full">
+                      Iva 27%
+                    </option>
+                    <option value="iva10" className="px-3 w-full">
+                      Iva 10%
+                    </option>
+                    <option value="noAplica" className="px-3 w-full">
+                      No Aplica
+                    </option>
+                  </select>
+                )}
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
-                <span className="w-full whitespace-nowrap">
-                  Descuento:
-                </span>
+                <span className="w-full whitespace-nowrap">Descuento:</span>
                 <InputFormularioSolicitud
                   disabled={disableEdit}
                   className={
@@ -178,10 +244,10 @@ export default function DetalleFotoDetalleProducto({
                   }
                   value={
                     disableEdit
-                      ? infoProducto.productData?.alertaStock
-                      : formulario?.alertaStock
+                      ? infoProducto.productData?.descuento
+                      : formulario?.descuento
                   }
-                  name={"alertaStock"}
+                  name={"descuento"}
                   type={"text"}
                   onchange={handleChangeForm}
                 />

@@ -14,21 +14,14 @@ import {
 import { useState } from "react";
 import { showToast } from "../../utils/toast/toastShow";
 import ModalConfirmacion from "../moleculas/ModalConfirmacion";
+import { detallesProductosColumns } from "../../utils/columnasTables";
 
 export default function PerfilProducto({ infoProducto }) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [disableEdit, setDisableEdit] = useState(true);
   const [formulario, setFormulario] = useState(infoProducto.productData);
 
-  const columnas = [
-    { label: "N°", id: 1, selector: (row, index) => index + 1 },
-    { label: "Tipo", id: 2, selector: (row) => row.tipo },
-    { label: "Cantidad", id: 3, selector: (row) => row.cantidad },
-    { label: "Motivo", id: 4, selector: (row) => row.motivo },
-    { label: "Cliente/Proveedor", id: 5, selector: (row) => row.efectuado },
-    { label: "Fecha", id: 6, selector: (row) => row.fecha },
-    { label: "Stock Restante", id: 7, selector: (row) => row.stockRestante },
-  ];
+
 
   const stockInicial = calcularStockInicial(infoProducto.stockMovimiento);
   const movimientosOrdenados = obtenerMovimientosOrdenados(
@@ -165,7 +158,7 @@ export default function PerfilProducto({ infoProducto }) {
         {/* historial Movimientos */}
         <HistorialMovimientosDetalleProducto
           newArray={newArray}
-          columnas={columnas}
+          columnas={detallesProductosColumns}
         />
       </div>
     </div>

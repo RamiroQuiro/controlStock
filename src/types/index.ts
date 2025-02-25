@@ -1,3 +1,31 @@
+
+// ...existing code...
+
+export type Producto = {
+  id: string; // ID único del producto
+  nombre: string; // Nombre del producto
+  srcPhoto?: string; // URL de la foto del producto
+  proveedorId?: string; // ID del proveedor
+  codigoBarra: string; // Código de barras del producto
+  categoria?: string; // Categoría del producto
+  marca?: string; // Marca del producto
+  impuesto: "21%" | "10.5%" | "27%" | "no aplica"; // Opciones de IVA más comunes en Argentina y "no aplica"
+  descuento?: string; // Descuento aplicado al producto "$100" o "10%"
+  modelo?: string; // Modelo del producto
+  descripcion: string; // Descripción del producto
+  pCompra?: number; // Precio de compra del producto
+  pVenta?: number; // Precio de venta del producto
+  utilidad?: number; // Utilidad del producto
+  stock: number; // Cantidad en stock
+  activo: boolean; // Estado del producto (activo/inactivo)
+  unidadMedida?: 'unidad' | 'litros' | 'kg'| 'decena'; // Unidad de medida (unidad, kg, litro, etc.)
+  precioMinimoVenta?: number; // Precio mínimo de venta del producto
+  userUpdate?: string; // ID del usuario que actualizó el producto
+  ultimaActualizacion: number; // Timestamp Unix de la última actualización
+  created_at: number; // Timestamp Unix de la creación del producto
+  userId: string; // ID del usuario que creó el producto
+};
+// ...existing code...
 export type MovimientoStock = {
   id: string; // ID único del movimiento
   productoId: string; // ID del producto asociado al movimiento
@@ -12,38 +40,12 @@ export type MovimientoStock = {
 };
 
 
-export type fichaPaciente = {
-  id: string;
-  pacienteId: string;
-  userId: string;
-  direccion?: string | null;
-  celular?: string | null;
-  estatura?: string | null;
-  pais?: string | null;
-  provincia?: string | null;
-  ciudad?: string | null;
-  obraSocial?: string | null;
-  email?: string | null;
-  srcPhoto?: string | null;
-  grupoSanguineo?: string | null;
-  created_at: string;
-  updated_at?: string | null;
-  deleted_at?: string | null;
-};
-export type DiagnosticosTypes = {
-  id?: number;
-  diagnostico: string;
-  observacion: string;
-  pacienteId?: string;
-  userId?: string;
-};
 
 export type responseAPIType = {
   msg: string;
   code?: number;
   status?: string;
   body?: string;
-  data?: pacienteType;
 };
 
 export type optionsSelectInputType = {
@@ -85,28 +87,8 @@ export interface Documentos {
   src: string;
 }
 
+
+
 export interface DocumentosAdjuntosProps {
   documentos: Documentos[];
 }
-
-export type signosVitalesTypes = {
-  id: string;
-  historiaClinica: string;
-  pacienteId: string;
-  userId: string;
-  update_at?: string;
-  created_at?: string;
-  deleted_ar?: string;
-  temperatura?: string;
-  pulso?: string;
-  respiracion?: string;
-  tensionArterial?: string;
-  saturacionOxigeno?: string;
-  glucosa?: string;
-  peso?: string;
-  talla?: string;
-  imc?: string;
-  frecuenciaCardiaca?: string;
-  frecuenciaRespiratoria?: string;
-  dolor?: string;
-};

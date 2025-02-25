@@ -12,23 +12,23 @@ const impuestos = [
   {
     id: "1",
     name: "21% IVA",
-    value: "iva21",
+    value: "21%",
     defaultSelect: true,
   },
   {
     id: "2",
     name: "27% IVA",
-    value: "iva27",
+    value: "27%",
   },
   {
     id: "3",
-    name: "10% IVA",
-    value: "iva10",
+    name: "10.5% IVA",
+    value: "10.5%",
   },
   {
     id: "4",
     name: "No Aplica",
-    value: "0",
+    value: "no aplica",
   },
 ];
 
@@ -58,8 +58,8 @@ const unidadMedida = [
     id: "5",
     name: "No Aplica",
     value: "0",
-  }
-]
+  },
+];
 ---
 
 <FormCont title="Agregar Producto" id="formularioCargaProducto">
@@ -95,11 +95,22 @@ const unidadMedida = [
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
-    <ContenedorInputForm name="deposito" value="deposito 1"  label="Deposito" type="text" />
+    <ContenedorInputForm
+      name="deposito"
+      value="deposito 1"
+      label="Deposito"
+      type="text"
+    />
+    <ContenedorInputSelected options={unidadMedida} label="Unidad de Medida" />
+  </div>
+
+  <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
     <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
+    <ContenedorInputSelected options={impuestos} label="Impuesto" />
+    <ContenedorInputForm name="descuento" label="Descuento" type="text" />
   </div>
-  <div class="w-full flex gap-2 items-start justify-between">
+  <div class="w- flex gap-2 items-start justify-between">
     <ContenedorInputForm name="stock" label="Stock" type="number" />
     <ContenedorInputForm
       name="cantidadAlerta"
@@ -107,11 +118,7 @@ const unidadMedida = [
       type="number"
     />
   </div>
-  <div class="w- flex gap-2 items-start justify-between">
-    <ContenedorInputSelected options={impuestos} label="Impuesto" />
-    <ContenedorInputForm name="descuento" label="Descuento" type="text" />
-    <ContenedorInputSelected options={unidadMedida} label="Unidad de Medida" />
-  </div>
+
   <div class="w-full flex items-center justify-end my-3">
     <Button1 id="btnCargarProducto">Guardar</Button1>
   </div>

@@ -24,7 +24,6 @@ export const productos = sqliteTable(
     activo: integer("activo", { mode: "boolean" }).default(true), 
     unidadMedida: text("unidadMedida").default("unidad"), // unidad, kg, litro, etc.
     precioMinimoVenta: integer("precioMinimoVenta", { mode: "number" }),
-
     userUpdate: text("userUpdate"),
     ultimaActualizacion: integer("ultimaActualizacion") // Timestamp Unix
       .notNull()

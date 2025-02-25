@@ -36,10 +36,11 @@ export const GET: APIRoute = async ({ request, params }) => {
           like(productos.descripcion, `%${query}%`),
           like(productos.categoria, `%${query}%`),
           like(productos.marca, `%${query}%`),
-          like(productos.modelo, `%${query}%`)
+          like(productos.modelo, `%${query}%`),
+
         )
       )
-      .limit(10); // 🔥 Solo traemos 10 resultados
+      
 
     // console.log(resultados);
     // Respuesta exitosa con los datos obtenidos

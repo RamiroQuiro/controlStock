@@ -10,7 +10,6 @@ export default function DetalleFotoDetalleProducto({
   handleChangeForm,
   formulario,
 }) {
-  console.log("esta disable?", infoProducto);
   return (
     <DivReact>
       {/* Sección de imagen */}
@@ -207,6 +206,39 @@ export default function DetalleFotoDetalleProducto({
                 />
               </div>
             </div>
+            <div className="flex wfull items-center justify-start gap-3 ">
+            <div className="flex wfull items-center justify-start gap-3 ">
+                <span className="w-full whitespace-nowrap">
+                  Unidad de Medida:
+                </span>
+                {disableEdit ? (
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                    {infoProducto.productData?.unidadMedida}
+                  </p>
+                ) : (
+                  <select
+                  onChange={handleChangeForm}
+                    name="unidadMedida"
+                    id="unidadMedida"
+                    className="w-full rounded-lg px-2 py-1 text-primary-textoTitle capitalize"
+                  >
+                    <option value="unidad" className="px-3 w-full">
+                      Unidad
+                    </option>
+                    <option value="kilogramos" className="px-3 w-full">
+                      Kilogramos
+                    </option>
+                    <option value="litros" className="px-3 w-full">
+                      Litros
+                    </option>
+                    <option value="decena" className="px-3 w-full">
+                      Decena
+                    </option>
+                  </select>
+                )}
+                
+              </div>
+            </div>
             <div className="flex w-full items-center justify-start gap-3 ">
               <div className="flex w-full items-center justify-start gap-3 ">
                 <span className="">Impuesto:</span>
@@ -216,6 +248,7 @@ export default function DetalleFotoDetalleProducto({
                   </p>
                 ) : (
                   <select
+                  onChange={handleChangeForm}
                     name="impuesto"
                     id="impuesto"
                     className="w-full rounded-lg px-2 py-1 text-primary-textoTitle capitalize"

@@ -28,10 +28,7 @@ export default function PerfilProducto({ infoProducto }) {
     infoProducto.stockMovimiento
   );
   const totalStockProducto = calcularPrecioStock(infoProducto.productData);
-  const margenGanancia = calcularMargenGanancia(
-    infoProducto.productData?.pVenta,
-    infoProducto.productData?.pCompra
-  );
+  const margenGanancia = calcularMargenGanancia(infoProducto.productData);
   const ultimaRepo = obtenerUltimaReposicion(infoProducto.stockMovimiento);
 
   // **Inicializar stock con el stock inicial**

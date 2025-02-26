@@ -2,14 +2,14 @@
 import LabelForm from "../atomos/LabelForm.astro";
 import SelectedFormulario from "../atomos/SelectedFormulario.astro";
 
-const {label,options,name,labelOption}=Astro.props
+const {label,options,name,labelOption,defaultSelect}=Astro.props
 ---
 
 
 <div class="w-full flex items flex-col items-start justify-center  duration-300 group px-2 -md ">
    <LabelForm>{label}</LabelForm>
       <SelectedFormulario
-      
+      defaultSelect={defaultSelect}
       labelOption={labelOption}
       options={options}
       name={name}

@@ -3,6 +3,7 @@ import React from 'react'
 import { formateoMoneda } from '../../../../utils/formateoMoneda'
 import DivReact from '../../../../components/atomos/DivReact'
 import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud'
+import { obtenerIvaMonto } from '../../../../utils/detallesProducto'
 
 export default function StatsInfoDetalleProducto({infoProducto,totalStockProducto,margenGanancia,handleChangeForm,disableEdit,formulario}) {
   return (
@@ -20,6 +21,16 @@ export default function StatsInfoDetalleProducto({infoProducto,totalStockProduct
           <InputFormularioSolicitud name="pCompra" type="number" id="pCompra" onchange={handleChangeForm} value={formulario?.pCompra} className="w-1/2 text-xl text-primary-textoTitle" isMoney />
         </div>
         }
+      </div>
+      <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
+        <div className="flex items-center gap-1">
+          <DollarSign className="stroke-primary-100" />
+          <p className="text-primary-textoTitle">Monto Iva</p>
+        </div>
+        <p className=" font-bold text-2xl trakin text-primary-textoTitle">
+          {obtenerIvaMonto(infoProducto.productData)}
+        </p>
+        
       </div>
       <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
         <div className="flex items-center gap-1">

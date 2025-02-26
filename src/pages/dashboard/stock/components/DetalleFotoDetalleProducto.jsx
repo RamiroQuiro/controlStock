@@ -251,18 +251,19 @@ export default function DetalleFotoDetalleProducto({
                   onChange={handleChangeForm}
                     name="impuesto"
                     id="impuesto"
-                    className="w-full rounded-lg px-2 py-1 text-primary-textoTitle capitalize"
+                    className="w-full rounded-lg text-sm lowercase px-2 py-1 text-primary-textoTitle "
                   >
-                    <option value="iva21" className="px-3 w-full">
-                      Iva 21%
+                    <option  selected>seleccionar </option>
+                    <option value="21%"  className="px-3 w-full">
+                      21% IVA
                     </option>
-                    <option value="iva27" className="px-3 w-full">
-                      Iva 27%
+                    <option value="10.5%" className="px-3 w-full">
+                      10.5% IVA
                     </option>
-                    <option value="iva10" className="px-3 w-full">
-                      Iva 10%
+                    <option value="27%" className="px-3 w-full">
+                      27% IVA
                     </option>
-                    <option value="noAplica" className="px-3 w-full">
+                    <option value="no aplica" className="px-3 w-full">
                       No Aplica
                     </option>
                   </select>

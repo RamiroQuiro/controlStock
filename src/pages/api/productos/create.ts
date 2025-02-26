@@ -18,11 +18,11 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
   const pCompra = data.get("pCompra");
   const categoria = data.get("categoria");
   const deposito=data.get('deposito')
-  const impuesto=data.get('impuesto')
+  const impuesto=data.get('impuesto')?.toString() || "21%"
   const descuento=data.get('descuento')
   const modelo = data.get("modelo");
   const marca = data.get("marca");
-  const localizacion = data.get("pCompra");
+  const localizacion = data.get("localizacion")?.toString() || "";
   const cantidadAlerta = parseInt(
     data.get("cantidadAlerta")?.toString() || "0"
   );

@@ -33,21 +33,20 @@ const impuestos = [
 ];
 
 const unidadMedida = [
+{
+    id: "3",
+    name: "Unidad",
+    value: "unidad",
+   },
   {
     id: "1",
     name: "Kilogramo",
-    value: "kg",
-    defaultSelect: true,
+    value: "kilogramo",
   },
   {
     id: "2",
     name: "Litro",
-    value: "l",
-  },
-  {
-    id: "3",
-    name: "Unidad",
-    value: "und",
+    value: "litro",
   },
   {
     id: "4",
@@ -57,7 +56,7 @@ const unidadMedida = [
   {
     id: "5",
     name: "No Aplica",
-    value: "0",
+    value: "no aplica",
   },
 ];
 ---
@@ -101,13 +100,13 @@ const unidadMedida = [
       label="Deposito"
       type="text"
     />
-    <ContenedorInputSelected options={unidadMedida} label="Unidad de Medida" />
+    <ContenedorInputSelected options={unidadMedida} label="Unidad de Medida" defaultSelect={true} />
   </div>
 
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
     <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
-    <ContenedorInputSelected options={impuestos} label="Impuesto" />
+    <ContenedorInputSelected options={impuestos} label="Impuesto" defaultSelect={true}/>
     <ContenedorInputForm name="descuento" label="Descuento" type="text" />
   </div>
   <div class="w- flex gap-2 items-start justify-between">

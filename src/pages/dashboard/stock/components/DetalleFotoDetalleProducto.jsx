@@ -220,8 +220,8 @@ export default function DetalleFotoDetalleProducto({
                   onChange={handleChangeForm}
                     name="unidadMedida"
                     id="unidadMedida"
-                    className="w-full rounded-lg px-2 py-1 text-primary-textoTitle capitalize"
-                  >
+                    className="w- text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
+                    >
                     <option value="unidad" className="px-3 w-full">
                       Unidad
                     </option>
@@ -251,8 +251,8 @@ export default function DetalleFotoDetalleProducto({
                   onChange={handleChangeForm}
                     name="impuesto"
                     id="impuesto"
-                    className="w-full rounded-lg text-sm lowercase px-2 py-1 text-primary-textoTitle "
-                  >
+                    className="w- text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
+        >
                     <option  selected>seleccionar </option>
                     <option value="21%"  className="px-3 w-full">
                       21% IVA

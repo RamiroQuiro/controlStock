@@ -16,7 +16,6 @@ export default function CarritoVenta({ userId }) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [pagaCon, setPagaCon] = useState(0);
   const [descuento, setDescuento] = useState(0);
-  const [impuestos, setImpuestos] = useState(0);
   const [cliente, setCliente] = useState({
     nombre: "consumidor final",
     dni: "00000000",
@@ -125,10 +124,7 @@ export default function CarritoVenta({ userId }) {
         {/* select cliente */}
         <ClientesSelect cliente={cliente} setCliente={setCliente} />
         {/* impuestos y descuentos */}
-        <ImpuestosDescuentos
-          formularioVenta={formularioVenta}
-          handleChange={handleChange}
-        />
+       
         <div className="w-full mt-3 inline-flex">
           <p className="text-3xl mr-2">$</p>
           <InputComponenteJsx

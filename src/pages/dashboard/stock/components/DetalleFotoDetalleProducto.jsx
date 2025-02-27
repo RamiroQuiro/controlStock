@@ -2,6 +2,7 @@ import React from "react";
 import DivReact from "../../../../components/atomos/DivReact";
 import formatDate from "../../../../utils/formatDate";
 import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
+import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 
 export default function DetalleFotoDetalleProducto({
   infoProducto,
@@ -107,7 +108,7 @@ export default function DetalleFotoDetalleProducto({
               </div>
             </div>
             <div className="flex w-full items-center justify-start gap-3 ">
-            <div className="flex w-full items-center justify-start gap-3 ">
+              <div className="flex w-full items-center justify-start gap-3 ">
                 <span className="">Modelo:</span>
                 <InputFormularioSolicitud
                   className={
@@ -124,7 +125,7 @@ export default function DetalleFotoDetalleProducto({
                   disabled={disableEdit}
                 />
               </div>
-            <div className="flex w-full items-center justify-start gap-3 ">
+              <div className="flex w-full items-center justify-start gap-3 ">
                 <span className="">Reservado:</span>
                 <InputFormularioSolicitud
                   className={
@@ -141,7 +142,7 @@ export default function DetalleFotoDetalleProducto({
                   disabled={disableEdit}
                 />
               </div>
-              </div>
+            </div>
             <div className="flex w-full items-center justify-start gap-3 ">
               <div className="flex w-full items-center justify-start gap-3 ">
                 <span className="">Deposito:</span>
@@ -207,7 +208,7 @@ export default function DetalleFotoDetalleProducto({
               </div>
             </div>
             <div className="flex wfull items-center justify-start gap-3 ">
-            <div className="flex wfull items-center justify-start gap-3 ">
+              <div className="flex wfull items-center justify-start gap-3 ">
                 <span className="w-full whitespace-nowrap">
                   Unidad de Medida:
                 </span>
@@ -217,11 +218,11 @@ export default function DetalleFotoDetalleProducto({
                   </p>
                 ) : (
                   <select
-                  onChange={handleChangeForm}
+                    onChange={handleChangeForm}
                     name="unidadMedida"
                     id="unidadMedida"
                     className="w- text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
-                    >
+                  >
                     <option value="unidad" className="px-3 w-full">
                       Unidad
                     </option>
@@ -236,7 +237,6 @@ export default function DetalleFotoDetalleProducto({
                     </option>
                   </select>
                 )}
-                
               </div>
             </div>
             <div className="flex w-full items-center justify-start gap-3 ">
@@ -248,13 +248,13 @@ export default function DetalleFotoDetalleProducto({
                   </p>
                 ) : (
                   <select
-                  onChange={handleChangeForm}
+                    onChange={handleChangeForm}
                     name="impuesto"
                     id="impuesto"
                     className="w- text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
-        >
-                    <option  selected>seleccionar </option>
-                    <option value="21%"  className="px-3 w-full">
+                  >
+                    <option selected>seleccionar </option>
+                    <option value="21%" className="px-3 w-full">
                       21% IVA
                     </option>
                     <option value="10.5%" className="px-3 w-full">
@@ -270,21 +270,33 @@ export default function DetalleFotoDetalleProducto({
                 )}
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
-                <span className="w-full whitespace-nowrap">Descuento:</span>
-                <InputFormularioSolicitud
-                  disabled={disableEdit}
-                  className={
-                    "text-primary-textoTitle font-semibold animate-aparecer"
-                  }
-                  value={
-                    disableEdit
-                      ? infoProducto.productData?.descuento
-                      : formulario?.descuento
-                  }
-                  name={"descuento"}
-                  type={"text"}
-                  onchange={handleChangeForm}
-                />
+                <span className="w- whitespace-nowrap">Descuento:</span>
+                {disableEdit ? (
+                  <p className="capitalize font-medium text-primary-textoTitle">
+                   {infoProducto.productData.signoDescuento}{infoProducto.productData?.descuento}
+                  </p>
+                ) : 
+                <div className="flex w-full items-center justify-normal gap-2">
+                  <select
+                  onChange={handleChangeForm}
+                  value={infoProducto.productData?.signoDescuento}
+                    name="signoDescuento"
+                    id="signoDescuento"
+                    className="w- text-end capitalize py-1 px-1  text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
+                  >
+                    <option value="%">%</option>
+                    <option value="$">$</option>
+                  </select>
+                  <InputComponenteJsx
+                    placeholder={"ingrese el descuento"}
+                    className={"text-sm py-1 px-1"}
+                    name={"descuento"}
+                    handleChange={handleChangeForm}
+                    
+                    type={"number"}
+                  />
+                </div>
+                }
               </div>
             </div>
             <div className="flex w-full items-center justify-start gap-3 ">

@@ -9,6 +9,7 @@ import CarritoVenta from "./CarritoVenta";
 import db from "../../../../db";
 import { productos } from "../../../../db/schema";
 import { eq } from "drizzle-orm";
+import FiltroProductos from "../../../../components/moleculas/FiltroProductos";
 
 let productosData;
 let productosDataBase = [];
@@ -27,6 +28,7 @@ const trayendoProductos = async (userId) => {
       categoria: productos.categoria,
       pCompra: productos.pCompra,
       pVenta: productos.pVenta,
+      impuesto: productos.impuesto,
       stock: productos.stock,
     })
     .from(productos)
@@ -61,12 +63,7 @@ productosData = productosDataBase?.map((prod, i) => {
       <DivBox1 styleDiv="w-full">
         <H2>Producto</H2>
         <!-- ver si con que buscador queda mejor -->
-        <FormularioDeBusqueda
-          arrayABuscar={productosData}
-          opcionesFiltrado={["codigoBarra", "descripcion"]}
-          placeholder={"Busqueda de producto..."}
-          client:load
-        />
+        <FiltroProductos client:load mostrarProductos={true}/>
       </DivBox1>
       <DivBox1 styleDiv="w-full">
         <H2>Resultado</H2>

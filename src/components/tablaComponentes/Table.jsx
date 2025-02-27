@@ -6,7 +6,7 @@ import { reportPDF } from "../../context/store";
 export default function Table({ columnas, arrayBody, styleTable, renderBotonActions,onClickRegistro }) {
   const onClick = (e) => {
     // Acción en caso de clic (vacío por ahora)
-    onClickRegistro(e);
+    onClickRegistro && onClickRegistro(e);
   };
 
   reportPDF.set({

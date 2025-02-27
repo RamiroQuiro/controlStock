@@ -40,6 +40,7 @@ export const GET: APIRoute = async ({ params }) => {
           pVenta: productos.pVenta,
           alertaStock: stockActual.alertaStock,
           impuesto:productos.impuesto,
+          signoDescuento:productos.signoDescuento,
           descuento:productos.descuento,
           modelo:productos.modelo,
           cantidadReservada: stockActual.reservado,

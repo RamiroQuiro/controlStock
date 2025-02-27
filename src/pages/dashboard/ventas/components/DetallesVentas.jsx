@@ -13,6 +13,7 @@ export default function DetallesVentas() {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
+    console.log('estoy en el listado',$filtro)
     if ($filtro && Object.keys($filtro).length > 0) {
       setProductosSeleccionados((prev) => {
         const productoExistente = prev.find(

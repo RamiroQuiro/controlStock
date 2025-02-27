@@ -1,0 +1,1 @@
+ALTER TABLE `productos` RENAME COLUMN "sigoDescuento" TO "signoDescuento";

@@ -7,7 +7,6 @@ import { loader } from "../../../../utils/loader/showLoader";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import BotoneraCarrito from "./BotoneraCarrito";
 import ClientesSelect from "./ClientesSelect";
-import ImpuestosDescuentos from "./ImpuestosDescuentos";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
 
 export default function CarritoVenta({ userId }) {
@@ -98,6 +97,8 @@ export default function CarritoVenta({ userId }) {
     });
   };
 
+
+  console.log('este son los productos ->',$productos)
   return (
     <>
       <div className="w-full flex flex-col items-start justify-start h-full mt- ">

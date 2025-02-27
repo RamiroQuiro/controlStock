@@ -14,7 +14,8 @@ export const productos = sqliteTable(
     categoria: text("categoria"),
     marca: text("marca"),
     impuesto: text("impuesto").default("21%"),
-    descuento: text("descuento").default("0%"), // Descuento aplicado al producto "$100" o "10%"
+    signoDescuento:text('signoDescuento'),//signos de descuento si hay , '$' o '%', si es monto o porcentaje
+    descuento: integer("descuento",{mode:'number'}).default(0), // Descuento aplicado al producto "100" o "10"
     modelo: text("modelo"),
     descripcion: text("descripcion").notNull(),
     pCompra: integer("pCompra", { mode: "number" }),

@@ -8,6 +8,7 @@ export type Producto = {
   categoria?: string; // Categoría del producto
   marca?: string; // Marca del producto
   impuesto: "21%" | "10.5%" | "27%" | "no aplica"; // Opciones de IVA más comunes en Argentina y "no aplica"
+  signoDescuento: '$' | '%'; //signos de descuento si hay , '$' o '%', si es monto o porcentaje
   descuento?: string; // Descuento aplicado al producto "$100" o "10%"
   modelo?: string; // Modelo del producto
   descripcion: string; // Descripción del producto

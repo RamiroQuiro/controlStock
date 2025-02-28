@@ -75,8 +75,8 @@ export default {
       },
       animation: {
         "waving-hand": "abrirCat 2s linear infinite",
-        aparecer: "aparecer .5s ease-out ",
-        apDeArriba: "aparecerDeArriba .5s ease-in ",
+        aparecer: "aparecer .25s ease-out ",
+        apDeArriba: "aparecerDeArriba .25s ease-in ",
         desaparecerCostado: "desaparecerCote .3s ease-in ",
       },
       boxShadow: {

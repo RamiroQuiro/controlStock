@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@nanostores/react";
 import Table from "../../../../components/tablaComponentes/Table";
 import { RenderActionsVentas } from "../../../../components/tablaComponentes/RenderBotonesActions";
@@ -11,7 +11,6 @@ import ModalCliente from "./ModalCliente";
 export default function DetallesVentas() {
   const $filtro = useStore(filtroBusqueda).filtro;
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
-  const [newArray, setNewArray] = useState([])
   const [openModal, setOpenModal] = useState(false);
 
   const columnas = [
@@ -25,41 +24,44 @@ export default function DetallesVentas() {
     { label: "Acciones", id: 8, selector: "" },
   ];
 
-
   useEffect(() => {
-    
     if ($filtro && Object.keys($filtro).length > 0) {
       setProductosSeleccionados((prev) => {
         const productoExistente = prev.find(
           (prod) => prod.codigoBarra === $filtro.codigoBarra
         );
-        
+
         if (productoExistente) {
           const newArray = prev.map((producto) =>
             producto.codigoBarra === $filtro.codigoBarra
-          ? { ...producto, cantidad: producto.cantidad + 1 }
-          : producto
-        );
-        productosSeleccionadosVenta.set(newArray);
-        return newArray;
-      } else {
-        const newArray = [...prev, { ...$filtro, cantidad: 1 }];
-        productosSeleccionadosVenta.set(newArray);
-        return newArray;
-      }
-      
-    });
-  }
+              ? { ...producto, cantidad: producto.cantidad + 1 }
+              : producto
+          );
+          productosSeleccionadosVenta.set(newArray);
+          return newArray;
+        } else {
+          const newArray = [...prev, { ...$filtro, cantidad: 1 }];
+          productosSeleccionadosVenta.set(newArray);
+          return newArray;
+        }
+      });
+    }
     filtroBusqueda.set({ filtro: "" });
-
   }, [$filtro]);
-
-
-  console.log('filtro ->',$filtro)
-
-  
-  
-
+  // Formatear datos para la tabla
+  const datosTabla = useMemo(
+    () =>
+      productosSeleccionados.map((prod, i) => ({
+        "N°": i + 1,
+        codigoBarra: prod.codigoBarra,
+        descripcion: prod.descripcion,
+        categoria: prod.categoria,
+        precio: prod.pVenta,
+        stock: prod.stock,
+        cantidad: prod.cantidad,
+      })),
+    [productosSeleccionados]
+  );
   const sumarCantidad = (data) => () => {
     setProductosSeleccionados((prev) => {
       const newArray = prev.map((producto) =>
@@ -97,16 +99,14 @@ export default function DetallesVentas() {
   };
 
   const aplicaDescuento = (data) => () => {
-   setOpenModal(true)
+    setOpenModal(true);
   };
 
   return (
-    <>{
-      openModal&&
-      <ModalCliente onClose={()=>setOpenModal(false)}>
-        hola
-      </ModalCliente>
-    }
+    <>
+      {openModal && (
+        <ModalCliente onClose={() => setOpenModal(false)}>hola</ModalCliente>
+      )}
       <div className="w-full p-4 rounded-lg bg-primarycomponentes">
         {productosSeleccionados.length === 0 ? (
           <div className="p-3">
@@ -114,7 +114,7 @@ export default function DetallesVentas() {
           </div>
         ) : (
           <Table
-            arrayBody={newArray}
+            arrayBody={datosTabla}
             columnas={columnas}
             renderBotonActions={(data) =>
               RenderActionsVentas(

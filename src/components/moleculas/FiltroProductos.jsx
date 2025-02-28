@@ -6,7 +6,7 @@ export default function FiltroProductos({ mostrarProductos }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(null);
-  const [encontrados, setEncontrados] = useState([]);
+  const [encontrados, setEncontrados] = useState(0);
 
   const handleSearch = (e) => {
     setSearch(e.target.value.toLowerCase());
@@ -15,6 +15,7 @@ export default function FiltroProductos({ mostrarProductos }) {
 
     if (e.target.value === "") {
       busqueda.set({ productosBuscados: null });
+      setEncontrados(0);
     } else {
       setTimer(
         setTimeout(() => {
@@ -31,6 +32,7 @@ export default function FiltroProductos({ mostrarProductos }) {
       const data = await res.json();
       busqueda.set({ productosBuscados: data.data });
       setEncontrados(data.data);
+      // console.log('productos encxontrados',data)
     } catch (error) {
       console.error("Error en la búsqueda de productos:", error);
     } finally {
@@ -41,6 +43,7 @@ export default function FiltroProductos({ mostrarProductos }) {
   const handleClick = (producto) => {
     filtroBusqueda.set({ filtro: producto });
     setSearch("");
+    setEncontrados(0);
   };
 
   return (
@@ -51,7 +54,7 @@ export default function FiltroProductos({ mostrarProductos }) {
         placeholder="Ingrese código de barra, descripción, etc."
         value={search}
         type="search"
-        className="w-full text-sm bg-white rounded-lg px-2 py-2 border-primary-textoTitle focus:ring-2 outline-none transition duration-200"
+        className="w-full text-sm bg-white rounded-lg px-2 py-2 border border-primary-textoTitle/30 focus:border-transparent focus:ring-2 outline-none transition duration-200"
       />
 
       {/* Loader mientras busca */}
@@ -79,6 +82,7 @@ export default function FiltroProductos({ mostrarProductos }) {
                 {encontrados.map((producto, i) => (
                   <tr
                     key={i}
+                    tabIndex={i}
                     className="cursor-pointer hover:bg-primary-100/40 transition"
                     onClick={() => handleClick(producto)}
                   >
@@ -97,7 +101,7 @@ export default function FiltroProductos({ mostrarProductos }) {
 
       {/* Mensaje cuando no se encuentran productos */}
       {mostrarProductos && encontrados.length === 0 && !loading && (
-        <span className="text-xs py-2 px-3 border w-full font-semibold">
+        <span className="text-xs py-4 px-3 border w-full  top-[110%]  animate-apDeArriba rounded-lg bg-white text-center absolute font-semibold">
           No se encontraron registros
         </span>
       )}

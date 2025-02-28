@@ -34,7 +34,7 @@ export default function PerfilProducto({ infoProducto }) {
   // **Inicializar stock con el stock inicial**
   let stockActual = stockInicial;
   // **Mapear los movimientos con el cálculo correcto del stock**
-  console.log(infoProducto.productData);
+  // console.log(infoProducto.productData);
   const newArray = movimientosOrdenados.map((mov, i) => {
     // Determinar si es egreso
     const esEgreso = mov.tipo === "egreso";

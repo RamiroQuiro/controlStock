@@ -11,32 +11,8 @@ import ModalCliente from "./ModalCliente";
 export default function DetallesVentas() {
   const $filtro = useStore(filtroBusqueda).filtro;
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  const [newArray, setNewArray] = useState([])
   const [openModal, setOpenModal] = useState(false);
-  useEffect(() => {
-    console.log('estoy en el listado',$filtro)
-    if ($filtro && Object.keys($filtro).length > 0) {
-      setProductosSeleccionados((prev) => {
-        const productoExistente = prev.find(
-          (prod) => prod.codigoBarra === $filtro.codigoBarra
-        );
-
-        if (productoExistente) {
-          const newArray = prev.map((producto) =>
-            producto.codigoBarra === $filtro.codigoBarra
-              ? { ...producto, cantidad: producto.cantidad + 1 }
-              : producto
-          );
-          productosSeleccionadosVenta.set(newArray);
-          return newArray;
-        } else {
-          const newArray = [...prev, { ...$filtro, cantidad: 1 }];
-          productosSeleccionadosVenta.set(newArray);
-          return newArray;
-        }
-      });
-    }
-    filtroBusqueda.set({ filtro: "" });
-  }, [$filtro]);
 
   const columnas = [
     { label: "N°", id: 1, selector: (row, index) => index + 1 },
@@ -48,6 +24,41 @@ export default function DetallesVentas() {
     { label: "Cantidad", id: 7, selector: (row) => row.cantidad },
     { label: "Acciones", id: 8, selector: "" },
   ];
+
+
+  useEffect(() => {
+    
+    if ($filtro && Object.keys($filtro).length > 0) {
+      setProductosSeleccionados((prev) => {
+        const productoExistente = prev.find(
+          (prod) => prod.codigoBarra === $filtro.codigoBarra
+        );
+        
+        if (productoExistente) {
+          const newArray = prev.map((producto) =>
+            producto.codigoBarra === $filtro.codigoBarra
+          ? { ...producto, cantidad: producto.cantidad + 1 }
+          : producto
+        );
+        productosSeleccionadosVenta.set(newArray);
+        return newArray;
+      } else {
+        const newArray = [...prev, { ...$filtro, cantidad: 1 }];
+        productosSeleccionadosVenta.set(newArray);
+        return newArray;
+      }
+      
+    });
+  }
+    filtroBusqueda.set({ filtro: "" });
+
+  }, [$filtro]);
+
+
+  console.log('filtro ->',$filtro)
+
+  
+  
 
   const sumarCantidad = (data) => () => {
     setProductosSeleccionados((prev) => {
@@ -103,7 +114,7 @@ export default function DetallesVentas() {
           </div>
         ) : (
           <Table
-            arrayBody={productosSeleccionados}
+            arrayBody={newArray}
             columnas={columnas}
             renderBotonActions={(data) =>
               RenderActionsVentas(

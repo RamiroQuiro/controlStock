@@ -241,16 +241,16 @@ export default function DetalleFotoDetalleProducto({
             </div>
             <div className="flex w-full items-center justify-start gap-3 ">
               <div className="flex w-full items-center justify-start gap-3 ">
-                <span className="">Impuesto:</span>
+                <span className="">IVA:</span>
                 {disableEdit ? (
                   <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.impuesto}
+                    {infoProducto.productData?.iva}
                   </p>
                 ) : (
                   <select
                     onChange={handleChangeForm}
-                    name="impuesto"
-                    id="impuesto"
+                    name="iva"
+                    id="iva"
                     className="w- text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
                   >
                     <option selected>seleccionar </option>

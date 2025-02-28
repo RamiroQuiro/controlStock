@@ -12,23 +12,23 @@ const impuestos = [
   {
     id: "1",
     name: "21% IVA",
-    value: "21%",
+    value: 21,
     defaultSelect: true,
   },
   {
     id: "2",
     name: "27% IVA",
-    value: "27%",
+    value: 27,
   },
   {
     id: "3",
     name: "10.5% IVA",
-    value: "10.5%",
+    value: 10.5,
   },
   {
     id: "4",
     name: "No Aplica",
-    value: "no aplica",
+    value: 0,
   },
 ];
 
@@ -106,7 +106,7 @@ const unidadMedida = [
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
     <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
-    <ContenedorInputSelected options={impuestos} label="Impuesto" defaultSelect={true}/>
+    <ContenedorInputSelected options={impuestos} name="iva" label="iva" defaultSelect={true}/>
     <ContenedorInputForm name="descuento" label="Descuento" type="text" />
   </div>
   <div class="w- flex gap-2 items-start justify-between">

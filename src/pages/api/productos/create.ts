@@ -19,6 +19,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
   const categoria = data.get("categoria");
   const deposito=data.get('deposito')
   const impuesto=data.get('impuesto')?.toString() || "21%"
+  const iva=data.get('iva')
   const descuento=data.get('descuento')
   const modelo = data.get("modelo");
   const marca = data.get("marca");
@@ -89,6 +90,7 @@ console.log('deposito ->',deposito)
           id,
           nombre,
           descripcion,
+          iva,
           precio,
           pCompra,
           categoria,

@@ -15,6 +15,9 @@ export default function CarritoVenta({ userId }) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [pagaCon, setPagaCon] = useState(0);
   const [descuento, setDescuento] = useState(0);
+  const [subtotal, setSubtotal] = useState(0);
+  const [ivaMonto, setIvaMonto] = useState(0);
+  const [vueltoCalculo, setVueltoCalculo] = useState(0);
   const [cliente, setCliente] = useState({
     nombre: "consumidor final",
     dni: "00000000",
@@ -29,15 +32,27 @@ export default function CarritoVenta({ userId }) {
     totalVenta: 0,
   };
 
-  const [vueltoCalculo, setVueltoCalculo] = useState(0);
   useEffect(() => {
     const sumaTotal = $productos.reduce(
-      (acc, producto) => acc + producto.precio * producto.cantidad,
+      (acc, producto) => acc + producto.pVenta * producto.cantidad,
       0
     );
+
+    const sumaSubtotal = $productos.reduce(
+      (acc, producto) =>
+        acc + (producto.pVenta * producto.cantidad) / (1 + producto.impuesto / 100),
+      0
+    );
+
     setTotalVenta(sumaTotal);
+    setSubtotal(sumaSubtotal);
+    setIvaMonto(sumaTotal - sumaSubtotal);
+
   }, [$productos]);
 
+  console.log(totalVenta, "totalVenta");
+  console.log(subtotal, "subtotal");
+  console.log(ivaMonto, "ivaMonto");
   const vuelto = (e) => {
     const montoIngresado = Number(e.target.value);
     const sumaTotal = $productos.reduce(
@@ -97,8 +112,7 @@ export default function CarritoVenta({ userId }) {
     });
   };
 
-
-  console.log('este son los productos ->',$productos)
+  console.log("este son los productos ->", $productos);
   return (
     <>
       <div className="w-full flex flex-col items-start justify-start h-full mt- ">
@@ -112,10 +126,10 @@ export default function CarritoVenta({ userId }) {
               >
                 <span>
                   {producto.descripcion} ({producto.cantidad} x $
-                  {producto.precio})
+                  {producto.pVenta})
                 </span>
                 <span className="text text-primary-textoTitle">
-                  ${producto.cantidad * producto.precio}
+                  ${producto.cantidad * producto.pVenta}
                 </span>
               </li>
             ))}
@@ -125,7 +139,7 @@ export default function CarritoVenta({ userId }) {
         {/* select cliente */}
         <ClientesSelect cliente={cliente} setCliente={setCliente} />
         {/* impuestos y descuentos */}
-       
+
         <div className="w-full mt-3 inline-flex">
           <p className="text-3xl mr-2">$</p>
           <InputComponenteJsx
@@ -136,14 +150,20 @@ export default function CarritoVenta({ userId }) {
         </div>
         <div className="w-full text-primary-textoTitle font- text-end flex flex-col items-end justify-between mt-3">
           <div className="w-full flex gap-4 justify-between border-t border-primary-150 items-center">
-            <p className="text-lg capitalize">subtotal:</p>
-            <p className="md:text-xl text-end -tracking-wider text-primary-textoTitle font-mono now">
-              {formateoMoneda.format(totalVenta)}
+            <p className="text-lg capitalize">Subtotal:</p>
+            <p className="md:text-xl text-end -tracking-wider text-primary-textoTitle font-mono">
+              {formateoMoneda.format(subtotal)}
             </p>
           </div>
           <div className="w-full flex gap-4 justify-between border-y border-primary-150 items-center">
-            <p className="text-lg capitalize">total:</p>
-            <p className="md:text-3xl text-end -tracking-wider text-primary-textoTitle font-mono now">
+            <p className="text-lg capitalize">IVA:</p>
+            <p className="md:text-xl text-end -tracking-wider text-primary-textoTitle font-mono">
+              {formateoMoneda.format(ivaMonto)}
+            </p>
+          </div>
+          <div className="w-full flex gap-4 justify-between border-y border-primary-150 items-center">
+            <p className="text-lg capitalize">Total:</p>
+            <p className="md:text-3xl text-end -tracking-wider text-primary-textoTitle font-mono">
               {formateoMoneda.format(totalVenta)}
             </p>
           </div>

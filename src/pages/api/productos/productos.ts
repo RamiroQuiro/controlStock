@@ -10,14 +10,13 @@ import type { APIRoute } from "astro";
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, params }) => {
-  // Extraer el `productoId` de los parámetros
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
-
-  // Validación inicial: comprobar si el `productoId` está presente
+  const tipo = url.searchParams.get("tipo"); // Nuevo parámetro para distinguir el tipo de búsqueda
+console.log('es codigio de barra solo? ->',tipo)
   if (!query) {
     return new Response(
-      JSON.stringify({ error: "fatla el parametro de busqueda" }),
+      JSON.stringify({ error: "falta el parametro de busqueda" }),
       {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -25,25 +24,31 @@ export const GET: APIRoute = async ({ request, params }) => {
     );
   }
 
-  // Inicia una transacción para manejar consultas relacionadas al producto
   try {
-    const resultados = await db
-      .select()
-      .from(productos)
-      .where(
-        or(
-          like(productos.codigoBarra, `%${query}%`),
-          like(productos.descripcion, `%${query}%`),
-          like(productos.categoria, `%${query}%`),
-          like(productos.marca, `%${query}%`),
-          like(productos.modelo, `%${query}%`),
+    let resultados;
+    
+    if (tipo === "codigoBarra") {
+      // Búsqueda exacta para código de barra
+      resultados = await db
+        .select()
+        .from(productos)
+        .where(eq(productos.codigoBarra, query));
+    } else {
+      // Búsqueda parcial para los demás campos
+      resultados = await db
+        .select()
+        .from(productos)
+        .where(
+          or(
+            like(productos.codigoBarra, `%${query}%`),
+            like(productos.descripcion, `%${query}%`),
+            like(productos.categoria, `%${query}%`),
+            like(productos.marca, `%${query}%`),
+            like(productos.modelo, `%${query}%`),
+          )
+        );
+    }
 
-        )
-      )
-      
-
-    // console.log(resultados);
-    // Respuesta exitosa con los datos obtenidos
     return new Response(
       JSON.stringify({
         status: 200,

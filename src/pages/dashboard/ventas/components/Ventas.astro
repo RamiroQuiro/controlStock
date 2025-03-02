@@ -88,12 +88,11 @@ productosData = productosDataBase?.map((prod, i) => {
 
 
 <script>
-const inputBusqueda = document.getElementById('busquedaCliente')
+const inputBusqueda = document.getElementById('busquedaProducto')
 const btnPagar= document.getElementById('btnPagar')
 const btnBusquedaCliente=document.getElementById('btnBusquedaCliente')
 window.addEventListener('keydown', (e) => {
         if(e.key === 'F2'){
-          e.preventDefault()
             inputBusqueda.focus()
         }
         if(e.key === 'F3'){

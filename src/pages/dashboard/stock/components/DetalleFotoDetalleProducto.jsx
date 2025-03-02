@@ -254,16 +254,16 @@ export default function DetalleFotoDetalleProducto({
                     className="w- text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
                   >
                     <option selected>seleccionar </option>
-                    <option value="21%" className="px-3 w-full">
+                    <option value={21} className="px-3 w-full">
                       21% IVA
                     </option>
-                    <option value="10.5%" className="px-3 w-full">
+                    <option value={10.5} className="px-3 w-full">
                       10.5% IVA
                     </option>
-                    <option value="27%" className="px-3 w-full">
+                    <option value={27} className="px-3 w-full">
                       27% IVA
                     </option>
-                    <option value="no aplica" className="px-3 w-full">
+                    <option value={0} className="px-3 w-full">
                       No Aplica
                     </option>
                   </select>

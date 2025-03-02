@@ -16,13 +16,12 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     const {
     productos: productosSeleccionados,
     userId,
-    totalVenta,
-    clienteId,
+   data
   } = await request.json();
-  console.log(productosSeleccionados, userId, totalVenta, clienteId);
+  console.log('finalizando venta',productosSeleccionados, userId,data);
 
   // Validaciones previas
-  if (!productosSeleccionados?.length || !userId || !clienteId) {
+  if (!productosSeleccionados?.length || !userId || !data.clienteId) {
     return new Response(
       JSON.stringify({
         status: 400,
@@ -32,7 +31,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     );
   }
 
-  if (totalVenta <= 0) {
+  if (data.total <= 0) {
     return new Response(
       JSON.stringify({
         status: 402,
@@ -49,7 +48,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           .values({
             id: nanoid(),
             userId,
-            total: totalVenta,
+          ...data
           })
           .returning();
         // Procesar cada producto vendido
@@ -61,7 +60,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
               ventaId: ventaFinalizada[0].id,
               productoId: prod.id,
               cantidad: prod.cantidad,
-              precio: prod.precio,
+              precio: prod.pVenta,
             });
 
             // Actualizar el stock en la tabla productos
@@ -88,7 +87,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
               userId,
               proveedorId: null,
               motivo: "venta",
-              clienteId,
+              clienteId:data.clienteId,
             });
           })
         );

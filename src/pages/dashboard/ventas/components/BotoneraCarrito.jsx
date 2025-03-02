@@ -1,13 +1,13 @@
 import { Captions, SendToBack, StopCircle, Table2 } from 'lucide-react'
 import React from 'react'
 
-export default function BotoneraCarrito({totalVenta, finalizarCompra}) {
+export default function BotoneraCarrito({totalVenta, pagar}) {
   return (
     <div className="flex flex-col items-center  justify-normal w-full space-y-2">
           <button
             id="btnPagar"
             disabled={totalVenta == 0 ? true : false}
-            onClick={finalizarCompra}
+            onClick={pagar}
             className="rounded-lg disabled:bg-blue-600/50 text-white text-center flex items-center pl- justify-center hover:bg-blue-600/80 duration-300 mt-8 m border-2 border-gray-200 h-12 w-full bg-blue-600"
           >
             <Captions className="w-10 h-10" />{" "}
@@ -18,7 +18,7 @@ export default function BotoneraCarrito({totalVenta, finalizarCompra}) {
           <button
             id="btnPagar"
             disabled={totalVenta == 0 ? true : false}
-            onClick={finalizarCompra}
+            onClick={pagar}
             className="rounded-lg disabled:bg-green-600/50 text-white text-center flex items-center pl- justify-center hover:bg-green-600/80 duration-300 mt-8 m border-2 border-gray-200 h-12 w-full bg-green-600"
           >
             <Table2 className="w-8 h-8" />{" "}

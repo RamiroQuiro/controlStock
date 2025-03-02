@@ -195,9 +195,10 @@ $productos,
                   type="number"
                   min="0"
                   max="100"
+                  name="descuento"
                   className="w-24 border rounded-lg p-2"
-                  value={descuento}
-                  onChange={(e) => setDescuento(Number(e.target.value))}
+                  value={formularioVenta.descuento}
+                  onChange={handleChange}
                 />
                 <span className="text-sm text-gray-500">%</span>
               </div>
@@ -207,7 +208,7 @@ $productos,
                 Monto descuento
               </span>
               <span className="text-lg font-mono">
-                -{formateoMoneda.format(totalVenta * (descuento / 100))}
+                -{formateoMoneda.format(totalVenta * (formularioVenta.descuento / 100))}
               </span>
             </div>
           </div>
@@ -223,18 +224,18 @@ $productos,
             <span>IVA:</span>
             <span>{formateoMoneda.format(ivaMonto)}</span>
           </div>
-          {descuento > 0 && (
+          {formularioVenta.descuento > 0 && (
             <div className="flex justify-between mb-2 text-primary-100">
-              <span>Descuento ({descuento}%):</span>
+              <span>Descuento ({formularioVenta.descuento}%):</span>
               <span>
-                -{formateoMoneda.format(totalVenta * (descuento / 100))}
+                -{formateoMoneda.format(totalVenta * (formularioVenta.descuento / 100))}
               </span>
             </div>
           )}
           <div className="flex justify-between text-xl font-bold">
             <span>Total Final:</span>
             <span>
-              {formateoMoneda.format(totalVenta * (1 - descuento / 100))}
+              {formateoMoneda.format(totalVenta * (1 - formularioVenta.descuento / 100))}
             </span>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import BotonEditar from "../moleculas/BotonEditar";
 import BotonEliminar from "../moleculas/BotonEliminar";
-import {  dataFormularioContexto } from "../../context/store";
+import { dataFormularioContexto } from "../../context/store";
 import {
   CircleMinus,
   CirclePlus,
@@ -126,6 +126,42 @@ export const RenderActionsEditDeletMedicamentos = (data) => {
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
       <BotonEditar handleClick={() => handleEditModal(data)} />
       <BotonEliminar handleClick={() => handleDeletMed(data)} />
+    </div>
+  );
+};
+export const RenderActionsClientes = (data) => {
+  console.log(data);
+  const irAPerfilCliente = (data) => {
+    window.location.href = `/dashboard/clientes/${data.id}`;
+  };
+
+  const handleDeletMed = async ({ id }) => {
+    const newMedicamentos = atencion
+      .get()
+      .medicamentos.filter((med) => med.id != id);
+    atencion.set({
+      ...atencion.get(),
+      medicamentos: newMedicamentos,
+    });
+  };
+
+  return (
+    <div className="flex gap-2 pr-5 justify-end items-center text-xs">
+      <button
+        className="text-white bg-green-600/70 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+        onClick={() => irAPerfilCliente(data)}
+      >
+        <Edit2 className="w-4 h-6" />
+      </button>
+      <button
+        className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
+        onClick={(e) => {
+          e.stopPropagation();
+          alert(`Eliminar: ${data.id}`);
+        }}
+      >
+        <Delete className="w-4 h-6" />
+      </button>
     </div>
   );
 };

@@ -1,4 +1,6 @@
 import { formateoMoneda } from "../utils/formateoMoneda"
+import { loader } from "../utils/loader/showLoader";
+import { downloadLoader } from '../utils/loader/showDownloadLoader';
 
 export class ComprobanteService {
   public async generarComprobanteHTML(data: any) {
@@ -22,7 +24,7 @@ export class ComprobanteService {
         <body>
           <div class="comprobante">
             <div class="header">
-              <h1>${data.tipo === 'comprobante' ? 'Comprobante' : 'Presupuesto'}</h1>
+              <h2>${data.tipo === 'comprobante' ? 'Comprobante' : 'Presupuesto'}</h2>
               <p>N°: ${data.codigo}</p>
               <p>Fecha: ${new Date(data.fecha).toLocaleDateString()}</p>
               ${data.tipo === 'presupuesto' ? 
@@ -88,9 +90,8 @@ export class ComprobanteService {
   }
 
   async descargarPDF(data: any) {
-    console.log('este es elo data para genrarn ',data)
+    downloadLoader(true);
     try {
-      // Llamar al endpoint que genera el PDF
       const response = await fetch('/api/comprobantes/generar-pdf', {
         method: 'POST',
         headers: {
@@ -101,10 +102,7 @@ export class ComprobanteService {
 
       if (!response.ok) throw new Error('Error generando PDF');
 
-      // Obtener el blob del PDF
       const blob = await response.blob();
-      
-      // Crear URL y descargar
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -116,6 +114,8 @@ export class ComprobanteService {
     } catch (error) {
       console.error('Error al generar PDF:', error);
       throw error;
+    } finally {
+      downloadLoader(false);
     }
   }
 

@@ -13,8 +13,10 @@ let data={
       cantidad: p.cantidad,
       precioUnitario: p.pVenta,
       subtotal: p.cantidad * p.pVenta,
-      impuesto: p.iva
+      impuesto: p.iva,
+      descripcion:p.descripcion
     })),
+    tipo:esPresupuesto,
     subtotal,
     impuestos: ivaMonto,
     descuentos: descuento,

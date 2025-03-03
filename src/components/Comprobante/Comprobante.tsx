@@ -31,7 +31,7 @@ interface ComprobanteProps {
 
 const Comprobante = ({ tipo, data, onPrint, onDownload, onShare }: ComprobanteProps) => {
 
-
+console.log(data)
 
   return (
     <div className="bg-white p-6 flex items-stretch justify-normal flex-col h-full  mx-auto" id="comprobante-para-imprimir">

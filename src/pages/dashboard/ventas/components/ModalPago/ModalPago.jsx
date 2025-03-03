@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { showToast } from "../../../../../utils/toast/toastShow";
 import ClientesSelect from "../ClientesSelect";
 import MetodoDePago from "./MetodoDePago";
@@ -23,7 +23,6 @@ $productos,
     celular: "0000000000",
     id: "1",
   });
-
   const [formularioVenta, setFormularioVenta] = useState({
     clienteId: cliente.id,
     descuento: 0,
@@ -41,16 +40,29 @@ $productos,
   const [descuento, setDescuento] = useState(0);
  const [mostrarComprobante, setMostrarComprobante] = useState(false)
  const [ventaFinalizada, setVentaFinalizada] = useState({})
- let esPresupuesto='comprobante'
-  const handlePagaCon = (e) => {
+ const [esPresupuesto, setEsPresupuesto] = useState('comprobante')
+ const handlePagaCon = (e) => {
     const montoIngresado = Number(e.target.value);
     const total=montoIngresado - totalVenta
     setVueltoCalculo(total);
     setFormularioVenta({...formularioVenta,total:total})
   };
+
+
+
+  // Actualizar clienteId cuando cambie el cliente
+  useEffect(() => {
+    setFormularioVenta(prev => ({
+      ...prev,
+      clienteId: cliente.id
+    }));
+  }, [cliente]);
+
+
   const finalizarCompra = async () => {
     loader(true);
-    esPresupuesto="comprobante"
+    setEsPresupuesto('comprobante')
+    console.log('quiero ver el cliente',formularioVenta)
     if (totalVenta == 0) {
       showToast("monto total 0", {
         background: "bg-primary-400",
@@ -67,7 +79,7 @@ $productos,
           productos: $productos,
           totalVenta,
           userId,
-         data:formularioVenta
+          data:formularioVenta
         }),
       });
       const data = await responseFetch.json();
@@ -86,7 +98,7 @@ $productos,
   };
   const guardarPresupuesto = async () => {
     loader(true);
-    esPresupuesto="presupuesto"
+    setEsPresupuesto('presupuesto')
     if (totalVenta == 0) {
       showToast("monto total 0", {
         background: "bg-primary-400",
@@ -103,7 +115,7 @@ $productos,
           productos: $productos,
           totalVenta,
           userId,
-         data:formularioVenta
+          data:formularioVenta
         }),
       });
       const data = await responseFetch.json();
@@ -120,8 +132,6 @@ $productos,
       showToast("error al transaccionar", { background: "bg-primary-400" });
     }
   };
-
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;

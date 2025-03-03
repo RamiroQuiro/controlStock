@@ -5,18 +5,21 @@ type ColumnaType = {
 }
 
 interface ClienteRow {
-    codigoBarra: string;
-    descripcion: string;
-    categoria: string;
-    pCompra: number;
+    nombre: string;
+    dni: number;
+    email: string;
+    celular: string;
+    estado: string;
 }
 
 export const clienteColumns: ColumnaType[] = [
     { label: 'N°', id: 1, selector: (row, index) => index + 1},
-    { label: 'nombre', id: 2, selector: (row: ClienteRow) => row.codigoBarra },
-    { label: 'dni', id: 3, selector: (row: ClienteRow) => row.descripcion },
-    { label: 'email', id: 4, selector: (row: ClienteRow) => row.categoria },
-    { label: 'celular', id: 5, selector: (row: ClienteRow) => row.pCompra },
+    { label: 'nombre', id: 2, selector: (row: ClienteRow) => row.nombre },
+    { label: 'dni', id: 3, selector: (row: ClienteRow) => row.dni },
+    { label: 'email', id: 4, selector: (row: ClienteRow) => row.email },
+    { label: 'celular', id: 5, selector: (row: ClienteRow) => row.celular },
+    { label: 'estado', id: 5, selector: (row: ClienteRow) => row.estado },
+    {label:'acciones',id:6,selector:()=>{}}
 ]
 
 export const detallesProductosColumns = [
@@ -28,3 +31,5 @@ export const detallesProductosColumns = [
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
     { label: "Stock Restante", id: 7, selector: (row) => row.stockRestante },
   ];
+
+  

@@ -36,8 +36,9 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     }
 
     // Calcular fecha de expiración (5 días)
-    const now = Date.now();
-    const expira_at = now + (5 * 24 * 60 * 60 * 1000);
+    const fecha = new Date();
+    const expira_at = new Date();
+    expira_at.setDate(fecha.getDate() + 5);
 
     const presupuestoDB = await db
       .transaction(async (trx) => {
@@ -50,6 +51,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
             id: nanoid(),
             codigo,
             userId,
+            fecha,
             expira_at,
             estado: 'activo',
             ...data

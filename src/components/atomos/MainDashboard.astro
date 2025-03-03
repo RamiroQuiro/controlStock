@@ -1,4 +1,6 @@
 ---
+import { ArrowLeftCircle, Backpack } from "lucide-react";
+
 const { title, dataIds, h1 } = Astro.props;
 ---
 
@@ -6,11 +8,11 @@ const { title, dataIds, h1 } = Astro.props;
   class="top-12 md:right-0 z-0  w-full mt-5 md:16  print:hidden flex flex-col items-center justify-center"
 >
  <div class="w-full flex items-center justify-start sha gap-4">
-
    {
      h1 && (
-       <div class="w- ">
-        <h1 class="text-xl ml-6 mb-2 font-semibold text-primary-textoTitle ">{h1}</h1>
+       <div class="w-1/3 gap-3 mb-3 ml-6 justify-normal flex items-center ">
+         {/* <ArrowLeftCircle/> */}
+        <h1 class="text-xl  font-semibold text-primary-textoTitle ">{h1}</h1>
       </div>
     )
 

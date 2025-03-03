@@ -36,7 +36,7 @@ export default function CarritoVenta({ userId }) {
 
   }, [$productos]);
 const pagar=()=>setModalConfirmacion(true)
-console.log('este es le $produc',$productos)
+// console.log('este es le $produc',$productos)
   
 
   return (

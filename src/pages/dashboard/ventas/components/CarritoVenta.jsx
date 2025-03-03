@@ -13,11 +13,9 @@ export default function CarritoVenta({ userId }) {
   const $productos = useStore(productosSeleccionadosVenta);
   const [totalVenta, setTotalVenta] = useState(0);
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
-  const [pagaCon, setPagaCon] = useState(0);
 
   const [subtotal, setSubtotal] = useState(0);
   const [ivaMonto, setIvaMonto] = useState(0);
-  const [vueltoCalculo, setVueltoCalculo] = useState(0);
 
 
   useEffect(() => {
@@ -38,7 +36,7 @@ export default function CarritoVenta({ userId }) {
 
   }, [$productos]);
 const pagar=()=>setModalConfirmacion(true)
-
+console.log('este es le $produc',$productos)
   
 
   return (
@@ -84,10 +82,7 @@ const pagar=()=>setModalConfirmacion(true)
               {formateoMoneda.format(totalVenta)}
             </p>
           </div>
-          <div className="w-full flex gap-4 justify-between text-2xl  border-b border-primary-150 items-center">
-            <p className="text-lg">Su vuelto:</p>
-            <span className="">${vueltoCalculo}</span>
-          </div>
+
         </div>
         <BotoneraCarrito
           totalVenta={totalVenta}

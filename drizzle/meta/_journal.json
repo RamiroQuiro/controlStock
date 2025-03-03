@@ -50,6 +50,13 @@
       "when": 1740664491811,
       "tag": "0006_sturdy_sister_grimm",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1740951846810,
+      "tag": "0007_fat_malice",
+      "breakpoints": true
     }
   ]
 }

@@ -4,6 +4,9 @@ import ClientesSelect from "../ClientesSelect";
 import MetodoDePago from "./MetodoDePago";
 import { formateoMoneda } from "../../../../../utils/formateoMoneda";
 import { loader } from "../../../../../utils/loader/showLoader";
+import { Table2 } from "lucide-react";
+import Comprobante from "../../../../../components/Comprobante/Comprobante";
+import ModalComprobante from "../../../../../components/Comprobante/ModalComprobante";
 
 export default function ModalPago({
   isOpen,
@@ -36,7 +39,9 @@ $productos,
   const [comprobantePago, setComprobantePago] = useState(null);
   const [pagaCon, setPagaCon] = useState(0);
   const [descuento, setDescuento] = useState(0);
- 
+ const [mostrarComprobante, setMostrarComprobante] = useState(false)
+ const [ventaFinalizada, setVentaFinalizada] = useState({})
+ let esPresupuesto='comprobante'
   const handlePagaCon = (e) => {
     const montoIngresado = Number(e.target.value);
     const total=montoIngresado - totalVenta
@@ -45,6 +50,7 @@ $productos,
   };
   const finalizarCompra = async () => {
     loader(true);
+    esPresupuesto="comprobante"
     if (totalVenta == 0) {
       showToast("monto total 0", {
         background: "bg-primary-400",
@@ -68,7 +74,45 @@ $productos,
       if (data.status == 200) {
         showToast(data.msg, { background: "bg-green-600" });
         loader(false);
-        setTimeout(()=>window.location.reload(),1000)
+        setMostrarComprobante(true);
+        setVentaFinalizada(data.data)
+        // setTimeout(()=>window.location.reload(),1000)
+      }
+    } catch (error) {
+      console.log(error);
+      loader(false);
+      showToast("error al transaccionar", { background: "bg-primary-400" });
+    }
+  };
+  const guardarPresupuesto = async () => {
+    loader(true);
+    esPresupuesto="presupuesto"
+    if (totalVenta == 0) {
+      showToast("monto total 0", {
+        background: "bg-primary-400",
+      });
+      return;
+    }
+    try {
+      const responseFetch = await fetch("/api/sales/presupuestar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productos: $productos,
+          totalVenta,
+          userId,
+         data:formularioVenta
+        }),
+      });
+      const data = await responseFetch.json();
+      if (data.status == 200) {
+        showToast(data.msg, { background: "bg-green-600" });
+        loader(false);
+        setMostrarComprobante(true);
+        setVentaFinalizada(data.data)
+        // setTimeout(()=>window.location.reload(),1000)
       }
     } catch (error) {
       console.log(error);
@@ -93,6 +137,7 @@ $productos,
   }
 
   return (
+    <>
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl animate-aparecer">
         <h2 className="text-2xl font-semibold mb-4">Finalizar Venta</h2>
@@ -249,13 +294,35 @@ $productos,
             Cancelar
           </button>
           <button
+          onClick={guardarPresupuesto}
+            className="px-4 py-2 rounded-lg bg-primary-texto hover:bg-primary-texto/80 text-white"
+          >
+            Presupuesto
+          </button>
+
+          <button
             onClick={finalizarCompra}
-            className="px-4 py-2 rounded-lg bg-primary-100 text-white"
+            className="px-4 py-2 rounded-lg bg-primary-100 hover:bg-primary-100/80 text-white"
           >
             Confirmar Venta
           </button>
         </div>
       </div>
     </div>
+     {/* Modal de comprobante */}
+     {mostrarComprobante && (
+     <ModalComprobante
+     $productos={$productos}
+     cliente={cliente}
+     descuento={descuento}
+     esPresupuesto={esPresupuesto}
+     ivaMonto={ivaMonto}
+     totalVenta={totalVenta}
+     ventaFinalizada={ventaFinalizada}
+     subtotal={subtotal}
+     key={21}
+     />
+    )}
+    </>
   );
 }

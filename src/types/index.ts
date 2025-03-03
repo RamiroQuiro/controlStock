@@ -162,3 +162,23 @@ export interface IDetalleVentaResponse extends IDetalleVentaForm {
   iva: number;
 }
 
+export interface IPresupuesto {
+  id: string;
+  codigo: string;  // Código único para búsqueda rápida
+  clienteId?: string;
+  items: IDetalleVentaForm[];
+  subtotal: number;
+  descuentos?: number;
+  impuestos: {
+    iva21?: number;
+    iva105?: number;
+    iva27?: number;
+  };
+  total: number;
+  observaciones?: string;
+  created_at: number;
+  expira_at: number;  // Timestamp de expiración (5 días después)
+  estado: 'activo' | 'convertido' | 'expirado';
+  userId: string;  // Usuario que generó el presupuesto
+}
+

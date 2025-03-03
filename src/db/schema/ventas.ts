@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
+import { clientes } from "./clientes";
 
 
 export const ventas = sqliteTable("ventas", {
@@ -9,7 +10,7 @@ export const ventas = sqliteTable("ventas", {
   fecha: integer("fecha") // Timestamp Unix
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),
-  clienteId: text("clienteId").notNull().default("00"),
+  clienteId: text("clienteId").references(()=>clientes.id),
   metodoPago:text('metodoPago').default('efectivo'),
   nComprobante:text('nComprobante'),
   srcComprobante:text('srcComprobante'),

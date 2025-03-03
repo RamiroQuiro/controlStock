@@ -92,7 +92,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           })
         );
 
-        return ventaFinalizada;
+        return ventaFinalizada[0];
       })
       .catch((error) => {
         console.log(error);
@@ -102,6 +102,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       JSON.stringify({
         status: 200,
         msg: "Venta finalizada con éxito",
+        data:ventaDB
       })
     );
   } catch (error) {

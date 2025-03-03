@@ -1,12 +1,11 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../../db';
 import { clientes } from '../../../db/schema/clientes';
+import db from '../../../db';
+import { eq } from 'drizzle-orm';
 
-export const get: APIRoute = async () => {
+export const GET: APIRoute = async () => {
   try {
-    const clientesData = await db.query.clientes.findMany({
-      orderBy: (clientes, { desc }) => [desc(clientes.fechaAlta)]
-    });
+    const clientesData = await db.select().from(clientes).where(eq(clientes.userId,"1"))
 
     // Cabeceras del CSV
     const headers = [

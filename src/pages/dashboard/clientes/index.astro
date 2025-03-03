@@ -21,20 +21,5 @@ import Clientes from "./Clientes.astro";
     window.location.href = '/dashboard/clientes/nuevo';
   });
 
-  document.getElementById('btnExportar')?.addEventListener('click', async () => {
-    try {
-      const response = await fetch('/api/clientes/exportar-csv');
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'clientes.csv';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error al exportar:', error);
-    }
-  });
+ 
 </script>

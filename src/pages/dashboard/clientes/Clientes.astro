@@ -68,3 +68,49 @@ try {
       <ConfeccionTabla client:load data={clientesData} />
     </DivBox1>
   </MainDashboard>
+
+  <script>
+import { downloadLoader } from "../../../utils/loader/showDownloadLoader";
+
+    // Manejador para el botón de exportar
+    document.getElementById('btnExportar')?.addEventListener('click', async () => {
+      downloadLoader(true)
+      try {
+        const response = await fetch('/api/clientes/exportar-csv');
+        
+        if (!response.ok) {
+          throw new Error('Error al exportar');
+        }
+        
+        // Crear blob desde la respuesta
+        const blob = await response.blob();
+        
+        // Crear URL temporal para el blob
+        const url = window.URL.createObjectURL(blob);
+        
+        // Crear elemento <a> temporal
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `clientes-${new Date().toISOString().split('T')[0]}.csv`;
+          
+          // Agregar al DOM y simular click
+          document.body.appendChild(a);
+          a.click();
+          
+          // Limpiar
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          downloadLoader(false)
+        } catch (error) {
+          console.error('Error al exportar:', error);
+          // Aquí podrías mostrar un toast de error si lo deseas
+          downloadLoader(false)
+        showToast('Error al exportar clientes', { background: 'bg-red-600' });
+      }
+    });
+  
+    // Manejador para el botón de nuevo cliente
+    document.getElementById('btnNuevoCliente')?.addEventListener('click', () => {
+      window.location.href = '/dashboard/clientes/nuevo';
+    });
+  </script>

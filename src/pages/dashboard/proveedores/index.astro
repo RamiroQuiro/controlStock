@@ -1,0 +1,25 @@
+---
+import LayoutDash from "../../../components/layouts/LayoutDash.astro";
+import Table from "../../../components/tablaComponentes/Table";
+import { clientes } from "../../../db/schema";
+import { desc, eq } from "drizzle-orm";
+import ConfeccionTabla from "./ConfeccionTabla";
+import db from "../../../db";
+import MainDashboard from "../../../components/atomos/MainDashboard.astro";
+import Proveedores from "./Proveedores.astro";
+
+
+
+---
+<LayoutDash title="Proveedores">
+ <Proveedores />
+</LayoutDash>
+
+<script>
+  // Manejadores de eventos
+  document.getElementById('btnNuevoCliente')?.addEventListener('click', () => {
+    window.location.href = '/dashboard/proveedores/nuevo';
+  });
+
+ 
+</script>

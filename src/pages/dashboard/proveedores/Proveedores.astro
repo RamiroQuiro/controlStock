@@ -1,0 +1,151 @@
+---
+import { eq } from "drizzle-orm";
+import Button1 from "../../../components/atomos/Button1.astro";
+import DivBox1 from "../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../components/atomos/MainDashboard.astro";
+import db from "../../../db";
+import { clientes } from "../../../db/schema";
+import ConfeccionTabla from "./ConfeccionTabla";
+
+let clientesData=[]
+try {
+    const queryDb=await db.select().from(clientes).where(eq(clientes.userId,"1"))
+    clientesData=queryDb
+} catch (error) {
+    console.log(error)
+}
+---
+
+
+<MainDashboard class="p-6" h1="Proveedores" >
+    <div
+    slot={"menu"}
+    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+  >
+      <div class="flex gap-3">
+        <Button1
+          id="btnNuevoCliente"
+          class="px-4 py- bg-primary-100 text-white rounded-lg hover:bg-primary-100/80 transition-colors"
+        >
+          Nuevo Proveedor
+        </Button1>
+        <Button1
+          id="btnExportarPDF"
+          class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
+        >
+          Exportar PDF
+        </Button1>
+        <Button1
+          id="btnExportar"
+          class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
+        >
+          Exportar CSV
+        </Button1>
+      </div>
+    </div>
+
+    <DivBox1 styleDiv="w-full"  >
+      <div class="mb-4 flex gap-4">
+        <input
+          type="text"
+          id="buscarCliente"
+          placeholder="Buscar cliente..."
+          class="w-full max-w-xs px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+        />
+        <select 
+          id="filtroCategoria"
+          class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+        >
+          <option value="">Todas las categorías</option>
+          <option value="VIP">VIP</option>
+          <option value="regular">Regular</option>
+          <option value="nuevo">Nuevo</option>
+        </select>
+        <select 
+          id="filtroEstado"
+          class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+        >
+          <option value="">Todos los estados</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+
+      <ConfeccionTabla client:load data={clientesData} />
+    </DivBox1>
+  </MainDashboard>
+
+  <script>
+import { downloadLoader } from "../../../utils/loader/showDownloadLoader";
+
+    // Manejador para el botón de exportar
+    document.getElementById('btnExportar')?.addEventListener('click', async () => {
+      downloadLoader(true)
+      try {
+        const response = await fetch('/api/clientes/exportar-csv');
+        
+        if (!response.ok) {
+          throw new Error('Error al exportar');
+        }
+        
+        // Crear blob desde la respuesta
+        const blob = await response.blob();
+        
+        // Crear URL temporal para el blob
+        const url = window.URL.createObjectURL(blob);
+        
+        // Crear elemento <a> temporal
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `clientes-${new Date().toISOString().split('T')[0]}.csv`;
+          
+          // Agregar al DOM y simular click
+          document.body.appendChild(a);
+          a.click();
+          
+          // Limpiar
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          downloadLoader(false)
+        } catch (error) {
+          console.error('Error al exportar:', error);
+          // Aquí podrías mostrar un toast de error si lo deseas
+          downloadLoader(false)
+          showToast('Error al exportar clientes', { background: 'bg-red-600' });
+      }
+    });
+  
+    // Manejador para el botón de nuevo cliente
+    document.getElementById('btnNuevoCliente')?.addEventListener('click', () => {
+      window.location.href = '/dashboard/clientes/nuevo';
+    });
+
+    // Manejador para el botón de exportar PDF
+    document.getElementById('btnExportarPDF')?.addEventListener('click', async () => {
+      downloadLoader(true);
+      try {
+        const response = await fetch('/api/clientes/exportar-pdf');
+        
+        if (!response.ok) {
+          throw new Error('Error al exportar PDF');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `clientes-${new Date().toISOString().split('T')[0]}.pdf`;
+        
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        downloadLoader(false);
+      } catch (error) {
+        console.error('Error al exportar:', error);
+        downloadLoader(false);
+        showToast('Error al exportar PDF', { background: 'bg-red-600' });
+      }
+    });
+  </script>

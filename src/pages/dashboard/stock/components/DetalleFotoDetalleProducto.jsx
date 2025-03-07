@@ -1,8 +1,8 @@
 import React from "react";
-import DivReact from "../../../../components/atomos/DivReact";
 import formatDate from "../../../../utils/formatDate";
 import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
+import DivReact from "../../../../components/atomos/DivReact";
 
 export default function DetalleFotoDetalleProducto({
   infoProducto,

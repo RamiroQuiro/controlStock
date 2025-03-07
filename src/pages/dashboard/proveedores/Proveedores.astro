@@ -4,13 +4,13 @@ import Button1 from "../../../components/atomos/Button1.astro";
 import DivBox1 from "../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import db from "../../../db";
-import { clientes } from "../../../db/schema";
+import {  proveedores } from "../../../db/schema";
 import ConfeccionTabla from "./ConfeccionTabla";
 
-let clientesData=[]
+let proveedoresData=[]
 try {
-    const queryDb=await db.select().from(clientes).where(eq(clientes.userId,"1"))
-    clientesData=queryDb
+    const queryDb=await db.select().from(proveedores).where(eq(proveedores.userId,"1"))
+    proveedoresData=queryDb
 } catch (error) {
     console.log(error)
 }
@@ -71,7 +71,7 @@ try {
         </select>
       </div>
 
-      <ConfeccionTabla client:load data={clientesData} />
+      <ConfeccionTabla client:load data={proveedoresData} />
     </DivBox1>
   </MainDashboard>
 

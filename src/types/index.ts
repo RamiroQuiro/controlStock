@@ -182,3 +182,19 @@ export interface IPresupuesto {
   userId: string;  // Usuario que generó el presupuesto
 }
 
+
+export interface Proveedor {
+  id: string;
+  nombre: string;
+  dni: number;
+  celular: string;
+  email: string;
+  direccion: string;
+  categoria: string;
+  estado: string;
+  observaciones: string;
+  fechaAlta: number;
+  ultimaCompra: number;
+  userId: string;
+  created_at:string
+}

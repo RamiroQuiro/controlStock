@@ -165,3 +165,40 @@ export const RenderActionsClientes = (data) => {
     </div>
   );
 };
+
+export const RenderActionsProveedores = (data) => {
+  console.log(data);
+  const irAPerfilCliente = (data) => {
+    window.location.href = `/dashboard/proveedores/${data.id}`;
+  };
+
+  const handleDeletMed = async ({ id }) => {
+    const newMedicamentos = atencion
+      .get()
+      .medicamentos.filter((med) => med.id != id);
+    atencion.set({
+      ...atencion.get(),
+      medicamentos: newMedicamentos,
+    });
+  };
+
+  return (
+    <div className="flex gap-2 pr-5 justify-end items-center text-xs">
+      <button
+        className="text-white bg-green-600/70 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+        onClick={() => irAPerfilCliente(data)}
+      >
+        <Edit2 className="w-4 h-6" />
+      </button>
+      <button
+        className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
+        onClick={(e) => {
+          e.stopPropagation();
+          alert(`Eliminar: ${data.id}`);
+        }}
+      >
+        <Delete className="w-4 h-6" />
+      </button>
+    </div>
+  );
+};

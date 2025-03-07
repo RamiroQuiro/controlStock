@@ -1,8 +1,16 @@
-import React from "react";
-import { formateoMoneda } from "../../../../utils/formateoMoneda";
-import DivReact from "../../../../components/atomos/DivReact";
+import React from 'react'
+import DivReact from '../../../../../components/atomos/DivReact';
+import { formateoMoneda } from '../../../../../utils/formateoMoneda';
 
-export default function HistorialCompras({ compras }) {
+type ComprasProveedor = {
+
+    id: string;
+    fecha: number;
+    total: number;
+    estado: string;
+    }
+
+export const HistorialComprasProveedor = ({comprasProveedor,}: {comprasProveedor: [ComprasProveedor];}) => {
   return (
     <DivReact>
       <h2 className="text-xl font-semibold mb-4">Historial de Compras</h2>
@@ -12,13 +20,13 @@ export default function HistorialCompras({ compras }) {
             <tr className="border-b">
               <th className="text-left py-3">Fecha</th>
               <th className="text-left py-3">Total</th>
-              <th className="text-left py-3">Estado</th>
+              <th className="text-left py-3">Descripción</th>
               <th className="text-left py-3">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {compras.map((compra) => (
-              <tr key={compra.id} className="border-b">
+            {comprasProveedor.map((compra) => (
+              <tr key={compra.id} className="border-b tex-sm">
                 <td className="py-3">
                   {new Date(compra.fecha * 1000).toLocaleDateString()}
                 </td>
@@ -49,4 +57,4 @@ export default function HistorialCompras({ compras }) {
       </div>
     </DivReact>
   );
-}
+};

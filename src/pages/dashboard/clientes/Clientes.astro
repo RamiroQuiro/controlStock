@@ -6,6 +6,8 @@ import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import db from "../../../db";
 import { clientes } from "../../../db/schema";
 import ConfeccionTabla from "./ConfeccionTabla";
+import Modal from "../../../components/moleculas/Modal.astro";
+import FormularioCliente from "./components/FormularioCliente";
 
 let clientesData=[]
 try {
@@ -23,12 +25,12 @@ try {
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
       <div class="flex gap-3">
-        <Button1
-          id="btnNuevoCliente"
-          class="px-4 py- bg-primary-100 text-white rounded-lg hover:bg-primary-100/80 transition-colors"
-        >
-          Nuevo Cliente
-        </Button1>
+        <Modal label="Crear" id="crearCliente">
+            
+      
+              
+              <FormularioCliente client:visible modo="crear" userId="1"/>
+        </Modal>
         <Button1
           id="btnExportarPDF"
           class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
@@ -71,7 +73,7 @@ try {
         </select>
       </div>
 
-      <ConfeccionTabla client:load data={clientesData} />
+      <ConfeccionTabla client:load data={clientesData} userId="1" />
     </DivBox1>
   </MainDashboard>
 

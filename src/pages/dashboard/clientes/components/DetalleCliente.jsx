@@ -1,5 +1,4 @@
-import React from 'react'
-import DivReact from '../../../../components/atomos/DivReact'
+import DivReact from "../../../../components/atomos/DivReact";
 
 export default function DetalleCliente({cliente}) {
   return (

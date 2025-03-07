@@ -6,12 +6,14 @@ import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
 import db from "../../../../db";
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import Button1 from "../../../../components/atomos/Button1.astro";
+import FormularioCliente from "../components/FormularioCliente";
+import Modal from "../../../../components/moleculas/Modal.astro";
 
 const { clienteId } = Astro.params;
 
 // Obtener datos del cliente
 const cliente = (await db.select().from(clientes).where(eq(clientes.id,clienteId))).at(0)
-
+console.log('cliente ->',cliente)
 if (!cliente) {
   return Astro.redirect('/dashboard/clientes');
 }
@@ -26,11 +28,12 @@ if (!cliente) {
         <p>
           Cliente desde: {new Date(cliente.fechaAlta * 1000).toLocaleDateString()}
         </p>
-        <Button1 
-          id="btnEdit"
-        >
-          Editar Cliente
-        </Button1>
+        <Modal label="Editar Cliente" id="editarCliente">
+            
+      
+              
+          <FormularioCliente client:visible modo="editar" cliente={cliente}  userId="1"/>
+    </Modal>
       </div>
 
     <PerfilCliente client:load cliente={cliente} />

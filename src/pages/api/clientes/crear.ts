@@ -8,7 +8,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
     const userId = request.headers.get('x-user-id'); // Asumiendo que tienes el userId en headers
-
+console.log(body,userId)
     if (!body.nombre || !body.dni) {
       return new Response(
         JSON.stringify({ 
@@ -23,9 +23,9 @@ export const POST: APIRoute = async ({ request }) => {
     if (clienteExistente) {
       return new Response(
         JSON.stringify({ 
-          message: 'Ya existe un cliente con ese DNI' 
+          msg: 'Ya existe un cliente con ese DNI' 
         }), 
-        { status: 400 }
+        { status: 400,statusText:'Ya existe un cliente con ese DNI' }
       );
     }
 
@@ -33,12 +33,12 @@ export const POST: APIRoute = async ({ request }) => {
       id: nanoid(),
       userId,
       nombre: body.nombre,
-      dni: body.dni,
+      dni:Number(body.dni),
       telefono: body.telefono || null,
       email: body.email || null,
       direccion: body.direccion || null,
       categoria: body.categoria || 'nuevo',
-      limiteCredito: body.limiteCredito || 0,
+      limiteCredito: Number(body.limiteCredito) || 0,
       observaciones: body.observaciones || null,
       estado: 'activo',
       fechaAlta: Math.floor(Date.now() / 1000), // Timestamp en segundos

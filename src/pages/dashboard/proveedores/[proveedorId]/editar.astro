@@ -1,0 +1,34 @@
+---
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
+import Button1 from "../../../../components/atomos/Button1.astro";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import { clientes } from "../../../../db/schema/clientes";
+import { eq } from "drizzle-orm";
+import db from "../../../../db";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import FormularioCliente from "./components/FormularioCliente";
+
+const { clienteId } = Astro.params;
+
+// Obtener datos del cliente
+const cliente = (
+  await db.select().from(clientes).where(eq(clientes.id, clienteId))
+).at(0);
+
+if (!cliente) {
+  return Astro.redirect("/dashboard/clientes");
+}
+---
+
+<LayoutDash title={`Editar Cliente - ${cliente.nombre}`}>
+  <MainDashboard h1="Edicion de datos del cliente">
+    <DivBox1 styleDiv="w-full">
+      <h2 class="text-primary-textoTitle text-xl">Datos del cliente</h2>
+      <div
+        class="bg-primary-bg-componentes p-2 rounded-lg shadow-md w-full flex flex-col items-center justify-center py-5"
+      >
+        <FormularioCliente modo="editar" client:load cliente={cliente} />
+      </div>
+    </DivBox1>
+  </MainDashboard>
+</LayoutDash>

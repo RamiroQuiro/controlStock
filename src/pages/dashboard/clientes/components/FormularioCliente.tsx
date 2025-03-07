@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { showToast } from '../../../../utils/toast/toastShow';
-import DivReact from '../../../../components/atomos/DivReact';
+import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 
 interface Cliente {
   id?: string;
@@ -18,57 +18,46 @@ interface Cliente {
 interface Props {
   cliente?: Cliente; // Opcional para nuevo cliente
   modo: 'crear' | 'editar';
+  userId:string
 }
 
-export default function FormularioCliente({ cliente, modo }: Props) {
-  const [formData, setFormData] = useState<Cliente>(
-    cliente || {
-      nombre: '',
-      dni: '',
-      telefono: '',
-      email: '',
-      direccion: '',
-      categoria: 'nuevo',
-      estado: 'activo',
-      limiteCredito: 0,
-      observaciones: ''
-    }
-  );
+export default function FormularioCliente({ cliente, modo ,userId}: Props) {
+  const [formData, setFormData] = useState<Cliente>(cliente ||{});
+const [errors, setErrors] = useState('');
+ 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    console.log(formData)
+    if (!formData.nombre || !formData.dni || !formData.email || !formData.direccion ) {
+      setErrors('Todos los campos son obligatorios');
+      return
+    }
     try {
-      const url = modo === 'crear' 
-        ? '/api/clientes/crear'
-        : `/api/clientes/${cliente?.id}/actualizar`;
-
-      const response = await fetch(url, {
-        method: modo === 'crear' ? 'POST' : 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
+    const url = modo === 'crear' 
+    ? '/api/clientes/crear'
+    : `/api/clientes/${cliente?.id}/actualizar`;
+    
+    const response = await fetch(url, {
+      method: modo === 'crear' ? 'POST' : 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': userId
+      },
+      body: JSON.stringify(formData),
+    });
+    
       if (!response.ok) {
+        setErrors(`Error al ${modo === 'crear' ? 'crear' : 'actualizar'} , ${response.statusText}`)
         throw new Error(`Error al ${modo === 'crear' ? 'crear' : 'actualizar'}`);
       }
-
-      showToast(
-        `Cliente ${modo === 'crear' ? 'creado' : 'actualizado'} exitosamente`, 
-        { background: 'bg-green-600' }
-      );
 
       // Redirigir
       const data = await response.json();
       window.location.href = `/dashboard/clientes/${modo === 'crear' ? data.id : cliente?.id}`;
     } catch (error) {
       console.error('Error:', error);
-      showToast(
-        `Error al ${modo === 'crear' ? 'crear' : 'actualizar'} el cliente`, 
-        { background: 'bg-red-600' }
-      );
     }
   };
 
@@ -81,78 +70,24 @@ export default function FormularioCliente({ cliente, modo }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit} className=" flex flex-col gap-4 w-full text-primary-texto p-6">
+      <h2 className='text-xl text-primary-textoTitle font-semibold '>{modo=="crear"?"Crear":"Modificar"} Cliente</h2>
+      <div className="flex flex-col gap-4 items-center w-full justify-normal">
         {/* Datos básicos */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Nombre completo *
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            required
-            value={formData.nombre}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
-          />
+        <div className='w-full flex items-center justify-normal gap-2 '>
+          <InputComponenteJsx id={"nombre"} type={"text"} name={"nombre"} placeholder={"nombre"}  value={formData.nombre} handleChange={handleChange}/>
+          <InputComponenteJsx id={"dni"} type={"text"} name={"dni"} placeholder={"DNI"}  value={formData.dni} handleChange={handleChange}/>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            DNI *
-          </label>
-          <input
-            type="text"
-            name="dni"
-            required
-            value={formData.dni}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
-          />
+        <div className='w-full flex items-center justify-normal gap-2 '>
+          <InputComponenteJsx id={"telefono"} type={"text"} name={"telefono"} placeholder={"telefono"}  value={formData.telefono} handleChange={handleChange}/>
+          <InputComponenteJsx id={"email"} type={"text"} name={"email"} placeholder={"email"}  value={formData.email} handleChange={handleChange}/>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Teléfono
-          </label>
-          <input
-            type="tel"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
-          />
+        <div className='w-full flex items-center justify-normal gap-2 '>
+          <InputComponenteJsx id={"direccion"} type={"text"} name={"direccion"} placeholder={"direccion"}  value={formData.direccion} handleChange={handleChange}/>
+          <InputComponenteJsx id={"limiteCredito"} type={"number"} name={"limiteCredito"} placeholder={"Limite de credito"}  value={formData.limiteCredito} handleChange={handleChange}/>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Dirección
-          </label>
-          <input
-            type="text"
-            name="direccion"
-            value={formData.direccion}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
+        <div className='w-full'>
+          <label className="block text-sm font-medium w-full">
             Categoría
           </label>
           <select
@@ -166,23 +101,9 @@ export default function FormularioCliente({ cliente, modo }: Props) {
             <option value="VIP">VIP</option>
           </select>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Límite de crédito
-          </label>
-          <input
-            type="number"
-            name="limiteCredito"
-            value={formData.limiteCredito}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
-          />
-        </div>
       </div>
-
       <div>
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium ">
           Observaciones
         </label>
         <textarea
@@ -193,20 +114,25 @@ export default function FormularioCliente({ cliente, modo }: Props) {
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
         />
       </div>
-
+      <div className='w-full flex items-center  text-center justify-center gap-2 '>
+        {/* Estado */}
+        {errors &&
+          <span className="text-primary-400 py-2">{errors}</span>
+          }
+      </div>
       <div className="flex justify-end gap-4">
         <button
           type="button"
           onClick={() => window.location.href = '/dashboard/clientes'}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+          className="px-4 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
         >
           Cancelar
         </button>
         <button
-          type="submit"
-          className="px-4 py-2 bg-primary-100 text-white rounded-md hover:bg-primary-100/80"
+        onClick={handleSubmit}
+          className="px-4 py-1 bg-primary-100 text-white rounded-md hover:bg-primary-100/80"
         >
-          Guardar Cliente
+        {modo=="crear"? ' Guardar Cliente' : 'Actualizar Cliente'}
         </button>
       </div>
     </form>

@@ -1,9 +1,9 @@
 import { DollarSign, LucideLineChart, SendToBack } from 'lucide-react'
 import React from 'react'
 import { formateoMoneda } from '../../../../utils/formateoMoneda'
-import DivReact from '../../../../components/atomos/DivReact'
 import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud'
 import { obtenerIvaMonto } from '../../../../utils/detallesProducto'
+import DivReact from '../../../../components/atomos/DivReact'
 
 export default function StatsInfoDetalleProducto({infoProducto,totalStockProducto,margenGanancia,handleChangeForm,disableEdit,formulario}) {
   return (

@@ -6,7 +6,8 @@ import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import db from "../../../db";
 import {  proveedores } from "../../../db/schema";
 import ConfeccionTabla from "./ConfeccionTabla";
-
+import Modal from "../../../components/moleculas/Modal.astro";
+import FormularioProveedor from "./[proveedorId]/components/FormularioProveedor";
 let proveedoresData=[]
 try {
     const queryDb=await db.select().from(proveedores).where(eq(proveedores.userId,"1"))
@@ -23,21 +24,16 @@ try {
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
       <div class="flex gap-3">
-        <Button1
-          id="btnNuevoCliente"
-          class="px-4 py- bg-primary-100 text-white rounded-lg hover:bg-primary-100/80 transition-colors"
-        >
-          Nuevo Proveedor
-        </Button1>
+        <Modal id="crearProveedor"label="Crear Proveedor">
+          <FormularioProveedor client:visible userId="1" modo="crear"/>
+        </Modal>
         <Button1
           id="btnExportarPDF"
-          class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
         >
           Exportar PDF
         </Button1>
         <Button1
           id="btnExportar"
-          class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
         >
           Exportar CSV
         </Button1>

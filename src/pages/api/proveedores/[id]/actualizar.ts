@@ -1,42 +1,31 @@
 import type { APIRoute } from "astro";
-import { clientes } from "../../../../db/schema/clientes";
+import { proveedores } from "../../../../db/schema/proveedores";
 import { eq } from "drizzle-orm";
 import db from "../../../../db";
 
 export const PUT: APIRoute = async ({ params, request }) => {
-  const clienteId = params.id;
-try {
+  const proveedorId = params.id;
+
+  try {
     const body = await request.json();
-    console.log(body)
     const userId = request.headers.get('x-user-id'); // Asumiendo que tienes el userId en headers
 
-    // Verificar DNI duplicado (solo si se está cambiando el DNI)
 
-      const [dniDuplicado] = await db.select().from(clientes).where(eq(clientes.dni, body.dni))
-      if (dniDuplicado) {
-        return new Response(
-          JSON.stringify({ 
-            message: 'Ya existe un cliente con ese DNI' 
-          }), 
-          { status: 400 }
-        );
-      }
-   
+
+
     // Actualizar cliente
     const [clienteActualizado] = await db
-      .update(clientes)
+      .update(proveedores)
       .set({
         nombre: body.nombre,
         dni: body.dni,
-        telefono: body.telefono || null,
+        celular: body.celular || null,
         email: body.email || null,
         direccion: body.direccion || null,
-        categoria: body.categoria,
         estado: body.estado,
-        limiteCredito: body.limiteCredito,
         observaciones: body.observaciones || null,
       })
-      .where(eq(clientes.id, clienteId))
+      .where(eq(proveedores.id, proveedorId))
       .returning();
 
     return new Response(

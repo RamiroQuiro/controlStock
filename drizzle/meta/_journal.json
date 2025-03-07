@@ -57,6 +57,13 @@
       "when": 1740951846810,
       "tag": "0007_fat_malice",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1741366828879,
+      "tag": "0008_large_tempest",
+      "breakpoints": true
     }
   ]
 }

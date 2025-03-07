@@ -6,6 +6,8 @@ import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import Button1 from "../../../../components/atomos/Button1.astro";
 import { proveedores } from "../../../../db/schema";
 import PerfilProveedor from './components/PerfilProveedor'
+import Modal from "../../../../components/moleculas/Modal.astro";
+import FormularioProveedor from "./components/FormularioProveedor";
 const { proveedorId } = Astro.params;
 
 // Obtener datos del cliente
@@ -25,11 +27,9 @@ console.log(proveedor)
         <p>
           Cliente desde: {new Date(proveedor.created_at * 1000).toLocaleDateString()}
         </p>
-        <Button1 
-          id="btnEdit"
-        >
-          Editar proveedor
-        </Button1>
+        <Modal id="crearProveedor"label="Crear Proveedor">
+          <FormularioProveedor client:visible userId="1" modo="editar" proveedor={proveedor}/>
+        </Modal>
       </div>
 
     <PerfilProveedor client:load proveedor={proveedor} />

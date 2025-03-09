@@ -25,7 +25,7 @@ const [openModal, setOpenModal] = useState(false)
       />
     <BtnBusquedaCliente
       cliente={proveedor}
-      onClick={() => setOpenModal(true)}
+      onClick={(e) =>{e.preventDefault(); setOpenModal(true)}}
       />
   </div>
       </>

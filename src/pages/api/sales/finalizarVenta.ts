@@ -18,7 +18,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     userId,
    data
   } = await request.json();
-  console.log('finalizando venta',productosSeleccionados, userId,data);
+  // console.log('finalizando venta',productosSeleccionados, userId,data);
 
   // Validaciones previas
   if (!productosSeleccionados?.length || !userId || !data.clienteId) {

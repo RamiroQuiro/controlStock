@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { sql, eq } from "drizzle-orm";
 import type { APIContext } from "astro";
 import { comprasProveedores, detalleCompras, movimientosStock, productos } from "../../../db/schema";
+import db from "../../../db";
 
 export async function POST({ request }: APIContext): Promise<Response> {
   try {
@@ -29,12 +30,22 @@ export async function POST({ request }: APIContext): Promise<Response> {
     }
 
     const compraDB = await db.transaction(async (trx) => {
-      const compraRegistrada = await trx
+        // Registrar la compra
+        const compraId = nanoid();
+      
+        const compraRegistrada = await trx
         .insert(comprasProveedores)
         .values({
-          id: nanoid(),
+          id: compraId,
           userId,
-          ...data,
+          proveedorId: data.proveedorId,
+          metodoPago: data.metodoPago,
+          nComprobante: data.nComprobante,
+          nCheque: data.nCheque,
+          vencimientoCheque: data.vencimientoCheque,
+          total: data.total,
+          impuesto: data.impuesto,
+          descuento: data.descuento
         })
         .returning();
 
@@ -42,11 +53,11 @@ export async function POST({ request }: APIContext): Promise<Response> {
         productosComprados.map(async (prod) => {
           await trx.insert(detalleCompras).values({
             id: nanoid(),
-            compraId: compraRegistrada[0].id,
+            compraId: compraId,
             productoId: prod.id,
             cantidad: prod.cantidad,
-            precioUnitario: prod.precioUnitario,
-            subtotal: prod.cantidad * prod.precioUnitario,
+            precioUnitario: prod.pCompra,
+            subtotal: prod.cantidad * prod.pCompra,
           });
 
           await trx

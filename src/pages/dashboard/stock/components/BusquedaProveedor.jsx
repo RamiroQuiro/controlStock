@@ -17,6 +17,7 @@ export default function BusquedaProveedor({ onClose, setProveedor }) {
   };
 
   const handleProveedor = async (e) => {
+    e.preventDefault();
     if (inputBusqueda.trim() === "") {
       setResultados([]); // Resetea resultados si el input está vacío
       return;

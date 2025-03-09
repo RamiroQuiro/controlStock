@@ -5,41 +5,58 @@ import FiltroProductos from "../../../../components/moleculas/FiltroProductos";
 import DetallesVentas from "../../ventas/components/DetallesVentas";
 import DetalleMontoCompra from "./FormularioCompra/DetalleMontoCompra";
 import ProveedorSelect from './ProveedorSelect'
-import {showToast  } from "../../../../utils/toast/toastShow";
+import { showToast } from "../../../../utils/toast/toastShow";
+import { productos } from "../../../../db/schema";
+import { useStore } from "@nanostores/react";
+import { productosSeleccionadosVenta } from "../../../../context/store";
 const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
-    const [formulario, setFormulario] = useState({
-        proveedorId: "",
-        fecha: new Date().toISOString().split("T")[0],
-        productos: [],
-        tipo: "compra",
-        formaPago: "contado",
-        numeroFactura: "",
-        fechaVencimiento: "",
-        subtotal: 0,
-        iva: 0,
-        total: 0,
-        observaciones: "",
-    });
+    const [totalVenta, setTotalVenta] = useState(0);
+    const [modalConfirmacion, setModalConfirmacion] = useState(false);
+    const [error, setError] = useState({ msg: "", status: 0 });
+    const $productos = useStore(productosSeleccionadosVenta);
+    const [cargando, setCargando] = useState(false);
+
+    const [subtotal, setSubtotal] = useState(0);
+    const [ivaMonto, setIvaMonto] = useState(0);
+
+
     const [proveedor, setProveedor] = useState({
         nombre: "",
         dni: "00000000",
         celular: "0000000000",
         id: "1",
-      });
-    const [error, setError] = useState({ msg: "", status: 0 });
-    const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-    const [cargando, setCargando] = useState(false);
+    });
+    const [formulario, setFormulario] = useState({
+        proveedorId: proveedor.id,
+        metodoPago: "efectivo",
+        nComprobante: "",
+        nCheque: "",
+        vencimientoCheque: "",
+        total: 0,
+        impuesto: 0,
+        descuento: 0,
+        observacion: "",
+        productos: []
+    });
+
 
     useEffect(() => {
-        if (filtrado) {
-            if (!formulario.proveedorId) {
-                setFormulario((prev) => ({ ...prev, proveedorId: filtrado.id }));
-            }
-            filtroBusqueda.set({ filtro: "" });
-        }
-    }, [filtrado]);
+        const sumaTotal = $productos.reduce(
+            (acc, producto) => acc + producto.pVenta * producto.cantidad,
+            0
+        );
 
+        const sumaSubtotal = $productos.reduce(
+            (acc, producto) =>
+                acc + (producto.pVenta * producto.cantidad) / (1 + producto.iva / 100),
+            0
+        );
 
+        setTotalVenta(sumaTotal);
+        setSubtotal(sumaSubtotal);
+        setIvaMonto(sumaTotal - sumaSubtotal);
+
+    }, [$productos])
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,34 +66,23 @@ const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
 
 
 
-    const validarFormulario = () => {
-        if (!formulario.proveedorId) {
-            showToast("Debe seleccionar un proveedor");
-            return false;
-        }
-        if (formulario.productos.length === 0) {
-            showToast("Debe agregar al menos un producto");
-            return false;
-        }
-        if (formulario.formaPago === "credito" && !formulario.fechaVencimiento) {
-            showToast("Debe especificar la fecha de vencimiento para compras a crédito");
-            return false;
-        }
-        return true;
-    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError({ msg: "", status: 0 });
 
-        if (!validarFormulario()) return;
+        formulario.total = totalVenta;
 
         try {
             setCargando(true);
-            const response = await fetch(`/api/movimientos/${userId}`, {
+            const response = await fetch(`/api/compras/comprasProv`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formulario),
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-user-id": userId,
+                },
+                body: JSON.stringify({ data: formulario, productos: $productos, userId: "1" }),
             });
             const data = await response.json();
 
@@ -93,7 +99,7 @@ const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="text-primary-texto gap-4 p-4 flex flex-col ">
+        <form className="text-primary-texto gap-4 p-4 flex flex-col ">
             <h2 className="text-xl font-semibold">Registro de Compra</h2>
             {/* Sección proveedor */}
             <div className="flex w-full items-start justify-normal  flex-col">
@@ -101,9 +107,9 @@ const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
                 <ProveedorSelect proveedor={proveedor} setProveedor={setProveedor} />
                 {proveedor.id !== "1" && (
                     <div className="mt-2 text-sm w-full flex items-start justify-normal gap-3 text-gray-600">
-                        <p>DNI: {proveedor.dni}</p>
-                        <p>Dirección: {proveedor.direccion}</p>
-                        <p>Celular: {proveedor.celular}</p>
+                        <p>DNI: {proveedor?.dni}</p>
+                        <p>Dirección: {proveedor?.direccion}</p>
+                        <p>Celular: {proveedor?.celular}</p>
                     </div>
                 )}
             </div>
@@ -112,8 +118,8 @@ const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
                 <InputDate name={"fechaCompra"} onChange={handleChange} id={"fechaCompra"}>fecha de compra</InputDate>
                 <InputFormularioSolicitud
                     type="text"
-                    name="numeroFactura"
-                    value={formulario.numeroFactura}
+                    name="nComprobante"
+                    value={formulario?.nComprobante}
                     onchange={handleChange}
 
                 > Número de Factura</InputFormularioSolicitud>
@@ -121,17 +127,17 @@ const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
                 <div className="flex flex-col w-full">
                     <label className="block text-sm font-medium text-gray-700">Forma de Pago</label>
                     <select
-                        name="formaPago"
-                        value={formulario.formaPago}
+                        name="metodoPago"
+                        value={formulario.metodoPago}
                         onChange={handleChange}
                         className="mt-1 block w-full rounded-lg py-0.5 border-2 border-primary-100/50  focus:ring focus:border-transparent focus:ring-primary-100"
                     >
-                        <option value="contado">Contado</option>
+                        <option value="efectivo">Efectivo</option>
                         <option value="credito">Crédito</option>
                         <option value="transferencia">Transferencia</option>
                     </select>
                 </div>
-                {formulario.formaPago === "credito" && (
+                {formulario.metodoPago === "credito" && (
                     <InputDate name={"fechaVencimiento"} value={formulario.fechaVencimiento}
                         onChange={handleChange} id={"fechaVencimiento"}>fecha de Vencimiento</InputDate>
 
@@ -147,13 +153,13 @@ const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
                 <DetallesVentas />
 
             </div>
-            <DetalleMontoCompra />
+            <DetalleMontoCompra subtotal={subtotal} ivaMonto={ivaMonto} totalVenta={totalVenta} />
 
             <div className="">
                 <label className="block text-sm font-medium text-gray-700">Observaciones</label>
                 <textarea
                     name="observaciones"
-                    value={formulario.observaciones}
+                    value={formulario?.observaciones}
                     onChange={handleChange}
                     className="mt-1 block w-full p-1 rounded-lg py-0.5 border-2 focus:outline-none border-primary-100/50  focus:ring focus:border-transparent focus:ring-primary-100"
                     rows="3"
@@ -169,7 +175,7 @@ const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
 
             <div className="mt-6 flex justify-end">
                 <button
-                    type="submit"
+                    onClick={handleSubmit}
                     disabled={cargando}
                     className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                 >

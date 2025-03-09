@@ -3,31 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { productosSeleccionadosVenta } from '../../../../../context/store';
 import { formateoMoneda } from '../../../../../utils/formateoMoneda';
 
-export default function DetalleMontoCompra() {
-    const $productos = useStore(productosSeleccionadosVenta);
-    const [totalVenta, setTotalVenta] = useState(0);
-    const [modalConfirmacion, setModalConfirmacion] = useState(false);
-
-    const [subtotal, setSubtotal] = useState(0);
-    const [ivaMonto, setIvaMonto] = useState(0);
-
-    useEffect(() => {
-        const sumaTotal = $productos.reduce(
-            (acc, producto) => acc + producto.pVenta * producto.cantidad,
-            0
-        );
-
-        const sumaSubtotal = $productos.reduce(
-            (acc, producto) =>
-                acc + (producto.pVenta * producto.cantidad) / (1 + producto.iva / 100),
-            0
-        );
-
-        setTotalVenta(sumaTotal);
-        setSubtotal(sumaSubtotal);
-        setIvaMonto(sumaTotal - sumaSubtotal);
-
-    }, [$productos]);
+export default function DetalleMontoCompra({subtotal, ivaMonto, totalVenta}) {
+    ;
 
     return (
 

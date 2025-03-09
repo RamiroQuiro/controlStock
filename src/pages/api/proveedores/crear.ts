@@ -8,7 +8,6 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
     const userId = request.headers.get('x-user-id'); // Asumiendo que tienes el userId en headers
-console.log('body ->',body,'userID',userId)
     if (!body.nombre || !body.dni) {
       return new Response(
         JSON.stringify({ 

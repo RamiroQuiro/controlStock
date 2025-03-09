@@ -8,3 +8,5 @@ export {ventas} from './ventas';
 export {stockActual} from './stockActual';
 export {presupuesto} from './presupuestos'
 export {detallePresupuesto} from './detallePresupuesto'
+export {comprasProveedores} from './comprasProveedor'
+export {detalleCompras} from './detalleCompras'

@@ -1,29 +1,31 @@
 import type { APIRoute } from 'astro';
-import { ventas } from '../../../../db/schema/ventas';
 import { and, desc, eq } from 'drizzle-orm';
 import db from '../../../../db';
+import { movimientosStock, proveedores } from '../../../../db/schema';
 
 export const GET: APIRoute = async ({ params ,request}) => {
   const userId = request.headers.get('x-user-id'); // Asumiendo que tienes el userId en headers
   try {
-    const clienteId = params.id;
+    const proveedorId = params.id;
 
     // Obtener todas las compras del cliente
     const compras = await db
     .select()
-    .from(ventas)
+    .from(movimientosStock)
     .where(
       and(
-        eq(ventas.clienteId, clienteId),
-        eq(ventas.userId, userId)
+        eq(movimientosStock.proveedorId, proveedorId),
+        eq(movimientosStock.userId, userId)
       )
     )
-    .orderBy(desc(ventas.fecha)) // Puedes ordenar por fecha si lo necesitas
+    .orderBy(desc(movimientosStock.fecha)) // Puedes ordenar por fecha si lo necesitas
     .limit(25);
+
+    console.log('compras', compras,'userId->',userId);
     // Calcular estadísticas
     const estadisticas = compras.reduce((acc, compra) => {
       return {
-        totalGastado: acc.totalGastado + compra.total,
+        totalGastado: acc.totalGastado + compra.cantidad,
         cantidadCompras: acc.cantidadCompras + 1,
       };
     }, { totalGastado: 0, cantidadCompras: 0 });

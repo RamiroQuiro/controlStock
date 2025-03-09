@@ -18,6 +18,7 @@ import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
 import { trayendoProductos } from "../../../../utils/stockFunctions";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos.astro";
+import FormularioCompra from "./FormularioCompra";
 const user = { id: "1", nombre: "ramiro" };
 const queryDB = await trayendoProductos(user.id);
 const obtenerStockBajoProductos = (array: []) => {
@@ -125,6 +126,9 @@ const infoStats = [
   >
     <Modal label="Crear" id="agregarProducto">
       <FormularioCargaProducto user={user} />
+    </Modal>
+    <Modal label="Comprar" id="compraProveedir">
+         <FormularioCompra user={user} client:visible/>
     </Modal>
 
     <Modal id="modalIngreso" label="Movimiento">

@@ -26,7 +26,13 @@ export default function PerfilCliente({ proveedor }: { proveedor:Proveedor }) {
 
   const cargarHistorialCompras = async () => {
     try {
-      const response = await fetch(`/api/proveedores/${proveedor.id}/compras`);
+      const response = await fetch(`/api/proveedores/${proveedor.id}/compras`,{
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": proveedor.userId,
+        },
+      });
       const data = await response.json();
       setComprasProveedor(data.compras);
       setEstadisticas(data.estadisticas);

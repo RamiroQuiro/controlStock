@@ -10,18 +10,7 @@ try {
     console.log(body)
     const userId = request.headers.get('x-user-id'); // Asumiendo que tienes el userId en headers
 
-    // Verificar DNI duplicado (solo si se está cambiando el DNI)
-
-      const [dniDuplicado] = await db.select().from(clientes).where(eq(clientes.dni, body.dni))
-      if (dniDuplicado) {
-        return new Response(
-          JSON.stringify({ 
-            message: 'Ya existe un cliente con ese DNI' 
-          }), 
-          { status: 400 }
-        );
-      }
-   
+ 
     // Actualizar cliente
     const [clienteActualizado] = await db
       .update(clientes)

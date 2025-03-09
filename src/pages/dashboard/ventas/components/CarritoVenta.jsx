@@ -35,9 +35,9 @@ export default function CarritoVenta({ userId }) {
     setIvaMonto(sumaTotal - sumaSubtotal);
 
   }, [$productos]);
-const pagar=()=>setModalConfirmacion(true)
-// console.log('este es le $produc',$productos)
-  
+  const pagar = () => setModalConfirmacion(true)
+  // console.log('este es le $produc',$productos)
+
 
   return (
     <>
@@ -63,7 +63,7 @@ const pagar=()=>setModalConfirmacion(true)
         </div>
 
 
-                <div className="w-full text-primary-textoTitle font- text-end flex flex-col items-end justify-between mt-3">
+        <div className="w-full text-primary-textoTitle font- text-end flex flex-col items-end justify-between mt-3">
           <div className="w-full flex gap-4 justify-between border-t border-primary-150 items-center">
             <p className="text-lg capitalize">Subtotal:</p>
             <p className="md:text-xl text-end -tracking-wider text-primary-textoTitle font-mono">
@@ -92,7 +92,7 @@ const pagar=()=>setModalConfirmacion(true)
 
       {/* Modal de Pago */}
       {modalConfirmacion && (
-       <ModalPago totalVenta={totalVenta} subtotal={subtotal} ivaMonto={ivaMonto} $productos={$productos} userId={userId}/>
+        <ModalPago totalVenta={totalVenta} subtotal={subtotal} ivaMonto={ivaMonto} $productos={$productos} userId={userId} />
       )}
     </>
   );

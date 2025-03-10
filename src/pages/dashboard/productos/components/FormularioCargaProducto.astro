@@ -60,30 +60,32 @@ const unidadMedida = [
   },
 ];
 ---
-
 <FormCont title="Agregar Producto" id="formularioCargaProducto">
   <div
     id="idCargaUsuario"
-    data-initUser={user.id}
+    data-user-id={user.id}
     class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
   >
     <ContenedorInputForm
       name="codigoBarra"
       type="text"
-      label="codigo de barra"
+      label="Código de barra"
+      required
     />
-    <div class="w-full flex items items-start my-2 duration-300 group -md">
+    <div class="w-full flex items-start my-2 duration-300 group">
       <div class="w-full flex gap-2 items-center justify-center">
         <InputFile client:load name="fotoProducto" />
       </div>
       <div class="w-full flex flex-col gap-2 items-start justify-between">
-        <LabelForm name={"descripcion"}>{"descripcion"}</LabelForm>
+        <LabelForm name="descripcion">Descripción</LabelForm>
         <textarea
           class="flex-1 w-full text-sm p-2 text-primary-texto outline-none ring-0 border-gray-300 ring-primary-200/60 focus:ring-1 focus:border-primary-200/60 border-b rounded-lg"
           rows="3"
           placeholder="Color, tamaño, categoria, trata o que describe al producto..."
           name="descripcion"
-          id="descripcion"></textarea>
+          id="descripcion"
+          required
+        ></textarea>
       </div>
     </div>
   </div>
@@ -119,7 +121,7 @@ const unidadMedida = [
   </div>
 
   <div class="w-full flex items-center justify-end my-3">
-    <Button1 id="btnCargarProducto">Guardar</Button1>
+    <Button1 id="btnCargarProducto" type="submit">Guardar</Button1>
   </div>
   <div
     class="text-xs font-semibold h-6 w-full text-center tracking-wide uppercase animate-aparecer text-primary-400"
@@ -129,87 +131,87 @@ const unidadMedida = [
 </FormCont>
 
 <script>
+  interface FormElements extends HTMLFormControlsCollection {
+    fotoProducto: HTMLInputElement;
+    codigoBarra: HTMLInputElement;
+    descripcion: HTMLTextAreaElement;
+    // ... otros campos
+  }
+
+  interface ProductoForm extends HTMLFormElement {
+    readonly elements: FormElements;
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
-    const formulario = document.getElementById("formularioCargaProducto");
+    const formulario = document.getElementById("formularioCargaProducto") as ProductoForm;
     const btnGuardar = document.getElementById("btnCargarProducto");
     const erroresMsg = document.getElementById("erroresMsg");
-    const userId = document.getElementById("idCargaUsuario")?.dataset.inituser;
+    const userIdElement = document.getElementById("idCargaUsuario");
+    const userId = userIdElement?.dataset.userId;
+
     if (!formulario || !btnGuardar || !erroresMsg || !userId) {
-      console.error("Faltan elementos clave en el DOM");
+      console.error("Error: Elementos del DOM no encontrados");
       return;
     }
 
-    let fileData: File | null = null; // Declaramos el tipo explícitamente
+    let fileData: File | null = null;
 
-    const inputFile = document.getElementById("fotoProducto");
-    inputFile?.addEventListener("change", (event) => {
-      const file = event.target.files[0];
+    // Manejador del input file
+    formulario.elements.fotoProducto?.addEventListener("change", (event: Event) => {
+      const input = event.target as HTMLInputElement;
+      const file = input.files?.[0];
+
       if (file && file.type.startsWith("image/")) {
-        fileData = file; // Guardamos el archivo para usarlo después
-        console.log("Archivo de imagen válido:", file.name);
+        fileData = file;
+        console.log("Imagen seleccionada:", file.name);
       } else {
         console.error("Por favor selecciona un archivo de imagen válido");
-        event.target.value = "";
+        input.value = "";
         fileData = null;
       }
     });
 
-    formulario.addEventListener("submit", async (e) => {
+    // Validación y envío del formulario
+    formulario.addEventListener("submit", async (e: SubmitEvent) => {
       e.preventDefault();
 
-      const formData = new FormData(formulario);
-
-      if (fileData) {
-        formData.set("fotoProducto", fileData);
-      }
-      // Opcional: Verificar contenido del FormData
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-
-      // Validación de campos obligatorios
-      const requiredFields = [
-        "codigoBarra",
-        "descripcion",
-        "pCompra",
-        "pVenta",
-        "stock",
-        "cantidadAlerta",
-      ];
-
-      for (const field of requiredFields) {
-        if (!formData.get(field)) {
-          erroresMsg.textContent = "Todos los campos son obligatorios";
-          return;
-        }
-      }
-      // Agregar userId al FormData
-      formData.append("userId", userId);
       try {
+        const formData = new FormData(formulario);
+        
+        // Validaciones
+        const requiredFields = ["codigoBarra", "descripcion", "pCompra", "pVenta", "stock", "cantidadAlerta"];
+        const missingFields = requiredFields.filter(field => !formData.get(field));
+
+        if (missingFields.length > 0) {
+          throw new Error(`Campos requeridos faltantes: ${missingFields.join(", ")}`);
+        }
+
+        if (fileData) {
+          formData.set("fotoProducto", fileData);
+        }
+        formData.append("userId", userId);
+
         const response = await fetch("/api/productos/create", {
           method: "POST",
-          body: formData, // El navegador gestiona el Content-Type automáticamente
+          body: formData
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-          const errorData = await response.json();
-          erroresMsg.textContent = errorData.msg || "Error en el servidor";
-          return;
+          throw new Error(data.msg || "Error en el servidor");
         }
 
-        const dataResponse = await response.json();
-        console.log(dataResponse);
-
-        if (dataResponse.status === 200) {
+        if (data.status === 200) {
           formulario.reset();
           window.location.reload();
         } else {
-          erroresMsg.textContent =
-            dataResponse.msg || "Error al guardar el producto";
+          throw new Error(data.msg || "Error al guardar el producto");
         }
+
       } catch (error) {
-        console.error("Error al enviar el formulario:", error);
-        erroresMsg.textContent = "Ocurrió un error inesperado";
+        console.error("Error:", error);
+        erroresMsg.textContent = error instanceof Error ? error.message : "Error inesperado";
       }
     });
   });

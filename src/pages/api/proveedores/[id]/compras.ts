@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import db from '../../../../db';
-import { movimientosStock, proveedores } from '../../../../db/schema';
+import { comprasProveedores, detalleCompras, movimientosStock, productos, proveedores } from '../../../../db/schema';
 
 export const GET: APIRoute = async ({ params ,request}) => {
   const userId = request.headers.get('x-user-id'); // Asumiendo que tienes el userId en headers
@@ -11,21 +11,21 @@ export const GET: APIRoute = async ({ params ,request}) => {
     // Obtener todas las compras del cliente
     const compras = await db
     .select()
-    .from(movimientosStock)
+    .from(comprasProveedores)
     .where(
       and(
-        eq(movimientosStock.proveedorId, proveedorId),
-        eq(movimientosStock.userId, userId)
+        eq(comprasProveedores.proveedorId, proveedorId),
+        eq(comprasProveedores.userId, userId)
       )
     )
-    .orderBy(desc(movimientosStock.fecha)) // Puedes ordenar por fecha si lo necesitas
+    .orderBy(desc(comprasProveedores.fecha)) // Puedes ordenar por fecha si lo necesitas
     .limit(25);
-
+  
     console.log('compras', compras,'userId->',userId);
     // Calcular estadísticas
     const estadisticas = compras.reduce((acc, compra) => {
       return {
-        totalGastado: acc.totalGastado + compra.cantidad,
+        totalGastado: acc.totalGastado + compra.total,
         cantidadCompras: acc.cantidadCompras + 1,
       };
     }, { totalGastado: 0, cantidadCompras: 0 });
@@ -44,6 +44,25 @@ export const GET: APIRoute = async ({ params ,request}) => {
       frecuenciaCompra = diasTotales / (compras.length - 1);
     }
 
+    const productosMasVendidos = await db
+            .select({
+              producto: productos,
+              totalVendido: sql<number>`sum(${detalleCompras.cantidad})`.as(
+                "totalVendido"
+              ),
+            })
+            .from(detalleCompras)
+            .innerJoin(productos, eq(detalleCompras.productoId, productos.id))
+            .where(eq(productos.userId, userId))
+            .groupBy(productos.id)
+            .orderBy(desc(sql`totalVendido`))
+            .limit(10);
+
+  
+
+    console.log(productosMasVendidos)
+    // Retornar respuesta
+
     return new Response(
       JSON.stringify({
         compras: compras.map(compra => ({
@@ -56,7 +75,9 @@ export const GET: APIRoute = async ({ params ,request}) => {
           totalGastado: estadisticas.totalGastado,
           promedioCompra,
           frecuenciaCompra: Math.round(frecuenciaCompra),
-          cantidadCompras: estadisticas.cantidadCompras
+          cantidadCompras: estadisticas.cantidadCompras,
+          ultimaCompra: compras.length > 0 ? compras[0].fecha : null,
+          productosMasVendidos
         }
       }),
       { status: 200 }

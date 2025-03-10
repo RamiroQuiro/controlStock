@@ -1,5 +1,6 @@
 import { useState } from "react";
 import InputComponenteJsx from "../../../dashboard/componente/InputComponenteJsx";
+import InputFormularioSolicitud from "../../../../../components/moleculas/InputFormularioSolicitud";
 
 interface Proveedor {
   id?: string;
@@ -100,50 +101,54 @@ export default function FormularioProveedor({
       <div className="flex flex-col gap-4 items-center w-full justify-normal">
         {/* Datos básicos */}
         <div className="w-full flex items-center justify-normal gap-2 ">
-          <InputComponenteJsx
+          <InputFormularioSolicitud
             id={"nombre"}
             type={"text"}
             name={"nombre"}
             placeholder={"nombre"}
             value={formData.nombre}
-            handleChange={handleChange}
-          />
-          <InputComponenteJsx
+            onchange={handleChange}
+          >
+            Nombre
+          </InputFormularioSolicitud>
+          <InputFormularioSolicitud
             id={"dni"}
             type={"text"}
             name={"dni"}
             placeholder={"DNI"}
             value={formData.dni}
-            handleChange={handleChange}
-          />
+            onchange={handleChange}
+          >
+            DNI
+          </InputFormularioSolicitud>
         </div>
         <div className="w-full flex items-center justify-normal gap-2 ">
-          <InputComponenteJsx
+          <InputFormularioSolicitud
             id={"celular"}
             type={"text"}
             name={"celular"}
             placeholder={"celular"}
             value={formData.celular}
-            handleChange={handleChange}
-          />
-          <InputComponenteJsx
+            onchange={handleChange}
+          >Celular</InputFormularioSolicitud>
+          <InputFormularioSolicitud
             id={"email"}
             type={"text"}
             name={"email"}
             placeholder={"email"}
             value={formData.email}
-            handleChange={handleChange}
-          />
+            onchange={handleChange}
+          >email</InputFormularioSolicitud>
         </div>
         <div className="w-full flex items-center justify-normal gap-2 ">
-          <InputComponenteJsx
+          <InputFormularioSolicitud
             id={"direccion"}
             type={"text"}
             name={"direccion"}
             placeholder={"direccion"}
             value={formData.direccion}
-            handleChange={handleChange}
-          />
+            onchange={handleChange}
+          >Dirección</InputFormularioSolicitud>
         </div>
       </div>
       <div>

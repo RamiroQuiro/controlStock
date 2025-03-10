@@ -44,12 +44,81 @@ export type responseAPIType = {
   body?: string;
 };
 
+interface ConfiguracionBackup {
+  frecuencia: 'diaria' | 'semanal' | 'mensual';
+  destino: 'local' | 'nube';
+  compresion: boolean;
+  historialBackups: number;
+}
+
+interface APIEndpoints {
+  // '/api/productos': {
+  //   GET: { params: ProductoFiltros, response: Producto[] };
+  //   POST: { body: NuevoProducto, response: Producto };
+  // };
+  // '/api/ventas': {
+  //   GET: { params: VentaFiltros, response: Venta[] };
+  //   POST: { body: NuevaVenta, response: Venta };
+  // };
+}
+
+
+interface CuentaCorriente {
+  clienteId: string;
+  balance: number;
+  limiteCredito: number;
+  historialPagos: Pago[];
+  estado: 'activo' | 'suspendido';
+}
+
+interface CuentaCorriente {
+  clienteId: string;
+  balance: number;
+  limiteCredito: number;
+  historialPagos: Pago[];
+  estado: 'activo' | 'suspendido';
+}
+
+interface Alerta {
+  tipo: 'stockBajo' | 'vencimiento' | 'pagosPendientes';
+  mensaje: string;
+  nivel: 'info' | 'warning' | 'error';
+  fecha: Date;
+  leida: boolean;
+}
+
 export type optionsSelectInputType = {
   id: number;
   value: string;
   name?: string;
 };
 
+
+interface PermisoUsuario {
+  rol: 'admin' | 'vendedor' | 'supervisor';
+  permisos: {
+    ventas: boolean;
+    compras: boolean;
+    reportes: boolean;
+    configuracion: boolean;
+  };
+  restricciones: {
+    maxMontoVenta: number;
+    puedeAnular: boolean;
+    puedeAplicarDescuentos: boolean;
+  };
+}
+
+// Implementar caching
+const cache = new Map<string, any>();
+
+// Paginación mejorada
+interface PaginacionParams {
+  pagina: number;
+  porPagina: number;
+  ordenarPor: string;
+  direccion: 'asc' | 'desc';
+}
 // Interfaces para selects y formularios
 export interface IProductoForm {
   nombre: string;

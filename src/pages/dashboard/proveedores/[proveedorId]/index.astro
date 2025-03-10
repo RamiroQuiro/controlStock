@@ -27,7 +27,7 @@ console.log(proveedor)
         <p>
           Cliente desde: {new Date(proveedor.created_at * 1000).toLocaleDateString()}
         </p>
-        <Modal id="crearProveedor"label="Crear Proveedor">
+        <Modal id="editarProveedor"label="Editar Proveedor">
           <FormularioProveedor client:visible userId="1" modo="editar" proveedor={proveedor}/>
         </Modal>
       </div>

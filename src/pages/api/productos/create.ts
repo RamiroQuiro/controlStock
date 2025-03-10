@@ -1,4 +1,4 @@
-import type { APIContext, APIRoute } from "astro";
+import type { APIContext } from "astro";
 import db from "../../../db";
 import { nanoid } from "nanoid";
 import { movimientosStock, productos, stockActual } from "../../../db/schema";
@@ -7,152 +7,209 @@ import path from "path";
 import { promises as fs } from "fs";
 import sharp from "sharp";
 
-export async function POST({ request, params }: APIContext): Promise<Response> {
-  const data = await request.formData();
-  const nombre = data.get("nombre")?.toString() || "";
-  const userId = data.get("userId")?.toString() || "";
-  const descripcion = data.get("descripcion")?.toString() || "";
-  const precio = parseFloat(data.get("precio")?.toString() || "0");
-  const stock = parseInt(data.get("stock")?.toString() || "0");
-  const pVenta = data.get("pVenta");
-  const pCompra = data.get("pCompra");
-  const categoria = data.get("categoria");
-  const deposito=data.get('deposito')
-  const impuesto=data.get('impuesto')?.toString() || "21%"
-  const iva=data.get('iva')
-  const descuento=data.get('descuento')
-  const modelo = data.get("modelo");
-  const marca = data.get("marca");
-  const localizacion = data.get("localizacion")?.toString() || "";
-  const cantidadAlerta = parseInt(
-    data.get("cantidadAlerta")?.toString() || "0"
-  );
-  const codigoBarra = data.get("codigoBarra")?.toString() || "";
-  const fotoProducto = data.get("fotoProducto") as File;
+interface ProductoData {
+  nombre: string;
+  userId: string;
+  descripcion: string;
+  precio: number;
+  stock: number;
+  pVenta: string | null;
+  pCompra: string | null;
+  categoria: string | null;
+  deposito: string | null;
+  impuesto: string;
+  iva: string | null;
+  descuento: string | null;
+  modelo: string | null;
+  marca: string | null;
+  localizacion: string;
+  cantidadAlerta: number;
+  codigoBarra: string;
+}
 
-console.log('deposito ->',deposito)
-
-  const userDir = path.join(
-    process.cwd(),
-    "element",
-    "imgs",
-    userId,
-    "productos"
-  );
-
-  if (!fotoProducto || !(fotoProducto instanceof File)) {
-    return new Response(
-      JSON.stringify({ status: 400, msg: "Archivo de imagen no enviado" }),
-      { status: 400 }
-    );
-  }
-  // Debug: Mostrar información de la imagen
-  // console.log(userId);
-
+export async function POST({ request }: APIContext): Promise<Response> {
   try {
-    if (
-      !(await fs
-        .access(userDir)
-        .then(() => true)
-        .catch(() => false))
-    ) {
+    const data = await request.formData();
+    
+    // Validar campos requeridos
+    const requiredFields = [ 'userId', 'codigoBarra', 'descripcion'];
+    const missingFields = requiredFields.filter(field => !data.get(field));
+    
+    if (missingFields.length > 0) {
+      console.error('Campos requeridos faltantes:', missingFields);
       return new Response(
         JSON.stringify({
           status: 400,
-          msg: "Directorio de usuario no encontrado",
+          msg: `Campos requeridos faltantes: ${missingFields.join(', ')}`,
         }),
         { status: 400 }
       );
     }
 
-    // Procesar la imagen
+    // Extraer y validar datos
+    const productoData: ProductoData = {
+      nombre: data.get("nombre")?.toString() || "",
+      userId: data.get("userId")?.toString() || "",
+      descripcion: data.get("descripcion")?.toString() || "",
+      precio: parseFloat(data.get("precio")?.toString() || "0"),
+      stock: parseInt(data.get("stock")?.toString() || "0"),
+      pVenta: data.get("pVenta")?.toString() || null,
+      pCompra: data.get("pCompra")?.toString() || null,
+      categoria: data.get("categoria")?.toString() || null,
+      deposito: data.get("deposito")?.toString() || null,
+      impuesto: data.get("impuesto")?.toString() || "21%",
+      iva: data.get("iva")?.toString() || null,
+      descuento: data.get("descuento")?.toString() || null,
+      modelo: data.get("modelo")?.toString() || null,
+      marca: data.get("marca")?.toString() || null,
+      localizacion: data.get("localizacion")?.toString() || "",
+      cantidadAlerta: parseInt(data.get("cantidadAlerta")?.toString() || "0"),
+      codigoBarra: data.get("codigoBarra")?.toString() || "",
+    };
+
+    // Validar imagen
+    const fotoProducto = data.get("fotoProducto") as File;
+    if (!fotoProducto || !(fotoProducto instanceof File)) {
+      console.error('Archivo de imagen no válido');
+      return new Response(
+        JSON.stringify({ 
+          status: 400, 
+          msg: "Se requiere una imagen válida para el producto" 
+        }),
+        { status: 400 }
+      );
+    }
+
+    // Validar directorio
+    const userDir = path.join(process.cwd(), "element", "imgs", productoData.userId, "productos");
+    const dirExists = await fs.access(userDir).then(() => true).catch(() => false);
+    
+    if (!dirExists) {
+      console.error('Directorio no encontrado:', userDir);
+      return new Response(
+        JSON.stringify({
+          status: 400,
+          msg: "Error: Directorio de usuario no encontrado",
+        }),
+        { status: 400 }
+      );
+    }
+
+    // Procesar imagen
     const imageId = nanoid(10);
     const extension = path.extname(fotoProducto.name);
     const nombreArchivo = `${imageId}${extension}`;
     const rutaGuardado = path.join(userDir, nombreArchivo);
+    const rutaRelativa = `/element/imgs/${productoData.userId}/productos/${nombreArchivo}`;
 
-    // Procesar y guardar imagen
-    const buffer = await fotoProducto.arrayBuffer();
-    await sharp(Buffer.from(buffer))
-      .resize(800, 800, {
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .jpeg({ quality: 80 })
-      .toFile(rutaGuardado);
-    const rutaRelativa = `/element/imgs/${userId}/productos/${nombreArchivo}`;
-    // console.log("ruta userId", userId);
+    try {
+      const buffer = await fotoProducto.arrayBuffer();
+      await sharp(Buffer.from(buffer))
+        .resize(800, 800, {
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .jpeg({ quality: 80 })
+        .toFile(rutaGuardado);
+    } catch (error) {
+      console.error('Error al procesar la imagen:', error);
+      return new Response(
+        JSON.stringify({
+          status: 500,
+          msg: "Error al procesar la imagen del producto",
+        }),
+        { status: 500 }
+      );
+    }
+
+    // Crear producto en la base de datos
     const creacionProducto = await db.transaction(async (trx) => {
       const id = nanoid(10);
-      const [insterProduct] = await trx
-        .insert(productos)
-        .values({
-          id,
-          nombre,
-          descripcion,
-          iva,
-          precio,
-          pCompra,
-          categoria,
-          pVenta,
-          codigoBarra,
-          modelo,
-          descuento,
-          impuesto,
-          marca,
+      
+      try {
+        const [insertedProduct] = await trx
+          .insert(productos)
+          .values({
+            id,
+            nombre: productoData.nombre,
+            descripcion: productoData.descripcion,
+            iva: productoData.iva,
+            precio: productoData.precio,
+            pCompra: productoData.pCompra,
+            categoria: productoData.categoria,
+            pVenta: productoData.pVenta,
+            codigoBarra: productoData.codigoBarra,
+            modelo: productoData.modelo,
+            descuento: productoData.descuento,
+            impuesto: productoData.impuesto,
+            marca: productoData.marca,
+            updatedAt: sql`(strftime('%s','now'))`,
+            stock: productoData.stock,
+            userId: productoData.userId,
+            cantidadAlerta: productoData.cantidadAlerta,
+            srcPhoto: rutaRelativa,
+          })
+          .returning();
+
+        // Crear registro de stock
+        await trx.insert(stockActual).values({
+          id: nanoid(10),
+          productoId: id,
+          cantidad: productoData.stock,
+          alertaStock: productoData.cantidadAlerta,
+          localizacion: productoData.localizacion,
+          deposito: productoData.deposito,
           updatedAt: sql`(strftime('%s','now'))`,
-          stock,
-          userId,
-          cantidadAlerta,
-          srcPhoto: rutaRelativa,
-        })
-        .returning();
+        });
 
-      await trx.insert(stockActual).values({
-        id: nanoid(10),
-        productoId: insterProduct.id,
-        cantidad: stock,
-        alertaStock: cantidadAlerta,
-        localizacion,
-        deposito,
-        updatedAt: sql`(strftime('%s','now'))`,
-      });
+        // Registrar movimiento de stock
+        await trx.insert(movimientosStock).values({
+          id: nanoid(10),
+          productoId: id,
+          cantidad: productoData.stock,
+          userId: productoData.userId,
+          clienteId: null,
+          proveedorId: null,
+          fecha: sql`(strftime('%s','now'))`,
+          tipo: "ingreso",
+          motivo: "StockInicial",
+        });
 
-      await trx.insert(movimientosStock).values({
-        id: nanoid(10),
-        productoId: insterProduct.id,
-        cantidad: stock,
-        userId,
-        clienteId: null,
-        proveedorId: null,
-        fecha: sql`(strftime('%s','now'))`,
-        tipo: "ingreso",
-        motivo: "StockInicial",
-      });
+        return insertedProduct;
+      } catch (dbError) {
+        console.error('Error en la transacción de base de datos:', dbError);
+        throw dbError;
+      }
     });
 
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "producto creado correctamente",
-        data: "insterProduct",
+        msg: "Producto creado correctamente",
+        data: creacionProducto,
       })
     );
+
   } catch (error) {
-    console.log(error);
-    if (error.rawCode === 2067) {
+    console.error('Error general:', error);
+    
+    if (error.code === 'SQLITE_CONSTRAINT') {
       return new Response(
         JSON.stringify({
-          status: 405,
-          msg: "producto con codigo de barra existente",
-        })
+          status: 409,
+          msg: "Ya existe un producto con ese código de barras",
+        }),
+        { status: 409 }
       );
     }
+
     return new Response(
       JSON.stringify({
-        status: 400,
-        msg: "error al guardar el producto",
-      })
+        status: 500,
+        msg: "Error interno del servidor al procesar la solicitud",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }),
+      { status: 500 }
     );
   }
 }

@@ -101,7 +101,7 @@ export default function PerfilCliente({ proveedor }: { proveedor: Proveedor }) {
           />
         </div>
       </div>
-      <div className="flex w-full items-stretch justify-center gap-3">
+      <div className="flex w-full items-start justify-center gap-3">
         <div className="w-2/3 flex">
           {/* Historial de Compras */}
           <HistorialComprasProveedor

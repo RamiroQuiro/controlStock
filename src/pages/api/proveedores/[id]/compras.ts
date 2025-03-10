@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import db from "../../../../db";
 import {
   comprasProveedores,
@@ -29,6 +29,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
     console.log("compras", compras, "userId->", userId);
     // Calcular estadísticas
+    // cantiada y monto gastado
     const estadisticas = compras.reduce(
       (acc, compra) => {
         return {
@@ -44,6 +45,53 @@ export const GET: APIRoute = async ({ params, request }) => {
       estadisticas.cantidadCompras > 0
         ? estadisticas.totalGastado / estadisticas.cantidadCompras
         : 0;
+
+    // Obtener los detalles de las compras
+    const detalles = await db
+      .select()
+      .from(detalleCompras)
+      .where(inArray(detalleCompras.compraId, compras.map((c) => c.id)));
+
+      console.log('detalles',detalles)
+      // Función para calcular la variación de precios
+    function calcularVariacionPrecios(detalles) {
+      const productosMap = new Map();
+      
+      for (const detalle of detalles) {
+        if (!productosMap.has(detalle.productoId)) {
+          productosMap.set(detalle.productoId, []);
+        }
+        productosMap.get(detalle.productoId).push(detalle);
+      }
+
+      const variacionPrecios = [];
+
+      for (const [productoId, detallesProducto] of productosMap) {
+        // Ordenar por fecha de compra (descendente)
+        const detallesOrdenados = detallesProducto.sort(
+          (a, b) => compras.find(c => c.id === b.compraId).fecha - compras.find(c => c.id === a.compraId).fecha
+        );
+
+        if (detallesOrdenados.length < 2) continue; // Si solo hay una compra, no hay variación
+
+        const precioActual = detallesOrdenados[0].precioUnitario;
+        const precioAnterior = detallesOrdenados[1].precioUnitario;
+        const variacion = ((precioActual - precioAnterior) / precioAnterior) * 100;
+
+        variacionPrecios.push({
+          productoId,
+          nombreProducto: detallesOrdenados[0].nombreProducto,
+          precioAnterior,
+          precioActual,
+          variacion
+        });
+      }
+      return variacionPrecios;
+    }
+
+    // Calcular variación de precios
+    const variacionPrecios = calcularVariacionPrecios(detalles);
+    // console.log("variacionPrecios",variacionPrecios);
 
     // Calcular frecuencia de compra (en días)
     let frecuenciaCompra = 0;
@@ -63,7 +111,10 @@ export const GET: APIRoute = async ({ params, request }) => {
       })
       .from(detalleCompras)
       .innerJoin(productos, eq(detalleCompras.productoId, productos.id))
-      .innerJoin(comprasProveedores, eq(comprasProveedores.id, detalleCompras.compraId))
+      .innerJoin(
+        comprasProveedores,
+        eq(comprasProveedores.id, detalleCompras.compraId)
+      )
       .where(
         and(
           eq(comprasProveedores.proveedorId, proveedorId),
@@ -92,6 +143,7 @@ export const GET: APIRoute = async ({ params, request }) => {
           cantidadCompras: estadisticas.cantidadCompras,
           ultimaCompra: compras.length > 0 ? compras[0].fecha : null,
           productosMasVendidos,
+          variacionPrecios
         },
       }),
       { status: 200 }

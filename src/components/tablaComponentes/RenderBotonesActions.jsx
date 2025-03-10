@@ -77,26 +77,38 @@ export const RenderActionsVentas = (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
       <button
         className="text-green-400 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
-        onClick={restarCantidad(data)}
+        onClick={(e) => {
+          e.preventDefault();
+          restarCantidad(data)();
+        }}
       >
         <CircleMinus className="w-4 h-6" />
       </button>
       <button
         className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
-        onClick={sumarCantidad(data)}
+        onClick={(e) => {
+          e.preventDefault();
+          sumarCantidad(data)();
+        }}
       >
         <CirclePlus className="w-4 h-6" />
       </button>
       <button
         className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
-        onClick={aplicaDescuento()}
+        onClick={(e) => {
+          e.preventDefault();
+          aplicaDescuento(data)();
+        }}
       >
         <Tag className="w-4 h-6" />
       </button>
 
       <button
         className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
-        onClick={eliminarProducto(data)}
+        onClick={(e) => {
+          e.preventDefault();
+          eliminarProducto(data)();
+        }}
       >
         <Delete className="w-4 h-6" />
       </button>

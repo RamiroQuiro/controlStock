@@ -12,15 +12,7 @@ export default function ConfeccionTablaEgresoTop({arrayProduct}) {
         { label: 'Stock', id: 8, selector: row => row.stock },
       ];
 
-      const newArray=arrayProduct?.map((prod,i)=>{
-        return {
-          "N°":i+1,
-          descripcion:prod?.producto?.descripcion,
-          categoria:prod?.producto?.categoria,
-          vendida:prod?.totalVendido,
-          stock:prod?.producto?.stock,
-        }
-      })
+    
       const handleSort = (columnId) => {
       if (sortColumn === columnId) {
         setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -31,7 +23,7 @@ export default function ConfeccionTablaEgresoTop({arrayProduct}) {
     };
   
 
-      const sortedRows = [...newArray].sort((a, b) => {
+      const sortedRows = [...arrayProduct].sort((a, b) => {
         if (!sortColumn) return 0;
         const column = columnas.find(col => col.id === sortColumn);
         const valueA = column.selector(a);

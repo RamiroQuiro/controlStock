@@ -1,11 +1,17 @@
 ---
 import {
+ArrowLeftCircle,
+  ArrowLeftToLine,
+  ArrowRightToLineIcon,
   BadgeDollarSign,
   BarChart3,
   BookCheck,
   ChevronRight,
   ClipboardList,
   LayoutDashboard,
+  LayoutDashboardIcon,
+  LayoutGrid,
+  LayoutPanelLeft,
   LogOut,
   Package,
   Settings,
@@ -28,17 +34,18 @@ const menuItems = [
 
 <sidebar
   id="sidebar"
-  class="expanded duration-300 group h-full items-stretch  print:hidden overflow-hidden   bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[4vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items- justify-normal md:gap- pt-10"
+  class="expanded duration-300 group h-full items-stretch  print:hidden overflow-hidden   bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[4vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items- justify-normal md:gap- pt-16"
 >
-  <div
+<button
+id="collapse-button"
+class="p-1.5 cursor-pointer fixed top-6 left-2.5 z-20 block duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
+>
+<ArrowRightToLineIcon size={20} />
+</button> 
+<div
     class="w-full h-1/  mb-5 hidden md:flex flex-col items-end justify-start pt- gap-2"
   >
-    <button
-      id="collapse-button"
-      class="p-1.5 cursor-pointer z-20 block duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
-    >
-      <ChevronRight size={20} />
-    </button>
+  
     <div class=" overflow- flex items-start justify-start oveh">
       <img
         src="/ramaCode.png"

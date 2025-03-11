@@ -142,7 +142,6 @@ export const RenderActionsEditDeletMedicamentos = (data) => {
   );
 };
 export const RenderActionsClientes = (data) => {
-  console.log(data);
   const irAPerfilCliente = (data) => {
     window.location.href = `/dashboard/clientes/${data.id}`;
   };
@@ -179,7 +178,6 @@ export const RenderActionsClientes = (data) => {
 };
 
 export const RenderActionsProveedores = (data) => {
-  console.log(data);
   const irAPerfilCliente = (data) => {
     window.location.href = `/dashboard/proveedores/${data.id}`;
   };

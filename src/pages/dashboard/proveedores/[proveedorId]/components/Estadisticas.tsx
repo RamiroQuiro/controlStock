@@ -46,7 +46,7 @@ const Estadisticas = ({
             : "Primera compra"}
         </p>
       </div>
-      <VariacionPrecioProductos estadisticasProveedor={estadisticasProveedor} />
+    
     </div>
   );
 };

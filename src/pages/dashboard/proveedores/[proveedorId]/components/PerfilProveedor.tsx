@@ -6,6 +6,7 @@ import type { Proveedor } from "../../../../../types";
 import ConfeccionTablaEgresoTop from "../../../stock/components/ConfeccionTablaEgresoTop";
 import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
 import DivReact from "../../../../../components/atomos/DivReact";
+import VariacionPrecioProductos from "./VariacionPrecioProductos";
 
 interface Compra {
   id: string;
@@ -25,6 +26,7 @@ export default function PerfilCliente({ proveedor }: { proveedor: Proveedor }) {
     productosMasVendidos:[],
     cantidadCompras: 0,
     ultimaCompra: null,
+    variacionPrecios: [],
   });
 
   useEffect(() => {
@@ -115,6 +117,10 @@ export default function PerfilCliente({ proveedor }: { proveedor: Proveedor }) {
               Top Productos Vendidos
             </h2>
             <ConfeccionTablaEgresoTop arrayProduct={newArray} client:load />
+            <h2 className="text-xl font-semibold mt-4 mb-2">
+            Variacion de Precios
+            </h2>
+            <VariacionPrecioProductos variacionPrecios={estadisticas?.variacionPrecios} />
           </DivReact>
         </div>
       </div>

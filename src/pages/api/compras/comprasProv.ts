@@ -49,7 +49,9 @@ export async function POST({ request }: APIContext): Promise<Response> {
           compraId,
           productoId: prod.id,
           cantidad: prod.cantidad,
-          precioUnitario: prod.pCompra,
+          pCompra: prod.pCompra,
+          precioReal: prod.precioReal || prod.pCompra,
+          descuento: prod.descuento || 0,
           subtotal: prod.cantidad * prod.pCompra,
         });
 

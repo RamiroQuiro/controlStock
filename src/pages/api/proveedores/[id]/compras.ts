@@ -74,8 +74,8 @@ export const GET: APIRoute = async ({ params, request }) => {
 
         if (detallesOrdenados.length < 2) continue; // Si solo hay una compra, no hay variación
 
-        const precioActual = detallesOrdenados[0].precioUnitario;
-        const precioAnterior = detallesOrdenados[1].precioUnitario;
+        const precioActual = detallesOrdenados[0].pCompra;
+        const precioAnterior = detallesOrdenados[1].pCompra;
         const variacion = ((precioActual - precioAnterior) / precioAnterior) * 100;
 
         variacionPrecios.push({

@@ -20,7 +20,7 @@ console.log(venta)
         fechaVenta:fecha,
         total:formateoMoneda.format(venta.total),
         acciones:<div className='flex items-center justify-center gap-2 w-full'>
-                <button id="impresionVenta" className='bg-primary-bg-componentes relative rounded-full group py-0.5 px-1'> <span className='absolute left-1/2 -translate-x-1/2 bottom-[103%] bg-primary-textoTitle/90 px-1 py-0.5 w-16 text-xs text-white hidden group-hover:flex items-center justify-center animate-aparecer'>Imprimir</span><Printer className='w-5 stroke-slate-500'/></button>
+                <button id="impresionVenta" className='bg-primary-bg-componentes relative rounded-full group py-0.5 px-1'> <span className='absolute left-1/2 -translate-x-1/2 bottom-[103%] bg-primary-textoTitle/90 px-1 py-0.5 w-16 text-xs text-white hidden group-hover:flex items-center justify-center animate-aparecer'>imprimir</span><Printer className='w-5 stroke-slate-500'/></button>
                 <button id="verVenta" onClick={()=>window.location.href=`/dashboard/ventas/${venta.id}`} className='bg-primary-bg-componentes relative rounded-full group py-0.5 px-1'> <span className='absolute left-1/2 -translate-x-1/2 bottom-[103%] bg-primary-textoTitle/90 px-1 py-0.5 w-16 text-xs text-white hidden group-hover:flex items-center  justify-center animate-aparecer'>ver venta</span><SearchCheck className='stroke-green-500 w-5 '/></button>
         </div>
     }

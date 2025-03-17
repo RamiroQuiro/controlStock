@@ -1,0 +1,21 @@
+---
+import { LayoutDashboard } from "lucide-react";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
+import VentaDetalle from "../../../../components/VentaDetalle";
+import {traerVentaId} from '../../../../services/ventastodas.service';
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+const {ventaId}=Astro.params as {ventaId:string}
+
+const ventaDB=await traerVentaId(ventaId)
+console.log('esta es la venta con el id',ventaDB)
+---
+
+<LayoutDash title=`Venta ${ventaId}`>
+    <MainDashboard>
+        <DivBox1 styleDiv="h-full">
+
+            <VentaDetalle client:load {...ventaDB}/>
+        </DivBox1>
+    </MainDashboard>
+</LayoutDash>

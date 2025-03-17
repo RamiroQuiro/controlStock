@@ -10,6 +10,7 @@ import db from "../../../../db";
 import { productos } from "../../../../db/schema";
 import { eq } from "drizzle-orm";
 import FiltroProductos from "../../../../components/moleculas/FiltroProductos";
+import Button1 from "../../../../components/atomos/Button1.astro";
 
 let productosData;
 let productosDataBase = [];
@@ -58,6 +59,19 @@ productosData = productosDataBase?.map((prod, i) => {
 ---
 
 <MainDashboard h1="Ventas">
+  <div
+  slot={"menu"}
+  class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+>
+    <div class="flex gap-3">
+    
+      <Button1
+        id="ventasTodas"
+      >
+      Todas las ventas
+      </Button1>
+    </div>
+  </div>
   <div class="flex items-start justify-between gap-2 w-full">
     <div class="flex flex-col items-start justify-between gap-3 w-3/4">
       <DivBox1 styleDiv="w-full">
@@ -92,9 +106,9 @@ const inputBusqueda = document.getElementById('busquedaProducto')
 const btnPagar= document.getElementById('btnPagar')
 const btnBusquedaCliente=document.getElementById('btnBusquedaCliente')
 window.addEventListener('keydown', (e) => {
-        if(e.key === 'F2'){
-            inputBusqueda.focus()
-        }
+  if(e.key === 'F2'){
+    inputBusqueda.focus()
+  }
         if(e.key === 'F3'){
           e.preventDefault()
           btnBusquedaCliente.click()
@@ -106,4 +120,5 @@ window.addEventListener('keydown', (e) => {
       
 })
 
+document.getElementById('ventasTodas')?.addEventListener('click',()=>window.location.href='/dashboard/ventas/todas')
 </script>

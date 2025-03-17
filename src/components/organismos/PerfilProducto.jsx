@@ -135,7 +135,7 @@ export default function PerfilProducto({ infoProducto }) {
           handleDelete={confirmarConModal}
         />
       </div>
-      <div className="flex flex-col w-full -mt- items-center justify-normal gap-3">
+      <div className="flex flex-col w-full -mt- bg-green- pb-6 items-center justify-normal gap-2">
         {/* info dle prodcutos */}
         <DetalleFotoDetalleProducto
           handleChangeForm={handleChangeForm}

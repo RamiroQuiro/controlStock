@@ -31,7 +31,17 @@ export const detallesProductosColumns = [
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
     { label: "Stock Restante", id: 7, selector: (row) => row.stockRestante },
   ];
+  export const columnasVentasTodas = [
+    { label: "N°", id: 1, selector: (row, index) => index + 1 },
+    { label: "N° Comprobante", id: 2, selector: (row) =>row.nComprobante},
+    { label: "Cliente", id: 3, selector: (row) => row.nombreCliente },
+    { label: "dni Cliente", id: 4, selector: (row) => row.dniCliente },
+    { label: "Tipo de Pago", id: 5, selector: (row) => row.metodoPago },
+    { label: "Fecha", id: 6, selector: (row) => row.fecha },
+    { label: "Monto", id: 7, selector: (row) => row.monto },
+    { label: "Acciones", id: 8, selector: '' },
 
+  ];
   // Agregar esto al archivo columnasTables.js
 
 interface ProveedorRow {

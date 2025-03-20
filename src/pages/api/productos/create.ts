@@ -23,7 +23,7 @@ interface ProductoData {
   modelo: string | null;
   marca: string | null;
   localizacion: string;
-  cantidadAlerta: number;
+  alertaStock: number;
   codigoBarra: string;
 }
 
@@ -63,7 +63,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
       modelo: data.get("modelo")?.toString() || null,
       marca: data.get("marca")?.toString() || null,
       localizacion: data.get("localizacion")?.toString() || "",
-      cantidadAlerta: parseInt(data.get("cantidadAlerta")?.toString() || "0"),
+      alertaStock: parseInt(data.get("alertaStock")?.toString() || "0"),
       codigoBarra: data.get("codigoBarra")?.toString() || "",
     };
 
@@ -139,6 +139,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
             categoria: productoData.categoria,
             pVenta: productoData.pVenta,
             codigoBarra: productoData.codigoBarra,
+            alertaStock:productoData.alertaStock,
             modelo: productoData.modelo,
             descuento: productoData.descuento,
             impuesto: productoData.impuesto,
@@ -156,7 +157,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
           id: nanoid(10),
           productoId: id,
           cantidad: productoData.stock,
-          alertaStock: productoData.cantidadAlerta,
+          alertaStock: productoData.alertaStock,
           localizacion: productoData.localizacion,
           deposito: productoData.deposito,
           updatedAt: sql`(strftime('%s','now'))`,

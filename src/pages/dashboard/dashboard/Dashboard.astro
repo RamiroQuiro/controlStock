@@ -1,8 +1,106 @@
 ---
 import DivBox1 from "../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../components/atomos/MainDashboard.astro";
+import DashboardMaqueta from './DashboardMaqueta';
+import AlertasStock from "../../../components/dashboard/AlertasStock";
+import EstadisticasVentas from "../../../components/dashboard/EstadisticasVentas";
+import ProductosMasVendidos from "../../../components/dashboard/ProductosMasVendidos";
+import RendimientoCategoria from "../../../components/dashboard/RendimientoCategoria";
+import ResumenVentas from "../../../components/dashboard/ResumenVentas";
+import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
+import StatsDashboard from "./componente/StatsDashboard.astro";
+import {stadisticasDash} from '../../../services/dashboard.service';
+import { AlertCircle, AlertTriangle, Rocket, TrendingDown, TrendingUp, Users2, VenetianMask, WandSparkles, type LucideIcon } from "lucide-react";
+import StatsStock from "../stock/components/StatsStock.astro";
+export interface PropsStatsDash {
+  h2: string;
+  icon: LucideIcon;
+  data: string;
+  descripcion:string;
+  textColor:string
+}
+    const {dataDb:{nVentasDelMes,productosBajoStock,clientesNuevosMes}}=await stadisticasDash('1')
+    
+    console.log(clientesNuevosMes)
+const statsDataDashboard:PropsStatsDash[]=[
+    {
+        descripcion:"ventas",
+        textColor:"text-primary-100",
+        h2:"Ventas del Mes",
+        data:`${nVentasDelMes?.nVentasMes}`,
+        icon:Rocket
+    },
+    {
+        descripcion:productosBajoStock?.cantidadBajoStock>>1?"Productos":"Producto",
+        textColor:"text-primary-400",
+        h2:"Productos Bajo Stock",
+        data:productosBajoStock?.cantidadBajoStock,
+        icon:AlertTriangle
+    },
+    {
+        textColor:"text-primary-500",
+        h2:"Clientes Nuevos",
+        data:clientesNuevosMes.nClientesNuevos,
+        descripcion:"este mes",
+        icon:Users2
+    },
+    {
+        h2:"Ticket Promedio del Mes",
+        data:"12.5%",
+        icon:TrendingUp,
+        textColor:'text-primary-100',
+        descripcion:"Promedio de Venta"
+    },]
+
+
+
+
+
 ---
 
-<MainDashboard h1="Dashboard" >
-    
+<MainDashboard h1="Dashboard Principal">
+ 
+        
+    <div class="w-full flex items-center justify-between gap-2">
+        {
+          statsDataDashboard.map((info, index) => {
+            return (
+              <StatsDashboard
+                {...info}
+                />
+            );
+          })
+        }
+      </div>
+        
+        {/* Gráficos principales */}
+        <div class="flex items-stretch justify-normal gap-2 w-full">
+          <DivBox1 >
+            <ResumenVentas client:load />
+          </DivBox1>
+         
+          <DivBox1 styleDiv="w-full items-stretch">
+            <ProductosMasVendidos userId="1" client:load/>
+          </DivBox1>
+        </div>
+        
+        {/* Segunda fila de gráficos */}
+        <div class="flex items-stretch justify-normal gap-2 w-full">
+          
+          <DivBox1>
+            <EstadisticasVentas client:load/>
+          </DivBox1>   
+           <DivBox1>
+            <RendimientoCategoria client:load/>
+          </DivBox1>
+        </div>
+        
+        {/* Tercera fila */}
+        <div class="flex items-stretch justify-normal gap-2 w-full">
+          <DivBox1>
+            <UltimasTransacciones client:load/>
+          </DivBox1>
+          
+      
+      </div>
 </MainDashboard>

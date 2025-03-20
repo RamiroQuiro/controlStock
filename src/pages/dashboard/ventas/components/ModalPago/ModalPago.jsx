@@ -10,7 +10,7 @@ import ModalComprobante from "../../../../../components/Comprobante/ModalComprob
 
 export default function ModalPago({
   isOpen,
-  onClose,
+  setModalConfirmacion,
 $productos,
   totalVenta,
   subtotal,
@@ -298,7 +298,7 @@ $productos,
         {/* Botones de acción */}
         <div className="flex justify-end gap-3 mt-6">
           <button
-            onClick={() => onClose(false)}
+            onClick={() => setModalConfirmacion(false)}
             className="px-4 py-2 rounded-lg bg-gray-200"
           >
             Cancelar
@@ -322,6 +322,7 @@ $productos,
      {/* Modal de comprobante */}
      {mostrarComprobante && (
      <ModalComprobante
+     setModalConfirmacion={setModalConfirmacion}
      $productos={$productos}
      cliente={cliente}
      descuento={descuento}

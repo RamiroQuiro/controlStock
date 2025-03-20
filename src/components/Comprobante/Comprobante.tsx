@@ -23,15 +23,14 @@ interface ComprobanteProps {
     total: number;
     expira_at?: number; // Solo para presupuestos
   };
+  onClose?: () => void;
   onPrint?: () => void;
   onDownload?: () => void;
   onShare?: () => void;
 }
 
 
-const Comprobante = ({ tipo, data, onPrint, onDownload, onShare }: ComprobanteProps) => {
-
-console.log(data)
+const Comprobante = ({ tipo, data, onPrint, onDownload, onShare,onClose }: ComprobanteProps) => {
 
   return (
     <div className="bg-white p-6 flex items-stretch justify-normal flex-col h-full  mx-auto" id="comprobante-para-imprimir">
@@ -114,6 +113,12 @@ console.log(data)
 
       {/* Botones de acción */}
       <div className="flex justify-end gap-4 mt-8 print:hidden">
+      <button
+            onClick={onClose}
+            className="px-4 py-2 bg-primary-texto text-white rounded hover:bg-gray-600"
+          >
+            Cerrar
+          </button>
         {onPrint && (
           <button
             onClick={onPrint}
@@ -133,7 +138,7 @@ console.log(data)
         {onShare && (
           <button
             onClick={onShare}
-            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+            className="px-4 py-2 bg-purple-400 text-white rounded hover:bg-purple-500"
           >
             Compartir
           </button>

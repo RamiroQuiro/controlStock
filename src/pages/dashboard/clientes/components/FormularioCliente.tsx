@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { showToast } from '../../../../utils/toast/toastShow';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
+import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud';
 
 interface Cliente {
   id?: string;
@@ -75,16 +76,73 @@ const handleSubmit = async (e: React.FormEvent) => {
       <div className="flex flex-col gap-4 items-center w-full justify-normal">
         {/* Datos básicos */}
         <div className='w-full flex items-center justify-normal gap-2 '>
-          <InputComponenteJsx id={"nombre"} type={"text"} name={"nombre"} placeholder={"nombre"}  value={formData.nombre} handleChange={handleChange}/>
-          <InputComponenteJsx id={"dni"} type={"text"} name={"dni"} placeholder={"DNI"}  value={formData.dni} handleChange={handleChange}/>
+        <InputFormularioSolicitud
+            id={"nombre"}
+            type={"text"}
+            name={"nombre"}
+            placeholder={"nombre"}
+            value={formData.nombre}
+            onchange={handleChange}
+          >
+            Nombre
+          </InputFormularioSolicitud>
+        <InputFormularioSolicitud
+            id={"dni"}
+            type={"text"}
+            name={"dni"}
+            placeholder={"DNI"}
+            value={formData.dni}
+            onchange={handleChange}
+          >
+            DNI
+          </InputFormularioSolicitud>
+
         </div>
         <div className='w-full flex items-center justify-normal gap-2 '>
-          <InputComponenteJsx id={"telefono"} type={"text"} name={"telefono"} placeholder={"telefono"}  value={formData.telefono} handleChange={handleChange}/>
-          <InputComponenteJsx id={"email"} type={"text"} name={"email"} placeholder={"email"}  value={formData.email} handleChange={handleChange}/>
+        <InputFormularioSolicitud
+            id={"telefono"}
+            type={"text"}
+            name={"telefono"}
+            placeholder={"telefono"}
+            value={formData.telefono}
+            onchange={handleChange}
+          >
+            Telefono
+          </InputFormularioSolicitud>
+
+          <InputFormularioSolicitud
+            id={"email"}
+            type={"text"}
+            name={"email"}
+            placeholder={"email"}
+            value={formData.email}
+            onchange={handleChange}
+          >
+            Email
+          </InputFormularioSolicitud>
+
         </div>
         <div className='w-full flex items-center justify-normal gap-2 '>
-          <InputComponenteJsx id={"direccion"} type={"text"} name={"direccion"} placeholder={"direccion"}  value={formData.direccion} handleChange={handleChange}/>
-          <InputComponenteJsx id={"limiteCredito"} type={"number"} name={"limiteCredito"} placeholder={"Limite de credito"}  value={formData.limiteCredito} handleChange={handleChange}/>
+        <InputFormularioSolicitud
+            id={"direccion"}
+            type={"text"}
+            name={"direccion"}
+            placeholder={"Direccion"}
+            value={formData.direccion}
+            onchange={handleChange}
+          >
+            Dirección
+          </InputFormularioSolicitud>
+          <InputFormularioSolicitud
+            id={"limiteCredito"}
+            type={"number"}
+            name={"limiteCredito"}
+            placeholder={"Limite de Credito"}
+            value={formData.limiteCredito}
+            onchange={handleChange}
+          >
+            Limite de Credito
+          </InputFormularioSolicitud>
         </div>
         <div className='w-full'>
           <label className="block text-sm font-medium w-full">

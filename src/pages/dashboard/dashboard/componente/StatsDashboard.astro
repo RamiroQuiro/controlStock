@@ -1,0 +1,20 @@
+---
+import type {  LucideIcon } from "lucide-react";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import type { PropsStatsDash } from "../Dashboard.astro";
+
+
+const { textColor, icon: Icon,descripcion, h2, data } = Astro.props as PropsStatsDash;
+---
+
+
+<DivBox1 styleDiv="w-full h-32 ">
+  <h2 class="text-base text-gray-600">{h2}</h2>
+  <div class="flex items-end gap-2  h-1/2 w-full ">
+    <div class={` text-xs flex gap-2 justify-center mt-2 items-center`}>
+      <Icon className={`${textColor} w-8 h-8`} />
+      <p class={` ${textColor}  text-2xl font-bold`}>{data}</p>
+    </div> 
+    <span class="text-sm font-semibold text-gray-500 ml-1">{descripcion}</span>
+  </div>
+</DivBox1>

@@ -12,48 +12,12 @@ import { eq } from "drizzle-orm";
 import FiltroProductos from "../../../../components/moleculas/FiltroProductos";
 import Button1 from "../../../../components/atomos/Button1.astro";
 
-let productosData;
-let productosDataBase = [];
 const user = {
   id: "1",
   nombre: "Juan",
   apellido: "Perez",
   email: "rama@gmail.com",
 };
-const trayendoProductos = async (userId) => {
-  const dataDB = await db
-    .select({
-      id: productos.id,
-      codigoBarra: productos.codigoBarra,
-      descripcion: productos.descripcion,
-      categoria: productos.categoria,
-      pCompra: productos.pCompra,
-      pVenta: productos.pVenta,
-      impuesto: productos.impuesto,
-      stock: productos.stock,
-    })
-    .from(productos)
-    .where(eq(productos.userId, userId));
-  return dataDB;
-};
-
-try {
-  productosDataBase = await trayendoProductos(user.id);
-} catch (error) {
-  console.log(error);
-}
-productosData = productosDataBase?.map((prod, i) => {
-  return {
-    id: prod.id,
-    N: i + 1,
-    codigoBarra: prod.codigoBarra,
-    descripcion: prod.descripcion,
-    categoria: prod.categoria,
-    precio: prod.pVenta,
-    stock: prod.stock,
-    cantidad: "",
-  };
-});
 
 
 ---

@@ -92,7 +92,7 @@ export default function CarritoVenta({ userId }) {
 
       {/* Modal de Pago */}
       {modalConfirmacion && (
-        <ModalPago totalVenta={totalVenta} subtotal={subtotal} ivaMonto={ivaMonto} $productos={$productos} userId={userId} />
+        <ModalPago totalVenta={totalVenta} subtotal={subtotal} setModalConfirmacion={setModalConfirmacion} ivaMonto={ivaMonto} $productos={$productos} userId={userId} />
       )}
     </>
   );

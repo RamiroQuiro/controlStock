@@ -179,7 +179,7 @@ const unidadMedida = [
         const formData = new FormData(formulario);
         
         // Validaciones
-        const requiredFields = ["codigoBarra", "descripcion", "pCompra", "pVenta", "stock", "cantidadAlerta"];
+        const requiredFields = ["codigoBarra", "descripcion", "pCompra", "pVenta", "stock"];
         const missingFields = requiredFields.filter(field => !formData.get(field));
 
         if (missingFields.length > 0) {

@@ -56,10 +56,17 @@ interface ProveedorRow {
 export const proveedorColumns: ColumnaType[] = [
     { label: 'N°', id: 1, selector: (row, index) => index + 1 },
     { label: 'Nombre', id: 2, selector: (row: ProveedorRow) => row.nombre },
-    { label: 'RUC', id: 3, selector: (row: ProveedorRow) => row.ruc },
     { label: 'Email', id: 4, selector: (row: ProveedorRow) => row.email },
     { label: 'Teléfono', id: 5, selector: (row: ProveedorRow) => row.telefono },
     { label: 'Dirección', id: 6, selector: (row: ProveedorRow) => row.direccion },
     { label: 'Estado', id: 7, selector: (row: ProveedorRow) => row.estado },
+    { label: 'Acciones', id: 8, selector: () => {} }
+];
+export const columnsUltimasTransacciones = [
+    { label: 'Id', id: 1, selector: (row) => "" },
+    { label: 'Cliente', id: 2, selector: (row) => row.cliente},
+    { label: 'Fecha', id: 3, selector: (row) => row.fecha },
+    { label: 'Monto', id: 4, selector: (row: ProveedorRow) => row.total },
+    { label: 'Metodo', id: 7, selector: (row: ProveedorRow) => row.metodoPago },
     { label: 'Acciones', id: 8, selector: () => {} }
 ];

@@ -1,52 +1,173 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Chart from 'chart.js/auto';
+import { formateoMoneda } from "../../utils/formateoMoneda";
 
-const ResumenVentas: React.FC = () => {
-  // Datos de ejemplo para el gráfico
-  const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-  const datos = [65000, 59000, 80000, 81000, 56000, 55000, 40000, 6000, 59000, 80000, 81000, 56000];
+const ResumenVentas: React.FC = ({ userId }: { userId: string }) => {
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
   
-  // Encontrar el valor máximo para calcular las alturas relativas
-  const maxValor = Math.max(...datos);
-  
+  // Estados para manejar los datos
+  const [datosVentas, setDatosVentas] = useState({
+    meses: [],
+    datos: [],
+    ventasTotales: 0,
+    ticketPromedio: 0,
+    totalTransacciones: 0,
+    etiquetas: [],
+    montosPorPeriodo: [],
+    periodoActual: ""
+  });
+  const [filtroTiempo, setFiltroTiempo] = useState('añoActual');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Manejador del cambio de filtro
+  const handleFiltroChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFiltroTiempo(e.target.value);
+  };
+
+  // Efecto para cargar los datos
+  useEffect(() => {
+    const fetchDatosVentas = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/sales/resumenVentas', {
+          headers: {
+            'x-user-id': userId,
+            'filtro-selector': filtroTiempo
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al cargar los datos');
+        }
+
+        const data = await response.json();
+        setDatosVentas({
+          meses: data.meses,
+          datos: data.montosPorMes,
+          ventasTotales: data.ventasTotales,
+          ticketPromedio: data.ticketPromedio,
+          totalTransacciones: data.totalTransacciones,
+          etiquetas: data.etiquetas,
+          montosPorPeriodo: data.montosPorPeriodo,
+          periodoActual: data.periodoActual
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDatosVentas();
+  }, [userId, filtroTiempo]);
+
+  // Efecto para actualizar el gráfico
+  useEffect(() => {
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+    }
+
+    if (!chartRef.current || isLoading) return;
+
+    const ctx = chartRef.current.getContext('2d');
+    
+    chartInstance.current = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: datosVentas.etiquetas.map(etiqueta => 
+          datosVentas.periodoActual === "días" ? `Día ${etiqueta}` : etiqueta
+        ),
+        datasets: [{
+          label: datosVentas.periodoActual === "días" ? 'Ventas Diarias' : 'Ventas Mensuales',
+          data: datosVentas.montosPorPeriodo,
+          backgroundColor: 'rgba(59, 130, 246, 0.5)',
+          borderColor: 'rgb(59, 130, 246)',
+          borderWidth: 1,
+          borderRadius: 4,
+          maxBarThickness: datosVentas.periodoActual === "días" ? 15 : 35
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Resumen de Ventas'
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `Ventas: ${formateoMoneda.format(context.raw)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => formateoMoneda.format(value)
+            }
+          }
+        }
+      }
+    });
+
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+    };
+  }, [datosVentas, isLoading]);
+
   return (
     <div className="w-full flex flex-col items-center justify-center">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 w-full">
         <h2 className="text-lg font-semibold">Resumen de Ventas</h2>
-        <select className="text-sm border rounded p-1">
-          <option>Este Año</option>
-          <option>Último Año</option>
-          <option>Últimos 6 Meses</option>
+        <select 
+          value={filtroTiempo}
+          onChange={handleFiltroChange}
+          className="text-sm border rounded p-1"
+        >
+          <option value="añoActual">Este Año</option>
+          <option value="ultimos6Meses">Últimos 6 Meses</option>
+          <option value="mesActual">Este Mes</option>
         </select>
       </div>
       
-      <div className="flex items-end h-64 space-x-2">
-        {datos.map((valor, index) => (
-          <div key={index} className="flex flex-col items-center flex-1">
-            <div 
-              className="w-full bg-primary-100/60 hover:bg-primary-100 rounded-t transition-all duration-300"
-              style={{ height: `${(valor / maxValor) * 100}%` }}
-            >
-              <div className="invisible group-hover:visible text-xs text-center text-white font-medium">
-                {valor.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}
-              </div>
-            </div>
-            <div className="text-xs text-gray-600 mt-1">{meses[index]}</div>
+      <div className="w-full h-64">
+        {isLoading ? (
+          <div className="h-full flex items-center justify-center">
+            <span>Cargando datos...</span>
           </div>
-        ))}
+        ) : (
+          <canvas ref={chartRef}></canvas>
+        )}
       </div>
       
-      <div className="mt-4 grid grid-cols-3 gap-4">
+      <div className="mt-4 grid grid-cols-3 gap-4 w-full">
         <div className="bg-green-50 p-3 rounded-lg">
-          <p className="text-sm text-gray-600">Ventas Totales</p>
-          <p className="text-xl font-bold text-green-600">$1,245,000</p>
+          <p className="text-sm text-gray-600">Ventas Totales este Mes</p>
+          <p className="text-xl font-bold text-green-600">
+            {formateoMoneda.format(datosVentas.ventasTotales)}
+          </p>
         </div>
         <div className="bg-blue-50 p-3 rounded-lg">
-          <p className="text-sm text-gray-600">Ticket Promedio</p>
-          <p className="text-xl font-bold text-blue-600">$8,500</p>
+          <p className="text-sm text-gray-600">Ticket Promedio este Mes</p>
+          <p className="text-xl font-bold text-blue-600">
+            {formateoMoneda.format(datosVentas.ticketPromedio)}
+          </p>
         </div>
         <div className="bg-purple-50 p-3 rounded-lg">
-          <p className="text-sm text-gray-600">Transacciones</p>
-          <p className="text-xl font-bold text-purple-600">1,450</p>
+          <p className="text-sm text-gray-600">Transacciones este Mes</p>
+          <p className="text-xl font-bold text-purple-600">
+            {datosVentas.totalTransacciones}
+          </p>
         </div>
       </div>
     </div>

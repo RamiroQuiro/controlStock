@@ -24,8 +24,12 @@ export const GET: APIRoute = async ({ request }) => {
     case "mesActual":
       condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")} AND strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
       break;
-    case "mesAnterior":
-      condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesAnterior.toString().padStart(2, "0")} AND strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
+    case "ultimos6Meses":
+      // Calculamos la fecha de hace 6 meses
+      const fecha6Meses = new Date();
+      fecha6Meses.setMonth(fecha6Meses.getMonth() - 6);
+      const timestamp6Meses = Math.floor(fecha6Meses.getTime() / 1000);
+      condicionFecha = sql`${ventas.fecha} >= ${timestamp6Meses}`;
       break;
     case "añoActual":
       condicionFecha = sql`strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
@@ -34,7 +38,6 @@ export const GET: APIRoute = async ({ request }) => {
       condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`;
   }
 
-console.log('este es el filtro ->',filtroSelector)
 
   try {
     // Primero obtenemos el total de ventas del período para calcular porcentajes

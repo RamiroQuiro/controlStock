@@ -46,7 +46,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         const ventaFinalizada = await trx
           .insert(ventas)
           .values({
-            id: nanoid(),
+            id: nanoid(12),
             userId,
           ...data
           })

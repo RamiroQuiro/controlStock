@@ -59,7 +59,7 @@ const ProductosMasVendidos: React.FC = ({ userId }: { userId: string }) => {
       </div>
 
       <div className="space-y-4">
-        {topProductos.map((producto: ProductoVendido, index: number) => (
+        {topProductos.slice(0,6).map((producto: ProductoVendido, index: number) => (
           <div key={index} className="space-y-1">
             <div className="flex justify-between items-center">
               <span className="font-medium">{producto.descripcion}</span>

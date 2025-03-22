@@ -31,7 +31,20 @@ try {
                         lte(productos.stock, productos.alertaStock)
                     )
                 )).at(0)
-                return {nVentasDelMes,productosBajoStock,clientesNuevosMes}
+
+                const ultimasTransacciones=await trx.select({
+                    idVenta:ventas.id,
+                    cliente:clientes.nombre,
+                    fecha:ventas.fecha,
+                    total:ventas.total,
+                    metodoPago:ventas.metodoPago
+
+                }).from(ventas)
+                .innerJoin(clientes,eq(clientes.id,ventas.clienteId))
+                .where(eq(ventas.userId,userId)).limit(10)
+
+
+                return {nVentasDelMes,productosBajoStock,clientesNuevosMes,ultimasTransacciones}
         })
     return {dataDb}
 } catch (error) {

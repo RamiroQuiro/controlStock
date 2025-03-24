@@ -13,7 +13,6 @@ export const GET: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
   const tipo = url.searchParams.get("tipo"); // Nuevo parámetro para distinguir el tipo de búsqueda
-console.log('es codigio de barra solo? ->',tipo)
   if (!query) {
     return new Response(
       JSON.stringify({ error: "falta el parametro de busqueda" }),
@@ -121,7 +120,6 @@ export const PUT: APIRoute = async ({ request, params }) => {
   const data = await request.json();
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
-  console.log("est es la actualizacion del producto ->", data, query);
 
   try {
     const transaccionar = await db.transaction(async (trx) => {

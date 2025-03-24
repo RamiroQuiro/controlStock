@@ -22,6 +22,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import StatsStock from "../stock/components/StatsStock.astro";
+import DashboardFooter from "../../../components/dashboard/DashboardFooter";
 export interface PropsStatsDash {
   h2: string;
   icon: LucideIcon;
@@ -105,4 +106,7 @@ const statsDataDashboard: PropsStatsDash[] = [
       />
     </DivBox1>
   </div>
+
+  {/* Footer */}
+
 </MainDashboard>

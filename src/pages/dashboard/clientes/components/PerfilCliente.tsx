@@ -64,8 +64,8 @@ export default function PerfilCliente({ cliente }: { cliente: Cliente }) {
   };
 
   return (
-    <div className="flex flex-col w-full items-center justify-normal gap-3">
-      <div className="flex md:flex-row flex-col items-stretch justify-between w-full gap-3">
+    <div className="flex flex-col w-full items-center justify-normal gap-2">
+      <div className="flex md:flex-row flex-col items-stretch justify-between w-full gap-2">
         {/* Información Principal */}
         <DetalleCliente cliente={cliente} />
 

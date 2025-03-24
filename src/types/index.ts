@@ -267,3 +267,20 @@ export interface Proveedor {
   userId: string;
   created_at:string
 }
+
+
+export interface DataFiltros {
+  categorias:string[];
+  ubicaciones:string[];
+  depositos:string[]
+}
+export interface ProductoPrevisualizado {
+id: string;
+nombre: string;
+precioAnterior: number;
+precioNuevo: number;
+}
+export interface ModificacionPreciosProps {
+userId: string;
+dataFiltros:DataFiltros
+}

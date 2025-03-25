@@ -5,8 +5,17 @@ import { clientes, detalleVentas, productos, ventas } from "../db/schema";
 export const traerVentasUser = async (userId: string) => {
   try {
     const ventasData = await db
-      .select()
+      .select({
+        id: ventas.id,
+        nComprobante:ventas.nComprobante,
+        fecha: ventas.fecha,
+        total: ventas.total,
+        cliente:clientes.nombre,
+        metodoPago:ventas.metodoPago,
+        dniCliente:clientes.dni
+      })
       .from(ventas)
+      .innerJoin(clientes,eq(clientes.id,ventas.clienteId))
       .where(eq(ventas.userId, userId));
     return ventasData;
   } catch (error) {

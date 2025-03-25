@@ -8,8 +8,8 @@ import { traerVentasUser } from "../../../services/ventastodas.service";
 let ventasTodas = await traerVentasUser("1");
 ---
 
-<LayoutDash title="Todas las ventas">
-  <MainDashboard h1="todas las ventas">
+<LayoutDash title="Ventas">
+  <MainDashboard h1="Ventas">
     <div
       slot={"menu"}
       class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
@@ -53,6 +53,7 @@ let ventasTodas = await traerVentasUser("1");
 </LayoutDash>
 <script>
   import { downloadLoader } from "../../../utils/loader/showDownloadLoader";
+import { showToast } from "../../../utils/toast/toastShow";
 
   // Manejador para el botón de exportar
   document

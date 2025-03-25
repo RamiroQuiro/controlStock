@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import VentaDetalle from '../VentaDetalle'
+import CompraDetalle from './CompraDetalle';
 
 
 interface Props{
-    ventaId:string
+  compraId:string
 }
-interface VentaDetalleProps {
+interface CompraDetalleProps {
     id: string;
     fecha: string;
     cliente: {
@@ -35,8 +35,8 @@ interface VentaDetalleProps {
   }
   
 
-export default function ContenedorVisorDetalleVenta({ventaId}:Props) {
-    const [venta, setVenta] = useState<VentaDetalleProps>({
+export default function ContenedorVisorCompras({compraId}:Props) {
+    const [venta, setVenta] = useState<CompraDetalleProps>({
         cliente:{
             dni:0,
             nombre:"",
@@ -61,7 +61,7 @@ export default function ContenedorVisorDetalleVenta({ventaId}:Props) {
 useEffect(() => {
   const peticionVenta=async()=>{
     try {
-        const response=await fetch(`/api/sales/${ventaId}`,{
+        const response=await fetch(`/api/compras/${compraId}`,{
             method:'GET',
             headers:{
                 'x-user-id':'1'
@@ -75,13 +75,13 @@ useEffect(() => {
     }
   }
 
-  peticionVenta(ventaId)
-}, [ventaId])
+  peticionVenta(compraId)
+}, [compraId])
 
 
   return (
     <div className='sticky top-10 left-0 right-0 bottom-0 bg-opacity-50 z-50'>
-      <VentaDetalle {...venta}/>
+      <CompraDetalle/>
     </div>
   )
 }

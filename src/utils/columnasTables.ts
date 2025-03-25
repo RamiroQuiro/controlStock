@@ -27,6 +27,7 @@ export const detallesProductosColumns = [
     { label: "Tipo", id: 2, selector: (row) => row.tipo },
     { label: "Cantidad", id: 3, selector: (row) => row.cantidad },
     { label: "Motivo", id: 4, selector: (row) => row.motivo },
+    { label: "Relacion", id: 5, selector: (row) => row.efectuado },
     { label: "Cliente/Proveedor", id: 5, selector: (row) => row.efectuado },
     { label: "Fecha", id: 6, selector: (row) => row.fecha },
     { label: "Stock Restante", id: 7, selector: (row) => row.stockRestante },

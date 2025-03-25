@@ -9,7 +9,7 @@ const ModalProducto = ({ productoId, onClose }) => {
   useEffect(() => {
     if (!productoId) return;
 
-    const fetchAtencionData = async () => {
+    const fetchInfoProducto = async () => {
       try {
         setIsLoading(true);
         const response = await fetch(
@@ -37,7 +37,7 @@ const ModalProducto = ({ productoId, onClose }) => {
       }
     };
 
-    fetchAtencionData();
+    fetchInfoProducto();
   }, [productoId]);
 
   if (!productoId) return null;

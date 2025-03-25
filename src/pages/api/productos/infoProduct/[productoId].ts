@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import db from "../../../../db";
-import { movimientosStock, productos, stockActual } from "../../../../db/schema";
-import { desc, eq } from "drizzle-orm";
+import { clientes, movimientosStock, productos, proveedores, stockActual } from "../../../../db/schema";
+import { desc, eq, sql } from "drizzle-orm";
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ params }) => {
@@ -52,12 +52,34 @@ export const GET: APIRoute = async ({ params }) => {
         .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
         .where(eq(productos.id, productoId))).at(0)
 
-      // Consulta secundaria: obtener movimientos de stock relacionados con el producto
+      // Consulta modificada para movimientos de stock
       const stockMovimiento = await trx
-        .select()
+        .select({
+          id: movimientosStock.id,
+          tipo: movimientosStock.tipo,
+          cantidad: movimientosStock.cantidad,
+          motivo: movimientosStock.motivo,
+          nombreResponsable: sql<string>`
+            CASE 
+              WHEN ${movimientosStock.proveedorId} IS NOT NULL THEN ${proveedores.nombre}
+              WHEN ${movimientosStock.clienteId} IS NOT NULL THEN ${clientes.nombre}
+              ELSE 'Sistema'
+            END
+          `,
+          tipoResponsable: sql<string>`
+            CASE 
+              WHEN ${movimientosStock.proveedorId} IS NOT NULL THEN 'Proveedor'
+              WHEN ${movimientosStock.clienteId} IS NOT NULL THEN 'Cliente'
+              ELSE 'Sistema'
+            END
+          `,
+          fecha: movimientosStock.fecha,
+        })
         .from(movimientosStock)
-        .where(eq(movimientosStock.productoId, productoId)).
-        orderBy(desc(movimientosStock.fecha))
+        .leftJoin(proveedores, eq(proveedores.id, movimientosStock.proveedorId))
+        .leftJoin(clientes, eq(clientes.id, movimientosStock.clienteId))
+        .where(eq(movimientosStock.productoId, productoId))
+        .orderBy(desc(movimientosStock.fecha));
 
       // Devuelve ambos resultados como un objeto
       return { productData, stockMovimiento };

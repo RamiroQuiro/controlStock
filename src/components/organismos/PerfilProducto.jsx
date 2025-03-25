@@ -59,7 +59,8 @@ export default function PerfilProducto({ infoProducto }) {
         ),
       cantidad: mov.cantidad,
       motivo: mov.motivo,
-      efectuado: mov.tipo === "egreso" ? mov.clienteId : mov.proveedorId,
+      ralacion:mov.tipoResponsable,
+      efectuado:mov.nombreResponsable,
       fecha: formatDate(mov.fecha),
       stockRestante: stockActual,
     };

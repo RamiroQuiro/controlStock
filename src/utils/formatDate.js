@@ -1,7 +1,7 @@
 const formatDate = (fecha,tipo) => {
     const date = new Date(fecha);
     const opciones = {
-      weekday: "short",
+      
       year: "numeric",
       month: "long",
       day: "numeric",

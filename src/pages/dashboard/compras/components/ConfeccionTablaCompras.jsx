@@ -11,6 +11,7 @@ export default function ConfeccionTablaCompras({ data }) {
   const [seleccionador, setseleccionador] = useState(data[0])
   const selectRegistro=(e)=>{
     setseleccionador(e)
+    console.log(e)
   }
   const newArray = data?.map((compra, i) => {
     const fecha = formatDate(compra.fecha);
@@ -49,7 +50,7 @@ export default function ConfeccionTablaCompras({ data }) {
       <Table columnas={columnasComprasTodas} arrayBody={newArray} onClickRegistro={selectRegistro} />
       <div className="flex items-center justify-center gap-2 w-1/3 sticky top-4">
              <DivReact>
-              <ContenedorVisorCompras ventaId={1}/>
+              <ContenedorVisorCompras compraId={seleccionador?.id}/>
         </DivReact>
       </div>
     </div>

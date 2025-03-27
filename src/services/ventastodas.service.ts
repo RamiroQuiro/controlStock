@@ -7,15 +7,15 @@ export const traerVentasUser = async (userId: string) => {
     const ventasData = await db
       .select({
         id: ventas.id,
-        nComprobante:ventas.nComprobante,
+        nComprobante: ventas.nComprobante,
         fecha: ventas.fecha,
         total: ventas.total,
-        cliente:clientes.nombre,
-        metodoPago:ventas.metodoPago,
-        dniCliente:clientes.dni
+        cliente: clientes.nombre,
+        metodoPago: ventas.metodoPago,
+        dniCliente: clientes.dni,
       })
       .from(ventas)
-      .innerJoin(clientes,eq(clientes.id,ventas.clienteId))
+      .innerJoin(clientes, eq(clientes.id, ventas.clienteId))
       .where(eq(ventas.userId, userId));
     return ventasData;
   } catch (error) {
@@ -98,8 +98,8 @@ export const traerVentaId = async (
         vencimientoCheque: ventaDB[0].venta.vencimientoCheque,
       },
       items: ventaDB.map((item) => {
-        
-const precioSubtotal=item.precio-(item.precio*item.ivaProducto)/100
+        const precioSubtotal =
+          item.precio - (item.precio * item.ivaProducto) / 100;
 
         return {
           id: item.detalleId,

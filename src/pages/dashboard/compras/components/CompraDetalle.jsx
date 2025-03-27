@@ -19,13 +19,12 @@ const subtotal=items?.reduce((acc,producto)=>acc+(producto.subtotal),0)
   return (
     <div className="bg-white px-4 py-6 flex flex-col  h-full mx-auto">
       <div className="pb-5">
-            <p className="text-xs">ID de la venta: {id}</p>
-        <h1 className="text-2xl font-bold">{razonSocial}</h1>
+            <p className="text-xs">ID de la compra: {id}</p>
         <div className="flex justify-between mt-2">
           <div className="text-sm">
               <p>Fecha: {formatDate(fecha)}</p>
               <p>N°: {comprobante?.numero}</p>
-            <p>Cliente: <span className="text-base text-primary-textoTitle font-semibold">{cliente?.nombre}</span></p>
+            <p>Proveedor: <span className="text-lg text-primary-textoTitle font-semibold">{cliente?.nombre}</span></p>
             <p>Documento: {cliente?.dni}</p>
             {cliente?.direccion && <p>Dirección: {cliente.direccion}</p>}
           </div>

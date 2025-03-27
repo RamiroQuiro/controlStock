@@ -36,7 +36,7 @@ interface CompraDetalleProps {
   
 
 export default function ContenedorVisorCompras({compraId}:Props) {
-    const [venta, setVenta] = useState<CompraDetalleProps>({
+    const [compra, setCompra] = useState<CompraDetalleProps>({
         cliente:{
             dni:0,
             nombre:"",
@@ -68,7 +68,7 @@ useEffect(() => {
             }
         })
         const data=await response.json()
-        setVenta(data.data)
+        setCompra(data.data)
     } catch (error) {
         console.log(error)
         
@@ -81,7 +81,7 @@ useEffect(() => {
 
   return (
     <div className='sticky top-10 left-0 right-0 bottom-0 bg-opacity-50 z-50'>
-      <CompraDetalle/>
+      <CompraDetalle {...compra}/>
     </div>
   )
 }

@@ -11,6 +11,8 @@ const reportPDF = atom({ cabecera: {}, columnas: [], arrayBody: [] });
 
 const columnSelectTable = atom({ asc: true, seleccion: '' });
 
+// Store para estadísticas del dashboard con estado inicial
+const statsDashStore = atom({ loading: true, data: null, error: null });
 
 const dataFormularioContexto = atom({});
 
@@ -25,4 +27,5 @@ export {
   filtroBusqueda,
   reportPDF,
   usuarioActivo,
+  statsDashStore
 };

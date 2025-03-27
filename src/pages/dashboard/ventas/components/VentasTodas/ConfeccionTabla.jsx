@@ -50,7 +50,7 @@ export default function ConfeccionTabla({ data }) {
       <Table columnas={columnasVentasTodas} arrayBody={newArray} onClickRegistro={selectRegistro} />
       <div className="flex items-center justify-center gap-2 w-1/3 sticky top-4">
              <DivReact>
-              <ContenedorVisorDetalleVenta ventaId={seleccionador.id}/>
+              <ContenedorVisorDetalleVenta ventaId={seleccionador?.id}/>
         </DivReact>
       </div>
     </div>

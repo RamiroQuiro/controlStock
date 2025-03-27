@@ -1,95 +1,31 @@
 ---
 import DivBox1 from "../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../components/atomos/MainDashboard.astro";
-import DashboardMaqueta from "./DashboardMaqueta";
-import AlertasStock from "../../../components/dashboard/AlertasStock";
-import EstadisticasVentas from "../../../components/dashboard/EstadisticasVentas";
 import ProductosMasVendidos from "../../../components/dashboard/ProductosMasVendidos";
 import RendimientoCategoria from "../../../components/dashboard/RendimientoCategoria";
 import ResumenVentas from "../../../components/dashboard/ResumenVentas";
 import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
-import StatsDashboard from "./componente/StatsDashboard.astro";
+import StatsDashboard from "./componente/StatsDashboard";
 import { stadisticasDash } from "../../../services/dashboard.service";
-import {
-  AlertCircle,
-  AlertTriangle,
-  Rocket,
-  TrendingDown,
-  TrendingUp,
-  Users2,
-  VenetianMask,
-  WandSparkles,
-  type LucideIcon,
-} from "lucide-react";
-import StatsStock from "../stock/components/StatsStock.astro";
-import DashboardFooter from "../../../components/dashboard/DashboardFooter";
-export interface PropsStatsDash {
-  h2: string;
-  icon: LucideIcon;
-  data: string;
-  descripcion: string;
-  textColor: string;
-}
-const {
-  dataDb: {
-    nVentasDelMes,
-    productosBajoStock,
-    clientesNuevosMes,
-    ultimasTransacciones,
-  },
-} = await stadisticasDash("1");
+import ContenedorStats from "./componente/ContenedorStats";
 
-console.log(ultimasTransacciones);
-const statsDataDashboard: PropsStatsDash[] = [
-  {
-    descripcion: "ventas",
-    textColor: "text-primary-100",
-    h2: "Ventas del Mes",
-    data: `${nVentasDelMes?.nVentasMes}`,
-    icon: Rocket,
-  },
-  {
-    descripcion:
-      productosBajoStock?.cantidadBajoStock >> 1 ? "Productos" : "Producto",
-    textColor: "text-primary-400",
-    h2: "Productos Bajo Stock",
-    data: productosBajoStock?.cantidadBajoStock,
-    icon: AlertTriangle,
-  },
-  {
-    textColor: "text-primary-500",
-    h2: "Clientes Nuevos",
-    data: clientesNuevosMes.nClientesNuevos,
-    descripcion: "este mes",
-    icon: Users2,
-  },
-  {
-    h2: "Ticket Promedio del Mes",
-    data: "12.5%",
-    icon: TrendingUp,
-    textColor: "text-primary-100",
-    descripcion: "Promedio de Venta",
-  },
-];
+
+
+
+
 ---
 
 <MainDashboard h1="Dashboard Principal">
-  <div class="w-full flex items-center justify-between gap-2">
-    {
-      statsDataDashboard.map((info, index) => {
-        return <StatsDashboard {...info} />;
-      })
-    }
-  </div>
-
+ 
+<ContenedorStats client:load/>
   {/* Gráficos principales */}
   <div class="flex items-stretch justify-normal gap-2 w-full">
     <DivBox1 styleDiv="w-4/6 items-stretch">
-      <ResumenVentas userId="1" client:load />
+      <ResumenVentas userId="1" client:visible />
     </DivBox1>
 
     <DivBox1 styleDiv="w-2/6 items-stretch">
-      <ProductosMasVendidos userId="1" client:load />
+      <ProductosMasVendidos userId="1" client:visible />
     </DivBox1>
   </div>
 
@@ -97,16 +33,43 @@ const statsDataDashboard: PropsStatsDash[] = [
   <div class="flex items-start justify-normal gap-2 w-full">
   
     <DivBox1 styleDiv="w-2/5">
-      <RendimientoCategoria userId="1" client:load />
+      <RendimientoCategoria userId="1" client:visible />
     </DivBox1>
     <DivBox1 styleDiv="w-3/5">
-      <UltimasTransacciones
+      <!-- <UltimasTransacciones
         arrayTransacciones={ultimasTransacciones}
-        client:load
-      />
+        client:visible
+      /> -->
     </DivBox1>
   </div>
 
   {/* Footer */}
 
 </MainDashboard>
+
+<script>
+import { statsDashStore } from "../../../context/store";
+
+let userId="1"
+  const fetchStatsData = async (userId) => {
+  statsDashStore.set({ loading: true, data: null, error: null }); // Indicar que está cargando
+  try {
+    const response = await fetch('/api/statesDash/stadisticasDash', {
+      headers: {
+        'x-user-id': userId
+      }
+    });
+
+    if (!response.ok) throw new Error('Error en la petición');
+
+    const data = await response.json();
+    statsDashStore.set({ loading: false, data, error: null });
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    statsDashStore.set({ loading: false, data: null, error: error.message });
+  }
+};
+
+fetchStatsData(userId)
+
+</script>

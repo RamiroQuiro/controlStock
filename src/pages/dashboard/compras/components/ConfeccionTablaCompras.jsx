@@ -11,7 +11,6 @@ export default function ConfeccionTablaCompras({ data }) {
   const [seleccionador, setseleccionador] = useState(data[0])
   const selectRegistro=(e)=>{
     setseleccionador(e)
-    console.log(e)
   }
   const newArray = data?.map((compra, i) => {
     const fecha = formatDate(compra.fecha);
@@ -30,7 +29,7 @@ export default function ConfeccionTablaCompras({ data }) {
           <button
             id="verVenta"
             onClick={() =>
-              (window.location.href = `/dashboard/compra/${compra.id}`)
+              (window.location.href = `/dashboard/compras/${compra.id}`)
             }
             className="bg-primary-bg-componentes relative rounded-full group py-0.5 px-1"
           >

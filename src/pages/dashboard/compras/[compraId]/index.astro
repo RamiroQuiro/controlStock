@@ -1,0 +1,21 @@
+---
+import { eq } from "drizzle-orm";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
+import db from "../../../../db";
+import { comprasProveedores } from "../../../../db/schema";
+import ContenedorVisorCompras from "../components/ContenedorVisorCompras";
+const {compraId}=Astro.params
+
+const [comprobarCompra]=await db.select().from(comprasProveedores).where(eq(comprasProveedores.id,compraId))
+if(!comprobarCompra){
+    console.log('no existe la compra')
+   return Astro.redirect('/dashboard/compras')
+}
+---
+
+<LayoutDash title={`Compra ID -${comprobarCompra?.id}`}>
+    <MainDashboard h1={`Compra ID -${comprobarCompra?.id}` }>
+        <ContenedorVisorCompras compraId={compraId} client:load />
+    </MainDashboard>
+</LayoutDash>

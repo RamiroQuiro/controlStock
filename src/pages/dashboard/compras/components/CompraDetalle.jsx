@@ -17,7 +17,7 @@ export default function CompraDetalle({
 const subtotal=items?.reduce((acc,producto)=>acc+(producto.subtotal),0)
 
   return (
-    <div className="bg-white px-4 py-6 flex flex-col  h-full mx-auto">
+    <div className="bg-white px-4 py-6 flex flex-col   h-full mx-auto">
       <div className="pb-5">
             <p className="text-xs">ID de la compra: {id}</p>
         <div className="flex justify-between mt-2">

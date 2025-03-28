@@ -5,8 +5,6 @@ import ProductosMasVendidos from "../../../components/dashboard/ProductosMasVend
 import RendimientoCategoria from "../../../components/dashboard/RendimientoCategoria";
 import ResumenVentas from "../../../components/dashboard/ResumenVentas";
 import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
-import StatsDashboard from "./componente/StatsDashboard";
-import { stadisticasDash } from "../../../services/dashboard.service";
 import ContenedorStats from "./componente/ContenedorStats";
 
 
@@ -36,10 +34,7 @@ import ContenedorStats from "./componente/ContenedorStats";
       <RendimientoCategoria userId="1" client:visible />
     </DivBox1>
     <DivBox1 styleDiv="w-3/5">
-      <!-- <UltimasTransacciones
-        arrayTransacciones={ultimasTransacciones}
-        client:visible
-      /> -->
+      <UltimasTransacciones client:visible/>
     </DivBox1>
   </div>
 

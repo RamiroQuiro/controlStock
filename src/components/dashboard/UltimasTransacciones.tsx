@@ -4,6 +4,8 @@ import { columnsUltimasTransacciones } from '../../utils/columnasTables';
 import formatDate from '../../utils/formatDate';
 import { LockOpen, Printer, SearchCheck, View } from 'lucide-react';
 import { formateoMoneda } from '../../utils/formateoMoneda';
+import { useStore } from '@nanostores/react';
+import { statsDashStore } from '../../context/store';
 
 interface Transaccion {
   id: string;
@@ -13,10 +15,11 @@ interface Transaccion {
   metodoPago: string;
 }
 
-const UltimasTransacciones: React.FC = ({arrayTransacciones}) => {
+const UltimasTransacciones: React.FC = () => {
+const {data}=useStore(statsDashStore)
+let arrayUltimasTransacciones:Transaccion[]=data?.data?.dataDb?.ultimasTransacciones ||[]
 
-
-  const newArray=arrayTransacciones.map((venta)=>{
+  const newArray=arrayUltimasTransacciones?.map((venta)=>{
 
     return{
       ...venta,

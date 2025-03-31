@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ request }) => {
       .select({
         categoria: productos.categoria,
         totalVentas: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
-        cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`
+        cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`,
       })
       .from(detalleVentas)
       .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
@@ -36,7 +36,7 @@ export const GET: APIRoute = async ({ request }) => {
       .select({
         categoria: productos.categoria,
         totalVentas: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
-        cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`
+        cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`,
       })
       .from(detalleVentas)
       .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
@@ -50,33 +50,40 @@ export const GET: APIRoute = async ({ request }) => {
       .groupBy(productos.categoria);
 
     // Calcular rendimiento y tendencias
-    const rendimientoCategorias = ventasPorCategoria.map(catActual => {
+    const rendimientoCategorias = ventasPorCategoria.map((catActual) => {
       const catAnterior = ventasAnteriores.find(
-        cat => cat.categoria === catActual.categoria
+        (cat) => cat.categoria === catActual.categoria
       );
 
-      const porcentaje = Math.round((catActual.cantidadVentas / 
-        ventasPorCategoria.reduce((acc, curr) => acc + curr.cantidadVentas, 0)) * 100);
+      const porcentaje = Math.round(
+        (catActual.cantidadVentas /
+          ventasPorCategoria.reduce(
+            (acc, curr) => acc + curr.cantidadVentas,
+            0
+          )) *
+          100
+      );
 
-      let tendencia: 'subida' | 'bajada' | 'estable' = 'estable';
+      let tendencia: "subida" | "bajada" | "estable" = "estable";
       if (catAnterior) {
         const diferencia = catActual.totalVentas - catAnterior.totalVentas;
-        tendencia = diferencia > 0 ? 'subida' : diferencia < 0 ? 'bajada' : 'estable';
+        tendencia =
+          diferencia > 0 ? "subida" : diferencia < 0 ? "bajada" : "estable";
       }
 
       return {
         nombre: catActual.categoria,
         porcentaje,
-        totalVentas:catActual.totalVentas,
+        totalVentas: catActual.totalVentas,
         tendencia,
-        color: `text-primary-${((porcentaje % 5) + 1) * 100}` // Asigna color dinámicamente
+        color: `text-primary-${((porcentaje % 5) + 1) * 100}`, // Asigna color dinámicamente
       };
     });
 
     // Calcular rendimiento promedio
     const rendimientoPromedio = Math.round(
-      rendimientoCategorias.reduce((acc, curr) => acc + curr.porcentaje, 0) / 
-      rendimientoCategorias.length
+      rendimientoCategorias.reduce((acc, curr) => acc + curr.porcentaje, 0) /
+        rendimientoCategorias.length
     );
 
     return new Response(
@@ -88,7 +95,6 @@ export const GET: APIRoute = async ({ request }) => {
       }),
       { status: 200 }
     );
-
   } catch (error) {
     console.error("Error:", error);
     return new Response(

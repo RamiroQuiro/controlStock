@@ -63,7 +63,7 @@ export default function ContenedorStats() {
     },
   ];
 
-  console.log("este son los datos", data?.data);
+  // console.log("este son los datos", data?.data);
   return (
     <div className="w-full animate-fadeIn">
       <div className="w-full flex items-center justify-between gap-2">

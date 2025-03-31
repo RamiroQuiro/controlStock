@@ -1,4 +1,7 @@
+import { useStore } from '@nanostores/react';
 import React, { useEffect, useState } from 'react';
+import { statsDashStore } from '../../context/store';
+import { formateoMoneda } from '../../utils/formateoMoneda';
 
 interface CategoriaRendimiento {
   nombre: string;
@@ -13,46 +16,23 @@ interface DatosRendimiento {
   rendimientoPromedio: number;
 }
 
-const RendimientoCategoria: React.FC = ({ userId }: { userId: string }) => {
-  const [datosRendimiento, setDatosRendimiento] = useState<DatosRendimiento>({
-    categorias: [],
-    rendimientoPromedio: 0
-  });
-  const [isLoading, setIsLoading] = useState(true);
+const RendimientoCategoria: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchRendimiento = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetch('/api/ventas/rendimientoCategoria', {
-          headers: {
-            'x-user-id': userId
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Error al obtener datos');
-        }
-
-        const data = await response.json();
-        setDatosRendimiento(data);
-      } catch (err) {
-        setError('Error al cargar los datos');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchRendimiento();
-  }, [userId]);
-
-  const formatoMoneda = new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS'
+  const { data, loading } = useStore(statsDashStore);
+  const [datosRendimiento, setDatosRendimiento] = useState<DatosRendimiento>({
+    categorias: data?.data?.dataDb?.categorias || [],
+    rendimientoPromedio: data?.data?.dataDb?.rendimientoPromedio ||0
   });
+  
+  useEffect(()=>{
+    if (data) {
+      setDatosRendimiento({
+        categorias: data?.data?.dataDb?.categorias || [],
+        rendimientoPromedio: data?.data?.dataDb?.rendimientoPromedio || 0
+      });
+    }
+  },[data])
+
 
   const getTendenciaLabel = (tendencia: string, porcentaje: number) => {
     switch (tendencia) {
@@ -88,7 +68,7 @@ const RendimientoCategoria: React.FC = ({ userId }: { userId: string }) => {
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="w-full flex flex-col items-start justify-normal">
         <h2 className="text-lg font-semibold mb-4">Rendimiento por Categoría</h2>
@@ -204,7 +184,7 @@ const RendimientoCategoria: React.FC = ({ userId }: { userId: string }) => {
                 </div>
                 <div className="text-right opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="text-sm font-medium">
-                    {formatoMoneda.format(categoria.totalVentas)}
+                    {formateoMoneda.format(categoria.totalVentas)}
                   </div>
                   <div className="text-xs text-gray-500">
                     Total vendido

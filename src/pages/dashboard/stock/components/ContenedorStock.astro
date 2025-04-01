@@ -1,0 +1,71 @@
+---
+import { ChartColumnDecreasing, Package, Sticker, StickyNote, TrendingUp } from "lucide-react";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import StatsStock from "./StatsStock.astro";
+
+
+const user = { id: "1", nombre: "ramiro" };
+
+
+// stats
+const infoStats = [
+  {
+    id: 1,
+    icono: Package,
+    bgColor: "from-primary-100 to-blue-700",
+    title: "Productos en Stock",
+    tooltip: `Total de productos únicos en inventario`,
+  },
+  {
+    id:2,
+    icono: ChartColumnDecreasing,
+    bgColor: "from-red-400 to-amber-700",
+    title: "Productos de Stock Bajo",
+    tooltip: `Productos que requieren reposición inmediata`,
+  },
+
+  {
+    id:3,
+    icono: TrendingUp,
+    bgColor: "from-lime-500 to-lime-700",
+    title: "Ingresos por Ventas Top",
+    tooltip: `Ingresos generados por los productos más vendidos`,
+  },
+  {
+    id:4,
+    icono: StickyNote,
+    bgColor: "from-orange-400 to-orange-700",
+    title: "Costo de Inventario",
+    tooltip: `Valor de reposición de todo el inventario`,
+  },
+  {
+    id:5,
+    icono: Sticker,
+    bgColor: "from-purple-500 to-purple-700",
+    title: "Precio de  Inventario",
+  },
+];
+
+
+---
+
+
+<DivBox1 styleDiv="w-full">
+    <div class="w-full flex items-center justify-between gap-2">
+      {
+        infoStats.map((info, index) => {
+          let Icon = info.icono;
+          return (
+            <StatsStock
+              icon={Icon}
+              bgColor={info.bgColor}
+              key={index}
+              id={info.id}
+            >
+              {info.title}
+            </StatsStock>
+          );
+        })
+      }
+    </div>
+  </DivBox1>

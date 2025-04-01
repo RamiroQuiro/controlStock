@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 import FormularioDeBusqueda from "../organismos/FormularioDeBusqueda";
-import { filtroBusqueda } from "../../context/store";
+import { filtroBusqueda, stockStore } from "../../context/store";
 import { useEffect, useState } from "react";
 import SelectorProveedoresClientes from "./SelectorProveedoresClientes";
 import SelectorProductos from "./SelectorProductos";
@@ -12,6 +12,9 @@ export default function FormularioIngresoEgreso({
   clientesData,
   listaProductos,
 }) {
+
+  const { data, loading, error: errorStorage } = useStore(stockStore);
+  
   const [formulario, setFormulario] = useState({
     productoId: "",
     fecha: Date.now(),

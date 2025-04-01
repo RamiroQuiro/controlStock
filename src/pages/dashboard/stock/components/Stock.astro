@@ -1,44 +1,22 @@
 ---
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import DivBox1 from "../../../../components/atomos/DivBox1.astro";
-import StatsStock from "./StatsStock.astro";
-import {
-  ChartColumnDecreasing,
-  Package,
-  Sticker,
-  StickyNote,
-  TrendingUp,
-} from "lucide-react";
 import H2 from "../../../../components/atomos/H2.astro";
 import ListradoProductos from "./ListradoProductos.astro";
-import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso.astro";
-import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import FormularioIngresoEgreso from "../../../../components/moleculas/FormularioIngresoEgreso";
 import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
 import { trayendoProductos } from "../../../../utils/stockFunctions";
-import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos.astro";
 import FormularioCompra from "./FormularioCompra";
 import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
 import { StockService } from "../../../../services/stock.service";
+import ContenedorStock from "./ContenedorStock.astro";
+import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
+import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
 const { obtenerFiltros } = new StockService();
 const dataFiltros = await obtenerFiltros("1");
-console.log(dataFiltros);
 const user = { id: "1", nombre: "ramiro" };
 const queryDB = await trayendoProductos(user.id);
-const obtenerStockBajoProductos = (array: []) => {
-  return array.filter((prod) => prod.stock <= prod.alertaStock);
-};
-
-const productosStockBajos = obtenerStockBajoProductos(queryDB?.listaProductos);
-const totalStockPrecio = queryDB?.listaProductos?.reduce(
-  (acc, producto) => acc + producto.pVenta * producto.stock,
-  0
-);
-const totalStockCosto = queryDB?.listaProductos?.reduce(
-  (acc, producto) => acc + producto.pCompra * producto.stock,
-  0
-);
 const {
   listaProductos,
   proveedoresData,
@@ -48,76 +26,9 @@ const {
   stockMovimiento,
   totalProductos,
 } = queryDB;
-// metricas sugeridad
-// Análisis de productos más vendidos
-const topProductos = topMasVendidos?.map((item) => ({
-  nombre: item.producto.descripcion,
-  cantidadVendida: item.totalVendido,
-  precioVenta: item.producto.pVenta,
-  ingresosTotales: item.totalVendido * item.producto.pVenta,
-}));
 
-// Análisis de movimientos de stock
-const analisisStock = stockMovimiento?.map((item) => ({
-  nombre: item.producto.descripcion,
-  totalVendido: item.totalVendido,
-  totalIngresos: item.totalIngresos,
-  totalEgresos: item.totalEgresos,
-  stockActual: item.producto.stock,
-  // Calcula la diferencia entre ingresos y egresos
-  diferenciaMovimiento: item.totalIngresos - item.totalEgresos,
-}));
 
-// Identificar productos con bajo movimiento
-const productosBajoMovimiento = topMenosVendidos?.filter(
-  (item) => item.totalVendido < 5 // Productos con menos de 5 ventas
-);
 
-const totalMasVendidos = topMasVendidos?.reduce(
-  (total, producto) => total + producto.totalVendido * producto.producto.pVenta,
-  0
-);
-
-// stats
-const infoStats = [
-  {
-    icono: Package,
-    h2: listaProductos?.length,
-    bgColor: "from-primary-100 to-blue-700",
-    title: "Productos en Stock",
-    tooltip: `Total de productos únicos en inventario`,
-  },
-
-  {
-    icono: ChartColumnDecreasing,
-    h2: productosStockBajos.length,
-    bgColor: "from-red-400 to-amber-700",
-    title: "Productos de Stock Bajo",
-    tooltip: `Productos que requieren reposición inmediata`,
-  },
-
-  {
-    icono: TrendingUp,
-    h2: formateoMoneda.format(totalMasVendidos),
-    bgColor: "from-lime-500 to-lime-700",
-    title: "Ingresos por Ventas Top",
-    tooltip: `Ingresos generados por los productos más vendidos`,
-  },
-
-  {
-    icono: StickyNote,
-    h2: formateoMoneda.format(totalStockCosto),
-    bgColor: "from-orange-400 to-orange-700",
-    title: "Costo de Inventario",
-    tooltip: `Valor de reposición de todo el inventario`,
-  },
-  {
-    icono: Sticker,
-    h2: formateoMoneda.format(totalStockPrecio),
-    bgColor: "from-purple-500 to-purple-700",
-    title: "Precio de  Inventario",
-  },
-];
 
 // console.log("total movimientos", totalProductos);
 // console.log('analisis de strock',analisisStock);
@@ -155,48 +66,43 @@ const infoStats = [
       />
     </Modal>
   </div>
-  <DivBox1 styleDiv="w-full">
-    <div class="w-full flex items-center justify-between gap-2">
-      {
-        infoStats.map((info, index) => {
-          let Icon = info.icono;
-          return (
-            <StatsStock
-              icon={Icon}
-              h2={info.h2}
-              bgColor={info.bgColor}
-              key={index}
-            >
-              {info.title}
-            </StatsStock>
-          );
-        })
-      }
-    </div>
-  </DivBox1>
+<ContenedorStock/>
 
   <div class="flex w-full mt gap-2 items-start justify-start">
-    <ListradoProductos productosArray={listaProductos} />
+    <ListradoProductos   productosArray={[]}/>
     <DivBox1 styleDiv="w-1/3">
       <div class="w-full">
         <div class="flex items-center justify-between gap-2">
           <H2>Más Vendidos</H2>
         </div>
-        <ContenedorTablaTopEgreso productosArray={topMasVendidos} />
+        <ContenedorTablaTopEgreso client:load label="topMasVendidos"/>
       </div>
       <div class="w-full">
         <div class="flex items-center justify-between gap-2">
           <H2>Menos Vendidos</H2>
         </div>
-        <ContenedorTablaTopEgreso productosArray={topMenosVendidos} />
+        <ContenedorTablaTopEgreso label="topMenosVendidos" client:load/>
       </div>
 
       <div class="w-full">
         <div class="flex items-center justify-between gap-2">
           <H2>Menos Movimientos Egresos</H2>
         </div>
-        <ContenedorTablaMovimientos productosArray={stockMovimiento} />
+        <ContenedorTablaMovimientos client:load />
       </div>
     </DivBox1>
   </div>
 </MainDashboard>
+
+
+<script>
+import { fetchStockData } from "../../../../context/store"
+
+  
+  
+  let userId="1"
+  
+  
+  fetchStockData(userId)
+  
+  </script>

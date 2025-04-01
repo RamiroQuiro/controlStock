@@ -16,18 +16,6 @@ import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
 const { obtenerFiltros } = new StockService();
 const dataFiltros = await obtenerFiltros("1");
 const user = { id: "1", nombre: "ramiro" };
-const queryDB = await trayendoProductos(user.id);
-const {
-  listaProductos,
-  proveedoresData,
-  clientesData,
-  topMasVendidos,
-  topMenosVendidos,
-  stockMovimiento,
-  totalProductos,
-} = queryDB;
-
-
 
 
 // console.log("total movimientos", totalProductos);
@@ -50,9 +38,6 @@ const {
 
     <Modal id="modalIngreso" label="Movimiento">
       <FormularioIngresoEgreso
-        proveedoresData={proveedoresData}
-        clientesData={clientesData}
-        listaProductos={listaProductos}
         userId={user.id}
         client:visible
       />

@@ -6,3 +6,15 @@ import Stock from './components/Stock.astro'
 <LayoutDash title="Stock">
    <Stock/>
 </LayoutDash>
+<script>
+import { fetchStockData } from "../../../context/store"
+
+   
+     
+     
+     let userId="1"
+     
+     
+     fetchStockData(userId)
+     
+     </script>

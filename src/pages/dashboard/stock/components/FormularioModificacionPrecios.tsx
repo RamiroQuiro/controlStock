@@ -1,28 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { showToast } from "../../../../utils/toast/toastShow";
 import type {
   DataFiltros,
   ModificacionPreciosProps,
   ProductoPrevisualizado,
 } from "../../../../types";
+import { useStore } from "@nanostores/react";
+import {  stockStore } from "../../../../context/store";
 
 const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   userId,
-  dataFiltros,
 }) => {
+  const {data,loading,error:errorStorage} = useStore(stockStore);
+
+
+  const dataFiltros = useMemo(() => {
+    if(loading)return
+    if (!data.obtenerFiltros) {
+      console.log('No hay datos de filtros');
+      return {
+        categorias: [],
+        ubicaciones: [],
+        depositos: []
+      };
+    }
+    
+    console.log('Datos de filtros:', data.obtenerFiltros);
+    return {
+      categorias: data.obtenerFiltros.categorias || [],
+      ubicaciones: data.obtenerFiltros.ubicaciones || [],
+      depositos: data.obtenerFiltros.depositos || []
+    };
+  }, [data]);
+
+
   const [tipoModificacion, setTipoModificacion] = useState<"porcentaje" | "monto">("porcentaje");
   const [filtroTipo, setFiltroTipo] = useState<"categorias" | "ubicaciones" | "depositos"| "todas">("categorias");
   const [filtros, setFiltros] = useState<DataFiltros>(dataFiltros);
   const [valorSeleccionado, setValorSeleccionado] = useState(
     filtros?.categorias[0] || ""
   );
-  const [errors, setErrors] = useState<{msg:string,code?:number}>({msg:'',code:0})
+  const [errors, setErrors] = useState<{msg:string,code?:number}>({msg:'',code:0});
   const [valor, setValor] = useState<number>(0);
   const [afectarPrecio, setAfectarPrecio] = useState<"venta" | "compra" | "ambos">("venta");
-
-  const [productosPreview, setProductosPreview] = useState<
-    ProductoPrevisualizado[]
-  >([]);
+  const [productosPreview, setProductosPreview] = useState<ProductoPrevisualizado[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -97,7 +118,7 @@ if(valor===0){
   };
 
   return (
-    <div className=" text-primary-texto  p-4">
+    <div className="text-primary-texto p-4">
       <h2 className="text-lg font-semibold mb-4">
         Modificación de Precios por Lote
       </h2>

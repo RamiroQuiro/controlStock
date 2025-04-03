@@ -6,19 +6,14 @@ import ListradoProductos from "./ListradoProductos.astro";
 import FormularioIngresoEgreso from "../../../../components/moleculas/FormularioIngresoEgreso";
 import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
-import { trayendoProductos } from "../../../../utils/stockFunctions";
 import FormularioCompra from "./FormularioCompra";
 import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
-import { StockService } from "../../../../services/stock.service";
 import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
-const { obtenerFiltros } = new StockService();
-const dataFiltros = await obtenerFiltros("1");
+
 const user = { id: "1", nombre: "ramiro" };
 
-
-// console.log("total movimientos", totalProductos);
 // console.log('analisis de strock',analisisStock);
 // console.log('productos bajo movimiento',productosBajoMovimiento);
 ---
@@ -45,8 +40,7 @@ const user = { id: "1", nombre: "ramiro" };
 
     <Modal label="Modificar Precios" id="modificarPrecios">
       <FormularioModificacionPrecios
-        userId={"1"}
-        dataFiltros={dataFiltros}
+        userId={user.id}
         client:visible
       />
     </Modal>
@@ -60,13 +54,13 @@ const user = { id: "1", nombre: "ramiro" };
         <div class="flex items-center justify-between gap-2">
           <H2>Más Vendidos</H2>
         </div>
-        <ContenedorTablaTopEgreso client:load label="topMasVendidos"/>
+        <ContenedorTablaTopEgreso client:load label="topMasVendidos" />
       </div>
       <div class="w-full">
         <div class="flex items-center justify-between gap-2">
           <H2>Menos Vendidos</H2>
         </div>
-        <ContenedorTablaTopEgreso label="topMenosVendidos" client:load/>
+        <ContenedorTablaTopEgreso label="topMenosVendidos" client:load />
       </div>
 
       <div class="w-full">
@@ -80,14 +74,3 @@ const user = { id: "1", nombre: "ramiro" };
 </MainDashboard>
 
 
-<script>
-import { fetchStockData } from "../../../../context/store"
-
-  
-  
-  let userId="1"
-  
-  
-  fetchStockData(userId)
-  
-  </script>

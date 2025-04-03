@@ -94,7 +94,24 @@ export const trayendoProductos = async (userId: string, page:number=0,limit:numb
         .orderBy(asc(sql`totalVendido`))
         .limit(10);
   
+        const resultado=await trx.select({
+          categorias: productos.categoria,
+          ubicaciones: stockActual.localizacion,
+          depositos: stockActual.deposito,
+        })
+        .from(productos)
+        .innerJoin(stockActual,eq(stockActual.productoId,productos.id))
+        .where(eq(productos.userId, userId));
+
+      const obtenerFiltros= {
+        categorias: [...new Set(resultado.map(r => r.categorias))],
+        ubicaciones: [...new Set(resultado.map(r => r.ubicaciones))],
+        depositos: [...new Set(resultado.map(r => r.depositos))],
+      };
+
+
       return {
+        obtenerFiltros,
         listaProductos,
         proveedoresData,
         clientesData,

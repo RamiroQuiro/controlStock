@@ -6,6 +6,7 @@ import { sql } from "drizzle-orm";
 import path from "path";
 import { promises as fs } from "fs";
 import sharp from "sharp";
+import { cache } from "../../../utils/cache";
 
 interface ProductoData {
   nombre: string;
@@ -182,7 +183,8 @@ export async function POST({ request }: APIContext): Promise<Response> {
         throw dbError;
       }
     });
-
+// Invalida el caché de productos para este usuario
+await cache.invalidate(`stock_data_${productoData.userId}`);
     return new Response(
       JSON.stringify({
         status: 200,

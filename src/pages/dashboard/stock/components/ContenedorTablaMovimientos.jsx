@@ -9,11 +9,10 @@ export default function ContenedorTablaMovimientos() {
 const {data,loading,error}=useStore(stockStore)
 
 
-console.log(data)
   return (
 
 
-<div class="flex flex-col items-start justify-start bg-primary-bg-componentes w-full p-2">
+<div className="flex flex-col items-start justify-start bg-primary-bg-componentes w-full p-2">
 
         <ConfeccionTablaMovimientos arrayProduct={[]} client:load/>
 </div>

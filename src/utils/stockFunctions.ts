@@ -2,124 +2,121 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import db from "../db";
 import { clientes, detalleVentas, movimientosStock, productos, proveedores, stockActual } from "../db/schema";
 
-export const trayendoProductos = async (userId: string, page:number=0,limit:number=20) => {
+export const trayendoProductos = async (userId: string, page: number = 0, limit: number = 20) => {
   const offset = page * limit;
 
-    const dataDB = await db.transaction(async (trx) => {
-      const listaProductos = await trx
-        .select({
-          id: productos.id,
-          codigoBarra: productos.codigoBarra,
-          descripcion: productos.descripcion,
-          categoria: productos.categoria,
-          pCompra: productos.pCompra,
-          pVenta: productos.pVenta,
-          stock: productos.stock,
-          srcPhoto: productos.srcPhoto,
-          localizacion: stockActual.localizacion,
-          alertaStock: stockActual.alertaStock,
-          ultimaActualizacion: productos.ultimaActualizacion,
-        })
-        .from(productos)
-        .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
-        .where(eq(productos.userId, userId))
-        .limit(limit) // 🔥 Establece el límite de productos a traer
-        .offset(offset); // 🔥 Define desde dónde empezar
-  
-        const totalProductos = (await trx
-        .select({
-            count: sql<number>`COUNT(*)`.as("total"),
-        })
-        .from(productos)
-        .where(eq(productos.userId, userId))).at(0)?.count ?? 0
+  // ✅ 1. Obtener lista de productos con información clave  
+  const listaProductosQuery = db
+    .select({
+      id: productos.id,
+      codigoBarra: productos.codigoBarra,
+      descripcion: productos.descripcion,
+      categoria: productos.categoria,
+      pCompra: productos.pCompra,
+      pVenta: productos.pVenta,
+      stock: productos.stock,
+      srcPhoto: productos.srcPhoto,
+      localizacion: stockActual.localizacion,
+      alertaStock: stockActual.alertaStock,
+      ultimaActualizacion: productos.ultimaActualizacion,
+    })
+    .from(productos)
+    .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
+    .where(eq(productos.userId, userId))
+    .limit(limit)
+    .offset(offset);
 
-      const proveedoresData = await trx
-        .select()
-        .from(proveedores)
-        .where(eq(proveedores.userId, userId));
-        
-   
-      const clientesData = await trx
-        .select()
-        .from(clientes)
-        .where(eq(clientes.userId, userId));
-      const topMasVendidos = await trx
-        .select({
-          producto: productos,
-          totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
-            "totalVendido"
-          ),
-        })
-        .from(detalleVentas)
-        .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
-        .where(eq(productos.userId, userId))
-        .groupBy(productos.id)
-        .orderBy(desc(sql`totalVendido`))
-        .limit(10);
-  
-      const topMenosVendidos = await trx
-        .select({
-          producto: productos,
-          totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
-            "totalVendido"
-          ),
-        })
-        .from(detalleVentas)
-        .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
-        .where(eq(productos.userId, userId))
-        .groupBy(productos.id)
-        .orderBy(asc(sql`totalVendido`))
-        .limit(10);
-  
-      const stockMovimiento = await trx
-        .select({
-          producto: productos,
-          totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
-            "totalVendido"
-          ),
-          totalIngresos:
-            sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'ingreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as(
-              "totalIngresos"
-            ),
-          totalEgresos:
-            sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'egreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as(
-              "totalEgresos"
-            ),
-        })
-        .from(productos)
-        .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id)) // Ventas
-        .leftJoin(movimientosStock, eq(movimientosStock.productoId, productos.id)) // Movimientos de stock
-        .where(eq(productos.userId, userId))
-        .groupBy(productos.id)
-        .orderBy(asc(sql`totalVendido`))
-        .limit(10);
-  
-        const resultado=await trx.select({
-          categorias: productos.categoria,
-          ubicaciones: stockActual.localizacion,
-          depositos: stockActual.deposito,
-        })
-        .from(productos)
-        .innerJoin(stockActual,eq(stockActual.productoId,productos.id))
-        .where(eq(productos.userId, userId));
+  // ✅ 2. Obtener total de productos en la base  
+  const totalProductosQuery = db
+    .select({
+      count: sql<number>`COUNT(*)`.as("total"),
+    })
+    .from(productos)
+    .where(eq(productos.userId, userId));
 
-      const obtenerFiltros= {
-        categorias: [...new Set(resultado.map(r => r.categorias))],
-        ubicaciones: [...new Set(resultado.map(r => r.ubicaciones))],
-        depositos: [...new Set(resultado.map(r => r.depositos))],
-      };
+  // ✅ 3. Obtener filtros únicos en una sola consulta con `GROUP BY`  
+  const filtrosQuery = db
+    .select({
+      categoria: productos.categoria,
+      ubicacion: stockActual.localizacion,
+      deposito: stockActual.deposito,
+    })
+    .from(productos)
+    .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
+    .where(eq(productos.userId, userId))
+    .groupBy(productos.categoria, stockActual.localizacion, stockActual.deposito);
 
+  // ✅ 4. Obtener proveedores y clientes en una sola consulta  
+  const proveedoresYClientesQuery = Promise.all([
+    db.select().from(proveedores).where(eq(proveedores.userId, userId)),
+    db.select().from(clientes).where(eq(clientes.userId, userId)),
+  ]);
 
-      return {
-        obtenerFiltros,
-        listaProductos,
-        proveedoresData,
-        clientesData,
-        topMasVendidos,
-        topMenosVendidos,
-        stockMovimiento,
-        totalProductos
-      };
-    });
-    return dataDB;
+  // ✅ 5. Obtener los productos más y menos vendidos  
+  const ventasQuery = (order: "ASC" | "DESC") =>
+    db
+      .select({
+        productoId: productos.id,
+        descripcion: productos.descripcion,
+        totalVendido: sql<number>`SUM(${detalleVentas.cantidad})`.as("totalVendido"),
+      })
+      .from(detalleVentas)
+      .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
+      .where(eq(productos.userId, userId))
+      .groupBy(productos.id)
+      .orderBy(order === "DESC" ? desc(sql`totalVendido`) : asc(sql`totalVendido`))
+      .limit(10);
+
+  // ✅ 6. Obtener movimientos de stock  
+  const stockMovimientoQuery = db
+    .select({
+      productoId: productos.id,
+      descripcion: productos.descripcion,
+      totalVendido: sql<number>`SUM(${detalleVentas.cantidad})`.as("totalVendido"),
+      totalIngresos: sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'ingreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as("totalIngresos"),
+      totalEgresos: sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'egreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as("totalEgresos"),
+    })
+    .from(productos)
+    .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
+    .leftJoin(movimientosStock, eq(movimientosStock.productoId, productos.id))
+    .where(eq(productos.userId, userId))
+    .groupBy(productos.id)
+    .limit(10);
+
+  // ✅ 7. Ejecutar todas las consultas en paralelo  
+  const [
+    listaProductos,
+    totalProductos,
+    filtrosData,
+    [proveedoresData, clientesData],
+    topMasVendidos,
+    topMenosVendidos,
+    stockMovimiento,
+  ] = await Promise.all([
+    listaProductosQuery,
+    totalProductosQuery.then((res) => res.at(0)?.count ?? 0),
+    filtrosQuery,
+    proveedoresYClientesQuery,
+    ventasQuery("DESC"),
+    ventasQuery("ASC"),
+    stockMovimientoQuery,
+  ]);
+
+  // ✅ 8. Crear filtros únicos sin repetir valores  
+  const obtenerFiltros = {
+    categorias: [...new Set(filtrosData.map((r) => r.categoria))],
+    ubicaciones: [...new Set(filtrosData.map((r) => r.ubicacion))],
+    depositos: [...new Set(filtrosData.map((r) => r.deposito))],
   };
+
+  return {
+    obtenerFiltros,
+    listaProductos,
+    proveedoresData,
+    clientesData,
+    topMasVendidos,
+    topMenosVendidos,
+    stockMovimiento,
+    totalProductos,
+  };
+};

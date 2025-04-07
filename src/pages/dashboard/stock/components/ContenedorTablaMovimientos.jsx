@@ -9,7 +9,6 @@ export default function ContenedorTablaMovimientos() {
 const {data,loading,error}=useStore(stockStore)
 
 
-console.log(data)
   return (
 
 

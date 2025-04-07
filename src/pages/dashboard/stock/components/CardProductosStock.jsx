@@ -13,11 +13,13 @@ import ModalProducto from "../../../../components/organismos/ModalProducto.jsx";
 
 export default function CardProductosStock({ prod }) {
   const [modalActive, setModalActive] = useState(false)
+
+  if(!prod)return
   const totalStock = prod?.pVenta * prod?.stock;
-  const resta = prod.stock - prod.alertaStock;
-  const intensidad = Math.max(0, Math.min(1, 1 - prod.stock / prod.alertaStock)); 
+  const resta = prod?.stock - prod?.alertaStock;
+  const intensidad = Math.max(0, Math.min(1, 1 - prod?.stock / prod?.alertaStock)); 
   
-  const estiloAlerta = prod.stock <= prod.alertaStock 
+  const estiloAlerta = prod?.stock <= prod?.alertaStock 
     ? {
         background: `linear-gradient(to right, rgba(255, 87, 51, 0.05), rgba(255, 87, 51, ${0.1 + intensidad * 0.1}))`,
         border: `1px solid rgba(255, 87, 51, ${0.4 + intensidad * 0.1})`,
@@ -41,15 +43,15 @@ export default function CardProductosStock({ prod }) {
         <div className="flex flex-col items-start justify-normal">
           {/* <!-- tiltulo del producto --> */}
           <h3 className="text- font-semibold text-primary-textoTitle capitalize tracking-tight">
-            {prod.descripcion}
+            {prod?.descripcion}
           </h3>
           {/* <!-- detalles --> */}
           <div className="flex border-t w-full pt-1 gap-4">
             <div>
-              <p className="text-sm">{prod.stock} en stock</p>
+              <p className="text-sm">{prod?.stock} en stock</p>
               <div className="inline-flex items-center gap-2">
                 <ScanBarcode className="w-6 h-5" />
-                <p className="text-sm lowercase">{prod.codigoBarra}</p>
+                <p className="text-sm lowercase">{prod?.codigoBarra}</p>
               </div>
             </div>
             <div className="flex flex-col items-start justify-">
@@ -70,7 +72,7 @@ export default function CardProductosStock({ prod }) {
     </div>
     {
       modalActive&&(
-        <ModalProducto productoId={prod.id} onClose={setModalActive}/>
+        <ModalProducto productoId={prod?.id} onClose={setModalActive}/>
       )
     }
     </>    

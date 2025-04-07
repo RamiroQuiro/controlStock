@@ -6,18 +6,27 @@ import type {
   ProductoPrevisualizado,
 } from "../../../../types";
 import { useStore } from "@nanostores/react";
-import {  stockStore } from "../../../../context/store";
+import { stockStore } from "../../../../context/store";
 
 const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   userId,
 }) => {
-  const {data,loading,error:errorStorage} = useStore(stockStore);
-
+  const { data, loading, error } = useStore(stockStore);
+  
+  console.log('🔄 Estado del store:', { data, loading, error });
 
   const dataFiltros = useMemo(() => {
-    if(loading)return
-    if (!data.obtenerFiltros) {
-      console.log('No hay datos de filtros');
+    if (loading) {
+      console.log('⏳ Cargando datos...');
+      return {
+        categorias: [],
+        ubicaciones: [],
+        depositos: []
+      };
+    }
+
+    if (!data?.obtenerFiltros) {
+      console.log('⚠️ No hay datos de filtros');
       return {
         categorias: [],
         ubicaciones: [],
@@ -25,27 +34,30 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
       };
     }
     
-    console.log('Datos de filtros:', data.obtenerFiltros);
+    console.log('✅ Datos de filtros obtenidos:', data.obtenerFiltros);
     return {
       categorias: data.obtenerFiltros.categorias || [],
       ubicaciones: data.obtenerFiltros.ubicaciones || [],
       depositos: data.obtenerFiltros.depositos || []
     };
-  }, [data]);
-
+  }, [data, loading]);
 
   const [tipoModificacion, setTipoModificacion] = useState<"porcentaje" | "monto">("porcentaje");
   const [filtroTipo, setFiltroTipo] = useState<"categorias" | "ubicaciones" | "depositos"| "todas">("categorias");
   const [filtros, setFiltros] = useState<DataFiltros>(dataFiltros);
-  const [valorSeleccionado, setValorSeleccionado] = useState(
-    filtros?.categorias[0] || ""
-  );
+  const [valorSeleccionado, setValorSeleccionado] = useState<string>("");
   const [errors, setErrors] = useState<{msg:string,code?:number}>({msg:'',code:0});
   const [valor, setValor] = useState<number>(0);
   const [afectarPrecio, setAfectarPrecio] = useState<"venta" | "compra" | "ambos">("venta");
   const [productosPreview, setProductosPreview] = useState<ProductoPrevisualizado[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    if (dataFiltros.categorias.length > 0) {
+      setValorSeleccionado(dataFiltros.categorias[0]);
+    }
+  }, [dataFiltros]);
 
   const handleFiltroTipoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const nuevoFiltroTipo = e.target.value as typeof filtroTipo;

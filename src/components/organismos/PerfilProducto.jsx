@@ -25,11 +25,7 @@ export default function PerfilProducto({  }) {
   const [formulario, setFormulario] = useState(data?.productData);
   
 
-  const stockInicial = calcularStockInicial(data?.stockMovimiento);
 
-
-  // **Inicializar stock con el stock inicial**
-  let stockActual = stockInicial;
   // **Mapear los movimientos con el cálculo correcto del stock**
   // console.log(infoProducto.productData);
 
@@ -41,7 +37,7 @@ export default function PerfilProducto({  }) {
 
     try {
       const res = await fetch(
-        `/api/productos/productos?search=${infoProducto.productData.id}`,
+        `/api/productos/productos?search=${data.productData.id}`,
         {
           method: "DELETE",
         }
@@ -61,16 +57,16 @@ export default function PerfilProducto({  }) {
     if (!disableEdit) {
       try {
         const response = await fetch(
-          `/api/productos/productos?search=${infoProducto.productData.id}`,
+          `/api/productos/productos?search=${data.productData.id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formulario),
           }
         );
-        const data = await response.json();
-        console.log(data);
-        if (data.status == 200) {
+        const dataRes = await response.json();
+        console.log(dataRes);
+        if (dataRes.status == 200) {
           showToast("producto actualizado", { background: "bg-green-500" });
           setTimeout(() => window.location.reload(), 750);
         }
@@ -104,7 +100,8 @@ export default function PerfilProducto({  }) {
           handleDelete={confirmarConModal}
         />
       </div>
-      <div className="flex flex-col w-full -mt- bg-green- pb-6 items-center justify-normal gap-2">
+
+    <div className="flex flex-col w-full -mt- bg-green- pb-6 items-center justify-normal gap-2">
         {/* info dle prodcutos */}
         <DetalleFotoDetalleProducto
           handleChangeForm={handleChangeForm}

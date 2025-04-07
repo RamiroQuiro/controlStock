@@ -7,6 +7,7 @@ import {
 } from "../../../db/schema";
 import db from "../../../db";
 import type { APIRoute } from "astro";
+import { cache } from "../../../utils/cache";
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, params }) => {
@@ -78,19 +79,19 @@ export const DELETE: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
   try {
-    const transacciones = await db.transaction(async (trx) => {
-      await trx
+      const [eliminarMovimiento]=await db
         .delete(movimientosStock)
-        .where(eq(movimientosStock.productoId, query));
-      await trx
+        .where(eq(movimientosStock.productoId, query)).returning()
+        // hay q ver si eliminar o anular el producto, cosa q no borre los regustos de ventas
+      const [eliminarDetallesVentas]=await db
         .delete(detalleVentas)
-        .where(eq(detalleVentas.productoId, query));
-      await trx.delete(stockActual).where(eq(stockActual.productoId, query));
-      await trx.delete(productos).where(eq(productos.id, query));
-    });
+        .where(eq(detalleVentas.productoId, query)).returning()
+      const [eliminarStock]=await db.delete(stockActual).where(eq(stockActual.productoId, query)).returning()
+      const [eliminarProducto]=await db.delete(productos).where(eq(productos.id, query)).returning()
 
-    console.log(transacciones);
-
+    console.log(eliminarProducto);
+    // Invalida el caché de productos para este usuario
+    await cache.invalidate(`stock_data_${eliminarProducto.userId}`);
     return new Response(
       JSON.stringify({
         status: 200,
@@ -122,18 +123,19 @@ export const PUT: APIRoute = async ({ request, params }) => {
   const query = url.searchParams.get("search");
 
   try {
-    const transaccionar = await db.transaction(async (trx) => {
-      const actualizarProducto = await trx
+      const [actualizarProducto] = await db
         .update(productos)
         .set(data)
         .where(eq(productos.id, query))
         .returning();
-      await trx.update(stockActual).set({
+      await db.update(stockActual).set({
         deposito: data.deposito,
         alertaStock: data.alertaStock,
         localizacion: data.localizacion,
       }).where(eq(stockActual.productoId, query))
-    });
+
+    // Invalida el caché de productos para este usuario
+await cache.invalidate(`stock_data_${actualizarProducto.userId}`);
     return new Response(
       JSON.stringify({
         status: 200,
@@ -145,7 +147,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
     );
   } catch (error) {
     console.log(error);
-
+// Invalida el caché de productos para este usuario
     return new Response(
       JSON.stringify({
         status: 500,

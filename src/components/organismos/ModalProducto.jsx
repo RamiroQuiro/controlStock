@@ -5,7 +5,7 @@ import { useStore } from "@nanostores/react";
 import { fetchProducto, perfilProducto } from "../../context/store";
 
 const ModalProducto = ({ productoId, onClose }) => {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   const [infoProducto, setInfoProducto] = useState(null);
   const { loading, data, error } = useStore(perfilProducto);
@@ -16,10 +16,9 @@ const ModalProducto = ({ productoId, onClose }) => {
     }
   }, [productoId]);
 
+  console.log("esta es la data del stroage ->", data);
 
-  console.log('esta es la data del stroage ->',data)
-
- return (
+  return (
     <div
       style={{ margin: 0, position: "fixed" }}
       className="fixed top-0 left-0 mt-0 w-full h-screen z-[80] bg-black bg-opacity-50 flex items-center  justify-center backdrop-blur-sm"
@@ -35,9 +34,7 @@ const ModalProducto = ({ productoId, onClose }) => {
         >
           <LogOut />
         </button>
-
- 
-          <PerfilProducto infoProducto={data} />
+        <PerfilProducto infoProducto={data} />
       </div>
     </div>
   );

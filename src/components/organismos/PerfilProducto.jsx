@@ -18,20 +18,24 @@ import { detallesProductosColumns } from "../../utils/columnasTables";
 import { useStore } from "@nanostores/react";
 import { perfilProducto } from "../../context/store";
 
-export default function PerfilProducto({  }) {
+export default function PerfilProducto({}) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [disableEdit, setDisableEdit] = useState(true);
-  const {data,loading}=useStore(perfilProducto);
-  const [formulario, setFormulario] = useState(data?.productData);
+  const { data, loading } = useStore(perfilProducto);
+  // Inicializar formulario con un objeto vacío para evitar errores
+  const [formulario, setFormulario] = useState({});
   
-
-
-  // **Mapear los movimientos con el cálculo correcto del stock**
-  // console.log(infoProducto.productData);
+  // Actualizar el formulario cuando data.productData cambie o cuando loading pase a false
+  useEffect(() => {
+    if (data?.productData) {
+      setFormulario(data.productData);
+    }
+  }, [data?.productData]);
 
   const confirmarConModal = () => {
     setModalConfirmacion(true);
   };
+  
   const handleEliminar = async (e) => {
     e.preventDefault();
 
@@ -51,6 +55,7 @@ export default function PerfilProducto({  }) {
       showToast("error al eliminar", { backgorund: "bg-red-500" });
     }
   };
+  
   const handleEdit = async () => {
     setDisableEdit(!disableEdit);
 
@@ -65,10 +70,12 @@ export default function PerfilProducto({  }) {
           }
         );
         const dataRes = await response.json();
-        console.log(dataRes);
-        if (dataRes.status == 200) {
+        
+        if (dataRes.status === 200) {
           showToast("producto actualizado", { background: "bg-green-500" });
           setTimeout(() => window.location.reload(), 750);
+        } else if (dataRes.status === 409) {
+          showToast(dataRes.msg, { background: "bg-red-500" });
         }
       } catch (error) {
         console.log(error);
@@ -79,10 +86,11 @@ export default function PerfilProducto({  }) {
 
   const handleChangeForm = (e) => {
     const { name, value } = e.target;
-    setFormulario((formulario) => ({ ...formulario, [name]: value }));
+    setFormulario((prevFormulario) => ({ ...prevFormulario, [name]: value }));
   };
+  
   return (
-    <div className="w-full flex flex-col h-full text-sm px-3 relative -translate-y-5 rounded-lg items-stretch  ">
+    <div className="w-full flex flex-col h-full text-sm px-3 relative -translate-y-5 rounded-lg items-stretch">
       {modalConfirmacion && (
         <ModalConfirmacion
           handleCancelar={() => setModalConfirmacion(false)}
@@ -90,7 +98,7 @@ export default function PerfilProducto({  }) {
         />
       )}
       <div className="flex justify-between pr-16 items-center mb-4">
-        <h2 className="text-lg  font-semibold text-primary-textoTitle">
+        <h2 className="text-lg font-semibold text-primary-textoTitle">
           Detalle del Producto
         </h2>
         {/* botonera */}
@@ -101,22 +109,21 @@ export default function PerfilProducto({  }) {
         />
       </div>
 
-    <div className="flex flex-col w-full -mt- bg-green- pb-6 items-center justify-normal gap-2">
-        {/* info dle prodcutos */}
+      <div className="flex flex-col w-full pb-6 items-center justify-normal gap-2">
+        {/* info del producto */}
         <DetalleFotoDetalleProducto
           handleChangeForm={handleChangeForm}
           disableEdit={disableEdit}
+          formulario={formulario}
         />
         {/* info stats */}
         <StatsInfoDetalleProducto
           handleChangeForm={handleChangeForm}
           disableEdit={disableEdit}
           formulario={formulario}
-          
         />
         {/* historial Movimientos */}
-        <HistorialMovimientosDetalleProducto
-        />
+        <HistorialMovimientosDetalleProducto />
       </div>
     </div>
   );

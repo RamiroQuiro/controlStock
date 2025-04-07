@@ -79,19 +79,20 @@ export const DELETE: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
   try {
-      const [eliminarMovimiento]=await db
+    const transacciones = await db.transaction(async (trx) => {
+      await trx
         .delete(movimientosStock)
-        .where(eq(movimientosStock.productoId, query)).returning()
-        // hay q ver si eliminar o anular el producto, cosa q no borre los regustos de ventas
-      const [eliminarDetallesVentas]=await db
+        .where(eq(movimientosStock.productoId, query));
+      await trx
         .delete(detalleVentas)
-        .where(eq(detalleVentas.productoId, query)).returning()
-      const [eliminarStock]=await db.delete(stockActual).where(eq(stockActual.productoId, query)).returning()
-      const [eliminarProducto]=await db.delete(productos).where(eq(productos.id, query)).returning()
+        .where(eq(detalleVentas.productoId, query));
+      await trx.delete(stockActual).where(eq(stockActual.productoId, query));
+      await trx.delete(productos).where(eq(productos.id, query));
+      
+    });
 
-    console.log(eliminarProducto);
+    console.log(transacciones);
     // Invalida el caché de productos para este usuario
-    await cache.invalidate(`stock_data_${eliminarProducto.userId}`);
     return new Response(
       JSON.stringify({
         status: 200,
@@ -116,26 +117,72 @@ export const DELETE: APIRoute = async ({ request, params }) => {
     );
   }
 };
-
 export const PUT: APIRoute = async ({ request, params }) => {
   const data = await request.json();
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
 
+
   try {
-      const [actualizarProducto] = await db
-        .update(productos)
-        .set(data)
-        .where(eq(productos.id, query))
-        .returning();
-      await db.update(stockActual).set({
-        deposito: data.deposito,
-        alertaStock: data.alertaStock,
-        localizacion: data.localizacion,
-      }).where(eq(stockActual.productoId, query))
+    // Obtener el producto actual
+    const [productoActual] = await db.select().from(productos).where(eq(productos.id,data.id))
+    
+    if (!productoActual) {
+      return new Response(
+        JSON.stringify({
+          status: 404,
+          msg: "Producto no encontrado",
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    
+    // Solo verificar unicidad si se está cambiando el código de barras
+    if (data.codigoBarra && data.codigoBarra !== productoActual.codigoBarra) {
+      // Verificar si ya existe otro producto con el mismo código de barras para este usuario
+      const productoExistente = await db.query.productos.findFirst({
+        where: (
+          and(
+            eq(productos.codigoBarra, data.codigoBarra),
+            eq(productos.userId, productoActual.userId),
+            not(eq(productos.id, query))
+          )
+        )
+      });
+      
+      if (productoExistente) {
+        return new Response(
+          JSON.stringify({
+            status: 409,
+            msg: "Ya existe un producto con este código de barras",
+          }),
+          {
+            status: 409,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
+    // Proceder con la actualización
+    const [actualizarProducto] = await db
+      .update(productos)
+      .set(data)
+      .where(eq(productos.id, query))
+      .returning();
+    
+    await db.update(stockActual).set({
+      deposito: data.deposito,
+      alertaStock: data.alertaStock,
+      localizacion: data.localizacion,
+    }).where(eq(stockActual.productoId, query));
 
     // Invalida el caché de productos para este usuario
-await cache.invalidate(`stock_data_${actualizarProducto.userId}`);
+    await cache.invalidate(`stock_data_${actualizarProducto.userId}`);
+    
     return new Response(
       JSON.stringify({
         status: 200,
@@ -143,11 +190,11 @@ await cache.invalidate(`stock_data_${actualizarProducto.userId}`);
       }),
       {
         status: 200,
+        headers: { "Content-Type": "application/json" },
       }
     );
   } catch (error) {
     console.log(error);
-// Invalida el caché de productos para este usuario
     return new Response(
       JSON.stringify({
         status: 500,

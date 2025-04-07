@@ -21,7 +21,7 @@ export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,f
     }
     
   }, [loading]);
-
+console.log('data delnfomrulario en stat',formulario)
   return (
     <DivReact>
     {loading ? (

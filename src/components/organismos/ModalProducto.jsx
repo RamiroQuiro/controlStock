@@ -16,7 +16,6 @@ const ModalProducto = ({ productoId, onClose }) => {
     }
   }, [productoId]);
 
-  console.log("esta es la data del stroage ->", data);
 
   return (
     <div

@@ -11,60 +11,28 @@ import {
   obtenerMovimientosOrdenados,
   obtenerUltimaReposicion,
 } from "../../utils/detallesProducto";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { showToast } from "../../utils/toast/toastShow";
 import ModalConfirmacion from "../moleculas/ModalConfirmacion";
 import { detallesProductosColumns } from "../../utils/columnasTables";
+import { useStore } from "@nanostores/react";
+import { perfilProducto } from "../../context/store";
 
-export default function PerfilProducto({ infoProducto }) {
+export default function PerfilProducto({  }) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [disableEdit, setDisableEdit] = useState(true);
-  const [formulario, setFormulario] = useState(infoProducto.productData);
+  const {data,loading}=useStore(perfilProducto);
+  const [formulario, setFormulario] = useState(data?.productData);
+  
 
+  const stockInicial = calcularStockInicial(data?.stockMovimiento);
 
-
-  const stockInicial = calcularStockInicial(infoProducto.stockMovimiento);
-  const movimientosOrdenados = obtenerMovimientosOrdenados(
-    infoProducto.stockMovimiento
-  );
-  const totalStockProducto = calcularPrecioStock(infoProducto.productData);
-  const margenGanancia = calcularMargenGanancia(infoProducto.productData);
-  const ultimaRepo = obtenerUltimaReposicion(infoProducto.stockMovimiento);
 
   // **Inicializar stock con el stock inicial**
   let stockActual = stockInicial;
   // **Mapear los movimientos con el cálculo correcto del stock**
   // console.log(infoProducto.productData);
-  const newArray = movimientosOrdenados.map((mov, i) => {
-    // Determinar si es egreso
-    const esEgreso = mov.tipo === "egreso";
-    // Actualizar el stock
-    if (mov.motivo !== "StockInicial") {
-      stockActual = esEgreso
-        ? stockActual - mov.cantidad
-        : stockActual + mov.cantidad;
-    }
 
-    return {
-      n: i + 1,
-      tipo:
-        mov.tipo === "ingreso" ? (
-          <p className="flex items-center justify gap-2 text-green-600 normal">
-            <TrendingDown className="h-4 w-4" /> Ingreso
-          </p>
-        ) : (
-          <p className="flex text-primary-400 items-center justify-normal gap-2">
-            <TrendingUp className="h-4 w-4" /> Egreso
-          </p>
-        ),
-      cantidad: mov.cantidad,
-      motivo: mov.motivo,
-      ralacion:mov.tipoResponsable,
-      efectuado:mov.nombreResponsable,
-      fecha: formatDate(mov.fecha),
-      stockRestante: stockActual,
-    };
-  });
   const confirmarConModal = () => {
     setModalConfirmacion(true);
   };
@@ -141,22 +109,16 @@ export default function PerfilProducto({ infoProducto }) {
         <DetalleFotoDetalleProducto
           handleChangeForm={handleChangeForm}
           disableEdit={disableEdit}
-          infoProducto={infoProducto}
-          ultimaRepo={ultimaRepo}
         />
         {/* info stats */}
         <StatsInfoDetalleProducto
           handleChangeForm={handleChangeForm}
           disableEdit={disableEdit}
           formulario={formulario}
-          infoProducto={infoProducto}
-          totalStockProducto={totalStockProducto}
-          margenGanancia={margenGanancia}
+          
         />
         {/* historial Movimientos */}
         <HistorialMovimientosDetalleProducto
-          newArray={newArray}
-          columnas={detallesProductosColumns}
         />
       </div>
     </div>

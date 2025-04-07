@@ -5,7 +5,6 @@ import { stadisticasDash } from '../../../services/dashboard.service';
 export const GET: APIRoute = async ({ params, request }) => {
   try {
     const userId = request.headers.get('x-user-id'); // Obtener el userId del encabezado
-console.log('id del usuario ->',userId)
     if (!userId) {
       return new Response(
         JSON.stringify({ message: 'User ID es requerido' }),

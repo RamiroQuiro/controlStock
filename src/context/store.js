@@ -64,8 +64,51 @@ export const fetchStockData = async (userId ) => {
 };
 
 
+
+const perfilProducto=atom({
+  loading:true,
+  data:{
+    productData:{},
+    stockMovimiento:[]
+  },
+  error:null
+})
+
+
+const fetchProducto = async (productoId) => {
+  if (!productoId) return;
+
+  perfilProducto.set({ loading: true, data: null, error: null });
+
+  try {
+    const res = await fetch(`/api/productos/infoProduct/${productoId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Atencion-Id': productoId,
+      },
+    });
+
+    if (!res.ok) throw new Error('Error al obtener el producto');
+
+    const data = await res.json();
+    perfilProducto.set({
+      loading: false,
+      data: data.data,
+      error: null,
+    });
+  } catch (err) {
+    perfilProducto.set({
+      loading: false,
+      data: null,
+      error: err.message,
+    });
+  }
+};
+
 const usuarioActivo = atom({});
 export {
+  perfilProducto,
+  fetchProducto,
   productosSeleccionadosVenta,
   busqueda,
   columnSelectTable,

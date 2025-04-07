@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import CardProductosStock from "./CardProductosStock";
 import { useStore } from "@nanostores/react";
 import { busqueda, stockStore } from "../../../../context/store";
+import SkeletorCarProductos from "./SkeletorCarProductos";
 
 const ConfeccionListadoProductos = () => {
   // Obtenemos el estado del store
@@ -13,7 +14,7 @@ const ConfeccionListadoProductos = () => {
 
   return (
     <div className="flex w-full flex-col gap-1">
-      {data?.listaProductos?.length > 0 ? (
+     {!loading? data?.listaProductos?.length > 0 ? (
         data?.listaProductos.map((producto) => (
           <CardProductosStock key={producto.id} prod={producto} />
         ))
@@ -21,7 +22,12 @@ const ConfeccionListadoProductos = () => {
         <div className="col-span-full text-center py-8">
           <p className="text-gray-500">No se encontraron productos</p>
         </div>
-      )}
+      )
+    :
+    [0,1,2,3,4].map((_,i)=>(
+      <SkeletorCarProductos key={i}/>
+    ))
+    }
     </div>
   );
 };

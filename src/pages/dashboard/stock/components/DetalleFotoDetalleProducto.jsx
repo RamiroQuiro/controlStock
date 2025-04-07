@@ -1,19 +1,78 @@
-import React from "react";
+import React, { useEffect } from "react";
 import formatDate from "../../../../utils/formatDate";
 import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import DivReact from "../../../../components/atomos/DivReact";
+import { useStore } from "@nanostores/react";
+import { perfilProducto } from "../../../../context/store";
+import { obtenerUltimaReposicion } from "../../../../utils/detallesProducto";
 
 export default function DetalleFotoDetalleProducto({
-  infoProducto,
   disableEdit,
-  ultimaRepo,
   handleChangeForm,
   formulario,
 }) {
+
+const {data:infoProducto,loading}=useStore(perfilProducto)
+
+const ultimaRepo = obtenerUltimaReposicion(infoProducto?.stockMovimiento);
   return (
     <DivReact>
       {/* Sección de imagen */}
+      {loading?
+      function ProductoSkeleton() {
+        return (
+          <div className="flex items-start justify-normal gap-3 animate-pulse">
+            {/* Imagen */}
+            <div className="w-full flex flex-col md:w-[50%] items-center justify-start relative rounded-lg overflow-hidden">
+              <div className="h-[80%] flex w-full rounded-lg items-center">
+                <div className="w-full h-60 bg-gray-200 rounded-lg" />
+              </div>
+            </div>
+      
+            {/* Detalles */}
+            <div className="w-full md:w-1/2 flex text-sm flex-col relative gap-3">
+              <div className="flex flex-col w-full gap-3">
+                {[...Array(7)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex w-full items-center justify-start gap-3"
+                  >
+                    <div className="w-[30%] h-4 bg-gray-200 rounded" />
+                    <div className="w-full h-6 bg-gray-200 rounded" />
+                  </div>
+                ))}
+      
+                {/* Unidad de medida */}
+                <div className="flex w-full items-center justify-start gap-3">
+                  <div className="w-[30%] h-4 bg-gray-200 rounded" />
+                  <div className="w-full h-8 bg-gray-200 rounded" />
+                </div>
+      
+                {/* IVA y descuento */}
+                <div className="flex w-full items-center justify-start gap-3">
+                  <div className="flex w-full items-center gap-3">
+                    <div className="w-[30%] h-4 bg-gray-200 rounded" />
+                    <div className="w-full h-8 bg-gray-200 rounded" />
+                  </div>
+                  <div className="flex w-full items-center gap-3">
+                    <div className="w-[30%] h-4 bg-gray-200 rounded" />
+                    <div className="w-[20%] h-8 bg-gray-200 rounded" />
+                    <div className="w-full h-8 bg-gray-200 rounded" />
+                  </div>
+                </div>
+      
+                {/* Última Reposición */}
+                <div className="flex w-full items-center justify-start gap-3">
+                  <div className="w-[30%] h-4 bg-gray-200 rounded" />
+                  <div className="w-full h-6 bg-gray-200 rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+:      
       <div className="flex items-start justify-normal gap-3">
         <div className="w-full flex flex-col md:w-[50%] items-center justify-start relative rounded-lg overflow-hidden ">
           <div className="h-[80%] flex w-full rounded-lg  items-center ">
@@ -307,7 +366,7 @@ export default function DetalleFotoDetalleProducto({
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </DivReact>
   );
 }

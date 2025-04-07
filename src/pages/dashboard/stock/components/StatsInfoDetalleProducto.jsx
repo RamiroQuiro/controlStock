@@ -1,14 +1,27 @@
 import { DollarSign, LucideLineChart, SendToBack } from 'lucide-react'
-import React from 'react'
+import React, { use } from 'react'
 import { formateoMoneda } from '../../../../utils/formateoMoneda'
 import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud'
-import { obtenerIvaMonto } from '../../../../utils/detallesProducto'
+import { calcularMargenGanancia, calcularPrecioStock, obtenerIvaMonto } from '../../../../utils/detallesProducto'
 import DivReact from '../../../../components/atomos/DivReact'
+import { useStore } from '@nanostores/react'
+import { perfilProducto } from '../../../../context/store'
 
-export default function StatsInfoDetalleProducto({infoProducto,totalStockProducto,margenGanancia,handleChangeForm,disableEdit,formulario}) {
+export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,formulario}) {
+
+  const {data :infoProducto,loading}=useStore(perfilProducto)
+
+
+
+  const totalStockProducto = calcularPrecioStock(infoProducto?.productData);
+  const margenGanancia = calcularMargenGanancia(infoProducto?.productData);
+
   return (
     <DivReact>
-    <div className="w-full flex items-center justify-around">
+  {loading?
+  <div></div>
+  :
+  <div className="w-full flex items-center justify-around">
       <div className="bg-primary-bg-componentes p1 rounded-lg  flex flex-col items-center justify-normal">
         <div className="flex items-center gap-1">
           <DollarSign className="stroke-primary-100" />
@@ -63,7 +76,7 @@ export default function StatsInfoDetalleProducto({infoProducto,totalStockProduct
           %{margenGanancia.toFixed(2)}
         </p>
       </div>
-    </div>
+    </div>}
   </DivReact>
   )
 }

@@ -18,22 +18,15 @@ const user = {
   apellido: "Perez",
   email: "rama@gmail.com",
 };
-
-
 ---
 
 <MainDashboard h1="Ventas">
   <div
-  slot={"menu"}
-  class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
->
+    slot={"menu"}
+    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+  >
     <div class="flex gap-3">
-    
-      <Button1
-        id="ventasTodas"
-      >
-      Todas las ventas
-      </Button1>
+      <Button1 id="ventasTodas"> Todas las ventas </Button1>
     </div>
   </div>
   <div class="flex items-start justify-between gap-2 w-full">
@@ -41,7 +34,7 @@ const user = {
       <DivBox1 styleDiv="w-full">
         <H2>Producto</H2>
         <!-- ver si con que buscador queda mejor -->
-        <FiltroProductos client:load mostrarProductos={true}/>
+        <FiltroProductos client:load mostrarProductos={true} />
       </DivBox1>
       <DivBox1 styleDiv="w-full">
         <H2>Resultado</H2>
@@ -64,25 +57,28 @@ const user = {
   </div>
 </MainDashboard>
 
-
 <script>
-const inputBusqueda = document.getElementById('busquedaProducto')
-const btnPagar= document.getElementById('btnPagar')
-const btnBusquedaCliente=document.getElementById('btnBusquedaCliente')
-window.addEventListener('keydown', (e) => {
-  if(e.key === 'F2'){
-    inputBusqueda.focus()
-  }
-        if(e.key === 'F3'){
-          e.preventDefault()
-          btnBusquedaCliente.click()
-        }
-        if(e.key === 'F4'){
-          e.preventDefault()
-          btnPagar.click()
-        }
-      
-})
+  const inputBusqueda = document.getElementById("busquedaProducto");
+  const btnPagar = document.getElementById("btnPagar");
+  const btnBusquedaCliente = document.getElementById("btnBusquedaCliente");
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "F2") {
+      inputBusqueda.focus();
+    }
+    if (e.key === "F3") {
+      e.preventDefault();
+      btnBusquedaCliente.click();
+    }
+    if (e.key === "F4") {
+      e.preventDefault();
+      btnPagar.click();
+    }
+  });
 
-document.getElementById('ventasTodas')?.addEventListener('click',()=>window.location.href='/dashboard/ventas/todas')
+  document
+    .getElementById("ventasTodas")
+    ?.addEventListener(
+      "click",
+      () => (window.location.href = "/dashboard/ventas/todas")
+    );
 </script>

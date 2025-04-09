@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { busqueda, filtroBusqueda } from "../../context/store";
 import { CheckCircle, CheckCircle2, LoaderCircle, Search } from "lucide-react";
+import { cache } from "../../utils/cache";
 
 export default function FiltroProductos({ mostrarProductos }) {
   const [search, setSearch] = useState("");
@@ -8,6 +9,7 @@ export default function FiltroProductos({ mostrarProductos }) {
   const [timer, setTimer] = useState(null);
   const [encontrados, setEncontrados] = useState(0);
   const [agregarAutomatico, setAgregarAutomatico] = useState(false);
+
   const handleSearch = (e) => {
     setSearch(e.target.value.toLowerCase());
 
@@ -28,6 +30,17 @@ export default function FiltroProductos({ mostrarProductos }) {
   const fetchProductos = async (query) => {
     setLoading(true);
     try {
+      // Check cache first
+      const cacheKey = `productos_search_${query}`;
+      const cachedData = await cache.get(cacheKey);
+      
+      if (cachedData) {
+        busqueda.set({ productosBuscados: cachedData });
+        setEncontrados(cachedData);
+        setLoading(false);
+        return;
+      }
+
       // Si está activado el modo automático, primero intentamos búsqueda exacta por código
       if (agregarAutomatico) {
         const res = await fetch(
@@ -36,9 +49,13 @@ export default function FiltroProductos({ mostrarProductos }) {
         const data = await res.json();
 
         if (data.data.length === 1) {
+          // Cache the result
+          await cache.set(cacheKey, data.data);
+          
           busqueda.set({ productosBuscados: data.data });
           setEncontrados(data.data);
           handleClick(data.data[0]);
+          setLoading(false);
           return;
         }
       }
@@ -46,11 +63,15 @@ export default function FiltroProductos({ mostrarProductos }) {
       // Si no se encontró por código exacto o no está en modo automático, hacer búsqueda normal
       const res = await fetch(`/api/productos/productos?search=${query}`);
       const data = await res.json();
+      
+      // Cache the result
+      await cache.set(cacheKey, data.data);
+      
       busqueda.set({ productosBuscados: data.data });
       setEncontrados(data.data);
+      setLoading(false);
     } catch (error) {
       console.error("Error en la búsqueda de productos:", error);
-    } finally {
       setLoading(false);
     }
   };

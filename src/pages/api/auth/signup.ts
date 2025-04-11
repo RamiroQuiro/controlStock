@@ -1,19 +1,22 @@
 import type { APIContext } from 'astro';
 
-import db from '@/db';
-import { users } from '@/db/schema';
-import { lucia } from '@/lib/auth';
-import bcrypt from 'bcryptjs';
-import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
+
+import path from "path";
+import { eq } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
 import { generateId } from 'lucia';
+import db from '../../../db';
+import { users } from '../../../db/schema';
+import { lucia } from '../../../lib/auth';
+import { promises as fs } from "fs";
 
 export async function POST({ request, redirect, cookies }: APIContext): Promise<Response> {
   const formData = await request.json();
   console.log(formData);
-  const { email, password, nombre, apellido } = await formData;
+  const { email, password, nombre } = await formData;
   // console.log(email, password);
-  if (!email || !password || !nombre || !apellido) {
+  if (!email || !password || !nombre ) {
     return new Response(
       JSON.stringify({
         data: 'faltan campos requeridos',
@@ -57,18 +60,29 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
           id: userId,
           email: email,
           nombre: nombre,
-          apellido: apellido,
           password: hashPassword,
         },
       ])
       .returning()
   ).at(0);
-  console.log('NUEV USUARIO->', newUser);
+  // console.log('NUEV USUARIO->', newUser);
+  if (!newUser) {
+    return new Response(
+      JSON.stringify({
+        data: 'error al crear el usuario',
+        status: 500,
+      })
+    );
+  }
   const session = await lucia.createSession(userId, {
     nombre: nombre,
-    apellido: apellido,
   });
-  console.log('sesion de usuario de alta ', session);
+
+  // crear directorio para iamgenes
+      const userDir = path.join(process.cwd(), "element", "imgs", userId, "productos");
+      await fs.mkdir(userDir, { recursive: true });
+      
+  // console.log('sesion de usuario de alta ', session);
   const sessionCookie = lucia.createSessionCookie(session.id);
   cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
@@ -76,7 +90,6 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
   const userData = {
     id: newUser.id,
     nombre: newUser.nombre,
-    apellido: newUser.apellido,
     email: newUser.email,
   };
 

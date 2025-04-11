@@ -31,17 +31,17 @@ interface ProductoData {
 export async function POST({ request }: APIContext): Promise<Response> {
   try {
     const data = await request.formData();
-    
+
     // Validar campos requeridos
-    const requiredFields = [ 'userId', 'codigoBarra', 'descripcion'];
-    const missingFields = requiredFields.filter(field => !data.get(field));
-    
+    const requiredFields = ["userId", "codigoBarra", "descripcion"];
+    const missingFields = requiredFields.filter((field) => !data.get(field));
+
     if (missingFields.length > 0) {
-      console.error('Campos requeridos faltantes:', missingFields);
+      console.error("Campos requeridos faltantes:", missingFields);
       return new Response(
         JSON.stringify({
           status: 400,
-          msg: `Campos requeridos faltantes: ${missingFields.join(', ')}`,
+          msg: `Campos requeridos faltantes: ${missingFields.join(", ")}`,
         }),
         { status: 400 }
       );
@@ -71,29 +71,32 @@ export async function POST({ request }: APIContext): Promise<Response> {
     // Validar imagen
     const fotoProducto = data.get("fotoProducto") as File;
     if (!fotoProducto || !(fotoProducto instanceof File)) {
-      console.error('Archivo de imagen no válido');
+      console.error("Archivo de imagen no válido");
       return new Response(
-        JSON.stringify({ 
-          status: 400, 
-          msg: "Se requiere una imagen válida para el producto" 
+        JSON.stringify({
+          status: 400,
+          msg: "Se requiere una imagen válida para el producto",
         }),
         { status: 400 }
       );
     }
 
     // Validar directorio
-    const userDir = path.join(process.cwd(), "element", "imgs", productoData.userId, "productos");
-    const dirExists = await fs.access(userDir).then(() => true).catch(() => false);
-    
+    const userDir = path.join(
+      process.cwd(),
+      "element",
+      "imgs",
+      productoData.userId,
+      "productos"
+    );
+    const dirExists = await fs
+      .access(userDir)
+      .then(() => true)
+      .catch(() => false);
+
     if (!dirExists) {
-      console.error('Directorio no encontrado:', userDir);
-      return new Response(
-        JSON.stringify({
-          status: 400,
-          msg: "Error: Directorio de usuario no encontrado",
-        }),
-        { status: 400 }
-      );
+      console.error("Directorio no encontrado:", userDir);
+      await fs.mkdir(userDir, { recursive: true });
     }
 
     // Procesar imagen
@@ -113,7 +116,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
         .jpeg({ quality: 80 })
         .toFile(rutaGuardado);
     } catch (error) {
-      console.error('Error al procesar la imagen:', error);
+      console.error("Error al procesar la imagen:", error);
       return new Response(
         JSON.stringify({
           status: 500,
@@ -126,13 +129,14 @@ export async function POST({ request }: APIContext): Promise<Response> {
     // Crear producto en la base de datos
     const creacionProducto = await db.transaction(async (trx) => {
       const id = nanoid(10);
-      
+      const fechaHoy = new Date();
       try {
         const [insertedProduct] = await trx
           .insert(productos)
           .values({
             id,
             nombre: productoData.nombre,
+            created_at: fechaHoy,
             descripcion: productoData.descripcion,
             iva: productoData.iva,
             precio: productoData.precio,
@@ -140,7 +144,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
             categoria: productoData.categoria,
             pVenta: productoData.pVenta,
             codigoBarra: productoData.codigoBarra,
-            alertaStock:productoData.alertaStock,
+            alertaStock: productoData.alertaStock,
             modelo: productoData.modelo,
             descuento: productoData.descuento,
             impuesto: productoData.impuesto,
@@ -160,6 +164,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
           cantidad: productoData.stock,
           alertaStock: productoData.alertaStock,
           localizacion: productoData.localizacion,
+          created_at: fechaHoy,
           deposito: productoData.deposito,
           updatedAt: sql`(strftime('%s','now'))`,
         });
@@ -172,19 +177,19 @@ export async function POST({ request }: APIContext): Promise<Response> {
           userId: productoData.userId,
           clienteId: null,
           proveedorId: null,
-          fecha: sql`(strftime('%s','now'))`,
+          fecha: fechaHoy,
           tipo: "ingreso",
           motivo: "StockInicial",
         });
 
         return insertedProduct;
       } catch (dbError) {
-        console.error('Error en la transacción de base de datos:', dbError);
+        console.error("Error en la transacción de base de datos:", dbError);
         throw dbError;
       }
     });
-// Invalida el caché de productos para este usuario
-await cache.invalidate(`stock_data_${productoData.userId}`);
+    // Invalida el caché de productos para este usuario
+    await cache.invalidate(`stock_data_${productoData.userId}`);
     return new Response(
       JSON.stringify({
         status: 200,
@@ -192,11 +197,10 @@ await cache.invalidate(`stock_data_${productoData.userId}`);
         data: creacionProducto,
       })
     );
-
   } catch (error) {
-    console.error('Error general:', error);
-    
-    if (error.code === 'SQLITE_CONSTRAINT') {
+    console.error("Error general:", error);
+
+    if (error.code === "SQLITE_CONSTRAINT") {
       return new Response(
         JSON.stringify({
           status: 409,
@@ -210,7 +214,8 @@ await cache.invalidate(`stock_data_${productoData.userId}`);
       JSON.stringify({
         status: 500,
         msg: "Error interno del servidor al procesar la solicitud",
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
       }),
       { status: 500 }
     );

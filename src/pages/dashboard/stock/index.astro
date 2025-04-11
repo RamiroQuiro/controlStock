@@ -1,20 +1,16 @@
 ---
 import LayoutDash from "../../../components/layouts/LayoutDash.astro";
-import Stock from './components/Stock.astro'
+import Stock from "./components/Stock.astro";
 ---
 
 <LayoutDash title="Stock">
-   <Stock/>
+  <Stock />
 </LayoutDash>
 <script>
-import { fetchStockData } from "../../../context/store"
+  import { fetchStockData } from "../../../context/store";
 
-   
-     
-     
-     let userId="1"
-     
-     
-     fetchStockData(userId)
-     
-     </script>
+  const { usisisi } = document.getElementById("mainDashboard")?.dataset;
+  let userId = usisisi;
+
+  fetchStockData(userId);
+</script>

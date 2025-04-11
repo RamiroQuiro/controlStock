@@ -1,13 +1,17 @@
-import db from '@/db';
-import { users } from '@/db/schema';
-import { lucia } from '@/lib/auth';
 import type { APIContext } from 'astro';
-import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
+import db from '../../../db';
+import { users } from '../../../db/schema';
+import { lucia } from '../../../lib/auth';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
+
 export async function POST({ request, locals, redirect, cookies }: APIContext): Promise<Response> {
   const formData = await request.json();
-  const { email, password, userName } = await formData;
+
+  console.log(' eto m,e llega al enpoint ->',formData)
+  const { email, password, nombre } = await formData;
 
   if (!email || !password) {
     return new Response(JSON.stringify({ data: 'email y contraseña requerida', status: 400 }));
@@ -39,7 +43,7 @@ export async function POST({ request, locals, redirect, cookies }: APIContext): 
   const userData = {
     id: findUser.id,
     nombre: findUser.nombre,
-    apellido: findUser.apellido,
+    // apellido: findUser.apellido,
     email: findUser.email,
   };
 

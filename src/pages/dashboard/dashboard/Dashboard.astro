@@ -9,7 +9,13 @@ import ContenedorStats from "./componente/ContenedorStats";
 
 
 
+const {user,session}=Astro.locals
+console.log('archivbos locals',user)
 
+const userId=user?.id
+if(!user || !userId){
+  Astro.redirect('/login');
+}
 
 ---
 
@@ -19,11 +25,11 @@ import ContenedorStats from "./componente/ContenedorStats";
   {/* Gráficos principales */}
   <div class="flex items-stretch justify-normal gap-2 w-full">
     <DivBox1 styleDiv="w-4/6 items-stretch">
-      <ResumenVentas userId="1" client:visible />
+      <ResumenVentas userId={userId} client:visible />
     </DivBox1>
 
     <DivBox1 styleDiv="w-2/6 items-stretch">
-      <ProductosMasVendidos userId="1" client:visible />
+      <ProductosMasVendidos userId={userId} client:visible />
     </DivBox1>
   </div>
 
@@ -31,7 +37,7 @@ import ContenedorStats from "./componente/ContenedorStats";
   <div class="flex items-start justify-normal gap-2 w-full">
   
     <DivBox1 styleDiv="w-2/5">
-      <RendimientoCategoria userId="1" client:load />
+      <RendimientoCategoria userId={userId} client:load />
     </DivBox1>
     <DivBox1 styleDiv="w-3/5">
       <UltimasTransacciones client:visible/>
@@ -44,8 +50,8 @@ import ContenedorStats from "./componente/ContenedorStats";
 
 <script>
 import { fetchStatsData } from "../../../context/store";
-
-let userId="1"
+const {usisisi}=document.getElementById('mainDashboard')?.dataset
+let userId=usisisi
 
 
 fetchStatsData(userId)

@@ -11,8 +11,10 @@ import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
 import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
-
-const user = { id: "1", nombre: "ramiro" };
+const {user}=Astro.locals
+if(!user){
+  Astro.redirect('/login')
+}
 
 // console.log('analisis de strock',analisisStock);
 // console.log('productos bajo movimiento',productosBajoMovimiento);

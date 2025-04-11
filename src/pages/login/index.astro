@@ -4,5 +4,15 @@ import Login from './Login';
 ---
 
 <Layout>
-  <Login client:load/>
+  <div class="w-screen h-screen backgroundLogin flex items-center justify-center">
+
+    <Login client:load/>
+  </div>
 </Layout>
+
+
+<style>
+  .backgroundLogin {
+    background-image: linear-gradient(-52deg, #5FA5FA 22%, transparent 0),  linear-gradient(180deg, #bcdafe 10%, #fbfcff);
+  }
+</style>

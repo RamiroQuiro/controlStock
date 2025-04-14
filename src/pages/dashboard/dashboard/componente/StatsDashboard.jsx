@@ -41,7 +41,7 @@ export default function StatsDashboard({
   }, [dataInfo]);
 
   return (
-    <DivReact styleDiv="w-full h-36 ">
+    <DivReact className="md:w-1/4 w-1/2 ">
       <h2 className="text-base text-gray-600">{h2}</h2>
       <div className="flex items-end gap-2 h-1/2 w-full">
         <div className={`text-xs flex gap-2 justify-center mt-2 items-center`}>

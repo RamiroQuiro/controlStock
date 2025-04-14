@@ -33,7 +33,7 @@ const ProductosMasVendidos: React.FC = ({ userId }: { userId: string }) => {
 
         const response = await fetcher.json();
         setTopProductos(response.data)
-        console.log("respuesta del backend ->", response);
+        // console.log("respuesta del backend ->", response);
       } catch (error) {
         console.log(error);
       }

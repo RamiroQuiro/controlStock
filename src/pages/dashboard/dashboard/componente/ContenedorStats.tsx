@@ -66,7 +66,7 @@ export default function ContenedorStats() {
   // console.log("este son los datos", data?.data);
   return (
     <div className="w-full animate-fadeIn">
-      <div className="w-full flex items-center justify-between gap-2">
+      <div className="w-full flex md:flex-nowrap flex- overflow-x-auto items-center justify-between gap-1 md:gap-2">
         {statsDataDashboard.map((stat) => {
           let dataInfo =
             stat.id === 1

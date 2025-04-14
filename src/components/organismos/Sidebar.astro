@@ -14,11 +14,11 @@ import {
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon:BadgeDollarSign , label: "Venta", path: "/dashboard/ventas" },
+  { icon: BadgeDollarSign, label: "Venta", path: "/dashboard/ventas" },
   // { icon:ShoppingBasket , label: "Productos", path: "/dashboard/productos" },
   { icon: Package, label: "Stock", path: "/dashboard/stock" },
   { icon: Users, label: "Clientes", path: "/dashboard/clientes" },
-  { icon: ClipboardList, label: "Proveedores", path: "/dashboard/proveedores"  },
+  { icon: ClipboardList, label: "Proveedores", path: "/dashboard/proveedores" },
   { icon: HandCoins, label: "Reportes", path: "/dashboard/compras" },
   { icon: Settings, label: "Ajustes", path: "/asjustes" },
 ];
@@ -26,19 +26,18 @@ const menuItems = [
 
 <sidebar
   id="sidebar"
-  class="expanded duration-300 group h-full items-stretch  print:hidden overflow-hidden   bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[4vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items- justify-normal md:gap- pt-16"
+  class="expanded fixed md:relative duration-300 group h- items-stretch print:hidden overflow-hidden bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[4vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items- justify-normal md:gap- md:pt-16"
 >
-<button
-id="collapse-button"
-class="p-1.5 cursor-pointer fixed top-6 left-2.5 z-20 block duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
->
-<ArrowRightToLineIcon size={20} />
-</button> 
-<div
-    class="w-full h-1/  mb-5 hidden md:flex flex-col items-end justify-start pt- gap-2"
+  <button
+    id="collapse-button"
+    class="p-1.5 cursor-pointer fixed top-6 left-2.5 z-20 block duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
   >
-  
-    <div class=" overflow- flex items-start justify-start oveh">
+    <ArrowRightToLineIcon size={20} />
+  </button>
+  <div
+    class="w-full h-1/ mb-5 hidden md:flex flex-col items-end justify-start pt- gap-2"
+  >
+    <div class="overflow- flex items-start justify-start oveh">
       <img
         src="/ramaCode.png"
         id="logo"
@@ -49,12 +48,17 @@ class="p-1.5 cursor-pointer fixed top-6 left-2.5 z-20 block duration-300 mr-2 ro
       />
     </div>
   </div>
-  <div class="flex flex-col  items-start w-full">
+  <div class="flex  md:flex-col justify-between items-start px-3 md:px-0 w-full">
     {
       menuItems.map((item) => (
-        <a href={item.path} class="flex items-center px-3 py-3 cursor-pointer text-white/80 hover:text-white hover:bg-primary-100/10 text-sm transition-colors">
+        <a
+          href={item.path}
+          class="flex items-center md:px-3 py-3 cursor-pointer text-white/80 hover:text-white hover:bg-primary-100/10 text-sm transition-colors"
+        >
           <item.icon size={20} />
-          <span class="spanSidebar ml-4 opacity-0 duration-200">{item.label}</span>
+          <span class="spanSidebar hidden md:flex md:ml-4 opacity-0 duration-200">
+            {item.label}
+          </span>
         </a>
       ))
     }

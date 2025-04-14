@@ -13,11 +13,9 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
 }) => {
   const { data, loading, error } = useStore(stockStore);
   
-  console.log('🔄 Estado del store:', { data, loading, error });
 
   const dataFiltros = useMemo(() => {
     if (loading) {
-      console.log('⏳ Cargando datos...');
       return {
         categorias: [],
         ubicaciones: [],

@@ -6,12 +6,10 @@ import DetallesVentas from "../../ventas/components/DetallesVentas";
 import DetalleMontoCompra from "./FormularioCompra/DetalleMontoCompra";
 import ProveedorSelect from "./ProveedorSelect";
 import { showToast } from "../../../../utils/toast/toastShow";
-import { productos } from "../../../../db/schema";
 import { useStore } from "@nanostores/react";
 import { productosSeleccionadosVenta } from "../../../../context/store";
-const FormularioCompra = ({ userId, filtrado, filtroBusqueda }) => {
+const FormularioCompra = ({ userId }) => {
   const [totalVenta, setTotalVenta] = useState(0);
-  const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [error, setError] = useState({ msg: "", status: 0 });
   const $productos = useStore(productosSeleccionadosVenta);
   const [cargando, setCargando] = useState(false);

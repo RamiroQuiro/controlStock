@@ -10,7 +10,7 @@ export const cache = {
   get:async(key: string)=> {
     const cacheEntry = memoryCache[key];
     if (cacheEntry && cacheEntry.expiry > Date.now()) {
-      console.log("Cache hit for key:", key, cacheEntry);
+      // console.log("Cache hit for key:", key, cacheEntry);
       return cacheEntry.value;
     }
     return null;

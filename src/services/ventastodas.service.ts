@@ -12,6 +12,8 @@ export const traerVentasUser = async (userId: string) => {
         total: ventas.total,
         cliente: clientes.nombre,
         metodoPago: ventas.metodoPago,
+        nCheque: ventas.nCheque,
+        vencimientoCheque: ventas.vencimientoCheque,
         dniCliente: clientes.dni,
       })
       .from(ventas)

@@ -6,7 +6,7 @@ import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import { SearchCode } from "lucide-react";
 import { showToast } from "../../../../utils/toast/toastShow";
 
-export default function BusquedaClientes({ onClose, setCliente }) {
+export default function BusquedaClientes({ onClose, setCliente, userId }) {
   const [clientesEncontrados, setClientesEncontrados] = useState([]);
   const [inputBusqueda, setInputBusqueda] = useState("");
   const [resultados, setResultados] = useState([]);
@@ -25,7 +25,12 @@ export default function BusquedaClientes({ onClose, setCliente }) {
     if (inputBusqueda.length >= 3) {
       try {
         const responseFetch = await fetch(
-          `/api/clientes/buscarCliente?search=${inputBusqueda}`
+          `/api/clientes/buscarCliente?search=${inputBusqueda}`,{
+            method:'GET',
+            headers:{
+              'xx-user-id': userId,
+            }
+          }
         );
         const data = await responseFetch.json();
 

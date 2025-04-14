@@ -1,47 +1,78 @@
 import type { APIRoute } from "astro";
 import db from "../../../db";
 import { clientes } from "../../../db/schema";
-import { like, or } from "drizzle-orm";
+import { and, like, or, eq } from "drizzle-orm";
 
 // Handler para el método GET del endpoint
-export const GET: APIRoute = async ({ request, params }) => {
-  // Extraer el `productoId` de los parámetros
-  const url = new URL(request.url);
-  const query = url.searchParams.get("search");
-  console.log("que cliente buscamos?", query);
-
+export const GET: APIRoute = async ({ request }) => {
   try {
+    // Extraer userId del header
+    const userId = request.headers.get('xx-user-id');
+    
+    // Verificar que userId esté presente
+    if (!userId) {
+      return new Response(
+        JSON.stringify({
+          status: 401,
+          msg: "No se proporcionó un ID de usuario válido",
+        }),
+        { status: 401 }
+      );
+    }
+
+    // Extraer parámetros de búsqueda
+    const url = new URL(request.url);
+    const query = url.searchParams.get("search") || "";
+    
+    // Realizar búsqueda con filtros
     const resultados = await db
-    .select({
-      id:clientes.id,
-      nombre:clientes.nombre,
-      dni:clientes.dni,
-      celular:clientes.telefono,
-      email:clientes.email,
-    })
-    .from(clientes)
-    .where(
-      or(
-        like(clientes.id, `%${query}%`),
-        like(clientes.dni, `%${query}%`),
-        like(clientes.nombre, `%${query}%`),
+      .select({
+        id: clientes.id,
+        nombre: clientes.nombre,
+        dni: clientes.dni,
+        celular: clientes.telefono,
+        email: clientes.email,
+      })
+      .from(clientes)
+      .where(
+        and(
+          eq(clientes.userId, userId),
+          or(
+            query ? like(clientes.id, `%${query}%`) : undefined,
+            query ? like(clientes.dni, `%${query}%`) : undefined,
+            query ? like(clientes.nombre, `%${query}%`) : undefined,
+          )
+        )
       )
-    )
-console.log('resultados ->',resultados)
+      .limit(50); // Limitar resultados para evitar sobrecarga
+
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "buscar cliente",
+        msg: "Clientes encontrados",
         data: resultados,
-      })
+        total: resultados.length
+      }),
+      { 
+        headers: { 
+          'Content-Type': 'application/json' 
+        } 
+      }
     );
   } catch (error) {
-    console.log(error);
+    console.error("Error en búsqueda de clientes:", error);
     return new Response(
       JSON.stringify({
-        status: 400,
-        msg: "error",
-      })
+        status: 500,
+        msg: "Error interno al buscar clientes",
+        error: error instanceof Error ? error.message : "Error desconocido"
+      }),
+      { 
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json' 
+        } 
+      }
     );
   }
 };

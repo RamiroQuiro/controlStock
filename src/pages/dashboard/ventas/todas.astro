@@ -1,11 +1,11 @@
 ---
 import Button1 from "../../../components/atomos/Button1.astro";
-import DivBox1 from "../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import LayoutDash from "../../../components/layouts/LayoutDash.astro";
 import ConfeccionTabla from "./components/VentasTodas/ConfeccionTabla";
-import { traerVentasUser } from "../../../services/ventastodas.service";
-let ventasTodas = await traerVentasUser("1");
+
+const {user}=Astro.locals
+console.log(user)
 ---
 
 <LayoutDash title="Ventas">
@@ -21,16 +21,16 @@ let ventasTodas = await traerVentasUser("1");
     </div>
 
     <div class=" w-full h-auto pb-10">
-      <div class="mb-4 flex gap-4">
+      <div class="md:mb-4 mb-2 flex flex-wrap md:flex-nowrap md:gap-4 gap-2">
         <input
           type="text"
           id="buscarCliente"
           placeholder="Buscar cliente..."
-          class="w-full max-w-xs px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+          class="w-full max-w-xs md:px-4  px-2 py-2 text-xs md:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
         />
         <select
           id="filtroCategoria"
-          class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+          class="md:px-4 px-2 py-2 md:w-full w-[44%] border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
         >
           <option value="">Todas las categorías</option>
           <option value="VIP">VIP</option>
@@ -39,15 +39,16 @@ let ventasTodas = await traerVentasUser("1");
         </select>
         <select
           id="filtroEstado"
-          class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+          class="md:px-4 px-2 py-2 md:w-full w-[44%] border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
         >
           <option value="">Todos los estados</option>
           <option value="activo">Activo</option>
           <option value="inactivo">Inactivo</option>
         </select>
       </div>
+  
 
-      <ConfeccionTabla client:load data={ventasTodas} />
+      <ConfeccionTabla client:load userId={user?.id} />
     </div>
   </MainDashboard>
 </LayoutDash>

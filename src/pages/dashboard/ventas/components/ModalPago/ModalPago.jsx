@@ -152,7 +152,7 @@ export default function ModalPago({
             {/* Sección Cliente */}
             <div className="mb-6">
               <h3 className="text-lg mb-2">Cliente</h3>
-              <ClientesSelect cliente={cliente} setCliente={setCliente} />
+              <ClientesSelect cliente={cliente} setCliente={setCliente} userId={userId}/>
               {cliente.id !== "1" && (
                 <div className="mt-2 text-sm w-full flex items-start justify-normal gap-3 text-gray-600">
                   <p>DNI: {cliente.dni}</p>

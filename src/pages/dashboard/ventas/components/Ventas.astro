@@ -25,7 +25,7 @@ const {user}=Astro.locals
       <DivBox1 styleDiv="w-full">
         <H2>Producto</H2>
         <!-- ver si con que buscador queda mejor -->
-        <FiltroProductos client:load mostrarProductos={true} />
+        <FiltroProductos client:load mostrarProductos={true} userId={user?.id} />
       </DivBox1>
       <DivBox1 styleDiv="w-full">
         <H2>Resultado</H2>

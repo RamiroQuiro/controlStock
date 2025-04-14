@@ -4,7 +4,7 @@ import BtnBusquedaCliente from './BtnBusquedaCliente'
 import ModalCliente from './ModalCliente'
 import BusquedaClientes from './BusquedaClientes'
 
-export default function ClientesSelect({cliente, setCliente}) {
+export default function ClientesSelect({cliente, setCliente, userId}) {
 const [openModal, setOpenModal] = useState(false)
 
   return (
@@ -14,6 +14,7 @@ const [openModal, setOpenModal] = useState(false)
           <BusquedaClientes
             onClose={setOpenModal}
             setCliente={setCliente}
+            userId={userId}
           />
         </ModalCliente>
       )}

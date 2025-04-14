@@ -3,7 +3,7 @@ import { busqueda, filtroBusqueda } from "../../context/store";
 import { CheckCircle, CheckCircle2, LoaderCircle, Search } from "lucide-react";
 import { cache } from "../../utils/cache";
 
-export default function FiltroProductos({ mostrarProductos }) {
+export default function FiltroProductos({ mostrarProductos,userId }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(null);
@@ -44,7 +44,12 @@ export default function FiltroProductos({ mostrarProductos }) {
       // Si está activado el modo automático, primero intentamos búsqueda exacta por código
       if (agregarAutomatico) {
         const res = await fetch(
-          `/api/productos/productos?search=${query}&tipo=codigoBarra`
+          `/api/productos/productos?search=${query}&tipo=codigoBarra`,{
+            method:'GET',
+            header:{
+              'xx-user-id': userId,
+            }
+          }
         );
         const data = await res.json();
 

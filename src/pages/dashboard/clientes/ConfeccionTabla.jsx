@@ -54,11 +54,13 @@ export default function ConfeccionTabla({ userId }) {
           Cargando...
         </div>
       ) : (
-        <Table
-          renderBotonActions={RenderActionsClientes}
-          columnas={clienteColumns}
-          arrayBody={newArray}
-        />
+        <div className="w-full overflow-x-auto">
+          <Table
+            renderBotonActions={RenderActionsClientes}
+            columnas={clienteColumns}
+            arrayBody={newArray}
+          />
+        </div>
       )}
     </div>
   );

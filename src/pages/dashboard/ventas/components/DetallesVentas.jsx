@@ -107,17 +107,18 @@ export default function DetallesVentas() {
       {openModal && (
         <ModalCliente onClose={() => setOpenModal(false)}>hola</ModalCliente>
       )}
-      <div className="w-full p-4 rounded-lg bg-primarycomponentes">
+      <div className="w-full md:p-4 p-1 rounded-lg bg-primarycomponentes">
         {productosSeleccionados.length === 0 ? (
           <div className="p-3">
             <p>No hay elementos para mostrar</p>
           </div>
         ) : (
-          <Table
-            arrayBody={datosTabla}
-            columnas={columnas}
-            renderBotonActions={(data) =>
-              RenderActionsVentas(
+          <div className="overflow-y-auto">
+            <Table
+              arrayBody={datosTabla}
+              columnas={columnas}
+              renderBotonActions={(data) =>
+                RenderActionsVentas(
                 data,
                 restarCantidad,
                 sumarCantidad,
@@ -125,7 +126,8 @@ export default function DetallesVentas() {
                 eliminarProducto
               )
             }
-          />
+            />
+            </div>
         )}
       </div>
     </>

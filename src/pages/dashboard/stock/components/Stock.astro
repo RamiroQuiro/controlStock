@@ -22,7 +22,7 @@ if(!user){ return Astro.redirect('/login')}
   <!-- menu -->
   <div
     slot={"menu"}
-    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+    class="flex items-center justify-end pb-2 md:gap-2 gap-1 pr-6 w-full"
   >
     <Modal label="Crear" id="agregarProducto">
       <FormularioCargaProducto user={user} />
@@ -31,12 +31,12 @@ if(!user){ return Astro.redirect('/login')}
       <FormularioCompra user={user} client:visible />
     </Modal>
 
-    <Modal id="modalIngreso" label="Movimiento">
+    <!-- <Modal id="modalIngreso" label="Movimiento">
       <FormularioIngresoEgreso
         userId={user.id}
         client:visible
       />
-    </Modal>
+    </Modal> -->
 
     <Modal label="Modificar Precios" id="modificarPrecios">
       <FormularioModificacionPrecios
@@ -47,9 +47,9 @@ if(!user){ return Astro.redirect('/login')}
   </div>
 <ContenedorStock/>
 
-  <div class="flex w-full mt gap-2 items-start justify-start">
+  <div class="flex md:flex-row flex-col w-full mt gap-2 items-start justify-start">
     <ListradoProductos   productosArray={[]}/>
-    <DivBox1 styleDiv="w-1/3">
+    <DivBox1 styleDiv="md:w-1/3 w-full">
       <div class="w-full">
         <div class="flex items-center justify-between gap-2">
           <H2>Más Vendidos</H2>

@@ -9,12 +9,7 @@ import ConfeccionTabla from "./ConfeccionTabla";
 import Modal from "../../../components/moleculas/Modal.astro";
 import FormularioProveedor from "./[proveedorId]/components/FormularioProveedor";
 let proveedoresData=[]
-try {
-    const queryDb=await db.select().from(proveedores).where(eq(proveedores.userId,"1"))
-    proveedoresData=queryDb
-} catch (error) {
-    console.log(error)
-}
+const{user}=Astro.locals
 ---
 
 
@@ -25,7 +20,7 @@ try {
   >
       <div class="flex gap-3">
         <Modal id="crearProveedor"label="Crear Proveedor">
-          <FormularioProveedor client:visible userId="1" modo="crear"/>
+          <FormularioProveedor client:visible userId={user?.id} modo="crear"/>
         </Modal>
         <Button1
           id="btnExportarPDF"
@@ -67,7 +62,7 @@ try {
         </select>
       </div>
 
-      <ConfeccionTabla client:load data={proveedoresData} />
+      <ConfeccionTabla client:load userId={user?.id} />
     </DivBox1>
   </MainDashboard>
 

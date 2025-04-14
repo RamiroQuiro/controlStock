@@ -3,7 +3,7 @@ import type { APIContext } from 'astro';
 import jwt from 'jsonwebtoken';
 
 import path from "path";
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { generateId } from 'lucia';
 import db from '../../../db';
@@ -14,9 +14,9 @@ import { promises as fs } from "fs";
 export async function POST({ request, redirect, cookies }: APIContext): Promise<Response> {
   const formData = await request.json();
   console.log(formData);
-  const { email, password, nombre } = await formData;
+  const { email, password, userName, nombre, apellido } = await formData;
   // console.log(email, password);
-  if (!email || !password || !nombre ) {
+  if (!email || !password || !userName || !nombre || !apellido) {
     return new Response(
       JSON.stringify({
         data: 'faltan campos requeridos',
@@ -34,7 +34,7 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
   }
 
   //   verificar si el usuario existe
-  const existingUser = await db.select().from(users).where(eq(users.email, email));
+  const existingUser = await db.select().from(users).where(and(eq(users.email, email), eq(users.userName, userName)));
   // console.log(existingUser);
 
   if (existingUser.length > 0) {
@@ -58,8 +58,10 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
       .values([
         {
           id: userId,
+          userName: userName,
+          nombre: userName,
+          apellido: userName,
           email: email,
-          nombre: nombre,
           password: hashPassword,
         },
       ])
@@ -75,7 +77,7 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
     );
   }
   const session = await lucia.createSession(userId, {
-    nombre: nombre,
+    userName: userName,
   });
 
   // crear directorio para iamgenes
@@ -89,8 +91,10 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
   // Crear una cookie con los datos del usuario
   const userData = {
     id: newUser.id,
-    nombre: newUser.nombre,
+    userName: newUser.userName,
     email: newUser.email,
+    apellido: newUser.apellido,
+    nombre: newUser.nombre,
   };
 
   const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, { expiresIn: '14d' }); // Firmar la cookie

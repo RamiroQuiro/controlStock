@@ -12,9 +12,7 @@ import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
 const {user}=Astro.locals
-if(!user){
-  Astro.redirect('/login')
-}
+if(!user){ return Astro.redirect('/login')}
 
 // console.log('analisis de strock',analisisStock);
 // console.log('productos bajo movimiento',productosBajoMovimiento);

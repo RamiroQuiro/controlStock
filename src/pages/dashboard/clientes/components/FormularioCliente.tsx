@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { showToast } from '../../../../utils/toast/toastShow';
-import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
-import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud';
+import { useState } from "react";
+import { showToast } from "../../../../utils/toast/toastShow";
+import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
+import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
+import { loader } from "../../../../utils/loader/showLoader";
+import LoaderReact from "../../../../utils/loader/LoaderReact";
 
 interface Cliente {
   id?: string;
@@ -10,73 +12,112 @@ interface Cliente {
   telefono: string;
   email: string;
   direccion: string;
-  categoria: 'VIP' | 'regular' | 'nuevo';
-  estado: 'activo' | 'inactivo';
+  categoria: "VIP" | "regular" | "nuevo";
+  estado: "activo" | "inactivo";
   limiteCredito: number;
   observaciones: string;
 }
 
 interface Props {
   cliente?: Cliente; // Opcional para nuevo cliente
-  modo: 'crear' | 'editar';
-  userId:string
+  modo: "crear" | "editar";
+  userId: string;
 }
 
-export default function FormularioCliente({ cliente, modo ,userId}: Props) {
-  const [formData, setFormData] = useState<Cliente>(cliente ||{});
-const [errors, setErrors] = useState('');
- 
+export default function FormularioCliente({ cliente, modo, userId }: Props) {
+  const [formData, setFormData] = useState<Cliente>(cliente||{
+    nombre: '',
+    dni: 0,
+    telefono: '',
+    email: '',
+    direccion: '',
+    categoria: 'nuevo',
+    estado: 'activo',
+    limiteCredito: 0,
+    observaciones: ''
+  });
+  const [errors, setErrors] = useState("");
 
+  const [loading, setLoading] = useState(false); 
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData)
-    if (!formData.nombre || !formData.dni || !formData.email || !formData.direccion ) {
-      setErrors('Todos los campos son obligatorios');
-      return
+
+    // Validaciones
+    if (!formData.nombre ||!formData.dni ) {
+      setErrors("Todos los campos son obligatorios");
+      return;
     }
+
+    // Activar estado de carga
+    setLoading(true);
+    setErrors("");
+
     try {
-    const url = modo === 'crear' 
-    ? '/api/clientes/crear'
-    : `/api/clientes/${cliente?.id}/actualizar`;
-    
-    const response = await fetch(url, {
-      method: modo === 'crear' ? 'POST' : 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-user-id': userId
-      },
-      body: JSON.stringify(formData),
-    });
-    
+      const url =
+        modo === "crear"
+          ? "/api/clientes/crear"
+          : `/api/clientes/${cliente?.id}/actualizar`;
+
+      const response = await fetch(url, {
+        method: modo === "crear" ? "POST" : "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": userId,
+        },
+        body: JSON.stringify(formData),
+      });
+
       if (!response.ok) {
-        setErrors(`Error al ${modo === 'crear' ? 'crear' : 'actualizar'} , ${response.statusText}`)
-        throw new Error(`Error al ${modo === 'crear' ? 'crear' : 'actualizar'}`);
+        const errorData = await response.json();
+        setErrors(
+          errorData.message ||
+            `Error al ${modo === "crear" ? "crear" : "actualizar"}`
+        );
+        throw new Error(
+          `Error al ${modo === "crear" ? "crear" : "actualizar"}`
+        );
       }
 
       // Redirigir
       const data = await response.json();
-      window.location.href = `/dashboard/clientes/${modo === 'crear' ? data.id : cliente?.id}`;
+      window.location.href = `/dashboard/clientes/${modo === "crear" ? data.id : cliente?.id}`;
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
+      setLoading(false);
+      setErrors(
+        `Error al ${modo === "crear" ? "crear" : "actualizar"} cliente`
+      );
+    } finally {
+      // Desactivar estado de carga sin importar el resultado
+      setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   return (
-    <form onSubmit={handleSubmit} className=" flex flex-col gap-4 w-full text-primary-texto p-6">
-      <h2 className='text-xl text-primary-textoTitle font-semibold '>{modo=="crear"?"Crear":"Modificar"} Cliente</h2>
+    <form
+      onSubmit={handleSubmit}
+      className=" flex flex-col gap-4 w-full text-primary-texto p-6"
+    >
+      <h2 className="text-xl text-primary-textoTitle font-semibold ">
+        {modo == "crear" ? "Crear" : "Modificar"} Cliente
+      </h2>
       <div className="flex flex-col gap-4 items-center w-full justify-normal">
         {/* Datos básicos */}
-        <div className='w-full flex items-center justify-normal gap-2 '>
-        <InputFormularioSolicitud
+        <div className="w-full flex items-center justify-normal gap-2 ">
+          <InputFormularioSolicitud
             id={"nombre"}
             type={"text"}
             name={"nombre"}
@@ -86,7 +127,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           >
             Nombre
           </InputFormularioSolicitud>
-        <InputFormularioSolicitud
+          <InputFormularioSolicitud
             id={"dni"}
             type={"text"}
             name={"dni"}
@@ -96,10 +137,9 @@ const handleSubmit = async (e: React.FormEvent) => {
           >
             DNI
           </InputFormularioSolicitud>
-
         </div>
-        <div className='w-full flex items-center justify-normal gap-2 '>
-        <InputFormularioSolicitud
+        <div className="w-full flex items-center justify-normal gap-2 ">
+          <InputFormularioSolicitud
             id={"telefono"}
             type={"text"}
             name={"telefono"}
@@ -120,10 +160,9 @@ const handleSubmit = async (e: React.FormEvent) => {
           >
             Email
           </InputFormularioSolicitud>
-
         </div>
-        <div className='w-full flex items-center justify-normal gap-2 '>
-        <InputFormularioSolicitud
+        <div className="w-full flex items-center justify-normal gap-2 ">
+          <InputFormularioSolicitud
             id={"direccion"}
             type={"text"}
             name={"direccion"}
@@ -144,10 +183,8 @@ const handleSubmit = async (e: React.FormEvent) => {
             Limite de Credito
           </InputFormularioSolicitud>
         </div>
-        <div className='w-full'>
-          <label className="block text-sm font-medium w-full">
-            Categoría
-          </label>
+        <div className="w-full">
+          <label className="block text-sm font-medium w-full">Categoría</label>
           <select
             name="categoria"
             value={formData.categoria}
@@ -161,9 +198,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium ">
-          Observaciones
-        </label>
+        <label className="block text-sm font-medium ">Observaciones</label>
         <textarea
           name="observaciones"
           rows={3}
@@ -172,27 +207,30 @@ const handleSubmit = async (e: React.FormEvent) => {
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
         />
       </div>
-      <div className='w-full flex items-center  text-center justify-center gap-2 '>
+      <div className="w-full flex items-center  text-center justify-center gap-2 ">
+        {/* Laoder */}
+        {loading && (
+         <LoaderReact/>
+        )}
         {/* Estado */}
-        {errors &&
-          <span className="text-primary-400 py-2">{errors}</span>
-          }
+
+        {errors && <span className="text-primary-400 py-2">{errors}</span>}
       </div>
       <div className="flex justify-end gap-4">
         <button
           type="button"
-          onClick={() => window.location.href = '/dashboard/clientes'}
+          onClick={() => (window.location.href = "/dashboard/clientes")}
           className="px-4 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
         >
           Cancelar
         </button>
         <button
-        onClick={handleSubmit}
+          onClick={handleSubmit}
           className="px-4 py-1 bg-primary-100 text-white rounded-md hover:bg-primary-100/80"
         >
-        {modo=="crear"? ' Guardar Cliente' : 'Actualizar Cliente'}
+          {modo == "crear" ? " Guardar Cliente" : "Actualizar Cliente"}
         </button>
       </div>
     </form>
   );
-} 
+}

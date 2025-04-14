@@ -1,0 +1,119 @@
+import React from 'react';
+
+export default function LoaderReact() {
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center z-[9999] bg-white/50 backdrop-blur-sm">
+      <svg 
+        className="loader" 
+        width="44" 
+        height="44" 
+        viewBox="0 0 44 44" 
+        xmlns="http://www.w3.org/2000/svg" 
+        stroke="#5FA5FA"
+      >
+        <g fill="none" fillRule="evenodd" strokeWidth="2">
+          <circle cx="22" cy="22" r="1">
+            <animate 
+              attributeName="r"
+              begin="0s" 
+              dur="1.8s"
+              values="1; 20"
+              calcMode="spline"
+              keyTimes="0; 1"
+              keySplines="0.165, 0.84, 0.44, 1"
+              repeatCount="indefinite"
+            />
+            <animate 
+              attributeName="stroke-opacity"
+              begin="0s"
+              dur="1.8s"
+              values="1; 0"
+              calcMode="spline"
+              keyTimes="0; 1"
+              keySplines="0.3, 0.61, 0.355, 1"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle cx="22" cy="22" r="1">
+            <animate 
+              attributeName="r"
+              begin="-0.9s" 
+              dur="1.8s"
+              values="1; 20"
+              calcMode="spline"
+              keyTimes="0; 1"
+              keySplines="0.165, 0.84, 0.44, 1"
+              repeatCount="indefinite"
+            />
+            <animate 
+              attributeName="stroke-opacity"
+              begin="-0.9s"
+              dur="1.8s"
+              values="1; 0"
+              calcMode="spline"
+              keyTimes="0; 1"
+              keySplines="0.3, 0.61, 0.355, 1"
+              repeatCount="indefinite"
+            />
+          </circle>
+        </g>
+      </svg>
+      
+      <div className="text-loader mt-4">
+        <span className="letter">R</span>
+        <span className="letter">A</span>
+        <span className="letter">M</span>
+        <span className="letter">A</span>
+        <span className="letter">C</span>
+        <span className="letter">O</span>
+        <span className="letter">D</span>
+        <span className="letter">E</span>
+      </div>
+
+      <style jsx>{`
+        .loader {
+          transform-origin: center;
+          animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        .text-loader {
+          display: flex;
+          gap: 4px;
+        }
+
+        .letter {
+          font-weight: bold;
+          color: #F16937;
+          opacity: 0;
+          animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+          0% { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .letter:nth-child(1) { animation-delay: 0.1s; }
+        .letter:nth-child(2) { animation-delay: 0.2s; }
+        .letter:nth-child(3) { animation-delay: 0.3s; }
+        .letter:nth-child(4) { animation-delay: 0.4s; }
+        .letter:nth-child(5) { animation-delay: 0.5s; }
+        .letter:nth-child(6) { animation-delay: 0.6s; }
+        .letter:nth-child(7) { animation-delay: 0.7s; }
+        .letter:nth-child(8) { animation-delay: 0.8s; }
+      `}</style>
+    </div>
+  );
+}

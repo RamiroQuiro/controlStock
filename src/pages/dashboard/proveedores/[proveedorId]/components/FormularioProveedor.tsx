@@ -1,6 +1,7 @@
 import { useState } from "react";
 import InputComponenteJsx from "../../../dashboard/componente/InputComponenteJsx";
 import InputFormularioSolicitud from "../../../../../components/moleculas/InputFormularioSolicitud";
+import LoaderReact from "../../../../../utils/loader/LoaderReact";
 
 interface Proveedor {
   id?: string;
@@ -25,6 +26,7 @@ export default function FormularioProveedor({
   userId,
 }: Props) {
   const [errors, setErrors] = useState("");
+  const [loading, setLoading] = useState(false); 
   const [formData, setFormData] = useState<Proveedor>(
     proveedor || {
       nombre: "",
@@ -39,16 +41,16 @@ export default function FormularioProveedor({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
     if (
       !formData.nombre ||
       !formData.dni ||
-      !formData.email ||
       !formData.direccion
     ) {
       setErrors("Todos los campos son obligatorios");
       return;
     }
+    setLoading(true);
+    setErrors("");
     try {
       const url =
         modo === "crear"
@@ -63,8 +65,9 @@ export default function FormularioProveedor({
         },
         body: JSON.stringify(formData),
       });
-
+      
       if (!response.ok) {
+        setLoading(false)
         setErrors(
           `Error al ${modo === "crear" ? "crear" : "actualizar"} , ${response.statusText}`
         );
@@ -72,11 +75,14 @@ export default function FormularioProveedor({
           `Error al ${modo === "crear" ? "crear" : "actualizar"}`
         );
       }
+      
 
       // Redirigir
       const data = await response.json();
+      setLoading(false)
       window.location.href = `/dashboard/proveedores/${modo === "crear" ? data.id : proveedor?.id}`;
     } catch (error) {
+      setLoading(false)
       console.error("Error:", error);
     }
   };
@@ -162,6 +168,10 @@ export default function FormularioProveedor({
         />
       </div>
       <div className="w-full flex items-center  text-center justify-center gap-2 ">
+         {/* Laoder */}
+                {loading && (
+                 <LoaderReact/>
+                )}
         {/* Estado */}
         {errors && <span className="text-primary-400 py-2">{errors}</span>}
       </div>

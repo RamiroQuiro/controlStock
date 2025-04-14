@@ -14,7 +14,7 @@ console.log('archivbos locals',user)
 
 const userId=user?.id
 if(!user || !userId){
-  Astro.redirect('/login');
+    return Astro.redirect("/login")
 }
 
 ---
@@ -50,8 +50,7 @@ if(!user || !userId){
 
 <script>
 import { fetchStatsData } from "../../../context/store";
-const {usisisi}=document.getElementById('mainDashboard')?.dataset
-let userId=usisisi
+const {usisisi:userId}:{usisisi: string}=document.getElementById('mainDashboard')?.dataset
 
 
 fetchStatsData(userId)

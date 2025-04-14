@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
+import { sqliteTable, integer, text, unique } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
 // Tabla de proveedores
@@ -7,7 +7,7 @@ export const proveedores = sqliteTable("proveedores", {
   id: text("id").primaryKey(),
   nombre: text("nombre").notNull(),
   contacto: text("contacto"),
-  dni: integer('dni', { mode: 'number' }),
+  dni: integer('dni', { mode: 'number' }).unique(),
   celular: text('celular'),
   email: text('email'),
   direccion: text('direccion'), 
@@ -17,4 +17,8 @@ export const proveedores = sqliteTable("proveedores", {
   created_at: integer("created_at")
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),
-});
+},
+(t) => [
+    // Índice único compuesto para evitar duplicados de dni por usuario
+    unique().on(t.dni, t.userId),
+  ]);

@@ -1,4 +1,4 @@
-import { eq, like, or } from "drizzle-orm";
+import { and, eq, like, or } from "drizzle-orm";
 import {
   detalleVentas,
   movimientosStock,
@@ -14,6 +14,7 @@ export const GET: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
   const tipo = url.searchParams.get("tipo"); // Nuevo parámetro para distinguir el tipo de búsqueda
+  const userId = request.headers.get("xx-user-id");
   if (!query) {
     return new Response(
       JSON.stringify({ error: "falta el parametro de busqueda" }),
@@ -26,25 +27,30 @@ export const GET: APIRoute = async ({ request, params }) => {
 
   try {
     let resultados;
-    
+
     if (tipo === "codigoBarra") {
       // Búsqueda exacta para código de barra
       resultados = await db
         .select()
         .from(productos)
-        .where(eq(productos.codigoBarra, query));
+        .where(
+          and(eq(productos.userId, userId), eq(productos.codigoBarra, query))
+        );
     } else {
       // Búsqueda parcial para los demás campos
       resultados = await db
         .select()
         .from(productos)
         .where(
-          or(
-            like(productos.codigoBarra, `%${query}%`),
-            like(productos.descripcion, `%${query}%`),
-            like(productos.categoria, `%${query}%`),
-            like(productos.marca, `%${query}%`),
-            like(productos.modelo, `%${query}%`),
+          and(
+            eq(productos.userId, userId),
+            or(
+              like(productos.codigoBarra, `%${query}%`),
+              like(productos.descripcion, `%${query}%`),
+              like(productos.categoria, `%${query}%`),
+              like(productos.marca, `%${query}%`),
+              like(productos.modelo, `%${query}%`)
+            )
           )
         );
     }
@@ -88,7 +94,6 @@ export const DELETE: APIRoute = async ({ request, params }) => {
         .where(eq(detalleVentas.productoId, query));
       await trx.delete(stockActual).where(eq(stockActual.productoId, query));
       await trx.delete(productos).where(eq(productos.id, query));
-      
     });
 
     console.log(transacciones);
@@ -122,11 +127,13 @@ export const PUT: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("search");
 
-
   try {
     // Obtener el producto actual
-    const [productoActual] = await db.select().from(productos).where(eq(productos.id,data.id))
-    
+    const [productoActual] = await db
+      .select()
+      .from(productos)
+      .where(eq(productos.id, data.id));
+
     if (!productoActual) {
       return new Response(
         JSON.stringify({
@@ -139,20 +146,18 @@ export const PUT: APIRoute = async ({ request, params }) => {
         }
       );
     }
-    
+
     // Solo verificar unicidad si se está cambiando el código de barras
     if (data.codigoBarra && data.codigoBarra !== productoActual.codigoBarra) {
       // Verificar si ya existe otro producto con el mismo código de barras para este usuario
       const productoExistente = await db.query.productos.findFirst({
-        where: (
-          and(
-            eq(productos.codigoBarra, data.codigoBarra),
-            eq(productos.userId, productoActual.userId),
-            not(eq(productos.id, query))
-          )
-        )
+        where: and(
+          eq(productos.codigoBarra, data.codigoBarra),
+          eq(productos.userId, productoActual.userId),
+          not(eq(productos.id, query))
+        ),
       });
-      
+
       if (productoExistente) {
         return new Response(
           JSON.stringify({
@@ -173,16 +178,19 @@ export const PUT: APIRoute = async ({ request, params }) => {
       .set(data)
       .where(eq(productos.id, query))
       .returning();
-    
-    await db.update(stockActual).set({
-      deposito: data.deposito,
-      alertaStock: data.alertaStock,
-      localizacion: data.localizacion,
-    }).where(eq(stockActual.productoId, query));
+
+    await db
+      .update(stockActual)
+      .set({
+        deposito: data.deposito,
+        alertaStock: data.alertaStock,
+        localizacion: data.localizacion,
+      })
+      .where(eq(stockActual.productoId, query));
 
     // Invalida el caché de productos para este usuario
     await cache.invalidate(`stock_data_${actualizarProducto.userId}`);
-    
+
     return new Response(
       JSON.stringify({
         status: 200,

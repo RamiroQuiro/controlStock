@@ -62,7 +62,7 @@ export default function ReactData({ idData }) {
     }
 
     return (
-        <div className="text-2xl font-semibold">
+        <div className="md:text-2xl text-lg font-semibold">
             {obtenerData(idData)}
         </div>
     );

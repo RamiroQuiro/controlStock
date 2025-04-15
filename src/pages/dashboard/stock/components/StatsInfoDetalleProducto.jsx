@@ -21,18 +21,17 @@ export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,f
     }
     
   }, [loading]);
-console.log('data delnfomrulario en stat',formulario)
   return (
     <DivReact>
     {loading ? (
-      <div className="w-full flex items-center justify-around gap-3">
+      <div className="w-full flex flex-col md:flex-row items-center justify-around gap-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="bg-gray-200 animate-pulse rounded-lg w-[18%] h-[100px] flex flex-col items-center justify-center gap-2 p-2" />
         ))}
       </div>
     ) : (
-      <div className="w-full flex items-center justify-around">
-        <div className="bg-primary-bg-componentes p1 rounded-lg flex flex-col items-center justify-normal">
+      <div className="w-full flex flex-wrap gap-2 items-center justify-around">
+        <div className="bg-primary-bg-componentes p-1 border md:border-0 rounded-lg flex flex-col items-center justify-normal">
           <div className="flex items-center gap-1">
             <DollarSign className="stroke-primary-100" />
             <p className="text-primary-textoTitle">Precio de Costo</p>
@@ -56,7 +55,7 @@ console.log('data delnfomrulario en stat',formulario)
           )}
         </div>
   
-        <div className="bg-primary-bg-componentes p1 rounded-lg flex flex-col items-center justify-normal">
+        <div className="bg-primary-bg-componentes p-1 border md:border-0 rounded-lg flex flex-col items-center justify-normal">
           <div className="flex items-center gap-1">
             <DollarSign className="stroke-primary-100" />
             <p className="text-primary-textoTitle">Monto Iva</p>
@@ -66,7 +65,7 @@ console.log('data delnfomrulario en stat',formulario)
           </p>
         </div>
   
-        <div className="bg-primary-bg-componentes p1 rounded-lg flex flex-col items-center justify-normal">
+        <div className="bg-primary-bg-componentes p-1 border md:border-0 rounded-lg flex flex-col items-center justify-normal">
           <div className="flex items-center gap-1">
             <DollarSign className="stroke-primary-100" />
             <p className="text-primary-textoTitle">Precio de Venta</p>
@@ -90,7 +89,7 @@ console.log('data delnfomrulario en stat',formulario)
           )}
         </div>
   
-        <div className="bg-primary-bg-componentes p1 rounded-lg flex flex-col items-center justify-normal">
+        <div className="bg-primary-bg-componentes p-1 border md:border-0 rounded-lg flex flex-col items-center justify-normal">
           <div className="flex items-center gap-1">
             <SendToBack className="stroke-primary-100" />
             <p className="text-primary-textoTitle">Precio Stock</p>
@@ -100,7 +99,7 @@ console.log('data delnfomrulario en stat',formulario)
           </p>
         </div>
   
-        <div className="bg-primary-bg-componentes p1 rounded-lg flex flex-col items-center justify-normal">
+        <div className="bg-primary-bg-componentes p-1 border md:border-0 rounded-lg flex flex-col items-center justify-normal">
           <div className="flex items-center gap-1">
             <LucideLineChart className="stroke-primary-100" />
             <p className="text-primary-textoTitle">Margen Ganancia</p>

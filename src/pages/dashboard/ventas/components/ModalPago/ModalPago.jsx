@@ -288,7 +288,7 @@ export default function ModalPago({
             </div>
 
             {/* Actualizar el Resumen y Totales */}
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 mb-10 md:mb-2">
               <div className="flex justify-between mb-2">
                 <span>Subtotal:</span>
                 <span>{formateoMoneda.format(subtotal)}</span>

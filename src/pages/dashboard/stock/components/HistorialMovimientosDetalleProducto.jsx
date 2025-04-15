@@ -56,7 +56,9 @@ export default function HistorialMovimientosDetalleProducto({}) {
           ))}
         </div>
       ) : (
-        <Table arrayBody={newArray.reverse()} columnas={detallesProductosColumns} />
+        <div className="w-full overflow-x-auto">
+          <Table arrayBody={newArray.reverse()} columnas={detallesProductosColumns} />
+        </div>
       )}
     </DivReact>
   );

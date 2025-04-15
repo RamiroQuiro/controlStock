@@ -23,7 +23,7 @@ export default function DetalleFotoDetalleProducto({
     <DivReact>
       {/* Sección de imagen */}
       {loading ? (
-        <div className="flex items-start justify-normal gap-3 animate-pulse">
+        <div className="flex items-start flex-col md:flex-row justify-normal gap-3 animate-pulse">
           {/* Imagen */}
           <div className="w-full md:w-[50%] flex flex-col items-center justify-start rounded-lg overflow-hidden">
             <div className="w-full h-60 bg-gray-200 rounded-lg" />
@@ -48,7 +48,7 @@ export default function DetalleFotoDetalleProducto({
           </div>
         </div>
       ) : (
-        <div className="flex items-start justify-normal gap-3">
+        <div className="flex items-start flex-col md:flex-row justify-normal gap-3">
           <div className="w-full flex flex-col md:w-[50%] items-center justify-start relative rounded-lg overflow-hidden ">
             <div className="h-[80%] flex w-full rounded-lg  items-center ">
               <img
@@ -62,7 +62,7 @@ export default function DetalleFotoDetalleProducto({
           {/* Sección de detalles */}
           <div className="w-full md:w-1/2 flex text-sm flex-col relative gap-">
             <div className="flex flex-col w-full gap-1">
-              <div className="flex w-full items-center justify-start gap-3 ">
+              <div className="flex flex-col  w-full items-center justify-start gap-1 ">
                 <div className="flex w- items-center justify-start gap-3 ">
                   <span className="">Codigo/ID:</span>
                   <p className="font-medium text-primary-textoTitle">

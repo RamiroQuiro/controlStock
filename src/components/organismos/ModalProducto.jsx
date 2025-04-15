@@ -1,4 +1,4 @@
-import { DoorClosed, EyeClosed, LogOut, Outdent } from "lucide-react";
+import { DoorClosed, EyeClosed, LogOut, Outdent, StopCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import PerfilProducto from "./PerfilProducto";
 import { useStore } from "@nanostores/react";
@@ -24,14 +24,14 @@ const ModalProducto = ({ productoId, onClose }) => {
       onClick={() => onClose(false)}
     >
       <div
-        className="bg-primary-bg-componentes relative rounded-lg overflow-hidden border-l-2 text-border-primary-100/80 mt-0 shadow-lg h-[95vh] overflow-y-auto w-[95vw] md:w-[80vw]"
+        className="bg-primary-bg-componentes relative rounded-lg overflow-hidden border-l-2 text-border-primary-100/80 mt-0 shadow-lg h-screen md:h-[95vh] overflow-y-auto w-[99vw] md:w-[80vw]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={() => onClose(false)}
-          className="sticky bg-gray-100 p-1 rounded-full hover:translate-x-0.5 active:scale-95 duration-200 top-3 left-[95%] z-40"
+          className="sticky bg-gray-100 p-1 rounded-full hover:translate-x-0.5 active:scale-95 duration-200 top-3 left-[88%] md:left-[95%] z-40"
         >
-          <LogOut />
+          <XCircle />
         </button>
         <PerfilProducto infoProducto={data} />
       </div>

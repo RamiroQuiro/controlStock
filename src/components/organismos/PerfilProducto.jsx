@@ -90,14 +90,14 @@ export default function PerfilProducto({}) {
   };
   
   return (
-    <div className="w-full flex flex-col h-full text-sm px-3 relative -translate-y-5 rounded-lg items-stretch">
+    <div className="w-full flex flex-col h-full text-sm md:px-3 px-1 relative -translate-y-5 rounded-lg items-stretch">
       {modalConfirmacion && (
         <ModalConfirmacion
           handleCancelar={() => setModalConfirmacion(false)}
           handleConfirmar={handleEliminar}
         />
       )}
-      <div className="flex justify-between pr-16 items-center mb-4">
+      <div className="flex justify-between flex-col md:flex-row pr-16 md:items-center mb-4">
         <h2 className="text-lg font-semibold text-primary-textoTitle">
           Detalle del Producto
         </h2>

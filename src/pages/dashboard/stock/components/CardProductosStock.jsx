@@ -31,8 +31,8 @@ export default function CardProductosStock({ prod }) {
     <>
     <div onClick={()=>setModalActive(true)}
     style={estiloAlerta}
-    className={`rounded-lg py-1 px-2 flex items-center border border-transparent shadow-md hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full`}>
-      <div className="min-w-[75%] flex items-center justify-start gap-2 capitalize">
+    className={`rounded-lg py-1 md:px-2 px-1 flex items-center border border-transparent md:shadow-md hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full`}>
+      <div className="md:min-w-[75%] flex items-center justify-start gap-2 capitalize">
         <div className="bg-gray-200 w-1/3">
           <img
             src={prod?.srcPhoto}
@@ -49,12 +49,12 @@ export default function CardProductosStock({ prod }) {
           <div className="flex border-t w-full pt-1 gap-4">
             <div>
               <p className="text-sm">{prod?.stock} en stock</p>
-              <div className="inline-flex items-center gap-2">
+              <div className="inline-flex md:block items-center gap-2">
                 <ScanBarcode className="w-6 h-5" />
-                <p className="text-sm lowercase">{prod?.codigoBarra}</p>
+                <p className="text-sm  lowercase">{prod?.codigoBarra}</p>
               </div>
             </div>
-            <div className="flex flex-col items-start justify-">
+            <div className="md:flex hidden flex-col items-start justify-">
               <p className="text-sm">Categoria: {prod?.categoria}</p>
               <p className="text-sm">Lugar: {prod?.localizacion}</p>
             </div>
@@ -62,11 +62,11 @@ export default function CardProductosStock({ prod }) {
         </div>
       </div>
       <div className="text-end">
-        <h3 className="text-lg font-semibold text-primary-textoTitle capitalize tracking-tight">
-          {formateoMoneda.format(prod?.pVenta)}
+        <h3 className="text-sm md:text-base md:font-semibold text-primary-textoTitle capitalize tracking-tight">
+          P. Venta :{formateoMoneda.format(prod?.pVenta)}
         </h3>
-        <h3 className="text-lg font-semibold text-primary-textoTitle capitalize tracking-tight">
-          {formateoMoneda.format(totalStock)}
+        <h3 className="text-sm md:text-base md:font-semibold text-primary-textoTitle capitalize tracking-tight">
+          Total :{formateoMoneda.format(totalStock)}
         </h3>
       </div>
     </div>

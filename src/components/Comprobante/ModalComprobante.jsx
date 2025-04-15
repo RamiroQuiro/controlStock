@@ -50,7 +50,7 @@ window.location.reload()
       onClick={handleClose} // Cierra el modal al hacer clic en el fondo
     >
       <div 
-        className="bg-white rounded-lg p-6 w-10/12 h-[90vh]"
+        className="bg-white rounded-lg md:p-6 p-2 md:w-10/12 z-50 w-11/12 md:h-[90vh] h-[97vh]"
         onClick={handleModalClick} // Evita que el modal se cierre al hacer clic dentro
       >
         <Comprobante

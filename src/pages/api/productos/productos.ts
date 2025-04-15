@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ request, params }) => {
       }
     );
   }
-
+console.log('este es el id -> ', userId)
   try {
     let resultados;
 

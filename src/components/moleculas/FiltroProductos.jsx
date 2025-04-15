@@ -3,13 +3,12 @@ import { busqueda, filtroBusqueda } from "../../context/store";
 import { CheckCircle, CheckCircle2, LoaderCircle, Search } from "lucide-react";
 import { cache } from "../../utils/cache";
 
-export default function FiltroProductos({ mostrarProductos,userId }) {
+export default function FiltroProductos({ mostrarProductos, userId }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(null);
   const [encontrados, setEncontrados] = useState(0);
   const [agregarAutomatico, setAgregarAutomatico] = useState(false);
-
   const handleSearch = (e) => {
     setSearch(e.target.value.toLowerCase());
 
@@ -33,7 +32,7 @@ export default function FiltroProductos({ mostrarProductos,userId }) {
       // Check cache first
       const cacheKey = `productos_search_${query}`;
       const cachedData = await cache.get(cacheKey);
-      
+
       if (cachedData) {
         busqueda.set({ productosBuscados: cachedData });
         setEncontrados(cachedData);
@@ -44,11 +43,12 @@ export default function FiltroProductos({ mostrarProductos,userId }) {
       // Si está activado el modo automático, primero intentamos búsqueda exacta por código
       if (agregarAutomatico) {
         const res = await fetch(
-          `/api/productos/productos?search=${query}&tipo=codigoBarra`,{
-            method:'GET',
-            header:{
-              'xx-user-id': userId,
-            }
+          `/api/productos/productos?search=${query}&tipo=codigoBarra`,
+          {
+            method: "GET",
+            headers: {
+              "xx-user-id": userId,
+            },
           }
         );
         const data = await res.json();
@@ -56,7 +56,7 @@ export default function FiltroProductos({ mostrarProductos,userId }) {
         if (data.data.length === 1) {
           // Cache the result
           await cache.set(cacheKey, data.data);
-          
+
           busqueda.set({ productosBuscados: data.data });
           setEncontrados(data.data);
           handleClick(data.data[0]);
@@ -66,12 +66,17 @@ export default function FiltroProductos({ mostrarProductos,userId }) {
       }
 
       // Si no se encontró por código exacto o no está en modo automático, hacer búsqueda normal
-      const res = await fetch(`/api/productos/productos?search=${query}`);
+      const res = await fetch(`/api/productos/productos?search=${query}`, {
+        method: "GET",
+        headers: {
+          "xx-user-id": userId,
+        },
+      });
       const data = await res.json();
-      
+
       // Cache the result
       await cache.set(cacheKey, data.data);
-      
+
       busqueda.set({ productosBuscados: data.data });
       setEncontrados(data.data);
       setLoading(false);
@@ -99,7 +104,11 @@ export default function FiltroProductos({ mostrarProductos,userId }) {
             className="w-3 h-3 rounded-full hidden border-2 border-primary-100 peer text-primary-600 focus:ring-primary-500 focus:ring-offset-0 transition-all duration-200 cursor-pointer"
           />
         </div>
-        {agregarAutomatico ? <CheckCircle className="animate-aparecer stroke-primary-100"/> : <LoaderCircle className="animate-aparecer" />}
+        {agregarAutomatico ? (
+          <CheckCircle className="animate-aparecer stroke-primary-100" />
+        ) : (
+          <LoaderCircle className="animate-aparecer" />
+        )}
         <label
           htmlFor="agregarAutomatico"
           className="text-xs up text-primary-texto  cursor-pointer select-none peer-checked:text-primary-100"

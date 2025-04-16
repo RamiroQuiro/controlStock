@@ -150,20 +150,20 @@ const ResumenVentas: React.FC = ({ userId }: { userId: string }) => {
         )}
       </div>
       
-      <div className="mt-4 grid grid-cols-3 gap-4 w-full">
-        <div className="bg-green-50 p-3 rounded-lg">
+      <div className="mt-4 flex items-stretch md:flex-nowrap flex-wrap justify-evenly md:gap-4 gap-2 w-full">
+        <div className="bg-green-50 p-3 rounded-lg w-full ">
           <p className="text-sm text-gray-600">Ventas Totales este Mes</p>
           <p className="text-xl font-bold text-green-600">
             {formateoMoneda.format(datosVentas.ventasTotales)}
           </p>
         </div>
-        <div className="bg-blue-50 p-3 rounded-lg">
+        <div className="bg-blue-50 p-3 rounded-lg w-full">
           <p className="text-sm text-gray-600">Ticket Promedio este Mes</p>
           <p className="text-xl font-bold text-blue-600">
             {formateoMoneda.format(datosVentas.ticketPromedio)}
           </p>
         </div>
-        <div className="bg-purple-50 p-3 rounded-lg">
+        <div className="bg-purple-50 p-3 rounded-lg w-full">
           <p className="text-sm text-gray-600">Transacciones este Mes</p>
           <p className="text-xl font-bold text-purple-600">
             {datosVentas.totalTransacciones}

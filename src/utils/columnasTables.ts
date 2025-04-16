@@ -82,3 +82,11 @@ export const columnsUltimasTransacciones = [
     { label: 'Metodo', id: 7, selector: (row: ProveedorRow) => row.metodoPago },
     { label: 'Acciones', id: 8, selector: () => {} }
 ];
+
+export const columnasUsuarios = [
+    { label: "Nombre", id: 1, selector: (row) => row.nombre },
+    { label: "Email", id: 2, selector: (row) => row.email },
+    { label: "Rol", id: 3, selector: (row) => row.rol },
+    { label: "Estado", id: 4, selector: (row) => row.estado },
+    { label: "Acciones", id: 5, selector: () => {} }
+  ];

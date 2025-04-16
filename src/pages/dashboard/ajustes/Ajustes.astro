@@ -1,0 +1,79 @@
+---
+import { Settings, User, Database, Bell, Lock, Palette, ShieldCheck } from 'lucide-react';
+import MainDashboard from '../../../components/atomos/MainDashboard.astro';
+import DivBox1 from '../../../components/atomos/DivBox1.astro';
+
+const ajustesOpciones = [
+  {
+    titulo: "Perfil de Usuario",
+    descripcion: "Administra tu información personal y preferencias de cuenta",
+    icono: User,
+    seccion: "perfil"
+  },
+  {
+    titulo: "Configuración del Sistema",
+    descripcion: "Configura parámetros generales de la aplicación",
+    icono: Settings,
+    seccion: "sistema"
+  },
+  {
+    titulo: "Gestión de Datos",
+    descripcion: "Respaldos, importación y exportación de datos",
+    icono: Database,
+    seccion: "datos"
+  },
+  {
+    titulo: "Notificaciones",
+    descripcion: "Configura alertas y preferencias de notificación",
+    icono: Bell,
+    seccion: "notificaciones"
+  },
+  {
+    titulo: "Seguridad",
+    descripcion: "Gestiona contraseñas y permisos de acceso",
+    icono: Lock,
+    seccion: "seguridad"
+  },
+  {
+    titulo: "Personalización",
+    descripcion: "Temas, colores y apariencia de la aplicación",
+    icono: Palette,
+    seccion: "personalizar"
+  },
+  {
+    titulo: "Gestión de Usuarios",
+    descripcion: "Administra roles de usuario y permisos de acceso",
+    icono: ShieldCheck,
+    seccion: "usuarios"
+  }
+];
+---
+
+<MainDashboard h1="Ajustes">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {ajustesOpciones.map((opcion) => (
+      <DivBox1>
+        <div class="flex items-center mb-4">
+          <opcion.icono class="w-10 h-10 text-primary-100 mr-4 group-hover:text-primary-200 transition-colors" />
+          <h2 class="text-xl font-semibold text-primary-textoTitle">{opcion.titulo}</h2>
+        </div>
+        <p class="text-gray-600 mb-4">{opcion.descripcion}</p>
+        <a 
+          href={`/dashboard/ajustes/${opcion.seccion}`} 
+          class="text-primary-100 hover:text-primary-200 flex items-center"
+        >
+          Configurar
+          <svg xmlns="[http://www.w3.org/2000/svg"](http://www.w3.org/2000/svg") class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </DivBox1>
+    ))}
+  </div>
+</MainDashboard>
+
+<style>
+  .group:hover {
+    transform: translateY(-5px);
+  }
+</style>

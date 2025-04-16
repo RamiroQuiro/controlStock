@@ -1,10 +1,6 @@
 import { useStore } from "@nanostores/react";
 import React, { useEffect, useState } from "react";
 import { productosSeleccionadosVenta } from "../../../../context/store";
-import { showToast } from "../../../../utils/toast/toastShow";
-import ModalConfirmacion from "./ModalConfirmacion";
-import { loader } from "../../../../utils/loader/showLoader";
-import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import BotoneraCarrito from "./BotoneraCarrito";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import ModalPago from "./ModalPago/ModalPago";

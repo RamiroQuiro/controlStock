@@ -5,6 +5,7 @@ import { clienteColumns } from "../../../../utils/columnasTables";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import { SearchCode } from "lucide-react";
 import { showToast } from "../../../../utils/toast/toastShow";
+import { loader } from "../../../../utils/loader/showLoader";
 
 export default function BusquedaClientes({ onClose, setCliente, userId }) {
   const [clientesEncontrados, setClientesEncontrados] = useState([]);
@@ -17,6 +18,7 @@ export default function BusquedaClientes({ onClose, setCliente, userId }) {
   };
 
   const handleCliente = async (e) => {
+    loader(true)
     if (inputBusqueda.trim() === "") {
       setResultados([]); // Resetea resultados si el input está vacío
       return;
@@ -35,13 +37,18 @@ export default function BusquedaClientes({ onClose, setCliente, userId }) {
         const data = await responseFetch.json();
 
         if (data.status === 200) {
+
           setClientesEncontrados(data.data); // Suponiendo que `data.clientes` es un array
+          loader(false)
         } else {
           setResultados([]);
+          loader(false)
           showToast(data.msg, { background: "bg-primary-400" });
         }
+        loader(false)
       } catch (error) {
         console.error("Error en la búsqueda de clientes:", error);
+        loader(false)
         setResultados([]);
         showToast("Error al buscar clientes", { background: "bg-red-500" });
       }

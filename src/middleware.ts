@@ -1,4 +1,4 @@
-import { lucia } from '@/lib/auth';
+import { lucia } from '../src/lib/auth';
 import { defineMiddleware } from 'astro/middleware';
 import { verifyRequestOrigin } from 'lucia';
 import { ADMIN_ROUTES, PUBLIC_ROUTES } from './lib/protectRoutes';

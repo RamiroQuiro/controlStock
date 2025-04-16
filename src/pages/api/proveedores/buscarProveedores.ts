@@ -6,7 +6,7 @@ import { lucia } from "../../../lib/auth";
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   const url = new URL(request.url);
-  const query = url.searchParams.get("search");
+  const query = url.searchParams.get("search")
   // console.log("¿Qué proveedor buscamos?", query);
 
     const sessionId = cookies.get(lucia.sessionCookieName)?.value ?? null;

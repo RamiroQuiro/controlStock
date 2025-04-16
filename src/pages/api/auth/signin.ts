@@ -25,7 +25,6 @@ export async function POST({ request, locals, redirect, cookies }: APIContext): 
   }
 
   // crear usuario en DB
-
   // Hacemos comapracion  hash de la contraseña
   if (!(await bcrypt.compare(password, findUser.password))) {
     return new Response(
@@ -43,8 +42,10 @@ export async function POST({ request, locals, redirect, cookies }: APIContext): 
   const userData = {
     id: findUser.id,
     nombre: findUser.nombre,
-    // apellido: findUser.apellido,
+    apellido: findUser.apellido,
+    userName:findUser.userName,
     email: findUser.email,
+    rol: findUser.rol,
   };
 
   const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, { expiresIn: '14d' }); // Firmar la cookie

@@ -14,7 +14,7 @@ import { promises as fs } from "fs";
 export async function POST({ request, redirect, cookies }: APIContext): Promise<Response> {
   const formData = await request.json();
   console.log(formData);
-  const { email, password, userName, nombre, apellido } = await formData;
+  const { email, password, userName, nombre, apellido,rol } = await formData;
   // console.log(email, password);
   if (!email || !password || !userName || !nombre || !apellido) {
     return new Response(
@@ -59,9 +59,10 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
         {
           id: userId,
           userName: userName,
-          nombre: userName,
-          apellido: userName,
+          nombre:nombre,
+          apellido: apellido,
           email: email,
+          rol: rol ||'user',
           password: hashPassword,
         },
       ])
@@ -90,11 +91,12 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
 
   // Crear una cookie con los datos del usuario
   const userData = {
-    id: newUser.id,
-    userName: newUser.userName,
-    email: newUser.email,
-    apellido: newUser.apellido,
-    nombre: newUser.nombre,
+    id: findUser.id,
+    nombre: findUser.nombre,
+    apellido: findUser.apellido,
+    userName:findUser.userName,
+    email: findUser.email,
+    rol: findUser.rol,
   };
 
   const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, { expiresIn: '14d' }); // Firmar la cookie

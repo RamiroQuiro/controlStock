@@ -18,7 +18,7 @@ const {h2,bgColor,icon:Icon,id  }=Astro.props as PropsDataType
 
 ---
 
-<div class={`bg-gradient-to-br ${bgColor} rounded-lg md:p-4 p-1 h-28 w-[44vw] md:w-full text-white flex flex-col overflow-hidden group`}>
+<div class={`bg-gradient-to-br ${bgColor} rounded-lg md:p-4 p-1 md:h-28 w-[44vw] md:w-full text-white flex flex-col overflow-hidden group`}>
     <div class="flex items-center justify-start md:gap-3">
         <Icon className="w-7 h-7 group-hover:scale-110  duration-300 "/>
         <ReactData idData={id} client:load />

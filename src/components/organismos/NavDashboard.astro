@@ -1,5 +1,9 @@
 ---
 import { ArrowLeft, ArrowLeftSquare, LogOut } from "lucide-react";
+
+
+const {user} = Astro.locals
+
 ---
 
 <div
@@ -9,7 +13,7 @@ import { ArrowLeft, ArrowLeftSquare, LogOut } from "lucide-react";
     <ArrowLeftSquare />
   </button>
   <div class="">
-    <h3>Mi Negocio</h3>
+    <h3>{user?.userName}</h3>
   </div>
   <form method="post" action="/api/auth/signout">
     <button class="hover:text-primary-400 duration-150  relative group">

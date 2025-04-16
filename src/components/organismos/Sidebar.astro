@@ -22,6 +22,9 @@ const menuItems = [
   { icon: HandCoins, label: "Reportes", path: "/dashboard/compras" },
   { icon: Settings, label: "Ajustes", path: "/asjustes" },
 ];
+
+
+const {user}=Astro.locals
 ---
 
 <sidebar
@@ -30,7 +33,7 @@ const menuItems = [
 >
   <button
     id="collapse-button"
-    class="p-1.5 cursor-pointer fixed top-6 left-2.5 z-20 block duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
+    class="p-1.5 cursor-pointer md:flex hidden fixed top-6 left-2.5 z-20 block duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
   >
     <ArrowRightToLineIcon size={20} />
   </button>

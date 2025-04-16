@@ -3,14 +3,15 @@ import BotonEditar from '../atomos/BotonEditarLts'
 import BotonEliminarLts from '../atomos/BotonEliminarLts'
 import BotonPdfLts from '../atomos/BotonPdfLts'
 
-export default function ContenedorBotonera({handleDelete,handleEdit,disableEdit}) {
+export default function ContenedorBotonera({handleDelete,handleEdit,disableEdit,downloadPdf}) {
+
 
 
     return (
         <div className="flex text-sm gap-2">
             <BotonEditar disable={disableEdit} handleClick={handleEdit} />
             <BotonEliminarLts handleClick={handleDelete} />
-            <BotonPdfLts />
+            <BotonPdfLts handleClick={downloadPdf} />
 
         </div>
     )

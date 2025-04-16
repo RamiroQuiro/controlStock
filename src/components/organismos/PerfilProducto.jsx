@@ -1,30 +1,20 @@
-import formatDate from "../../utils/formatDate";
-import { TrendingDown, TrendingUp } from "lucide-react";
 import ContenedorBotonera from "../moleculas/ContenedorBotonera";
 import HistorialMovimientosDetalleProducto from "../../pages/dashboard/stock/components/HistorialMovimientosDetalleProducto";
 import StatsInfoDetalleProducto from "../../pages/dashboard/stock/components/StatsInfoDetalleProducto";
 import DetalleFotoDetalleProducto from "../../pages/dashboard/stock/components/DetalleFotoDetalleProducto";
-import {
-  calcularMargenGanancia,
-  calcularPrecioStock,
-  calcularStockInicial,
-  obtenerMovimientosOrdenados,
-  obtenerUltimaReposicion,
-} from "../../utils/detallesProducto";
 import { useEffect, useState } from "react";
 import { showToast } from "../../utils/toast/toastShow";
 import ModalConfirmacion from "../moleculas/ModalConfirmacion";
-import { detallesProductosColumns } from "../../utils/columnasTables";
 import { useStore } from "@nanostores/react";
 import { perfilProducto } from "../../context/store";
 
-export default function PerfilProducto({}) {
+export default function PerfilProducto({ }) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [disableEdit, setDisableEdit] = useState(true);
   const { data, loading } = useStore(perfilProducto);
   // Inicializar formulario con un objeto vacío para evitar errores
   const [formulario, setFormulario] = useState({});
-  
+
   // Actualizar el formulario cuando data.productData cambie o cuando loading pase a false
   useEffect(() => {
     if (data?.productData) {
@@ -35,7 +25,7 @@ export default function PerfilProducto({}) {
   const confirmarConModal = () => {
     setModalConfirmacion(true);
   };
-  
+
   const handleEliminar = async (e) => {
     e.preventDefault();
 
@@ -55,7 +45,7 @@ export default function PerfilProducto({}) {
       showToast("error al eliminar", { backgorund: "bg-red-500" });
     }
   };
-  
+
   const handleEdit = async () => {
     setDisableEdit(!disableEdit);
 
@@ -70,7 +60,7 @@ export default function PerfilProducto({}) {
           }
         );
         const dataRes = await response.json();
-        
+
         if (dataRes.status === 200) {
           showToast("producto actualizado", { background: "bg-green-500" });
           setTimeout(() => window.location.reload(), 750);
@@ -88,7 +78,37 @@ export default function PerfilProducto({}) {
     const { name, value } = e.target;
     setFormulario((prevFormulario) => ({ ...prevFormulario, [name]: value }));
   };
-  
+
+  const handleDownloadPdf = async () => {
+    try {
+      const response = await fetch(
+        `/api/productos/generarPdf/${data.productData.id}`,
+        {
+          method: "GET",
+          headers: {
+            "xx-user-id": data.productDatauserId, // Asegúrate de tener userId disponible
+          },
+        }
+      );
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `producto_${data.productData.id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        showToast("Error al generar PDF", { background: "bg-red-500" });
+      }
+    } catch (error) {
+      console.error("Error descargando PDF:", error);
+      showToast("Error al descargar PDF", { background: "bg-red-500" });
+    }
+  };
+
   return (
     <div className="w-full flex flex-col h-full text-sm md:px-3 px-1 relative -translate-y-5 rounded-lg items-stretch">
       {modalConfirmacion && (
@@ -103,6 +123,7 @@ export default function PerfilProducto({}) {
         </h2>
         {/* botonera */}
         <ContenedorBotonera
+          downloadPdf={handleDownloadPdf}
           disableEdit={disableEdit}
           handleEdit={handleEdit}
           handleDelete={confirmarConModal}

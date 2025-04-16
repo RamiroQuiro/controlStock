@@ -7,7 +7,6 @@ import { fetchProducto, perfilProducto } from "../../context/store";
 const ModalProducto = ({ productoId, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
 
-  const [infoProducto, setInfoProducto] = useState(null);
   const { loading, data, error } = useStore(perfilProducto);
 
   useEffect(() => {

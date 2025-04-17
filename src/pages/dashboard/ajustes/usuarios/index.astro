@@ -59,14 +59,14 @@ const roles: Rol[] = [
     
     </div>
   </div>
-    <div class="flex md:flex-row fle-col w-full items-stretch justify-between gap-2">
+    <div class="flex md:flex-row flex-col w-full items-stretch justify-between gap-2">
       {/* Sección de Usuarios */}
      <SeccionUsuarios/>
       {/* Sección de Roles y Permisos */}
-      <DivBox1 styleDiv="w-full">
+      <DivBox1 styleDiv="w-2/3">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center">
-            <ShieldCheck class="w-8 h-8 text-primary-100 mr-3" />
+            <ShieldCheck className="w-8 h-8 text-primary-100 mr-3" />
             <h2 class="text-xl font-semibold text-primary-textoTitle">
               Roles y Permisos
             </h2>
@@ -74,7 +74,7 @@ const roles: Rol[] = [
           <button
             class="bg-primary-100 text-white px-3 py-2 rounded-lg flex items-center hover:bg-primary-200 transition"
           >
-            <Plus class="w-5 h-5 mr-2" /> Nuevo Rol
+            <Plus className="w-5 h-5 mr-2" /> Nuevo Rol
           </button>
         </div>
 
@@ -87,8 +87,8 @@ const roles: Rol[] = [
                     {rol.nombre}
                   </h3>
                   <div class="flex space-x-2">
-                    <Edit class="w-5 h-5 text-blue-500 cursor-pointer hover:text-blue-700" />
-                    <Trash2 class="w-5 h-5 text-red-500 cursor-pointer hover:text-red-700" />
+                    <Edit className="w-5 h-5 text-blue-500 cursor-pointer hover:text-blue-700" />
+                    <Trash2 className="w-5 h-5 text-red-500 cursor-pointer hover:text-red-700" />
                   </div>
                 </div>
                 <p class="text-sm text-gray-600 mb-2">{rol.descripcion}</p>

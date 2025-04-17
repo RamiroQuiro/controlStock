@@ -121,7 +121,6 @@ export const RenderActionsUsers = (data) => {
     dataFormularioContexto.set(data);
     const modal = document.getElementById(`dialog-modal-crearCliente`);
 modal.showModal()
-    console.log(modal)
   };
 
   const handleDelet = async ({ id }) => {

@@ -1,0 +1,33 @@
+---
+import { eq } from "drizzle-orm";
+import ConfeccionTablaUsers from "./ConfeccionTablaUsers";
+import db from "../../../../db";
+import { users } from "../../../../db/schema";
+import { columnasUsuarios } from "../../../../utils/columnasTables";
+
+// Tipos de datos para usuarios y roles
+interface Usuario {
+  id: number;
+  nombre: string;
+  email: string;
+  rol: string;
+  estado: "activo" | "inactivo";
+}
+
+let usuarios: Usuario[] = [];
+
+const { user } = Astro.locals;
+usuarios = [
+  {
+    id: user?.id,
+    nombre: user?.nombre,
+    email: user?.email,
+    rol: user?.rol,
+    estado: user?.estado,
+  },
+];
+---
+
+<div class="overflow-x-auto w-full">
+  <ConfeccionTablaUsers userId={user?.id} client:load />
+</div>

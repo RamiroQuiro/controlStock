@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
+import { sqliteTable, integer, text, unique } from "drizzle-orm/sqlite-core";
 
 // Tabla de usuarios
 export const users = sqliteTable("users", {
@@ -20,8 +20,14 @@ export const users = sqliteTable("users", {
     documento: text("documento"), // DNI/CUIT/Tax ID
     telefono: text("telefono"), // Contact phone number
     direccion: text("direccion"), // Business or personal address
-    fechaAlta:integer("created_at") // Timestamp Unix
-    .notNull()
-    .default(sql`(strftime('%s', 'now'))`),
+   creadoPor:text('creadoPor').references(()=> users.id), // Referencia recursiva a la misma tabla
+    fechaAlta: integer("created_at") // Timestamp Unix
+      .notNull()
+      .default(sql`(strftime('%s', 'now'))`),
     activo: integer("activo").default(1) // Account active status (1 = active, 0 = inactive)
-  });
+  },
+(t) => [
+    // Índice único compuesto para evitar duplicados de email por usuario
+    unique().on(t.email, t.creadoPor),
+  ]
+);

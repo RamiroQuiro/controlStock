@@ -116,28 +116,22 @@ export const RenderActionsVentas = (
   );
 };
 
-export const RenderActionsEditDeletMedicamentos = (data) => {
+export const RenderActionsUsers = (data) => {
   const handleEditModal = (data) => {
     dataFormularioContexto.set(data);
-    const modal = document.getElementById(`dialog-modal-medicamentos`);
-    modal.showModal();
-    // e.showModal()
+    const modal = document.getElementById(`dialog-modal-crearCliente`);
+modal.showModal()
+    console.log(modal)
   };
 
-  const handleDeletMed = async ({ id }) => {
-    const newMedicamentos = atencion
-      .get()
-      .medicamentos.filter((med) => med.id != id);
-    atencion.set({
-      ...atencion.get(),
-      medicamentos: newMedicamentos,
-    });
+  const handleDelet = async ({ id }) => {
+   alert(id)
   };
 
   return (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
       <BotonEditar handleClick={() => handleEditModal(data)} />
-      <BotonEliminar handleClick={() => handleDeletMed(data)} />
+      <BotonEliminar handleClick={() => handleDelet(data)} />
     </div>
   );
 };
@@ -146,7 +140,7 @@ export const RenderActionsClientes = (data) => {
     window.location.href = `/dashboard/clientes/${data.id}`;
   };
 
-  const handleDeletMed = async ({ id }) => {
+  const handleDelet = async ({ id }) => {
     const newMedicamentos = atencion
       .get()
       .medicamentos.filter((med) => med.id != id);
@@ -182,7 +176,7 @@ export const RenderActionsProveedores = (data) => {
     window.location.href = `/dashboard/proveedores/${data.id}`;
   };
 
-  const handleDeletMed = async ({ id }) => {
+  const handleDelet = async ({ id }) => {
     const newMedicamentos = atencion
       .get()
       .medicamentos.filter((med) => med.id != id);

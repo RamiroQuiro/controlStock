@@ -84,9 +84,11 @@ export const columnsUltimasTransacciones = [
 ];
 
 export const columnasUsuarios = [
-    { label: "Nombre", id: 1, selector: (row) => row.nombre },
-    { label: "Email", id: 2, selector: (row) => row.email },
-    { label: "Rol", id: 3, selector: (row) => row.rol },
-    { label: "Estado", id: 4, selector: (row) => row.estado },
-    { label: "Acciones", id: 5, selector: () => {} }
+    { label: "N°", id: 1, selector: (row, index) => index + 1 },
+    { label: "Nombre y Apellido", id: 2, selector: (row) => row.nombre },
+    { label: "DNI", id: 3, selector: (row) => row.dni },
+    { label: "Email", id: 4, selector: (row) => row.email },
+    { label: "Rol", id: 5, selector: (row) => row.rol },
+    { label: "Estado", id: 6, selector: (row) => row.estado },
+    { label: "Acciones", id: 7, selector: () => {} }
   ];

@@ -9,12 +9,12 @@ export const users = sqliteTable("users", {
     apellido: text("apellido").notNull(), // Last name
     email: text("email").unique().notNull(),
     password: text("password").notNull(),
-    rol: text("rol")
+    rol: text("rol",{enum: ['admin', 'vendedor', 'repositor']})
       .notNull()
-      .default("empleado"), // Opciones: 'admin', 'empleado', 'gerente'
+      .default("vendedor"), // Opciones: 'admin', 'vendedor', 'repositor'
     razonSocial: text("razonSocial"), // Business name for companies/contractors
     nombreFantasia: text("nombreFantasia"), // Trade name
-    tipoUsuario: text("tipoUsuario")
+    tipoUsuario: text("tipoUsuario",{enum: ['empleado', 'cliente', 'proveedor']})
       .notNull()
       .default("empleado"), // Opciones: 'empleado', 'cliente', 'proveedor'
     documento: text("documento"), // DNI/CUIT/Tax ID

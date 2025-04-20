@@ -3,6 +3,7 @@ import { defineMiddleware } from "astro/middleware";
 import { verifyRequestOrigin } from "lucia";
 import { ADMIN_ROUTES, PUBLIC_ROUTES } from "./lib/protectRoutes";
 import jwt from "jsonwebtoken";
+import { puedeAccederRuta } from "./utils/permisosRoles";
 type UserData = {
   id: number;
   nombre: string;
@@ -36,6 +37,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (PUBLIC_ROUTES.includes(context.url.pathname)) {
     return next();
   }
+
+
 
   // Verificar sesión para rutas que requieren autenticación
   if (!sessionId) {
@@ -72,9 +75,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     // Rutas de administrador requieren rol específico
-    if (ADMIN_ROUTES.includes(context.url.pathname) && user?.rol !== "admin") {
-      return context.redirect("/dashboard");
-    }
+ if (!puedeAccederRuta(user, context.url.pathname)) {
+   return new Response('No autorizado', { status: 403 });
+ }
 
     // Establecer locales para acceso en páginas Astro
     context.locals.user = user;

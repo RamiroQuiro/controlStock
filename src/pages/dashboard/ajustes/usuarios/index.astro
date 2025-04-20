@@ -6,41 +6,13 @@ import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
 import SeccionUsuarios from "./SeccionUsuarios.astro";
 import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioNuevoUser from '../components/FormularioNuevoUser'
-
-interface Rol {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  permisos: string[];
-}
+import FormularioNuevoRol from "../components/FormularioNuevoRol";
+import SeccionRoles from "./SeccionRoles.astro";
 
 const {user}=Astro.locals
 // Datos de ejemplo (en un escenario real, vendrían de una base de datos)
 
 
-const roles: Rol[] = [
-  {
-    id: 1,
-    nombre: "Administrador",
-    descripcion: "Control total del sistema",
-    permisos: [
-      "Gestión de Usuarios",
-      "Configuración del Sistema",
-      "Gestión de Productos",
-      "Reportes Completos",
-    ],
-  },
-  {
-    id: 2,
-    nombre: "Vendedor",
-    descripcion: "Acceso limitado para ventas",
-    permisos: [
-      "Registrar Ventas",
-      "Ver Inventario",
-      "Generar Reportes Básicos",
-    ],
-  },
-];
 
 
 
@@ -57,53 +29,17 @@ const roles: Rol[] = [
         <FormularioNuevoUser userId={user?.id} client:visible />
       </Modal>
     
+      <Modal label="+ Nuevo Rol" id="crearRole">
+        <FormularioNuevoRol userId={user?.id} client:visible />
+      </Modal>
+    
     </div>
   </div>
     <div class="flex md:flex-row flex-col w-full items-stretch justify-between gap-2">
       {/* Sección de Usuarios */}
      <SeccionUsuarios/>
       {/* Sección de Roles y Permisos */}
-      <DivBox1 styleDiv="w-2/3">
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex items-center">
-            <ShieldCheck className="w-8 h-8 text-primary-100 mr-3" />
-            <h2 class="text-xl font-semibold text-primary-textoTitle">
-              Roles y Permisos
-            </h2>
-          </div>
-          <button
-            class="bg-primary-100 text-white px-3 py-2 rounded-lg flex items-center hover:bg-primary-200 transition"
-          >
-            <Plus className="w-5 h-5 mr-2" /> Nuevo Rol
-          </button>
-        </div>
-
-        <div class="space-y-4">
-          {
-            roles.map((rol) => (
-              <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="flex justify-between items-center mb-2">
-                  <h3 class="font-semibold text-primary-textoTitle">
-                    {rol.nombre}
-                  </h3>
-                  <div class="flex space-x-2">
-                    <Edit className="w-5 h-5 text-blue-500 cursor-pointer hover:text-blue-700" />
-                    <Trash2 className="w-5 h-5 text-red-500 cursor-pointer hover:text-red-700" />
-                  </div>
-                </div>
-                <p class="text-sm text-gray-600 mb-2">{rol.descripcion}</p>
-                <div class="flex flex-wrap gap-2">
-                  {rol.permisos.map((permiso) => (
-                    <span class="bg-primary-100 text-white text-xs px-2 py-1 rounded-full">
-                      {permiso}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))
-          }
-        </div>
-      </DivBox1>
+    <SeccionRoles/>
     </div>
   </MainDashboard>
 </LayoutDash>

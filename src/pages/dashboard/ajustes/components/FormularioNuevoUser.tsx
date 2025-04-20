@@ -11,7 +11,7 @@ interface NuevoUsuario {
   apellido: string;
   email: string;
   password: string;
-  rol: 'admin' | 'empleado' | 'gerente';
+  rol: 'admin' | 'vendedor' | 'repositor';
   tipoUsuario: 'empleado' | 'cliente' | 'proveedor';
 }
 
@@ -45,7 +45,7 @@ export default function FormularioNuevoUser({ userId }: Props) {
 
   // Validación de formulario
   const validateForm = () => {
-    if (!formData.userName || !formData.nombre || !formData.apellido || 
+    if (!formData.dni || !formData.nombre || !formData.apellido || 
         !formData.email || !formData.password) {
       setErrors('Todos los campos son obligatorios');
       return false;
@@ -200,8 +200,8 @@ export default function FormularioNuevoUser({ userId }: Props) {
           onChange={handleChange}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-100 focus:outline-none focus:ring-1 focus:ring-primary-100"
         >
-          <option value="empleado">Empleado</option>
-          <option value="gerente">Gerente</option>
+          <option value="vendedor">Vendedor</option>
+          <option value="repositor">Repositor</option>
           <option value="admin">Administrador</option>
         </select>
       </div>

@@ -3,7 +3,7 @@ import { Plus, Users } from "lucide-react";
 import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 import TablaUsuarios from "./TablaUsuarios.astro";
 
-
+const {user}=Astro.locals
 ---
 <DivBox1 styleDiv="w-full">
     <div class="flex justify-between items-center gap-2">
@@ -16,5 +16,5 @@ import TablaUsuarios from "./TablaUsuarios.astro";
 
     </div>
 
-    <TablaUsuarios />
+    <TablaUsuarios userId={user?.id} />
   </DivBox1>

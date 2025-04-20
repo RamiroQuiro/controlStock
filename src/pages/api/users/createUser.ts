@@ -68,6 +68,7 @@ if (adminUser[0]?.rol !== 'admin') {
             rol: rol ||'admin',
             password: hashPassword,
             creadoPor: creadoPor,
+            userName:`${rol || 'admin'}: ${nombre.toLowerCase()} ${apellido.toLowerCase()}`
           },
         ])
         .returning()

@@ -1,0 +1,8 @@
+---
+import FormularioPerfilUser from "../components/FormularioPerfilUser";
+
+const { user } = Astro.locals;
+
+---
+
+    <FormularioPerfilUser user={user} client:load />

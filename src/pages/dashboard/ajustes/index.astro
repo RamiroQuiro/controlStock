@@ -1,9 +1,18 @@
 ---
 import LayoutDash from "../../../components/layouts/LayoutDash.astro";
+import { puedeAccederRuta } from "../../../utils/permisosRoles";
 import Ajustes from "./Ajustes.astro";
-
-
-
+const {user}=Astro.locals
+const tieneAcceso = puedeAccederRuta(user, Astro.url.pathname);
+if (!tieneAcceso && user.rol==="vendedor") {
+  return Astro.redirect("/dashboard/ventas");
+}
+if (!tieneAcceso && user.rol==="repositor") {
+  return Astro.redirect("/dashboard/stock");
+}
+if (!tieneAcceso) {
+  return Astro.redirect("/dashboard");
+}
 ---
 <LayoutDash title="Ajustes">
     <Ajustes/>

@@ -1,4 +1,4 @@
-import { DoorClosed, EyeClosed, LogOut, Outdent, StopCircle, XCircle } from "lucide-react";
+import { XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import PerfilProducto from "./PerfilProducto";
 import { useStore } from "@nanostores/react";

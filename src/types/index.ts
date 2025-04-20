@@ -1,3 +1,24 @@
+export type Rol = 'admin' | 'vendedor' | 'repositor';
+export type TipoUsuario = 'empleado' | 'cliente' | 'proveedor';
+export type Users = {
+  id: string;
+  userName: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  password: string;
+  rol: Rol;
+  razonSocial: string | null;
+  nombreFantasia: string | null;
+  tipoUsuario: TipoUsuario;
+  documento: string | null;
+  telefono: string | null;
+  direccion: string | null;
+  creadoPor: string | null;
+  fechaAlta: number;
+  activo: number;
+};
+
 export type Producto = {
   id: string; // ID único del producto
   nombre: string; // Nombre del producto

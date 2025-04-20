@@ -10,6 +10,7 @@ import db from '../../../db';
 import { users } from '../../../db/schema';
 import { lucia } from '../../../lib/auth';
 import { promises as fs } from "fs";
+import { inicializarRoles } from '../../../services/roles.sevices';
 
 export async function POST({ request, redirect, cookies }: APIContext): Promise<Response> {
   const formData = await request.json();
@@ -68,7 +69,9 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
       ])
       .returning()
   ).at(0);
-  // console.log('NUEV USUARIO->', newUser);
+  
+
+
   if (!newUser) {
     return new Response(
       JSON.stringify({
@@ -77,6 +80,17 @@ export async function POST({ request, redirect, cookies }: APIContext): Promise<
       })
     );
   }
+
+
+      // Si el usuario es admin, inicializar roles
+      if (newUser && newUser.rol === 'admin') {
+        try {
+          await inicializarRoles(userId);
+        } catch (rolesError) {
+          console.error('Error al inicializar roles:', rolesError);
+          // Opcional: manejar el error sin interrumpir el registro
+        }
+      }
   const session = await lucia.createSession(userId, {
     userName: userName,
   });

@@ -1,0 +1,21 @@
+---
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import ContenedorFormulario from "./ContenedorFormulario.astro";
+import FormularioCambiarPassword from "../components/FormularioCambiarPassword";
+
+const {user}=Astro.locals
+
+---
+
+<MainDashboard h1="Perfil de Usuario">
+  <div class="flex w-full md:flex-row flex-col  items-stretch gap-2 justify-between">
+
+    <DivBox1 styleDiv="md:w-2/3 w-full">
+      <ContenedorFormulario />
+    </DivBox1>
+    <DivBox1 styleDiv="md:w-1/3 w-full h-full">
+      <FormularioCambiarPassword client:load user={user} />
+    </DivBox1>
+  </div>
+</MainDashboard>

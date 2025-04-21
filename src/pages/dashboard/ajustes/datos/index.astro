@@ -1,0 +1,17 @@
+---
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
+import GestionDatosOpciones from "../components/GestionDatosOpciones";
+const {user}=Astro.locals
+// Datos de ejemplo (en un escenario real, vendrían de una base de datos)
+
+---
+
+<LayoutDash>
+  <MainDashboard h1="Gestión de Datos">
+    <DivBox1 styleDiv="w-full h-[50vh]">
+      <GestionDatosOpciones client:load/>
+    </DivBox1>
+  </MainDashboard>
+</LayoutDash>

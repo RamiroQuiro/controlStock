@@ -10,12 +10,12 @@ const ajustesOpciones = [
     icono: User,
     seccion: "perfil"
   },
-  {
-    titulo: "Configuración del Sistema",
-    descripcion: "Configura parámetros generales de la aplicación",
-    icono: Settings,
-    seccion: "sistema"
-  },
+  // {
+  //   titulo: "Configuración del Sistema",
+  //   descripcion: "Configura parámetros generales de la aplicación",
+  //   icono: Settings,
+  //   seccion: "configuracionSistema"
+  // },
   {
     titulo: "Gestión de Datos",
     descripcion: "Respaldos, importación y exportación de datos",
@@ -28,18 +28,13 @@ const ajustesOpciones = [
     icono: Bell,
     seccion: "notificaciones"
   },
-  {
-    titulo: "Seguridad",
-    descripcion: "Gestiona contraseñas y permisos de acceso",
-    icono: Lock,
-    seccion: "seguridad"
-  },
-  {
-    titulo: "Personalización",
-    descripcion: "Temas, colores y apariencia de la aplicación",
-    icono: Palette,
-    seccion: "personalizar"
-  },
+  // {
+  //   titulo: "Seguridad",
+  //   descripcion: "Gestiona contraseñas y permisos de acceso",
+  //   icono: Lock,
+  //   seccion: "seguridad"
+  // },
+
   {
     titulo: "Gestión de Usuarios",
     descripcion: "Administra roles de usuario y permisos de acceso",
@@ -50,7 +45,7 @@ const ajustesOpciones = [
 ---
 
 <MainDashboard h1="Ajustes">
-  <div class="flex flex-wrap gap-2  justify-between">
+  <div class="flex flex-wrap gap-2  justify-start">
     {ajustesOpciones.map((opcion) => (
       <DivBox1 styleDiv="md:w-[32.5%] w-full">
         <div class="flex items-center mb-4">

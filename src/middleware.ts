@@ -38,8 +38,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-
-
   // Verificar sesión para rutas que requieren autenticación
   if (!sessionId) {
     return context.redirect("/login");
@@ -75,9 +73,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     // Rutas de administrador requieren rol específico
- if (!puedeAccederRuta(user, context.url.pathname)) {
-   return new Response('No autorizado', { status: 403 });
- }
+    if (!puedeAccederRuta(user, context.url.pathname)) {
+      return context.redirect("/login");
+    }
 
     // Establecer locales para acceso en páginas Astro
     context.locals.user = user;

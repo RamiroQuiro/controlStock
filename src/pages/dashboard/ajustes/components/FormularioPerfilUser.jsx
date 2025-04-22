@@ -28,6 +28,7 @@ export default function FormularioPerfilUser({user}) {
         if (dataUserFetch.ok) {
           const data = await dataUserFetch.json();
           setUserData(data.data);
+          console.log('data',data.data)
         } 
       } catch (error) {
         console.error(error);
@@ -68,6 +69,7 @@ if (!disable) {
       console.error(error);
     }
   };
+
   return (
     <form onSubmit={handleSubmit} className="w-full p-2">
       <div className="flex flex-col md:flex-row items-center gap-4  w-full">
@@ -152,7 +154,7 @@ if (!disable) {
           :
             <div className="w-full">
               <InputComponenteJsx
-                type="text"
+                type="number"
                 name="documento"
                 className="lowercase"
                 value={userData.documento}

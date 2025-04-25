@@ -24,3 +24,7 @@ pnpm-debug.log*
 .idea/
 .element/
 .qodo
+
+# ignorar carpeta de imagenes
+element/imgs/
+!element/imgs/.gitkeep

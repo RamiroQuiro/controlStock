@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { showToast } from "../../../../../utils/toast/toastShow";
-import ClientesSelect from "../ClientesSelect";
-import MetodoDePago from "./MetodoDePago";
-import { formateoMoneda } from "../../../../../utils/formateoMoneda";
-import { loader } from "../../../../../utils/loader/showLoader";
-import { Table2 } from "lucide-react";
-import Comprobante from "../../../../../components/Comprobante/Comprobante";
-import ModalComprobante from "../../../../../components/Comprobante/ModalComprobante";
+import { useEffect, useState } from 'react';
+import { showToast } from '../../../../../utils/toast/toastShow';
+import ClientesSelect from '../ClientesSelect';
+import MetodoDePago from './MetodoDePago';
+import { formateoMoneda } from '../../../../../utils/formateoMoneda';
+import { loader } from '../../../../../utils/loader/showLoader';
+import { Table2 } from 'lucide-react';
+import Comprobante from '../../../../../components/Comprobante/Comprobante';
+import ModalComprobante from '../../../../../components/Comprobante/ModalComprobante';
 
 export default function ModalPago({
   isOpen,
@@ -18,29 +18,27 @@ export default function ModalPago({
   ivaMonto,
 }) {
   const [cliente, setCliente] = useState({
-    nombre: "consumidor final",
-    dni: "00000000",
-    celular: "0000000000",
-    id: "1",
+    nombre: 'consumidor final',
+    dni: '00000000',
+    celular: '0000000000',
+    id: '000000',
   });
   const [formularioVenta, setFormularioVenta] = useState({
     clienteId: cliente.id,
     descuento: 0,
-    metodoPago: "efectivo",
+    metodoPago: 'efectivo',
     nComprobante: 0,
-    fotoComprobante: "",
+    fotoComprobante: '',
     nCheque: 0,
     vencimientoCheque: 0,
     total: totalVenta,
   });
   const [vueltoCalculo, setVueltoCalculo] = useState(0);
-  const [metodoPago, setMetodoPago] = useState("efectivo");
-  const [comprobantePago, setComprobantePago] = useState(null);
-  const [pagaCon, setPagaCon] = useState(0);
+  const [metodoPago, setMetodoPago] = useState('efectivo');
   const [descuento, setDescuento] = useState(0);
   const [mostrarComprobante, setMostrarComprobante] = useState(false);
   const [ventaFinalizada, setVentaFinalizada] = useState({});
-  const [esPresupuesto, setEsPresupuesto] = useState("comprobante");
+  const [esPresupuesto, setEsPresupuesto] = useState('comprobante');
   const handlePagaCon = (e) => {
     const montoIngresado = Number(e.target.value);
     const total = montoIngresado - totalVenta;
@@ -58,19 +56,19 @@ export default function ModalPago({
 
   const finalizarCompra = async () => {
     loader(true);
-    setEsPresupuesto("comprobante");
-    console.log("quiero ver el cliente", formularioVenta);
+    setEsPresupuesto('comprobante');
+    console.log('quiero ver el cliente', formularioVenta);
     if (totalVenta == 0) {
-      showToast("monto total 0", {
-        background: "bg-primary-400",
+      showToast('monto total 0', {
+        background: 'bg-primary-400',
       });
       return;
     }
     try {
-      const responseFetch = await fetch("/api/sales/finalizarVenta", {
-        method: "POST",
+      const responseFetch = await fetch('/api/sales/finalizarVenta', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           productos: $productos,
@@ -81,7 +79,7 @@ export default function ModalPago({
       });
       const data = await responseFetch.json();
       if (data.status == 200) {
-        showToast(data.msg, { background: "bg-green-600" });
+        showToast(data.msg, { background: 'bg-green-600' });
         loader(false);
         setMostrarComprobante(true);
         setVentaFinalizada(data.data);
@@ -90,23 +88,23 @@ export default function ModalPago({
     } catch (error) {
       console.log(error);
       loader(false);
-      showToast("error al transaccionar", { background: "bg-primary-400" });
+      showToast('error al transaccionar', { background: 'bg-primary-400' });
     }
   };
   const guardarPresupuesto = async () => {
     loader(true);
-    setEsPresupuesto("presupuesto");
+    setEsPresupuesto('presupuesto');
     if (totalVenta == 0) {
-      showToast("monto total 0", {
-        background: "bg-primary-400",
+      showToast('monto total 0', {
+        background: 'bg-primary-400',
       });
       return;
     }
     try {
-      const responseFetch = await fetch("/api/sales/presupuestar", {
-        method: "POST",
+      const responseFetch = await fetch('/api/sales/presupuestar', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           productos: $productos,
@@ -117,7 +115,7 @@ export default function ModalPago({
       });
       const data = await responseFetch.json();
       if (data.status == 200) {
-        showToast(data.msg, { background: "bg-green-600" });
+        showToast(data.msg, { background: 'bg-green-600' });
         loader(false);
         setMostrarComprobante(true);
         setVentaFinalizada(data.data);
@@ -126,7 +124,7 @@ export default function ModalPago({
     } catch (error) {
       console.log(error);
       loader(false);
-      showToast("error al transaccionar", { background: "bg-primary-400" });
+      showToast('error al transaccionar', { background: 'bg-primary-400' });
     }
   };
 
@@ -146,14 +144,18 @@ export default function ModalPago({
   return (
     <>
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-        <div className="bg-white relative h-screen rounded-lg p-6 md:h-auto md:w-full z-50 max-w-2xl md:mb-0 mb-24 animate-aparecer">
+        <div className="bg-white relative h-4/5 rounded-lg py-4 px-6 md:h-[95vh] md:w-full z-50 max-w-2xl md:mb-0 mb-24 animate-aparecer">
           <h2 className="text-2xl font-semibold mb-2">Finalizar Venta</h2>
           <div className=" flex flex-col h-full w-full overflow-y-auto pb-10">
             {/* Sección Cliente */}
             <div className="mb-6">
-              <h3 className="text-lg mb-2">Cliente</h3>
-              <ClientesSelect cliente={cliente} setCliente={setCliente} userId={userId}/>
-              {cliente.id !== "1" && (
+              <h3 className=" ">Cliente</h3>
+              <ClientesSelect
+                cliente={cliente}
+                setCliente={setCliente}
+                userId={userId}
+              />
+              {cliente.id !== '1' && (
                 <div className="mt-2 text-sm w-full flex items-start justify-normal gap-3 text-gray-600">
                   <p>DNI: {cliente.dni}</p>
                   <p>Dirección: {cliente.direccion}</p>
@@ -166,15 +168,15 @@ export default function ModalPago({
             <div className="mb-6">
               <h3 className="text-lg mb-2">Método de Pago</h3>
               <div className="flex flex-wrap  gap-3 mb-4">
-                {["efectivo", "transferencia", "cheque", "deposito"].map(
+                {['efectivo', 'transferencia', 'cheque', 'deposito'].map(
                   (metodo) => (
                     <button
                       key={metodo}
                       onClick={() => clickMetodoPago(metodo)}
                       className={`md:px-4 px-2 md:py-2 py-1 rounded-lg capitalize ${
                         metodoPago === metodo
-                          ? "bg-primary-100 text-white"
-                          : "bg-gray-100"
+                          ? 'bg-primary-100 text-white'
+                          : 'bg-gray-100'
                       }`}
                     >
                       {metodo}
@@ -184,7 +186,7 @@ export default function ModalPago({
               </div>
 
               {/* Campos según método de pago */}
-              {metodoPago === "efectivo" && (
+              {metodoPago === 'efectivo' && (
                 <div className="flex gap-4 w-full">
                   <div className="flex-1 w-full">
                     <label className="text-sm">Monto recibido</label>
@@ -203,7 +205,7 @@ export default function ModalPago({
                 </div>
               )}
 
-              {["transferencia", "deposito"].includes(metodoPago) && (
+              {['transferencia', 'deposito'].includes(metodoPago) && (
                 <div className="space-y-1">
                   <div>
                     <label className="text-sm">Número de comprobante</label>
@@ -231,7 +233,7 @@ export default function ModalPago({
                 </div>
               )}
 
-              {metodoPago === "cheque" && (
+              {metodoPago === 'cheque' && (
                 <div className="space-y-1">
                   <div>
                     <label className="text-sm">Número de cheque</label>

@@ -1,7 +1,7 @@
-import { formateoMoneda } from "../../utils/formateoMoneda";
+import { formateoMoneda } from '../../utils/formateoMoneda';
 
 interface ComprobanteProps {
-  tipo: "comprobante" | "presupuesto";
+  tipo: 'comprobante' | 'presupuesto';
   data: {
     codigo: string;
     fecha: number;
@@ -45,13 +45,13 @@ const Comprobante = ({
       {/* Encabezado */}
       <div className="border-b md:pb-4 md:mb-4">
         <h1 className="text-2xl font-bold">
-          {tipo === "comprobante" ? "Comprobante" : "Presupuesto"}
+          {tipo === 'comprobante' ? 'Comprobante' : 'Presupuesto'}
         </h1>
         <div className="flex justify-between mt-2">
           <div>
             <p>N°: {data.codigo}</p>
             <p>Fecha: {new Date(data.fecha).toLocaleDateString()}</p>
-            {tipo === "presupuesto" && (
+            {tipo === 'presupuesto' && (
               <p className="text-red-500">
                 Válido hasta: {new Date(data.expira_at).toLocaleDateString()}
               </p>
@@ -88,7 +88,7 @@ const Comprobante = ({
         <tbody>
           {data.items.map((item, index) => (
             <tr key={index} className="border-b">
-              <td className="py-2">{item.producto}</td>
+              <td className="py-2">{item.descripcion}</td>
               <td className="text-right">{item.cantidad}</td>
               <td className="text-right">${item.precioUnitario}</td>
               <td className="text-right">${item.subtotal}</td>

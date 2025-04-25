@@ -1,46 +1,45 @@
-import type { APIContext } from "astro";
-import db from "../../../db";
+import type { APIContext } from 'astro';
+import db from '../../../db';
 import {
   detalleVentas,
   movimientosStock,
   productos,
   stockActual,
   ventas,
-} from "../../../db/schema";
-import { nanoid } from "nanoid";
-import { eq, sql } from "drizzle-orm";
+} from '../../../db/schema';
+import { nanoid } from 'nanoid';
+import { eq, sql } from 'drizzle-orm';
 
 export async function POST({ request, params }: APIContext): Promise<Response> {
   try {
-    
     const {
-    productos: productosSeleccionados,
-    userId,
-   data
-  } = await request.json();
-  // console.log('finalizando venta',productosSeleccionados, userId,data);
+      productos: productosSeleccionados,
+      userId,
+      data,
+    } = await request.json();
+    // console.log('finalizando venta',productosSeleccionados, userId,data);
 
-  // Validaciones previas
-  if (!productosSeleccionados?.length || !userId || !data.clienteId) {
-    return new Response(
-      JSON.stringify({
-        status: 400,
-        msg: "Datos inválidos o incompletos",
-      }),
-      { status: 400 }
-    );
-  }
+    // Validaciones previas
+    if (!productosSeleccionados?.length || !userId || !data.clienteId) {
+      return new Response(
+        JSON.stringify({
+          status: 400,
+          msg: 'Datos inválidos o incompletos',
+        }),
+        { status: 400 }
+      );
+    }
 
-  if (data.total <= 0) {
-    return new Response(
-      JSON.stringify({
-        status: 402,
-        msg: "El monto total de la venta debe ser mayor a 0",
-      }),
-      { status: 402 }
-    );
-  }
- 
+    if (data.total <= 0) {
+      return new Response(
+        JSON.stringify({
+          status: 402,
+          msg: 'El monto total de la venta debe ser mayor a 0',
+        }),
+        { status: 402 }
+      );
+    }
+
     const ventaDB = await db
       .transaction(async (trx) => {
         const ventaFinalizada = await trx
@@ -48,7 +47,8 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           .values({
             id: nanoid(12),
             userId,
-          ...data
+            fecha: new Date(),
+            ...data,
           })
           .returning();
         // Procesar cada producto vendido
@@ -82,12 +82,12 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
               id: nanoid(12),
               productoId: prod.id,
               cantidad: prod.cantidad,
-              tipo: "egreso",
-              fecha:new Date(),
+              tipo: 'egreso',
+              fecha: new Date(),
               userId,
               proveedorId: null,
-              motivo: "venta",
-              clienteId:data.clienteId,
+              motivo: 'venta',
+              clienteId: data.clienteId,
             });
           })
         );
@@ -101,8 +101,8 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "Venta finalizada con éxito",
-        data:ventaDB
+        msg: 'Venta finalizada con éxito',
+        data: ventaDB,
       })
     );
   } catch (error) {
@@ -110,7 +110,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     return new Response(
       JSON.stringify({
         status: 500,
-        msg: "Error al finalizar la venta",
+        msg: 'Error al finalizar la venta',
       })
     );
   }

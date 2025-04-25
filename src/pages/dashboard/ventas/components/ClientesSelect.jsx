@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
-import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx'
-import BtnBusquedaCliente from './BtnBusquedaCliente'
-import ModalCliente from './ModalCliente'
-import BusquedaClientes from './BusquedaClientes'
+import React, { useState } from 'react';
+import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
+import BtnBusquedaCliente from './BtnBusquedaCliente';
+import ModalCliente from './ModalCliente';
+import BusquedaClientes from './BusquedaClientes';
 
-export default function ClientesSelect({cliente, setCliente, userId}) {
-const [openModal, setOpenModal] = useState(false)
+export default function ClientesSelect({ cliente, setCliente, userId }) {
+  const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
-     {openModal && (
+      {openModal && (
         <ModalCliente onClose={() => setOpenModal(false)}>
           <BusquedaClientes
             onClose={setOpenModal}
@@ -18,17 +18,17 @@ const [openModal, setOpenModal] = useState(false)
           />
         </ModalCliente>
       )}
-    <div className="w-full mt-2 text-base capitalize inline-flex gap-3">
-    <InputComponenteJsx
-      name={"cliente"}
-      value={cliente?.nombre}
-      type={"text"}
-      />
-    <BtnBusquedaCliente
-      cliente={cliente}
-      onClick={() => setOpenModal(true)}
-      />
-  </div>
-      </>
-  )
+      <div className="w-full  text-base capitalize inline-flex gap-3">
+        <InputComponenteJsx
+          name={'cliente'}
+          value={cliente?.nombre}
+          type={'text'}
+        />
+        <BtnBusquedaCliente
+          cliente={cliente}
+          onClick={() => setOpenModal(true)}
+        />
+      </div>
+    </>
+  );
 }

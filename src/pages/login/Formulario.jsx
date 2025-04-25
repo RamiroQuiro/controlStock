@@ -1,15 +1,15 @@
-import { Lock, Mail, User } from "lucide-react";
-import React, { useState } from "react";
-import { showToast } from "../../utils/toast/toastShow";
-import { loader } from "../../utils/loader/showLoader";
+import { Lock, Mail, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { showToast } from '../../utils/toast/toastShow';
+import { loader } from '../../utils/loader/showLoader';
 
 export default function Formulario({ isLogin }) {
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    userName: "",
+    email: '',
+    password: '',
+    userName: '',
   });
-const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -22,11 +22,11 @@ const [isLoading, setIsLoading] = useState(false)
     e.preventDefault();
     loader(true);
     try {
-      const endpoint = isLogin ? "/api/auth/signin" : "/api/auth/signup";
+      const endpoint = isLogin ? '/api/auth/signin' : '/api/auth/signup';
       const response = await fetch(endpoint, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
@@ -35,34 +35,34 @@ const [isLoading, setIsLoading] = useState(false)
 
       if (response.ok) {
         if (result.status == 200) {
-          window.location.href = "/dashboard";
+          window.location.href = '/dashboard';
         } else if (result.status == 401) {
-          showToast(result.msg || "email incorrecto", {
-            background: "bg-primary-400",
+          showToast(result.msg || 'email incorrecto', {
+            background: 'bg-primary-400',
           });
-          loader(false)
+          loader(false);
         } else if (result.status == 402) {
-          showToast(result.msg || "error de contraseña", {
-            background: "bg-primary-400",
+          showToast(result.msg || 'error de contraseña', {
+            background: 'bg-primary-400',
           });
-          loader(false)
+          loader(false);
         } else if (result.status == 400) {
-          showToast(result.msg || "Hubo un error en la autenticación", {
-            background: "bg-primary-400",
+          showToast(result.msg || 'Hubo un error en la autenticación', {
+            background: 'bg-primary-400',
           });
-          loader(false)
+          loader(false);
         }
         // Redirigir al dashboard o mostrar mensaje de éxito
         // window.location.href = '/dashboard';
       } else {
         // Manejar errores
-        showToast(result.message || "Hubo un error en la autenticación");
-        loader(false)
+        showToast(result.message || 'Hubo un error en la autenticación');
+        loader(false);
       }
     } catch (error) {
-      console.error("Error de autenticación:", error);
-      showToast("Ocurrió un error inesperado");
-      loader(false)
+      console.error('Error de autenticación:', error);
+      showToast('Ocurrió un error inesperado');
+      loader(false);
     }
   };
 
@@ -86,7 +86,7 @@ const [isLoading, setIsLoading] = useState(false)
                 value={formData.userName}
                 onChange={handleChange}
                 className="appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Nombre de Usuario"
+                placeholder="Nombre de Fantasía"
               />
             </div>
           </div>
@@ -106,7 +106,7 @@ const [isLoading, setIsLoading] = useState(false)
                 value={formData.nombre}
                 onChange={handleChange}
                 className="appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Nombre de Usuario"
+                placeholder="Nombre"
               />
             </div>
             <label htmlFor="apellido" className="sr-only">
@@ -121,10 +121,10 @@ const [isLoading, setIsLoading] = useState(false)
                 name="apellido"
                 type="text"
                 required={!isLogin}
-                value={formData.userName}
+                value={formData.apellido}
                 onChange={handleChange}
                 className="appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Nombre de Usuario"
+                placeholder="apellido"
               />
             </div>
           </div>
@@ -165,7 +165,7 @@ const [isLoading, setIsLoading] = useState(false)
             id="password"
             name="password"
             type="password"
-            autoComplete={isLogin ? "current-password" : "new-password"}
+            autoComplete={isLogin ? 'current-password' : 'new-password'}
             required
             value={formData.password}
             onChange={handleChange}
@@ -180,7 +180,7 @@ const [isLoading, setIsLoading] = useState(false)
           type="submit"
           className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
         >
-          {isLogin ? "Iniciar Sesión" : "Registrarse"}
+          {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
         </button>
       </div>
     </form>

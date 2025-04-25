@@ -1,13 +1,13 @@
-import type { APIRoute } from "astro";
-import db from "../../../db";
-import { users, roles } from "../../../db/schema";
-import { eq } from "drizzle-orm";
+import type { APIRoute } from 'astro';
+import db from '../../../db';
+import { users, roles } from '../../../db/schema';
+import { eq } from 'drizzle-orm';
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
-  const userId = request.headers.get("xx-user-id");
-  const getUser = url.searchParams.get("getUsers") || "";
+  const userId = request.headers.get('xx-user-id');
+  const getUser = url.searchParams.get('getUsers') || '';
   if (getUser) {
     const [userDB] = await db
       .select({
@@ -17,10 +17,11 @@ export const GET: APIRoute = async ({ request, params }) => {
         apellido: users.apellido,
         email: users.email,
         documento: users.documento,
+        srcPhoto: users.srcPhoto,
         telefono: users.telefono,
-        fechaAlta:users.fechaAlta,
-        tipoUsuario:users.tipoUsuario,
-        rol:users.rol,
+        fechaAlta: users.fechaAlta,
+        tipoUsuario: users.tipoUsuario,
+        rol: users.rol,
         direccion: users.direccion,
       })
       .from(users)
@@ -28,11 +29,11 @@ export const GET: APIRoute = async ({ request, params }) => {
     return new Response(
       JSON.stringify({
         status: 200,
-        data:  userDB ,
+        data: userDB,
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }
@@ -42,6 +43,7 @@ export const GET: APIRoute = async ({ request, params }) => {
         id: users.id,
         nombre: users.nombre,
         apellido: users.apellido,
+        srcPhoto: users.srcPhoto,
         email: users.email,
         rol: users.rol,
       })
@@ -58,20 +60,20 @@ export const GET: APIRoute = async ({ request, params }) => {
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
     // Manejo de errores durante la transacción o consultas
-    console.error("Error al obtener los datos del producto:", error);
+    console.error('Error al obtener los datos del producto:', error);
     return new Response(
       JSON.stringify({
         status: 400,
-        msg: "Error al buscar los datos del producto",
+        msg: 'Error al buscar los datos del producto',
       }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }

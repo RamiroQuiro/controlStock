@@ -1,33 +1,34 @@
-import { and, eq, like, or } from "drizzle-orm";
+import { and, eq, like, or } from 'drizzle-orm';
 import {
   detalleVentas,
   movimientosStock,
   productos,
   stockActual,
-} from "../../../db/schema";
-import db from "../../../db";
-import type { APIRoute } from "astro";
-import { cache } from "../../../utils/cache";
-
+} from '../../../db/schema';
+import db from '../../../db';
+import type { APIRoute } from 'astro';
+import { cache } from '../../../utils/cache';
+import path from 'path';
+import { promises as fs } from 'fs';
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
-  const query = url.searchParams.get("search");
-  const tipo = url.searchParams.get("tipo"); // Nuevo parámetro para distinguir el tipo de búsqueda
-  const userId = request.headers.get("xx-user-id");
+  const query = url.searchParams.get('search');
+  const tipo = url.searchParams.get('tipo'); // Nuevo parámetro para distinguir el tipo de búsqueda
+  const userId = request.headers.get('xx-user-id');
   if (!query) {
     return new Response(
-      JSON.stringify({ error: "falta el parametro de busqueda" }),
+      JSON.stringify({ error: 'falta el parametro de busqueda' }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }
   try {
     let resultados;
 
-    if (tipo === "codigoBarra") {
+    if (tipo === 'codigoBarra') {
       // Búsqueda exacta para código de barra
       resultados = await db
         .select()
@@ -61,20 +62,20 @@ export const GET: APIRoute = async ({ request, params }) => {
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
     // Manejo de errores durante la transacción o consultas
-    console.error("Error al obtener los datos del producto:", error);
+    console.error('Error al obtener los datos del producto:', error);
     return new Response(
       JSON.stringify({
         status: 400,
-        msg: "Error al buscar los datos del producto",
+        msg: 'Error al buscar los datos del producto',
       }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }
@@ -82,29 +83,49 @@ export const GET: APIRoute = async ({ request, params }) => {
 
 export const DELETE: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
-  const query = url.searchParams.get("search");
+  const productoId = url.searchParams.get('search');
+  const srcPhoto = request.headers.get('srcPhoto');
   try {
     const transacciones = await db.transaction(async (trx) => {
       await trx
         .delete(movimientosStock)
-        .where(eq(movimientosStock.productoId, query));
+        .where(eq(movimientosStock.productoId, productoId));
       await trx
         .delete(detalleVentas)
-        .where(eq(detalleVentas.productoId, query));
-      await trx.delete(stockActual).where(eq(stockActual.productoId, query));
-      await trx.delete(productos).where(eq(productos.id, query));
+        .where(eq(detalleVentas.productoId, productoId));
+      await trx
+        .delete(stockActual)
+        .where(eq(stockActual.productoId, productoId));
+      await trx.delete(productos).where(eq(productos.id, productoId));
     });
 
-    console.log(transacciones);
+    if (srcPhoto) {
+      const imagePath = path.join(
+        process.cwd(),
+        'public',
+        srcPhoto.replace(/^\//, '')
+      );
+
+      try {
+        // Verifica si el archivo existe antes de intentar eliminarlo
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+          console.log(`Imagen eliminada: ${imagePath}`);
+        }
+      } catch (imageError) {
+        console.error('Error al eliminar la imagen:', imageError);
+        // No detenemos la eliminación del producto si falla la eliminación de la imagen
+      }
+    }
     // Invalida el caché de productos para este usuario
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "Prodcuto eliminado",
+        msg: 'Prodcuto eliminado',
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
@@ -112,11 +133,11 @@ export const DELETE: APIRoute = async ({ request, params }) => {
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "Eliminar producto",
+        msg: 'Eliminar producto',
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }
@@ -124,7 +145,7 @@ export const DELETE: APIRoute = async ({ request, params }) => {
 export const PUT: APIRoute = async ({ request, params }) => {
   const data = await request.json();
   const url = new URL(request.url);
-  const query = url.searchParams.get("search");
+  const query = url.searchParams.get('search');
 
   try {
     // Obtener el producto actual
@@ -137,11 +158,11 @@ export const PUT: APIRoute = async ({ request, params }) => {
       return new Response(
         JSON.stringify({
           status: 404,
-          msg: "Producto no encontrado",
+          msg: 'Producto no encontrado',
         }),
         {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
@@ -161,11 +182,11 @@ export const PUT: APIRoute = async ({ request, params }) => {
         return new Response(
           JSON.stringify({
             status: 409,
-            msg: "Ya existe un producto con este código de barras",
+            msg: 'Ya existe un producto con este código de barras',
           }),
           {
             status: 409,
-            headers: { "Content-Type": "application/json" },
+            headers: { 'Content-Type': 'application/json' },
           }
         );
       }
@@ -193,11 +214,11 @@ export const PUT: APIRoute = async ({ request, params }) => {
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "producto actualizado",
+        msg: 'producto actualizado',
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
@@ -205,11 +226,11 @@ export const PUT: APIRoute = async ({ request, params }) => {
     return new Response(
       JSON.stringify({
         status: 500,
-        msg: "error al actualizar producto",
+        msg: 'error al actualizar producto',
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }

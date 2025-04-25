@@ -5,12 +5,11 @@ import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
 import NotificacionesOpciones from "../components/NotificacionesOpciones";
 const {user}=Astro.locals
 // Datos de ejemplo (en un escenario real, vendrían de una base de datos)
-
 ---
 
-<LayoutDash>
-  <MainDashboard h1="Gestión de Datos">
-    <DivBox1 styleDiv="w-full h-[50vh]">
+<LayoutDash title="Notificaciones" dataCliente={user} userData={user}>
+  <MainDashboard h1="Notificaciones">
+    <DivBox1 styleDiv="w-full min-h-[80vh] flex items-center">
         <NotificacionesOpciones client:load/>
     </DivBox1>
   </MainDashboard>

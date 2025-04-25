@@ -7,18 +7,21 @@ const {user} = Astro.locals
 ---
 
 <div
-  class="w-full flex items-center py-2 justify-between px-3 shadow-md bg-white"
+  class="w-full flex items-center py-2 justify-between gap-4 px-5 shadow-md bg-white"
 >
   <button onclick="window.history.back()" class="flex items-center gap-2">
     <ArrowLeftSquare />
   </button>
-  <div class="">
+  <div class="flex items-center gap-2 font-semibold text-primary-textoTitle">
+    <div class="flex border border-primary-100 items-center gap-2 rounded-full bg-gray-200">
+      <img src={`/element/imgs/${user?.id}/avatar.png`} alt="" class="w-8 h-8 rounded-full object-cover" />
+    </div>
     <h3>{user?.userName}</h3>
   </div>
   <form method="post" action="/api/auth/signout">
     <button class="hover:text-primary-400 duration-150  relative group">
       <LogOut />
-      <span class="text-[10px] bg-gray-600 text-white rounded w- -translate-y-10 group-hover:translate-y-0 z-50 px-1 py-0.5 absolute font-semibold top-[115%] left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100  group-hover:animate-aparecer duration-200">
+      <span class="text-[10px] bg-primary-100 text-white rounded  px-1 py-0.5 absolute font-semibold top-[115%] left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100  group-hover:animate-aparecer duration-200">
         Cerrar Sesion
       </span>
     </button>

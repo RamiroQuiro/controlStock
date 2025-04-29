@@ -1,0 +1,125 @@
+---
+import CardPrice from './CardPrice.astro';
+
+const planes = [
+  {
+    name: 'Emprendedor',
+    description: 'Para quienes están comenzando su negocio digital.',
+    price: '$ 7.900',
+    period: 'mes',
+    currency: '$',
+    features: [
+      'Hasta 200 productos',
+      '500 MB de almacenamiento',
+      '1 usuario',
+      'Punto de venta básico',
+      'Sin reportes avanzados',
+      'Soporte por email - WhatsApp',
+    ],
+    isMostPopular: false,
+    ctaText: 'Probar 14 días gratis',
+    ctaLink: '/login',
+  },
+  {
+    name: 'Básico',
+    description: 'Ideal para pequeños negocios y comercios emergentes',
+    price: '$ 15.000',
+    period: 'mes',
+    currency: '$',
+    features: [
+      'Hasta 500 productos',
+      '1GB de almacenamiento',
+      'Hasta 3 usuarios',
+      'Punto de venta básico',
+      'Reportes mensuales',
+      'Soporte por email - WhatsApp',
+    ],
+    isMostPopular: true,
+    ctaText: 'Probar 14 días gratis',
+    ctaLink: '/login',
+  },
+  {
+    name: 'Estándar',
+    description: 'Perfecto para negocios en crecimiento en Santiago del Estero',
+    price: '$ 25.500',
+    period: 'mes',
+    currency: '$',
+    features: [
+      'Hasta 2.000 productos',
+      '5GB de almacenamiento',
+      'Hasta 5 usuarios',
+      'Punto de venta avanzado',
+      'Control de inventario',
+      'Reportes semanales',
+      'Soporte prioritario',
+      'Soporte por email - WhatsApp',
+    ],
+    isMostPopular: false,
+    ctaText: 'Probar 14 días gratis',
+    ctaLink: '/login',
+  },
+  {
+    name: 'Premium',
+    description: 'Para negocios establecidos con alto volumen de ventas',
+    price: '$ 39.900',
+    period: 'mes',
+    currency: '$',
+    features: [
+      'Productos ilimitados',
+      '10GB de almacenamiento',
+      'Usuarios ilimitados',
+      'Punto de venta multitienda',
+      'Control de proveedores',
+      'Reportes personalizados',
+      'Soporte 24/7',
+      'Soporte por email - WhatsApp',
+    ],
+    isMostPopular: false,
+    ctaText: 'Contactar Ventas',
+    ctaLink: '/login',
+  },
+];
+---
+
+<section id="pricing" class="py-16 bg-white">
+  <div class="container mx-auto px-6 md:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-primary-textoTitle mb-4">
+        Planes <span class="text-primary-600">Accesibles</span> que ofrecemos
+      </h2>
+      <p class="text-primary-texto text-lg max-w-2xl mx-auto">
+        Elige el plan que mejor se adapte a las necesidades de tu negocio. Todos
+        nuestros planes incluyen prueba gratuita de 14 días.
+      </p>
+    </div>
+
+    <div class="flex w-full items-center justify-normal flex- gap-3">
+      {
+        planes.map((plan, index) => (
+          <CardPrice
+            name={plan.name}
+            description={plan.description}
+            price={plan.price}
+            period={plan.period}
+            currency={plan.currency}
+            features={plan.features}
+            isMostPopular={plan.isMostPopular}
+            ctaText={plan.ctaText}
+            ctaLink={plan.ctaLink}
+          />
+        ))
+      }
+    </div>
+
+    <div class="mt-10 text-center text-primary-texto">
+      <p>
+        Todos nuestros precios incluyen IVA y están en pesos argentinos.
+        Ofrecemos descuentos para facturación anual.
+      </p>
+      <p class="mt-2">
+        <span class="font-medium">¿Necesitas un plan personalizado?</span> Contáctanos
+        para una cotización adaptada a tu negocio.
+      </p>
+    </div>
+  </div>
+</section>

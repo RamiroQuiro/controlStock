@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { User, Lock, ChevronRight } from 'lucide-react';
+import Beneficios from './landing/Beneficios.astro';
+import CTASeccion from './landing/CTASeccion.astro';
+import Hero from './landing/Hero.astro';
+import Footer from './landing/Footer.astro';
+import NavBarLanding from './landing/NavBarLanding.astro';
+import Features from './landing/Feature.astro';
+import ContenedorPrecios from './landing/ContenedorPrecios.astro';
+---
+
+<Layout title="ControlStock - Gestión Inteligente">
+  <NavBarLanding />
+  <main class="flex-grow">
+    <Hero />
+    <Features />
+    <Beneficios />
+    <ContenedorPrecios />
+    <CTASeccion />
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .bg-gradient-to-br {
+    background: linear-gradient(to bottom right, #6366f1, #3b82f6);
+  }
+</style>

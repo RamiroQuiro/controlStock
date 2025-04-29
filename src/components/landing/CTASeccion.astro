@@ -1,0 +1,31 @@
+---
+import Button1 from '../atomos/Button1.astro';
+import Button2 from '../atomos/Button2.astro';
+---
+
+<section class="py-16 bg-gradient-to-r from-primary-600 to-primary-200">
+  <div class="container mx-auto px-6 md:px-8 text-center">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+        Lleva tu Negocio al Siguiente Nivel
+      </h2>
+      <p class="text-xl text-white/90 mb-8">
+        Únete a cientos de negocios que ya están optimizando su gestión con
+        nuestro sistema.
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <Button2 class="bg-white text-primary-600 hover:bg-white/90">
+          <a href="/register">Comenzar Ahora</a>
+        </Button2>
+        <Button2
+          class="border-white text-white hover:bg-white hover:text-primary-600"
+        >
+          <a href="/contact">Contactar Ventas</a>
+        </Button2>
+      </div>
+      <p class="mt-6 text-white/80 text-sm">
+        Sin compromiso • Soporte personalizado • Prueba gratuita por 14 días
+      </p>
+    </div>
+  </div>
+</section>

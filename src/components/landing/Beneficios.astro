@@ -1,0 +1,51 @@
+---
+import { Check } from "lucide-react";
+
+
+const benefitsList = [
+    "Reduce errores de inventario hasta en un 95%",
+    "Ahorra hasta 10 horas semanales en tareas administrativas",
+    "Aumenta la satisfacción de tus clientes con un servicio más rápido",
+    "Toma decisiones informadas basadas en datos reales",
+    "Previene pérdidas con un control preciso de stock",
+    "Optimiza tus compras y evita excesos de inventario"
+  ];
+
+---
+
+
+<section id="benefits" class="py-16 bg-primary-bg-claro">
+    <div class="container mx-auto px-6 md:px-8">
+      <div class="flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 pr-0 md:pr-12 mb-10 md:mb-0">
+          <div class="rounded-lg overflow-hidden shadow-xl">
+            <img 
+              src="https://images.unsplash.com/photo-1519389950473-47ba0277781c" 
+              alt="Equipo usando el sistema"
+              class="w-full h-auto"
+            />
+          </div>
+        </div>
+
+        <div class="md:w-1/2 space-y-6">
+          <h2 class="text-3xl md:text-4xl font-bold text-primary-textoTitle">
+            Beneficios que <span class="text-primary-600">Transformarán</span> tu Negocio
+          </h2>
+          <p class="text-lg text-primary-texto">
+            Nuestro sistema está diseñado para ayudarte a optimizar operaciones, aumentar ventas y mejorar la experiencia de tus clientes.
+          </p>
+          
+          <ul class="space-y-3">
+            {benefitsList.map((benefit, index) => (
+              <li class="flex items-start">
+                <div class="mr-3 mt-1">
+                  <Check className="h-5 w-5 text-primary-500" />
+                </div>
+                <span class="text-primary-texto">{benefit}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>

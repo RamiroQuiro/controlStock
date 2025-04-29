@@ -1,0 +1,71 @@
+---
+import DivBox1 from '../atomos/DivBox1.astro';
+
+const features = [
+  {
+    title: 'Gestión de Inventario',
+    description:
+      'Control total sobre tu stock con alertas de bajo inventario y seguimiento en tiempo real.',
+    icon: 'image',
+  },
+  {
+    title: 'Punto de Venta Intuitivo',
+    description:
+      'Interfaz rápida y amigable para procesar ventas sin complicaciones.',
+    icon: 'shopping-cart',
+  },
+  {
+    title: 'Reportes Detallados',
+    description:
+      'Analiza el rendimiento de tu negocio con informes personalizables.',
+    icon: 'chart',
+  },
+  {
+    title: 'Gestión de Clientes',
+    description:
+      'Base de datos completa de tus clientes para optimizar relaciones y ventas.',
+    icon: 'users',
+  },
+  {
+    title: 'Multiusuario',
+    description: 'Diferentes niveles de acceso para tu equipo de trabajo.',
+    icon: 'user',
+  },
+  {
+    title: 'Acceso Multidispositivo',
+    description:
+      'Accede desde cualquier dispositivo y lugar con conexión a internet.',
+    icon: 'devices',
+  },
+];
+---
+
+<section id="features" class="py-16 bg-white">
+  <div class="container mx-auto px-6 md:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold text-primary-textoTitle mb-4">
+        Características <span class="text-primary-600">Principales</span>
+      </h2>
+      <p class="text-primary-texto text-lg max-w-2xl mx-auto">
+        Nuestro sistema está diseñado para facilitar la gestión de tu negocio
+        con herramientas potentes y fáciles de usar.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {
+        features.map((feature, index) => (
+          <DivBox1>
+            <div class="h-12 w-12 bg-primary-500/70 rounded-lg flex items-center justify-center mb-4">
+              <div class="text-primary-600 font-bold">{index + 1}</div>
+            </div>
+            <h3 class="text-xl font-semibold text-primary-textoTitle mb-2">
+              {feature.title}
+            </h3>
+            <p class="text-primary-texto">{feature.description}</p>
+          </DivBox1>
+        ))
+      }
+    </div>
+  </div>
+</section>

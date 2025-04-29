@@ -1,18 +1,21 @@
 ---
+import NavBarLanding from '../../components/landing/NavBarLanding.astro';
 import Layout from '../../layouts/Layout.astro';
 import Login from './Login';
 ---
 
 <Layout>
-  <div class="w-screen h-screen backgroundLogin flex items-center justify-center">
-
-    <Login client:load/>
+  <NavBarLanding />
+  <div
+    class="w-screen h-screen pt-10 backgroundLogin flex items-center justify-center"
+  >
+    <Login client:load />
   </div>
 </Layout>
 
-
 <style>
   .backgroundLogin {
-    background-image: linear-gradient(-52deg, #5FA5FA 22%, transparent 0),  linear-gradient(180deg, #bcdafe 10%, #fbfcff);
+    background-image: linear-gradient(-52deg, #5fa5fa 22%, transparent 0),
+      linear-gradient(180deg, #bcdafe 10%, #fbfcff);
   }
 </style>

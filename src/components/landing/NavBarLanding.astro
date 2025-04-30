@@ -46,28 +46,29 @@ import ProStockApp from '../atomos/ProStockApp.astro';
 
     {/* Mobile Navigation */}
 
-    <div class="md:hidden pt-4 pb-2 space-y-2 animate-fade-in">
-      <a
-        href="/"
-        class="block py-2 text-primary-textoTitle hover:text-primary-600"
+    <div
+      id="mobileMenu"
+      class="hidden gap-6 flex py-8 flex-col w-full animate-apDeArriba"
+    >
+      <a href="/" class="text-primary-textoTitle hover:text-primary-600"
         >Inicio</a
       >
       <a
         href="/#features"
-        class="block py-2 text-primary-textoTitle hover:text-primary-600"
+        class="text-primary-textoTitle hover:text-primary-600"
         >Características</a
       >
       <a
         href="/#benefits"
-        class="block py-2 text-primary-textoTitle hover:text-primary-600"
-        >Beneficios</a
+        class="text-primary-textoTitle hover:text-primary-600">Beneficios</a
       >
-      <div class="flex flex-col space-y-2 pt-2">
-        <Button1>
-          <a href="/contact">Contacto</a>
-        </Button1>
-        <Button1>
-          <a href="/login">Iniciar sesión</a>
+      <!-- <a
+      href="/contact"
+      class="text-primary-textoTitle hover:text-primary-600">Contacto</a
+    > -->
+      <div>
+        <Button1 style="font-thin w-auto">
+          {(<a href="/dashboard">Iniciar sesión</a>)}
         </Button1>
       </div>
     </div>
@@ -75,9 +76,9 @@ import ProStockApp from '../atomos/ProStockApp.astro';
 </nav>
 
 <script>
-  const toggleMenu = () => {
-    const menu = document.getElementById('toggleMenu');
-    const isMenuOpen = menu.getAttribute('data-menu-open') === 'true';
-    menu.setAttribute('data-menu-open', !isMenuOpen);
-  };
+  const btnMobil = document.getElementById('toggleMenu');
+  const menu = document.getElementById('mobileMenu');
+  btnMobil.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+  });
 </script>

@@ -1,9 +1,9 @@
-import { lucia } from "../src/lib/auth";
-import { defineMiddleware } from "astro/middleware";
-import { verifyRequestOrigin } from "lucia";
-import { ADMIN_ROUTES, PUBLIC_ROUTES } from "./lib/protectRoutes";
-import jwt from "jsonwebtoken";
-import { puedeAccederRuta } from "./utils/permisosRoles";
+import { lucia } from '../src/lib/auth';
+import { defineMiddleware } from 'astro/middleware';
+import { verifyRequestOrigin } from 'lucia';
+import { ADMIN_ROUTES, PUBLIC_ROUTES } from './lib/protectRoutes';
+import jwt from 'jsonwebtoken';
+import { puedeAccederRuta } from './utils/permisosRoles';
 type UserData = {
   id: number;
   nombre: string;
@@ -14,9 +14,9 @@ type UserData = {
 };
 export const onRequest = defineMiddleware(async (context, next) => {
   // Verificar origen de la solicitud para prevenir CSRF
-  if (context.request.method !== "GET") {
-    const originHeader = context.request.headers.get("Origin") ?? null;
-    const hostHeader = context.request.headers.get("Host") ?? null;
+  if (context.request.method !== 'GET') {
+    const originHeader = context.request.headers.get('Origin') ?? null;
+    const hostHeader = context.request.headers.get('Host') ?? null;
 
     if (
       !originHeader ||
@@ -25,14 +25,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     ) {
       return new Response(null, {
         status: 403,
-        statusText: "Forbidden",
+        statusText: 'Forbidden',
       });
     }
   }
 
   // Verificar sesión para rutas protegidas
   const sessionId = context.cookies.get(lucia.sessionCookieName)?.value ?? null;
-  const userDataCookie = context.cookies.get("userData")?.value ?? null;
+  const userDataCookie = context.cookies.get('userData')?.value ?? null;
   // Rutas públicas siempre accesibles
   if (PUBLIC_ROUTES.includes(context.url.pathname)) {
     return next();
@@ -40,7 +40,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Verificar sesión para rutas que requieren autenticación
   if (!sessionId) {
-    return context.redirect("/login");
+    return context.redirect('/login');
   }
 
   try {
@@ -66,15 +66,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
           import.meta.env.SECRET_KEY_CREATECOOKIE
         ) as UserData;
       } catch (error) {
-        console.error("Error al decodificar cookie de usuario:", error);
+        console.error('Error al decodificar cookie de usuario:', error);
         // Manejar error de decodificación
-        return context.redirect("/login");
+        return context.redirect('/login');
       }
     }
 
     // Rutas de administrador requieren rol específico
     if (!puedeAccederRuta(user, context.url.pathname)) {
-      return context.redirect("/login");
+      return context.redirect('/login');
     }
 
     // Establecer locales para acceso en páginas Astro
@@ -84,6 +84,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   } catch {
     // Sesión inválida
-    return context.redirect("/login");
+    return context.redirect('/login');
   }
 });

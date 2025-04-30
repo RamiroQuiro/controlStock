@@ -1,4 +1,6 @@
 ---
+import ProStockApp from '../atomos/ProStockApp.astro';
+
 const currentYear = new Date().getFullYear();
 ---
 
@@ -6,7 +8,7 @@ const currentYear = new Date().getFullYear();
   <div class="container mx-auto px-6 md:px-8">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
       <div class="space-y-4">
-        <h3 class="text-xl font-bold text-primary-600">StockVista</h3>
+        <ProStockApp />
         <p class="text-primary-texto">
           Sistema inteligente de gestión de inventario y punto de venta para
           negocios.
@@ -18,24 +20,19 @@ const currentYear = new Date().getFullYear();
         <ul class="space-y-2">
           <li>
             <a
-              href="/features"
+              href="#features"
               class="text-primary-texto hover:text-primary-600"
               >Características</a
             >
           </li>
           <li>
-            <a href="/pricing" class="text-primary-texto hover:text-primary-600"
+            <a href="#precios" class="text-primary-texto hover:text-primary-600"
               >Precios</a
             >
           </li>
           <li>
             <a href="/demo" class="text-primary-texto hover:text-primary-600"
               >Solicitar Demo</a
-            >
-          </li>
-          <li>
-            <a href="/updates" class="text-primary-texto hover:text-primary-600"
-              >Actualizaciones</a
             >
           </li>
         </ul>
@@ -45,18 +42,8 @@ const currentYear = new Date().getFullYear();
         <h3 class="font-semibold text-primary-textoTitle mb-2">Recursos</h3>
         <ul class="space-y-2">
           <li>
-            <a href="/blog" class="text-primary-texto hover:text-primary-600"
-              >Blog</a
-            >
-          </li>
-          <li>
             <a href="/guides" class="text-primary-texto hover:text-primary-600"
               >Guías</a
-            >
-          </li>
-          <li>
-            <a href="/help" class="text-primary-texto hover:text-primary-600"
-              >Ayuda</a
             >
           </li>
         </ul>
@@ -73,11 +60,6 @@ const currentYear = new Date().getFullYear();
           <li>
             <a href="/contact" class="text-primary-texto hover:text-primary-600"
               >Contacto</a
-            >
-          </li>
-          <li>
-            <a href="/careers" class="text-primary-texto hover:text-primary-600"
-              >Carreras</a
             >
           </li>
         </ul>

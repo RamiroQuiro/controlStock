@@ -1,10 +1,8 @@
 ---
-import { LogOut, LucideOutdent, Outdent } from "lucide-react";
-import Loader from "../../utils/loader/Loader.astro";
-import NavDash from "../organismos/NavDash.astro";
-import Sidebar from "../organismos/Sidebar.astro";
-import NavDashboard from "../organismos/NavDashboard.astro";
-import DownloadLoader from "../../utils/loader/DownloadLoader.astro";
+import Loader from '../../utils/loader/Loader.astro';
+import Sidebar from '../organismos/Sidebar.astro';
+import NavDashboard from '../organismos/NavDashboard.astro';
+import DownloadLoader from '../../utils/loader/DownloadLoader.astro';
 
 interface Props {
   title: string;
@@ -35,14 +33,11 @@ const url = Astro.url;
     <Sidebar />
     <!-- <NavDash dataCliente={dataCliente} userData={userData} /> -->
     <Loader />
-    <DownloadLoader/>
+    <DownloadLoader />
     <div
-      class="h-full overscroll-auto flex flex-col w-full  items-start justify-start bg-gradient-to-br from-primary-100/15 via-transparent to-primary-400/15 backdrop-blur-sm"
+      class="h-full overscroll-auto flex flex-col w-full items-start justify-start bg-gradient-to-br from-primary-100/15 via-transparent to-primary-400/15 backdrop-blur-sm"
     >
-    
-    
-
-    <NavDashboard/>
+      <NavDashboard />
       <slot />
     </div>
   </body>
@@ -51,13 +46,12 @@ const url = Astro.url;
   /* Registra tu font family personalizada y le indicamos al navegador dónde encontrarla. */
 
   @font-face {
-    font-family: "IndieFlower";
-    src: url("/font/IndieFlower-Regular.ttf") format("ttf");
+    font-family: 'IndieFlower';
+    src: url('/font/IndieFlower-Regular.ttf') format('ttf');
     font-weight: 400;
     font-style: normal;
   }
 
- 
   html {
   }
   code {
@@ -71,13 +65,13 @@ const url = Astro.url;
       Courier New,
       monospace;
   }
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  input[type="number"] {
+  input[type='number'] {
     -moz-appearance: textfield;
   }
 </style>

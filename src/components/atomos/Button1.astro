@@ -1,6 +1,11 @@
 ---
-const { onClick, id, style, type,className } = Astro.props;
-
+const { onClick, id, style, type, className } = Astro.props as {
+  onClick: () => void;
+  id: string;
+  style: string;
+  type: 'submit' | 'reset' | 'button' | null | undefined;
+  className: string;
+};
 ---
 
 <button

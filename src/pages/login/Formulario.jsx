@@ -47,7 +47,7 @@ export default function Formulario({ isLogin }) {
           });
           loader(false);
         } else if (result.status == 400) {
-          showToast(result.msg || 'Hubo un error en la autenticación', {
+          showToast(result.msg, {
             background: 'bg-primary-400',
           });
           loader(false);

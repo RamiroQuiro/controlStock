@@ -3,7 +3,7 @@ import type { APIContext } from 'astro';
 import jwt from 'jsonwebtoken';
 
 import path from 'path';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { generateId } from 'lucia';
 import db from '../../../db';
@@ -41,13 +41,12 @@ export async function POST({
   const existingUser = await db
     .select()
     .from(users)
-    .where(and(eq(users.email, email), eq(users.userName, userName)));
-  // console.log(existingUser);
+    .where(or(eq(users.email, email), eq(users.userName, userName)));
 
   if (existingUser.length > 0) {
     return new Response(
       JSON.stringify({
-        data: 'email ya registrado',
+        msg: 'email o userName ya registrado',
         status: 400,
       })
     );

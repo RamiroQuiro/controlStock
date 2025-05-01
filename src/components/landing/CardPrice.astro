@@ -62,7 +62,7 @@ const {
     </div>
     <a
       href={ctaLink}
-      class="block w-full rounded-md border border-stroke p-3 text-center text-base font-medium text-primary transition duration-300 hover:border-primary-bg-claro bg-primary-texto/50 hover:bg-primary-textoTitle text-white dark:border-dark-3"
+      class={`block w-full rounded-md border border-stroke p-3 text-center text-base font-medium text-primary transition duration-300 hover:border-primary-bg-claro ${isMostPopular?'bg-primary-600  hover:bg-primary-100':'bg-primary-texto/50  hover:bg-primary-textoTitle'} text-white dark:border-dark-3`}
     >
       {ctaText}
     </a>

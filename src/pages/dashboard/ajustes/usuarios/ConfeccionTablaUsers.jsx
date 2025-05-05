@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import Table from "../../../../components/tablaComponentes/Table";
-import { columnasUsuarios } from "../../../../utils/columnasTables";
-import { RenderActionsUsers } from "../../../../components/tablaComponentes/RenderBotonesActions";
-import { useStore } from "@nanostores/react";
-import { fetchRolesData, rolesStore } from "../../../../context/store";
+import React, { useEffect, useState } from 'react';
+import Table from '../../../../components/tablaComponentes/Table';
+import { columnasUsuarios } from '../../../../utils/columnasTables';
+import { RenderActionsUsers } from '../../../../components/tablaComponentes/RenderBotonesActions';
+import { useStore } from '@nanostores/react';
+import { fetchRolesData, rolesStore } from '../../../../context/store';
 
 export default function ConfeccionTablaUsers({ userId }) {
   const [newArray, setNewArray] = useState([]);
@@ -25,26 +25,25 @@ export default function ConfeccionTablaUsers({ userId }) {
         apellido: cliente.apellido,
         email: cliente.email,
         rol: cliente.rol,
+        estado: cliente.estado,
         // Añade otros campos según necesites
       }));
 
       setNewArray(transformedArray);
     }
-  }, [loading])
+  }, [loading]);
 
   // Manejo de errores
   if (error) {
     return (
-      <div className="text-red-500 p-4">
-        Error al cargar usuarios: {error}
-      </div>
+      <div className="text-red-500 p-4">Error al cargar usuarios: {error}</div>
     );
   }
   return (
     <div className="w-full">
       {loading ? (
         <div
-          colSpan={"2"}
+          colSpan={'2'}
           className="border-b last:border-0 text-xs font-semibold animate-pulse bg-white text-center p-4"
         >
           Cargando...

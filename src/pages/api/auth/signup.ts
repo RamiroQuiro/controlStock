@@ -77,7 +77,7 @@ export async function POST({
   ).at(0);
 
   // Crear Proveedor Comodín
-  
+
   const [proveedorComodin] = await db
     .insert(proveedores)
     .values({

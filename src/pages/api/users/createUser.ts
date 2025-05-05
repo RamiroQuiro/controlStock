@@ -32,11 +32,11 @@ export async function POST({
   }
   //   hacer la comprobacion si el eusuario puede o no crar mas usuarios
 
-  const adminUser = await db
+  const [adminUser] = await db
     .select()
     .from(users)
     .where(eq(users.id, creadoPor));
-  if (adminUser[0]?.rol !== 'admin') {
+  if (adminUser?.rol !== 'admin') {
     return new Response(
       JSON.stringify({
         data: 'No tienes permisos para crear usuarios',
@@ -79,7 +79,7 @@ export async function POST({
           rol: rol || 'admin',
           password: hashPassword,
           creadoPor: creadoPor,
-          userName: `${rol || 'admin'}: ${nombre.toLowerCase()} ${apellido.toLowerCase()}`,
+          userName: `${rol || 'admin'}: ${nombre.toLowerCase()} ${apellido.toLowerCase()} de ${adminUser.userName}`,
         },
       ])
       .returning()

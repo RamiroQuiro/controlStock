@@ -23,5 +23,5 @@ export const clientes = sqliteTable("clientes", {
 
  (t) => [
     // Índice único compuesto para evitar duplicados de dni por usuario
-    unique().on(t.dni, t.userId),
+    unique().on(t.dni, t.userId,t.id),
   ]);

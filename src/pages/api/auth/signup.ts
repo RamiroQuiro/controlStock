@@ -77,10 +77,11 @@ export async function POST({
   ).at(0);
 
   // Crear Proveedor Comodín
+  
   const [proveedorComodin] = await db
     .insert(proveedores)
     .values({
-      id: '000000',
+      id: generateId(13),
       nombre: 'Proveedor General',
       userId: userId,
       esComodin: true, // Añade esta bandera
@@ -95,7 +96,7 @@ export async function POST({
   const [clienteFinal] = await db
     .insert(clientes)
     .values({
-      id: '000000',
+      id: generateId(13),
       nombre: 'Cliente Final',
       userId: userId,
       esClienteFinal: true, // Añade esta bandera

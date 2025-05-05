@@ -12,5 +12,10 @@ export const roles = sqliteTable("roles", {
   fechaCreacion: integer("created_at") // Timestamp Unix
   .notNull()
   .default(sql`(strftime('%s', 'now'))`),
-});
+
+},
+(t) => [
+  // Índice único compuesto para evitar duplicados de dni por usuario
+  unique().on(t.id, t.nombre,t.creadoPor),
+]);
 

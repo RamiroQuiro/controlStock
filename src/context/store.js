@@ -33,7 +33,9 @@ const fetchStatsData = async (userId) => {
   }
 };
 
-const dataFormularioContexto = atom({});
+const dataFormularioContexto = atom({
+  isEdit: false,
+});
 
 const productosSeleccionadosVenta = atom([]);
 

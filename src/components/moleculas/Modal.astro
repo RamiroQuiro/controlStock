@@ -1,11 +1,14 @@
 ---
-import Button1 from "../atomos/Button1.astro";
-import DialogModal from "../atomos/DialogModal.astro";
+import { dataFormularioContexto } from '../../context/store';
+import Button1 from '../atomos/Button1.astro';
 
 const { id, label } = Astro.props;
+
+dataFormularioContexto.set({ isEdit: false });
 ---
+
 <div data-id={id} id="dataId">
-  <Button1  id={`modal-${id}`}>{label}</Button1>
+  <Button1 id={`modal-${id}`}>{label}</Button1>
 
   <dialog
     id={`dialog-modal-${id}`}
@@ -16,8 +19,10 @@ const { id, label } = Astro.props;
       class="relative flex flex-col w-full h-full p-3 print:hidden modal"
     >
       <form method="dialog">
-        <Button1 slot="close" id="cerrarModal" className="absolute  top-2 right-2 "
-          >✕</Button1
+        <Button1
+          slot="close"
+          id="cerrarModal"
+          className="absolute  top-2 right-2 ">✕</Button1
         >
       </form>
       <slot />
@@ -26,13 +31,9 @@ const { id, label } = Astro.props;
     </div>
   </dialog>
 </div>
-<script define:vars={{id}} >
-
-  
-
-
+<script define:vars={{ id }}>
   const btnModal = document.getElementById(`modal-${id}`);
-  btnModal?.addEventListener("click", (e) => {
+  btnModal?.addEventListener('click', (e) => {
     const modal = document.getElementById(`dialog-modal-${id}`);
     modal.showModal();
     // e.showModal()
@@ -41,6 +42,22 @@ const { id, label } = Astro.props;
 
 <style>
   .modal {
-  z-index: 1000; /* Ajusta si es necesario */
-}
+    z-index: 1000; /* Ajusta si es necesario */
+  }
 </style>
+<script>
+  import { dataFormularioContexto } from '../../context/store';
+
+  const emptyForm = {
+    dni: 0,
+    id: '',
+    isEdit: false,
+    nombre: '',
+    apellido: '',
+    email: '',
+    password: '',
+    rol: 'vendedor',
+    tipoUsuario: 'empleado',
+  };
+  dataFormularioContexto.set({ ...emptyForm, isEdit: false });
+</script>

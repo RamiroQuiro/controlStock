@@ -44,6 +44,7 @@ export const GET: APIRoute = async ({ request, params }) => {
         nombre: users.nombre,
         apellido: users.apellido,
         srcPhoto: users.srcPhoto,
+        documento: users.documento,
         email: users.email,
         rol: users.rol,
       })

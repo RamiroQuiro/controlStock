@@ -1,48 +1,55 @@
 ---
-import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
-import { Users, ShieldCheck, Plus, Edit, Trash2 } from "lucide-react";
-import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
-import SeccionUsuarios from "./SeccionUsuarios.astro";
-import Modal from "../../../../components/moleculas/Modal.astro";
-import FormularioNuevoUser from '../components/FormularioNuevoUser'
-import FormularioNuevoRol from "../components/FormularioNuevoRol";
-import SeccionRoles from "./SeccionRoles.astro";
+import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
+import LayoutDash from '../../../../components/layouts/LayoutDash.astro';
+import SeccionUsuarios from './SeccionUsuarios.astro';
+import Modal from '../../../../components/moleculas/Modal.astro';
+import FormularioNuevoUser from '../components/FormularioNuevoUser';
+import FormularioNuevoRol from '../components/FormularioNuevoRol';
+import SeccionRoles from './SeccionRoles.astro';
 
-const {user}=Astro.locals
+const { user } = Astro.locals;
 // Datos de ejemplo (en un escenario real, vendrían de una base de datos)
 
-
-
-
-
+interface NuevoUsuario {
+  dni: number;
+  id: string;
+  isEdit: boolean;
+  nombre: string;
+  apellido: string;
+  email: string;
+  password: string;
+  rol: 'admin' | 'vendedor' | 'repositor';
+  tipoUsuario: 'empleado' | 'cliente' | 'proveedor';
+}
 ---
 
-<LayoutDash>
+<LayoutDash title="Gestión de Usuarios y Roles">
   <MainDashboard h1="Gestión de Usuarios y Roles">
     <div
-    slot={"menu"}
-    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
-  >
-    <div class="flex gap-3">
-      <Modal label="+ Nuevo Usuario" id="crearCliente">
-        <FormularioNuevoUser userId={user?.id} client:visible />
-      </Modal>
-    
-      <Modal label="+ Nuevo Rol" id="crearRole">
-        <FormularioNuevoRol userId={user?.id} client:visible />
-      </Modal>
-    
+      slot={'menu'}
+      class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+    >
+      <div class="flex gap-3">
+        <Modal label="+ Nuevo Usuario" id="crearCliente">
+          <FormularioNuevoUser userId={user?.id} client:visible />
+        </Modal>
+
+        <Modal label="+ Nuevo Rol" id="crearRole">
+          <FormularioNuevoRol userId={user?.id} client:visible />
+        </Modal>
+      </div>
     </div>
-  </div>
-    <div class="flex md:flex-row flex-col w-full items-stretch justify-between gap-2">
+    <div
+      class="flex md:flex-row flex-col w-full items-stretch justify-between gap-2"
+    >
       {/* Sección de Usuarios */}
-     <SeccionUsuarios/>
+      <SeccionUsuarios />
       {/* Sección de Roles y Permisos */}
-    <SeccionRoles/>
+      <SeccionRoles />
     </div>
   </MainDashboard>
 </LayoutDash>
+
 <style>
   table {
     border-collapse: separate;

@@ -23,9 +23,10 @@ export default function ConfeccionTablaUsers({ userId }) {
         N: i + 1,
         nombre: cliente.nombre,
         apellido: cliente.apellido,
+        dni: cliente.documento,
         email: cliente.email,
         rol: cliente.rol,
-        estado: cliente.estado,
+        // estado: cliente.estado,
         // Añade otros campos según necesites
       }));
 

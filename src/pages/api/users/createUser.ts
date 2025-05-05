@@ -48,7 +48,7 @@ export async function POST({
   const existingUser = await db
     .select()
     .from(users)
-    .where(or(eq(users.email, email), eq(users.documento, dni)));
+    .where(eq(users.email, email));
   // console.log(existingUser);
 
   if (existingUser.length > 0) {

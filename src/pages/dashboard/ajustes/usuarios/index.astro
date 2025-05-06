@@ -4,6 +4,7 @@ import LayoutDash from '../../../../components/layouts/LayoutDash.astro';
 import SeccionUsuarios from './SeccionUsuarios.astro';
 import Modal from '../../../../components/moleculas/Modal.astro';
 import FormularioNuevoUser from '../components/FormularioNuevoUser';
+import FormularioNuevoUserEdit from '../components/FormularioNuevoUserEdit';
 import FormularioNuevoRol from '../components/FormularioNuevoRol';
 import SeccionRoles from './SeccionRoles.astro';
 
@@ -30,10 +31,13 @@ interface NuevoUsuario {
       class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
     >
       <div class="flex gap-3">
-        <Modal label="+ Nuevo Usuario" id="crearCliente">
+        <Modal  id="modificarUser">
+          <FormularioNuevoUserEdit userId={user?.id} client:visible />
+        </Modal>
+        <Modal label="+ Nuevo Usuario" id="crearUser">
           <FormularioNuevoUser userId={user?.id} client:visible />
         </Modal>
-
+        
         <Modal label="+ Nuevo Rol" id="crearRole">
           <FormularioNuevoRol userId={user?.id} client:visible />
         </Modal>

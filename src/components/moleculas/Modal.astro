@@ -8,7 +8,7 @@ dataFormularioContexto.set({ isEdit: false });
 ---
 
 <div data-id={id} id="dataId">
-  <Button1 id={`modal-${id}`}>{label}</Button1>
+  {label&&<Button1 id={`modal-${id}`}>{label}</Button1>}
 
   <dialog
     id={`dialog-modal-${id}`}

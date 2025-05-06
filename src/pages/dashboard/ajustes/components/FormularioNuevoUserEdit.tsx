@@ -24,10 +24,13 @@ interface NuevoUsuario {
   tipoUsuario: 'empleado' | 'cliente' | 'proveedor';
 }
 
-export default function FormularioNuevoUser({
+export default function FormularioNuevoUserEdit({
   userId,
+  datosFormulario,
 }: Props) {
+  const $dataFormularioContexto = useStore(dataFormularioContexto);
 
+  console.log($dataFormularioContexto);
   const [formData, setFormData] = useState<NuevoUsuario>({
     dni: 0,
     id: '',
@@ -42,6 +45,21 @@ export default function FormularioNuevoUser({
   const [errors, setErrors] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if ($dataFormularioContexto?.isEdit) {
+      setFormData({
+        dni: $dataFormularioContexto.dni || 0,
+        id: $dataFormularioContexto.id || '',
+        isEdit: true,
+        nombre: $dataFormularioContexto.nombre || '',
+        apellido: $dataFormularioContexto.apellido || '',
+        email: $dataFormularioContexto.email || '',
+        password: '', // Nunca mostrar password existente
+        rol: $dataFormularioContexto.rol || 'vendedor',
+        tipoUsuario: $dataFormularioContexto.tipoUsuario || 'empleado',
+      });
+    }
+  }, [$dataFormularioContexto]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -54,16 +72,7 @@ export default function FormularioNuevoUser({
   };
 
   const validateForm = () => {
-    if (
-      !formData.dni ||
-      !formData.nombre ||
-      !formData.apellido ||
-      !formData.email ||
-      !formData.password
-    ) {
-      setErrors('Todos los campos son obligatorios');
-      return false;
-    }
+  
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
@@ -71,10 +80,10 @@ export default function FormularioNuevoUser({
       return false;
     }
 
-    if (formData.password.length < 6) {
-      setErrors('La contraseña debe tener al menos 6 caracteres');
-      return false;
-    }
+    // if (formData.password.length < 6) {
+    //   setErrors('La contraseña debe tener al menos 6 caracteres');
+    //   return false;
+    // }
 
     return true;
   };
@@ -92,8 +101,8 @@ export default function FormularioNuevoUser({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/users/createUser', {
-        method: 'POST',
+      const response = await fetch('/api/users/editUser', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'x-user-id': userId,
@@ -231,12 +240,12 @@ export default function FormularioNuevoUser({
       </div>
 
       <div className="flex justify-end gap-4">
-     
+        
         <button
           type="submit"
           className="px-4 py-1 bg-primary-100 text-white rounded hover:bg-primary-100/80"
         >
-          Crear Usuario
+          {'Actualizar Usuario' }
         </button>
       </div>
     </form>

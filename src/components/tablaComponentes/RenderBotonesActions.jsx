@@ -1,6 +1,6 @@
-import BotonEditar from '../moleculas/BotonEditar';
-import BotonEliminar from '../moleculas/BotonEliminar';
-import { dataFormularioContexto } from '../../context/store';
+import BotonEditar from "../moleculas/BotonEditar";
+import BotonEliminar from "../moleculas/BotonEliminar";
+import { dataFormularioContexto } from "../../context/store";
 import {
   CircleMinus,
   CirclePlus,
@@ -11,7 +11,7 @@ import {
   MinusCircle,
   Tag,
   Target,
-} from 'lucide-react';
+} from "lucide-react";
 
 //   botonera de acciones
 export const RenderActionsProductos = (data) => (
@@ -119,12 +119,18 @@ export const RenderActionsVentas = (
 export const RenderActionsUsers = (data) => {
   const handleEditModal = (data) => {
     dataFormularioContexto.set({ ...data, isEdit: true });
-    const modal = document.getElementById(`dialog-modal-crearCliente`);
+    const modal = document.getElementById(`dialog-modal-modificarUser`);
     modal.showModal();
   };
 
-  const handleDelet = async ({ id }) => {
-    alert(id);
+  const handleDelet = async ( data ) => {
+    console.log(data)
+    await fetch("/api/users/editUser", {
+      method: "DELETE",
+      body: JSON.stringify({
+        id:data?.id
+      }),
+    });
   };
 
   return (

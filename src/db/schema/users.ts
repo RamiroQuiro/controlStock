@@ -6,7 +6,7 @@ export const users = sqliteTable(
   'users',
   {
     id: text('id').primaryKey(),
-    userName: text('username').unique().notNull(), // Unique username for login
+    userName: text('username').notNull(), // Unique username for login
     nombre: text('nombre').notNull(), // First name
     apellido: text('apellido').notNull(), // Last name
     email: text('email').unique().notNull(),
@@ -33,6 +33,6 @@ export const users = sqliteTable(
   },
   (t) => [
     // Índice único compuesto para evitar duplicados de email por usuario
-    unique().on(t.email, t.creadoPor),
+    unique().on(t.email, t.creadoPor,t.userName),
   ]
 );

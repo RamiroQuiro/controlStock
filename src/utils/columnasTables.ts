@@ -88,6 +88,6 @@ export const columnasUsuarios = [
   { label: 'DNI', id: 8, selector: (row) => row.dni },
   { label: 'Email', id: 4, selector: (row) => row.email },
   { label: 'Rol', id: 5, selector: (row) => row.rol },
-  // { label: 'Estado', id: 6, selector: (row) => row.estado },
+  { label: 'Estado', id: 6, selector: (row) => row.activo },
   { label: 'Acciones', id: 7, selector: () => {} },
 ];

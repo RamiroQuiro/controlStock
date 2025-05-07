@@ -1,28 +1,25 @@
 ---
-import DivBox1 from "../../../components/atomos/DivBox1.astro";
-import MainDashboard from "../../../components/atomos/MainDashboard.astro";
-import ProductosMasVendidos from "../../../components/dashboard/ProductosMasVendidos";
-import RendimientoCategoria from "../../../components/dashboard/RendimientoCategoria";
-import ResumenVentas from "../../../components/dashboard/ResumenVentas";
-import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
-import ContenedorStats from "./componente/ContenedorStats";
+import DivBox1 from '../../../components/atomos/DivBox1.astro';
+import MainDashboard from '../../../components/atomos/MainDashboard.astro';
+import ProductosMasVendidos from '../../../components/dashboard/ProductosMasVendidos';
+import RendimientoCategoria from '../../../components/dashboard/RendimientoCategoria';
+import ResumenVentas from '../../../components/dashboard/ResumenVentas';
+import UltimasTransacciones from '../../../components/dashboard/UltimasTransacciones';
+import ContenedorStats from './componente/ContenedorStats';
 
-
-
-const {user,session}=Astro.locals
-
-const userId=user?.id
-if(!user || !userId){
-    return Astro.redirect("/login")
+const { user } = Astro.locals;
+const userId = user?.id;
+if (!user || !userId) {
+  return Astro.redirect('/login');
 }
-
 ---
 
 <MainDashboard h1="Dashboard Principal">
- 
-<ContenedorStats client:load/>
+  <ContenedorStats client:load />
   {/* Gráficos principales */}
-  <div class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full">
+  <div
+    class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
+  >
     <DivBox1 styleDiv="md:w-4/6 w-full items-stretch">
       <ResumenVentas userId={userId} client:visible />
     </DivBox1>
@@ -33,25 +30,24 @@ if(!user || !userId){
   </div>
 
   {/* Segunda fila de gráficos */}
-  <div class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full">
-  
+  <div
+    class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
+  >
     <DivBox1 styleDiv="md:w-2/5 w-full">
       <RendimientoCategoria userId={userId} client:load />
     </DivBox1>
     <DivBox1 styleDiv="md:w-3/5 w-full">
-      <UltimasTransacciones client:visible/>
+      <UltimasTransacciones client:visible />
     </DivBox1>
   </div>
 
   {/* Footer */}
-
 </MainDashboard>
 
 <script>
-import { fetchStatsData } from "../../../context/store";
-const {usisisi:userId}:{usisisi: string}=document.getElementById('mainDashboard')?.dataset
+  import { fetchStatsData } from '../../../context/store';
+  const { usisisi: userId }: { usisisi: string } =
+    document.getElementById('mainDashboard')?.dataset;
 
-
-fetchStatsData(userId)
-
+  fetchStatsData(userId);
 </script>

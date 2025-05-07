@@ -26,13 +26,14 @@ export default function ConfeccionTablaUsers({ userId }) {
         dni: cliente.documento,
         email: cliente.email,
         rol: cliente.rol,
+        activo: cliente.activo == 0 ? 'inactivo' : 'activo',
         // estado: cliente.estado,
         // Añade otros campos según necesites
       }));
 
       setNewArray(transformedArray);
     }
-  }, [loading]);
+  }, [loading, data]);
 
   // Manejo de errores
   if (error) {

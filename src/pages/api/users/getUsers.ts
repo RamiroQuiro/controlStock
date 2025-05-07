@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import db from '../../../db';
 import { users, roles } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, params }) => {
@@ -45,6 +45,7 @@ export const GET: APIRoute = async ({ request, params }) => {
         apellido: users.apellido,
         srcPhoto: users.srcPhoto,
         documento: users.documento,
+        activo: users.activo,
         email: users.email,
         rol: users.rol,
       })

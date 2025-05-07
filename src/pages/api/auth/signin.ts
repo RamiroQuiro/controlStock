@@ -6,22 +6,32 @@ import { lucia } from '../../../lib/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-
-export async function POST({ request, locals, redirect, cookies }: APIContext): Promise<Response> {
+export async function POST({
+  request,
+  locals,
+  redirect,
+  cookies,
+}: APIContext): Promise<Response> {
   const formData = await request.json();
 
-  console.log(' eto m,e llega al enpoint ->',formData)
+  console.log(' eto m,e llega al enpoint ->', formData);
   const { email, password, nombre } = await formData;
 
   if (!email || !password) {
-    return new Response(JSON.stringify({ data: 'email y contraseña requerida', status: 400 }));
+    return new Response(
+      JSON.stringify({ data: 'email y contraseña requerida', status: 400 })
+    );
   }
 
   //   verificar si el usuario existe
-  const findUser = (await db.select().from(users).where(eq(users.email, email))).at(0);
+  const findUser = (
+    await db.select().from(users).where(eq(users.email, email))
+  ).at(0);
 
   if (!findUser) {
-    return new Response(JSON.stringify({ data: 'email o contraseña incorrecta', status: 401 }));
+    return new Response(
+      JSON.stringify({ data: 'email o contraseña incorrecta', status: 401 })
+    );
   }
 
   // crear usuario en DB
@@ -37,18 +47,24 @@ export async function POST({ request, locals, redirect, cookies }: APIContext): 
 
   const session = await lucia.createSession(findUser.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+  cookies.set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
   // Crear una cookie con los datos del usuario
   const userData = {
     id: findUser.id,
     nombre: findUser.nombre,
     apellido: findUser.apellido,
-    userName:findUser.userName,
+    userName: findUser.userName,
     email: findUser.email,
     rol: findUser.rol,
   };
 
-  const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, { expiresIn: '14d' }); // Firmar la cookie
+  const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, {
+    expiresIn: '14d',
+  }); // Firmar la cookie
   cookies.set('userData', token, {
     httpOnly: true,
     secure: import.meta.env.NODE_ENV === 'production', // Solo enviar en HTTPS en producción

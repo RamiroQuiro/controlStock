@@ -9,7 +9,7 @@ export const users = sqliteTable(
     userName: text('username').notNull(), // Unique username for login
     nombre: text('nombre').notNull(), // First name
     apellido: text('apellido').notNull(), // Last name
-    email: text('email').unique().notNull(),
+    email: text('email').notNull(),
     password: text('password').notNull(),
     srcPhoto: text('srcPhoto'),
     rol: text('rol', { enum: ['admin', 'vendedor', 'repositor'] })
@@ -33,6 +33,6 @@ export const users = sqliteTable(
   },
   (t) => [
     // Índice único compuesto para evitar duplicados de email por usuario
-    unique().on(t.email, t.creadoPor,t.userName),
+    unique().on(t.email, t.creadoPor, t.userName),
   ]
 );

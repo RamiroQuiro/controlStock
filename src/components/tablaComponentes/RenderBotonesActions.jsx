@@ -1,6 +1,6 @@
-import BotonEditar from "../moleculas/BotonEditar";
-import BotonEliminar from "../moleculas/BotonEliminar";
-import { dataFormularioContexto } from "../../context/store";
+import BotonEditar from '../moleculas/BotonEditar';
+import BotonEliminar from '../moleculas/BotonEliminar';
+import { dataFormularioContexto } from '../../context/store';
 import {
   CircleMinus,
   CirclePlus,
@@ -11,7 +11,9 @@ import {
   MinusCircle,
   Tag,
   Target,
-} from "lucide-react";
+} from 'lucide-react';
+import BotonDesactivar from '../moleculas/BotonDesactivar';
+import { loader } from '../../utils/loader/showLoader';
 
 //   botonera de acciones
 export const RenderActionsProductos = (data) => (
@@ -123,20 +125,36 @@ export const RenderActionsUsers = (data) => {
     modal.showModal();
   };
 
-  const handleDelet = async ( data ) => {
-    console.log(data)
-    await fetch("/api/users/editUser", {
-      method: "DELETE",
-      body: JSON.stringify({
-        id:data?.id
-      }),
-    });
-  };
+  const handleDesactivar = async (data) => {
+    loader(true);
 
+    try {
+      await fetch('/api/users/editUser', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: data?.id,
+          suspender: true,
+          activo: data.activo == 'activo' ? 0 : 1,
+        }),
+      });
+      loader(false);
+    } catch (error) {
+      console.log(error);
+      loader(false);
+    }
+  };
+  console.log(data);
   return (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
-      <BotonEditar handleClick={() => handleEditModal(data)} />
-      <BotonEliminar handleClick={() => handleDelet(data)} />
+      {data.rol !== 'admin' && (
+        <>
+          <BotonEditar handleClick={() => handleEditModal(data)} />
+          <BotonDesactivar
+            handleClick={() => handleDesactivar(data)}
+            activo={data.activo}
+          />
+        </>
+      )}
     </div>
   );
 };

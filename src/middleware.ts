@@ -74,6 +74,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     // Rutas de administrador requieren rol específico
     if (!puedeAccederRuta(user, context.url.pathname)) {
+      if (user?.rol === 'vendedor') {
+        return context.redirect('/dashboard/ventas');
+      }
+      if (user?.rol === 'repositor') {
+        return context.redirect('/dashboard/stock');
+      }
       return context.redirect('/login');
     }
 

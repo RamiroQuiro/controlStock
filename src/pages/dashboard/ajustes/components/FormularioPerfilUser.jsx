@@ -12,9 +12,20 @@ import { useEffect, useState } from 'react';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 import LoaderReact from '../../../../utils/loader/LoaderReact';
 import Button3 from '../../../../components/atomos/Button3';
-
+const initialUserData = {
+  userName: '',
+  apellido: '',
+  email: '',
+  rol: '',
+  documento: '',
+  telefono: '',
+  direccion: '',
+  fechaAlta: '',
+  tipoUsuario: '',
+  srcPhoto: '',
+};
 export default function FormularioPerfilUser({ user }) {
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({...initialUserData, ...user});
   const [disable, setDisable] = useState(false);
   const [loading, setLoading] = useState(false);
 

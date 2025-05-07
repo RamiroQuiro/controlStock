@@ -60,6 +60,7 @@ export async function POST({
     userName: findUser.userName,
     email: findUser.email,
     rol: findUser.rol,
+    creadoPor: findUser.creadoPor,
   };
 
   const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, {

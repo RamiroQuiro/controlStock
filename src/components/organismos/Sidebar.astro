@@ -1,31 +1,56 @@
 ---
 import {
   ArrowRightToLineIcon,
-  BadgeDollarSign,
-  BarChart3,
-  ClipboardList,
-  HandCoins,
+  Boxes,
   LayoutDashboard,
-  Package,
-  Settings,
-  ShoppingBasket,
-  Users,
-} from "lucide-react";
-import { puedeAccederRuta } from "../../utils/permisosRoles";
-
+  ShoppingBag,
+  ShoppingCart,
+  SlidersHorizontal,
+  Truck,
+  UserSquare,
+} from 'lucide-react';
+import { puedeAccederRuta } from '../../utils/permisosRoles';
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", permiso: "dashboard" },
-  { icon: BadgeDollarSign, label: "Venta", path: "/dashboard/ventas", permiso: "ventas" },
-  { icon: Package, label: "Stock", path: "/dashboard/stock", permiso: "stock" },
-  { icon: Users, label: "Clientes", path: "/dashboard/clientes", permiso: "clientes" },
-  { icon: ClipboardList, label: "Proveedores", path: "/dashboard/proveedores", permiso: "proveedores" },
-  { icon: HandCoins, label: "Reportes", path: "/dashboard/compras", permiso: "reportes" },
-  { icon: Settings, label: "Ajustes", path: "/dashboard/ajustes", permiso: "ajustes" },
+  {
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    path: '/dashboard',
+    permiso: 'dashboard',
+  },
+  {
+    icon: ShoppingCart,
+    label: 'Venta',
+    path: '/dashboard/ventas',
+    permiso: 'ventas',
+  },
+  { icon: Boxes, label: 'Stock', path: '/dashboard/stock', permiso: 'stock' },
+  {
+    icon: UserSquare,
+    label: 'Clientes',
+    path: '/dashboard/clientes',
+    permiso: 'clientes',
+  },
+  {
+    icon: Truck,
+    label: 'Proveedores',
+    path: '/dashboard/proveedores',
+    permiso: 'proveedores',
+  },
+  {
+    icon: ShoppingBag,
+    label: 'Compras',
+    path: '/dashboard/compras',
+    permiso: 'compras',
+  },
+  {
+    icon: SlidersHorizontal,
+    label: 'Ajustes',
+    path: '/dashboard/ajustes',
+    permiso: 'ajustes',
+  },
 ];
 
-
-
-const {user}=Astro.locals
+const { user } = Astro.locals;
 ---
 
 <sidebar
@@ -34,60 +59,58 @@ const {user}=Astro.locals
 >
   <button
     id="collapse-button"
-    class="p-1.5 cursor-pointer md:flex hidden fixed top-6 left-2.5 z-20  duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
+    class="p-1.5 cursor-pointer md:flex hidden fixed top-6 left-2.5 z-20 duration-300 mr-2 rounded-lg bg-primary-bg-claro/10 hover:bg-primary-bg-claro/20 transition-colors"
   >
     <ArrowRightToLineIcon size={20} />
   </button>
   <div
     class="w-full h-1/ mb-5 hidden md:flex flex-col items-end justify-start pt- gap-2"
   >
-    <div class="overflow- flex items-start justify-start oveh">
-      <img
-        src="/ramaCode.png"
-        id="logo"
-        alt="ramaCode"
-        width="200"
-        height={"200"}
-        class="duration-200 -translate-y-7-scale-down"
-      />
-    </div>
+    <img
+      src="/ramaCode.png"
+      id="logo"
+      alt="ramaCode"
+      width="200"
+      height={'200'}
+      class="duration-200 -translate-y-7-scale-down"
+    />
   </div>
-  <div class="flex  md:flex-col justify-between items-start px-3 md:px-0 w-full">
+  <div class="flex md:flex-col justify-between items-start px-3 md:px-0 w-full">
     {
       menuItems
-        .filter(item =>puedeAccederRuta(user, item.path))
-       .map((item) => (
-        <a
-          href={item.path}
-          class="flex items-center md:px-3 py-3 cursor-pointer text-white/80 hover:text-white hover:bg-primary-100/10 text-sm transition-colors"
-        >
-          <item.icon size={20} />
-          <span class="spanSidebar hidden md:flex md:ml-4 opacity-0 duration-200">
-            {item.label}
-          </span>
-        </a>
-      ))
+        .filter((item) => puedeAccederRuta(user, item.path))
+        .map((item) => (
+          <a
+            href={item.path}
+            class="flex items-center md:px-3 py-3 cursor-pointer text-white/80 hover:text-white hover:bg-primary-100/10 text-sm transition-colors"
+          >
+            <item.icon size={20} />
+            <span class="spanSidebar hidden md:flex md:ml-1 opacity-0 duration-200">
+              {item.label}
+            </span>
+          </a>
+        ))
     }
   </div>
 </sidebar>
 
 <script>
-  const btnCollaps = document.getElementById("collapse-button");
-  const sidebar = document.getElementById("sidebar");
-  const logo = document.getElementById("logo");
-  const spanesSiedebar = document.querySelectorAll(".spanSidebar");
-  btnCollaps?.addEventListener("click", () => {
-    if (sidebar.style.width === "10vw") {
-      btnCollaps.style.transform = "rotate(0deg)";
-      sidebar.style.width = "4vw"; // Ancho expandido
+  const btnCollaps = document.getElementById('collapse-button');
+  const sidebar = document.getElementById('sidebar');
+  const logo = document.getElementById('logo');
+  const spanesSiedebar = document.querySelectorAll('.spanSidebar');
+  btnCollaps?.addEventListener('click', () => {
+    if (sidebar.style.width === '10vw') {
+      btnCollaps.style.transform = 'rotate(0deg)';
+      sidebar.style.width = '4vw'; // Ancho expandido
       spanesSiedebar.forEach((span) => {
-        span.style.opacity = "0";
+        span.style.opacity = '0';
       });
     } else {
-      btnCollaps.style.transform = "rotate(180deg)";
-      sidebar.style.width = "10vw"; // Ancho colapsado
+      btnCollaps.style.transform = 'rotate(180deg)';
+      sidebar.style.width = '10vw'; // Ancho colapsado
       spanesSiedebar.forEach((span) => {
-        span.style.opacity = "100";
+        span.style.opacity = '100';
       });
     }
   });

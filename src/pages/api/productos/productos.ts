@@ -11,11 +11,13 @@ import { cache } from '../../../utils/cache';
 import path from 'path';
 import { promises as fs } from 'fs';
 // Handler para el método GET del endpoint
-export const GET: APIRoute = async ({ request, params }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get('search');
   const tipo = url.searchParams.get('tipo'); // Nuevo parámetro para distinguir el tipo de búsqueda
-  const userId = request.headers.get('xx-user-id');
+  const { user } = locals;
+  console.log('locals user', locals);
+  const creadoPor = user.creadoPor;
   if (!query) {
     return new Response(
       JSON.stringify({ error: 'falta el parametro de busqueda' }),
@@ -34,8 +36,9 @@ export const GET: APIRoute = async ({ request, params }) => {
         .select()
         .from(productos)
         .where(
-          and(eq(productos.userId, userId), eq(productos.codigoBarra, query))
+          and(eq(productos.userId, creadoPor), eq(productos.codigoBarra, query))
         );
+      console.log('resultados', resultados);
     } else {
       // Búsqueda parcial para los demás campos
       resultados = await db
@@ -43,7 +46,7 @@ export const GET: APIRoute = async ({ request, params }) => {
         .from(productos)
         .where(
           and(
-            eq(productos.userId, userId),
+            eq(productos.userId, creadoPor),
             or(
               like(productos.codigoBarra, `%${query}%`),
               like(productos.descripcion, `%${query}%`),

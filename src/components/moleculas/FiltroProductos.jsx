@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { busqueda, filtroBusqueda } from "../../context/store";
-import { CheckCircle, CheckCircle2, LoaderCircle, Search } from "lucide-react";
-import { cache } from "../../utils/cache";
+import { useState } from 'react';
+import { busqueda, filtroBusqueda } from '../../context/store';
+import { CheckCircle, CheckCircle2, LoaderCircle, Search } from 'lucide-react';
+import { cache } from '../../utils/cache';
 
 export default function FiltroProductos({ mostrarProductos, userId }) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(null);
   const [encontrados, setEncontrados] = useState(0);
@@ -14,7 +14,7 @@ export default function FiltroProductos({ mostrarProductos, userId }) {
 
     if (timer) clearTimeout(timer);
 
-    if (e.target.value === "") {
+    if (e.target.value === '') {
       busqueda.set({ productosBuscados: null });
       setEncontrados(0);
     } else {
@@ -45,9 +45,11 @@ export default function FiltroProductos({ mostrarProductos, userId }) {
         const res = await fetch(
           `/api/productos/productos?search=${query}&tipo=codigoBarra`,
           {
-            method: "GET",
+            method: 'GET',
             headers: {
-              "xx-user-id": userId,
+              'xx-user-id': userId,
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
             },
           }
         );
@@ -67,9 +69,11 @@ export default function FiltroProductos({ mostrarProductos, userId }) {
 
       // Si no se encontró por código exacto o no está en modo automático, hacer búsqueda normal
       const res = await fetch(`/api/productos/productos?search=${query}`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "xx-user-id": userId,
+          'xx-user-id': userId,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       });
       const data = await res.json();
@@ -81,14 +85,14 @@ export default function FiltroProductos({ mostrarProductos, userId }) {
       setEncontrados(data.data);
       setLoading(false);
     } catch (error) {
-      console.error("Error en la búsqueda de productos:", error);
+      console.error('Error en la búsqueda de productos:', error);
       setLoading(false);
     }
   };
 
   const handleClick = (producto) => {
     filtroBusqueda.set({ filtro: producto });
-    setSearch("");
+    setSearch('');
     setEncontrados(0);
   };
 

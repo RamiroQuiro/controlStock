@@ -58,6 +58,7 @@ export async function POST({
     nombre: findUser.nombre,
     apellido: findUser.apellido,
     userName: findUser.userName,
+    srcPhoto: findUser.srcPhoto,
     email: findUser.email,
     rol: findUser.rol,
     creadoPor: findUser.creadoPor,

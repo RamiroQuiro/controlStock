@@ -14,7 +14,7 @@ const {user} = Astro.locals
   </button>
   <div class="flex items-center gap-2 font-semibold text-primary-textoTitle">
     <div class="flex border border-primary-100 items-center gap-2 rounded-full bg-gray-200">
-      <img src={`/element/imgs/${user?.id}/avatar.png`} alt="" class="w-8 h-8 rounded-full object-cover" />
+      <img src={user?.srcPhoto} alt="" class="w-8 h-8 rounded-full object-cover" />
     </div>
     <h3>{user?.userName}</h3>
   </div>

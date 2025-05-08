@@ -67,6 +67,7 @@ export async function POST({
           userName: userName,
           nombre: nombre,
           apellido: apellido,
+          srcPhoto: './avatarDefault.png',
           email: email,
           rol: rol || 'admin',
           password: hashPassword,

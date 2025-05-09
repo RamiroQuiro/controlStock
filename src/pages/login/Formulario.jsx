@@ -1,4 +1,4 @@
-import { Lock, Mail, User } from 'lucide-react';
+import { Lock, Mail, MailCheck, User, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { showToast } from '../../utils/toast/toastShow';
 import { loader } from '../../utils/loader/showLoader';
@@ -9,7 +9,8 @@ export default function Formulario({ isLogin }) {
     password: '',
     userName: '',
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [confirmacion, setConfirmacion] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -35,7 +36,16 @@ export default function Formulario({ isLogin }) {
 
       if (response.ok) {
         if (result.status == 200) {
-          window.location.href = '/dashboard';
+          setConfirmacion(true);
+          showToast(result.msg || 'usuario creado con exito', {
+            background: 'bg-green-500',
+            time: 5000,
+            confirmText: 'Iniciar Sesión',
+            onConfirm: () => {
+              setConfirmacion(false);
+            },
+          });
+          loader(false);
         } else if (result.status == 401) {
           showToast(result.msg || 'email incorrecto', {
             background: 'bg-primary-400',
@@ -68,6 +78,23 @@ export default function Formulario({ isLogin }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {confirmacion && (
+        <div className="w-[45vw] h-56 bg-white  border-2 border-primary-400 rounded-xl p-4 fixed top-1/2 left-1/2 transform -translate-x-1/2  flex-col -translate-y-1/2 z-50 shadow-lg flex items-center gap-5 justify-center">
+          <div className="absolute top-2 right-2 cursor-pointer bg-red-500 rounded-full p-2 hover:bg-red-600 duration-200 hover:-translate-y-0.5">
+            <X
+              className="w-5 h-5 text-white"
+              onClick={() => setConfirmacion(false)}
+            />
+          </div>
+          <MailCheck className="w-20 h-16 fill-primary-150 stroke-primary-texto" />
+          <h2 className="text-2xl font-bold text-primary-100">
+            Confirmacion de Cuenta
+          </h2>
+          <p className="text-sm text-gray-600">
+            Por favor, verifique su correo electrónica para confirmar su cuenta.
+          </p>
+        </div>
+      )}
       {!isLogin && (
         <div>
           <div className="w-full">

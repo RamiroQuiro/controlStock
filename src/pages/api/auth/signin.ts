@@ -8,14 +8,12 @@ import jwt from 'jsonwebtoken';
 
 export async function POST({
   request,
-  locals,
-  redirect,
   cookies,
 }: APIContext): Promise<Response> {
   const formData = await request.json();
 
-  console.log(' eto m,e llega al enpoint ->', formData);
-  const { email, password, nombre } = await formData;
+  // console.log(' eto m,e llega al enpoint ->', formData);
+  const { email, password } = await formData;
 
   if (!email || !password) {
     return new Response(
@@ -28,7 +26,7 @@ export async function POST({
     await db.select().from(users).where(eq(users.email, email))
   ).at(0);
 
-  if (!findUser) {
+  if (!findUser || findUser.activo === 0) {
     return new Response(
       JSON.stringify({ data: 'email o contraseña incorrecta', status: 401 })
     );

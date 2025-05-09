@@ -30,6 +30,9 @@ export const users = sqliteTable(
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
     activo: integer('activo').default(1), // Account active status (1 = active, 0 = inactive)
+    emailVerificado: integer('emailVerificado', { mode: 'boolean' }).default(
+      false
+    ), // Email verification status (1 = verified, 0 = not verified)
   },
   (t) => [
     // Índice único compuesto para evitar duplicados de email por usuario

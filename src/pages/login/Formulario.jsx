@@ -1,4 +1,4 @@
-import { Lock, Mail, MailCheck, User, X } from 'lucide-react';
+import { Eye, Lock, Mail, MailCheck, User, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { showToast } from '../../utils/toast/toastShow';
 import { loader } from '../../utils/loader/showLoader';
@@ -10,6 +10,7 @@ export default function Formulario({ isLogin }) {
     userName: '',
   });
   const [confirmacion, setConfirmacion] = useState(false);
+  const [isLook, setIsLook] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,7 +80,7 @@ export default function Formulario({ isLogin }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {confirmacion && (
-        <div className="w-[45vw] h-56 bg-white  border-2 border-primary-400 rounded-xl p-4 fixed top-1/2 left-1/2 transform -translate-x-1/2  flex-col -translate-y-1/2 z-50 shadow-lg flex items-center gap-5 justify-center">
+        <div className="w-[45vw] h-56 bg-white  border-2 border-primary-400 rounded-xl p-4 fixed top-1/2 left-1/2 transform -translate-x-1/2  animate-aparecer flex-col -translate-y-1/2 z-50 shadow-lg flex items-center gap-5 justify-center">
           <div className="absolute top-2 right-2 cursor-pointer bg-red-500 rounded-full p-2 hover:bg-red-600 duration-200 hover:-translate-y-0.5">
             <X
               className="w-5 h-5 text-white"
@@ -199,6 +200,23 @@ export default function Formulario({ isLogin }) {
             className="appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
             placeholder="Contraseña"
           />
+          {
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                const input = document.getElementById('password');
+                if (input.type === 'password') {
+                  input.type = 'text';
+                } else {
+                  input.type = 'password';
+                }
+              }}
+              className={`absolute duration-200 text-xs bg-primary-textoTitle text-white rounded-full py-1 px-2 top-1 right-2  flex items-center justify-center h-8 cursor-pointer`}
+              size={40}
+            >
+              mostrar
+            </button>
+          }
         </div>
       </div>
 

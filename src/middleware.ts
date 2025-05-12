@@ -13,6 +13,11 @@ type UserData = {
   rol: string;
 };
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Permitir todas las rutas de API de autenticación
+  if (context.url.pathname.startsWith('/api/auth/')) {
+    return next();
+  }
+
   // Verificar origen de la solicitud para prevenir CSRF
   if (context.request.method !== 'GET') {
     const originHeader = context.request.headers.get('Origin') ?? null;

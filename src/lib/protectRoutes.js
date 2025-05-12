@@ -6,9 +6,11 @@ const PUBLIC_ROUTES = [
   '/tienda',
   '/payment',
   '/api/auth/signout',
+  '/api/auth/confirmacion/',
   '/api/auth/signin',
   '/api/course/data',
   '/passRestablecer/',
+  '/verificar-email',
   '/406',
 ];
 const ADMIN_ROUTES = ['/dashboard/cursos/', '/dashboard/usuarios/'];

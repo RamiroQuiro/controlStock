@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title='Verficando-email'>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary-500 mx-auto mb-4"></div>
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Verificando tu correo electrónico</h1>
+    <p class="text-gray-600 mb-6">Por favor espera mientras verificamos tu cuenta...</p>
+    
+    <div class="space-y-2">
+      <div class="h-2 bg-gray-200 rounded-full">
+        <div class="h-2 bg-primary-500 rounded-full animate-progress"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
+  
+  .animate-progress {
+    animation: progress 3s ease-in-out forwards;
+  }
+</style>
+
+<script>
+  // Redirigir al dashboard después de 3 segundos
+  setTimeout(() => {
+    window.location.href = '/dashboard';
+  }, 3000);
+</script>
+</Layout>

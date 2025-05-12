@@ -1,13 +1,13 @@
-import { Eye, Lock, Mail, MailCheck, User, X } from 'lucide-react';
-import React, { useState } from 'react';
-import { showToast } from '../../utils/toast/toastShow';
-import { loader } from '../../utils/loader/showLoader';
+import { Eye, Lock, Mail, MailCheck, User, X } from "lucide-react";
+import React, { useState } from "react";
+import { showToast } from "../../utils/toast/toastShow";
+import { loader } from "../../utils/loader/showLoader";
 
 export default function Formulario({ isLogin }) {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    userName: '',
+    email: "",
+    password: "",
+    userName: "",
   });
   const [confirmacion, setConfirmacion] = useState(false);
   const [isLook, setIsLook] = useState(false);
@@ -24,11 +24,11 @@ export default function Formulario({ isLogin }) {
     e.preventDefault();
     loader(true);
     try {
-      const endpoint = isLogin ? '/api/auth/signin' : '/api/auth/signup';
+      const endpoint = isLogin ? "/api/auth/signin" : "/api/auth/signup";
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -37,29 +37,33 @@ export default function Formulario({ isLogin }) {
 
       if (response.ok) {
         if (result.status == 200) {
-          setConfirmacion(true);
-          showToast(result.msg || 'usuario creado con exito', {
-            background: 'bg-green-500',
-            time: 5000,
-            confirmText: 'Iniciar Sesión',
-            onConfirm: () => {
-              setConfirmacion(false);
-            },
-          });
-          loader(false);
+          if (!isLogin) {
+            setConfirmacion(true);
+            showToast(result.msg || "usuario creado con exito", {
+              background: "bg-green-500",
+              time: 5000,
+              confirmText: "Iniciar Sesión",
+              onConfirm: () => {
+                setConfirmacion(false);
+              },
+            });
+            loader(false);
+          } else {
+            document.location.replace("/dashboard");
+          }
         } else if (result.status == 401) {
-          showToast(result.msg || 'email incorrecto', {
-            background: 'bg-primary-400',
+          showToast(result.msg || "email incorrecto", {
+            background: "bg-primary-400",
           });
           loader(false);
         } else if (result.status == 402) {
-          showToast(result.msg || 'error de contraseña', {
-            background: 'bg-primary-400',
+          showToast(result.msg || "error de contraseña", {
+            background: "bg-primary-400",
           });
           loader(false);
         } else if (result.status == 400) {
           showToast(result.msg, {
-            background: 'bg-primary-400',
+            background: "bg-primary-400",
           });
           loader(false);
         }
@@ -67,12 +71,12 @@ export default function Formulario({ isLogin }) {
         // window.location.href = '/dashboard';
       } else {
         // Manejar errores
-        showToast(result.message || 'Hubo un error en la autenticación');
+        showToast(result.message || "Hubo un error en la autenticación");
         loader(false);
       }
     } catch (error) {
-      console.error('Error de autenticación:', error);
-      showToast('Ocurrió un error inesperado');
+      console.error("Error de autenticación:", error);
+      showToast("Ocurrió un error inesperado");
       loader(false);
     }
   };
@@ -193,7 +197,7 @@ export default function Formulario({ isLogin }) {
             id="password"
             name="password"
             type="password"
-            autoComplete={isLogin ? 'current-password' : 'new-password'}
+            autoComplete={isLogin ? "current-password" : "new-password"}
             required
             value={formData.password}
             onChange={handleChange}
@@ -204,11 +208,11 @@ export default function Formulario({ isLogin }) {
             <button
               onClick={(e) => {
                 e.preventDefault();
-                const input = document.getElementById('password');
-                if (input.type === 'password') {
-                  input.type = 'text';
+                const input = document.getElementById("password");
+                if (input.type === "password") {
+                  input.type = "text";
                 } else {
-                  input.type = 'password';
+                  input.type = "password";
                 }
               }}
               className={`absolute duration-200 text-xs bg-primary-textoTitle text-white rounded-full py-1 px-2 top-1 right-2  flex items-center justify-center h-8 cursor-pointer`}
@@ -225,7 +229,7 @@ export default function Formulario({ isLogin }) {
           type="submit"
           className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
         >
-          {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
+          {isLogin ? "Iniciar Sesión" : "Registrarse"}
         </button>
       </div>
     </form>

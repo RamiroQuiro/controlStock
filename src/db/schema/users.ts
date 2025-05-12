@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
+import { empresas } from './empresas';
 
 // Tabla de usuarios
 export const users = sqliteTable(
@@ -26,6 +27,7 @@ export const users = sqliteTable(
     telefono: text('telefono'), // Contact phone number
     direccion: text('direccion'), // Business or personal address
     creadoPor: text('creadoPor').references(() => users.id), // Referencia recursiva a la misma tabla
+    empresaId: text('empresaId').references(() => empresas.id), // Referencia recursiva a la misma tabla
     fechaAlta: integer('created_at') // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),

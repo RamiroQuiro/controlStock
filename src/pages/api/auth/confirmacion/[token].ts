@@ -1,36 +1,35 @@
-import type { APIRoute } from "astro";
-import { getTokenData } from "../../../../lib/confrmacionEmail";
-import db from "../../../../db";
-import { clientes, proveedores, users } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
-import { generateId } from "lucia";
-import { inicializarRoles } from "../../../../services/roles.sevices";
-import { lucia } from "../../../../lib/auth";
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import type { APIRoute } from 'astro';
+import { getTokenData } from '../../../../lib/confrmacionEmail';
+import db from '../../../../db';
+import { clientes, proveedores, users } from '../../../../db/schema';
+import { eq } from 'drizzle-orm';
+import { generateId } from 'lucia';
+import { inicializarRoles } from '../../../../services/roles.sevices';
+import { lucia } from '../../../../lib/auth';
 import path from 'path';
 import fs from 'fs/promises';
+import jwt from 'jsonwebtoken';
 
 export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
   const { token: confirmationToken } = params;
-  
+
   if (!confirmationToken) {
     return new Response(
       JSON.stringify({
         status: 400,
-        msg: "Token no proporcionado"
+        msg: 'Token no proporcionado',
       })
     );
   }
 
   try {
     const { data } = getTokenData(confirmationToken);
-    console.log("esta es la verificacoin", data);
+    console.log('esta es la verificacoin', data);
     if (!data) {
       return new Response(
         JSON.stringify({
           msg: 400,
-          message: "error al obtener la data",
+          message: 'error al obtener la data',
         })
       );
     }
@@ -44,13 +43,13 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
         JSON.stringify({
           sucess: false,
           status: 200,
-          msg: "no se encontro usuario",
+          msg: 'no se encontro usuario',
         })
       );
     }
 
     await db.update(users).set({
-     emailVerificado: true,
+      emailVerificado: true,
     });
 
     // Crear Proveedor Comodín
@@ -59,12 +58,13 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       .insert(proveedores)
       .values({
         id: generateId(13),
-        nombre: "Proveedor General",
-        userId: userFind.id,
+        nombre: 'Proveedor General',
+        creadoPor: userFind.id,
+        empresaId: userFind.id,
         esComodin: true, // Añade esta bandera
-        telefono: "N/A", // Campos obligatorios
-        email: "proveedor.general@tuempresa.com",
-        direccion: "N/A",
+        telefono: 'N/A', // Campos obligatorios
+        email: 'proveedor.general@tuempresa.com',
+        direccion: 'N/A',
         created_at: new Date().toISOString(), // Usa formato ISO
       })
       .returning();
@@ -74,23 +74,22 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       .insert(clientes)
       .values({
         id: generateId(13),
-        nombre: "Cliente Final",
-        userId: userFind.id,
-        esClienteFinal: true, // Añade esta bandera
-        telefono: "N/A", // Campos obligatorios
-        email: "cliente.final@tuempresa.com",
-        direccion: "N/A",
+        nombre: 'Cliente Final',
+        creadoPor: userFind.id,
+        empresaId: userFind.id,
+        telefono: 'N/A', // Campos obligatorios
+        email: 'cliente.final@tuempresa.com',
+        direccion: 'N/A',
         fechaAlta: new Date().toISOString(), // Usa formato ISO
       })
       .returning();
 
-
     // Si el usuario es admin, inicializar roles
-    if (userFind && userFind.rol === "admin") {
+    if (userFind && userFind.rol === 'admin') {
       try {
         await inicializarRoles(userFind.id);
       } catch (rolesError) {
-        console.error("Error al inicializar roles:", rolesError);
+        console.error('Error al inicializar roles:', rolesError);
         // Opcional: manejar el error sin interrumpir el registro
       }
     }
@@ -101,10 +100,10 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
     // crear directorio para iamgenes
     const userDir = path.join(
       process.cwd(),
-      "element",
-      "imgs",
+      'element',
+      'imgs',
       userFind.id,
-      "productos"
+      'productos'
     );
     await fs.mkdir(userDir, { recursive: true });
 
@@ -127,26 +126,30 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       creadoPor: userFind.creadoPor,
     };
 
-    const jwtToken = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, {
-      expiresIn: "14d",
-    });
-    cookies.set("userData", jwtToken, {
+    const jwtToken = jwt.sign(
+      userData,
+      import.meta.env.SECRET_KEY_CREATECOOKIE,
+      {
+        expiresIn: '14d',
+      }
+    );
+    cookies.set('userData', jwtToken, {
       httpOnly: true,
-      secure: import.meta.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: import.meta.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: 14 * 24 * 3600,
-      path: "/",
+      path: '/',
     });
 
-    const verifiedUrl = new URL("/verificar-email", request.url);
+    const verifiedUrl = new URL('/verificar-email', request.url);
     return redirect(verifiedUrl);
   } catch (error) {
-    console.error("Error en la confirmación:", error);
+    console.error('Error en la confirmación:', error);
     return new Response(
       JSON.stringify({
         status: 500,
-        msg: "Error al verificar el email",
-        error: error instanceof Error ? error.message : "Error desconocido"
+        msg: 'Error al verificar el email',
+        error: error instanceof Error ? error.message : 'Error desconocido',
       })
     );
   }

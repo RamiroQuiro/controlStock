@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { VerificationStatus } from '../../components/VerificationStatus';
+
+const { token } = Astro.params as { token: string };
+---
+
+<Layout title='Verificando-email'>
+  <VerificationStatus client:load token={token} />
+</Layout>
+
+<style>
+  @keyframes progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
+  
+  .animate-progress {
+    animation: progress 3s ease-in-out forwards;
+  }
+</style> 

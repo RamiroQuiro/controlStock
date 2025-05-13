@@ -14,7 +14,7 @@ type UserData = {
 };
 export const onRequest = defineMiddleware(async (context, next) => {
   // Permitir todas las rutas de API de autenticación
-  if (context.url.pathname.startsWith('/api/auth/')) {
+  if (context.url.pathname.startsWith('/api/auth/') || context.url.pathname.startsWith('/verificar-email/')) {
     return next();
   }
 

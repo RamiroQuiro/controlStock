@@ -138,8 +138,14 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       path: "/",
     });
 
-    const verifiedUrl = new URL("/verificar-email", request.url);
-    return redirect(verifiedUrl);
+    // En lugar de redirigir, devolvemos una respuesta JSON
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        msg: "Email verificado correctamente"
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error en la confirmación:", error);
     return new Response(
@@ -147,7 +153,8 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
         status: 500,
         msg: "Error al verificar el email",
         error: error instanceof Error ? error.message : "Error desconocido"
-      })
+      }),
+      { status: 500 }
     );
   }
 };

@@ -10,7 +10,7 @@ const PUBLIC_ROUTES = [
   '/api/auth/signin',
   '/api/course/data',
   '/passRestablecer/',
-  '/verificar-email',
+  /^\/verificar-email\/[a-zA-Z0-9-_]+$/,
   '/406',
 ];
 const ADMIN_ROUTES = ['/dashboard/cursos/', '/dashboard/usuarios/'];

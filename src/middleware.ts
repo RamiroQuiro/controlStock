@@ -1,7 +1,7 @@
 import { lucia } from '../src/lib/auth';
 import { defineMiddleware } from 'astro/middleware';
 import { verifyRequestOrigin } from 'lucia';
-import { ADMIN_ROUTES, PUBLIC_ROUTES } from './lib/protectRoutes';
+import { PUBLIC_ROUTES } from './lib/protectRoutes';
 import jwt from 'jsonwebtoken';
 import { puedeAccederRuta } from './utils/permisosRoles';
 type UserData = {
@@ -42,7 +42,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (PUBLIC_ROUTES.includes(context.url.pathname)) {
     return next();
   }
-
+  console.log(
+    'sessionId:',
+    sessionId,
+    'userDataCookie:',
+    userDataCookie,
+    'pathname:',
+    context.url.pathname
+  );
   // Verificar sesión para rutas que requieren autenticación
   if (!sessionId) {
     return context.redirect('/login');
@@ -92,9 +99,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = user;
     context.locals.session = session;
 
+    console.log('userData decodificado:', user);
     return next();
   } catch {
     // Sesión inválida
+    console.log('Ruta solicitada:', context.url.pathname);
+    console.log('¿Puede acceder?');
     return context.redirect('/login');
   }
 });

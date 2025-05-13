@@ -12,12 +12,10 @@ export async function POST({
 }: APIContext): Promise<Response> {
   const formData = await request.json();
 
-  // console.log(' eto m,e llega al enpoint ->', formData);
   const { email, password } = await formData;
-
   if (!email || !password) {
     return new Response(
-      JSON.stringify({ data: 'email y contraseña requerida', status: 400 })
+      JSON.stringify({ msg: 'email y contraseña requerida', status: 400 })
     );
   }
 
@@ -27,8 +25,15 @@ export async function POST({
   ).at(0);
 
   if (!findUser || findUser.activo === 0) {
+    console.log('Usuario no encontrado o inactivo');
     return new Response(
-      JSON.stringify({ data: 'email o contraseña incorrecta', status: 401 })
+      JSON.stringify({ msg: 'email o contraseña incorrecta', status: 401 })
+    );
+  }
+  if (!findUser.emailVerificado) {
+    console.log('Usuario no tiene email verificado');
+    return new Response(
+      JSON.stringify({ msg: 'email no verificado', status: 401 })
     );
   }
 
@@ -37,12 +42,11 @@ export async function POST({
   if (!(await bcrypt.compare(password, findUser.password))) {
     return new Response(
       JSON.stringify({
-        data: 'contraseña incorrecta',
+        msg: 'contraseña incorrecta',
         status: 402,
       })
     );
   }
-
   const session = await lucia.createSession(findUser.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
   cookies.set(
@@ -72,10 +76,10 @@ export async function POST({
     maxAge: 14 * 24 * 3600, // 14 días
     path: '/',
   });
-
+  // console.log('Login exitoso para usuario:', email);
   return new Response(
     JSON.stringify({
-      data: 'usuario creado con exito',
+      msg: 'usuario creado con exito',
       status: 200,
     })
   );

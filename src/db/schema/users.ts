@@ -27,7 +27,9 @@ export const users = sqliteTable(
     telefono: text('telefono'), // Contact phone number
     direccion: text('direccion'), // Business or personal address
     creadoPor: text('creadoPor').references(() => users.id), // Referencia recursiva a la misma tabla
-    empresaId: text('empresaId').references(() => empresas.id), // Referencia recursiva a la misma tabla
+    empresaId: text('empresaId')
+      .references(() => empresas.id)
+      .default(null), // <-- Cambia esto, // Referencia a la tabla empresas
     fechaAlta: integer('created_at') // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),

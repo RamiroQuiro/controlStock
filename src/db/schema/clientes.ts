@@ -1,22 +1,22 @@
 import { sql } from 'drizzle-orm';
 import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
+import { empresas } from './empresas';
 
 export const clientes = sqliteTable(
   'clientes',
   {
     id: text('id').primaryKey(),
-    userId: text('userId').references(() => users.id),
     nombre: text('nombre').notNull(),
     telefono: text('telefono'),
     dni: integer('dni', { mode: 'number' }).unique(),
     email: text('email'),
     direccion: text('direccion'),
-    empresaId: text('empresaId').references(() => users.id),
+    empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),
     observaciones: text('observaciones'),
     fechaAlta: integer('fechaAlta').default(sql`(strftime('%s', 'now'))`),
-    activo: integer('activo').default(1),
+    activo: integer('activo', { mode: 'number' }).default(1),
     ultimaCompra: text('ultimaCompra'),
     categoria: text('categoria').default('regular'),
     estado: text('estado').default('activo'),

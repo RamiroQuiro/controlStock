@@ -1,0 +1,25 @@
+import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core';
+import { empresas } from './empresas';
+import { users } from './users';
+import { sql } from 'drizzle-orm';
+
+export const categorias = sqliteTable(
+  'categorias',
+  {
+    id: text('id').primaryKey(),
+    nombre: text('nombre').notNull(),
+    descripcion: text('descripcion'),
+    creadoPor: text('creadoPor').references(() => users.id),
+
+    empresaId: text('empresaId')
+      .notNull()
+      .references(() => empresas.id),
+    created_at: integer('created_at')
+      .notNull()
+      .default(sql`(strftime('%s', 'now'))`),
+    activo: integer('activo').default(1),
+  },
+  (t) => [
+    unique().on(t.nombre, t.empresaId), // una categoria por nombre y empresa
+  ]
+);

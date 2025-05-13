@@ -5,7 +5,9 @@ interface VerificationStatusProps {
 }
 
 export const VerificationStatus = ({ token }: VerificationStatusProps) => {
-  const [status, setStatus] = useState<'pending' | 'success' | 'error'>('pending');
+  const [status, setStatus] = useState<'pending' | 'success' | 'error'>(
+    'pending'
+  );
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -13,7 +15,7 @@ export const VerificationStatus = ({ token }: VerificationStatusProps) => {
       try {
         const response = await fetch(`/api/auth/confirmacion/${token}`);
         const data = await response.json();
-        
+
         if (response.ok) {
           setStatus('success');
           // Redirigir después de 3 segundos
@@ -77,12 +79,21 @@ export const VerificationStatus = ({ token }: VerificationStatusProps) => {
               Error en la verificación
             </h1>
             <p className="text-gray-600 mb-6">{errorMessage}</p>
-            <a href="/login" className="text-primary-500 hover:underline">
+            <a
+              href="/login"
+              className="text-primary-500 text-xl hover:underline"
+            >
               Volver al login
+            </a>
+            <a
+              href="/login"
+              className="text-primary-400 text-2xl hover:underline"
+            >
+              Volver a mandar codigo
             </a>
           </>
         )}
       </div>
     </div>
   );
-}; 
+};

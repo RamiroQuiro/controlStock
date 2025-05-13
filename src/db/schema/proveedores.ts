@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
+import { empresas } from './empresas';
 
 // Tabla de proveedores
 export const proveedores = sqliteTable(
@@ -8,7 +9,7 @@ export const proveedores = sqliteTable(
   {
     id: text('id').primaryKey(),
     nombre: text('nombre').notNull(),
-    activo: integer('activo').default(1),
+    activo: integer('activo', { mode: 'number' }).default(1),
     contacto: text('contacto'),
     dni: integer('dni', { mode: 'number' }),
     celular: text('celular'),
@@ -16,8 +17,7 @@ export const proveedores = sqliteTable(
     direccion: text('direccion'),
     estado: text('estado', { enum: ['activo', 'inactivo'] }).default('activo'),
     observaciones: text('observaciones'),
-    userId: text('userId').references(() => users.id),
-    empresaId: text('empresaId').references(() => users.id),
+    empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),
     created_at: integer('created_at')
       .notNull()

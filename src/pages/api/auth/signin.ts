@@ -64,6 +64,7 @@ export async function POST({
     email: findUser.email,
     rol: findUser.rol,
     creadoPor: findUser.creadoPor,
+    empresaId: findUser.empresaId,
   };
 
   const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, {

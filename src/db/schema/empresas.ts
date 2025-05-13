@@ -7,17 +7,25 @@ export const empresas = sqliteTable(
     id: text('id').primaryKey(), // UUID
     razonSocial: text('razonSocial').notNull(),
     nombreFantasia: text('nombreFantasia'),
-    documento: text('documento').notNull(), // CUIT/DNI
+    documento: text('documento'), // CUIT/DNI
     telefono: text('telefono'),
     direccion: text('direccion'),
     email: text('email'),
-    creadoPor: text('creadoPor'), // opcional, puede ser userId
+    userId: text('userId').notNull(), //id del usuario dueño de la empresa
+    creadoPor: text('creadoPor'), //ide del user de la empresa
     created_at: integer('created_at')
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
     activo: integer('activo').default(1),
+    emailVerificado: integer('emailVerificado', { mode: 'boolean' }).default(
+      false
+    ),
+    srcPhoto: text('srcPhoto'),
+    srcLogo: text('srcLogo'),
+    urlWeb: text('urlWeb'),
+    emailEmpresa: text('emailEmpresa'),
   },
   (t) => [
-    unique().on(t.documento), // una empresa por documento
+    unique().on(t.documento, t.emailEmpresa), // una empresa por documento
   ]
 );

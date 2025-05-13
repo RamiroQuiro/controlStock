@@ -1,14 +1,19 @@
-export {clientes} from './clientes';
-export {detalleVentas} from './detalleVentas';
-export {movimientosStock} from './movimientosStock';
-export {productos} from './productos';
-export {proveedores} from './proveedores';
-export {users} from './users';
-export {ventas} from './ventas';
-export {stockActual} from './stockActual';
-export {presupuesto} from './presupuestos'
-export {detallePresupuesto} from './detallePresupuesto'
-export {comprasProveedores} from './comprasProveedor'
-export {detalleCompras} from './detalleCompras'
-export {sessions} from './sessions'
-export {roles} from './roles'
+export { clientes } from './clientes';
+export { detalleVentas } from './detalleVentas';
+export { movimientosStock } from './movimientosStock';
+export { productos } from './productos';
+export { proveedores } from './proveedores';
+export { users } from './users';
+export { ventas } from './ventas';
+export { stockActual } from './stockActual';
+export { presupuesto } from './presupuestos';
+export { detallePresupuesto } from './detallePresupuesto';
+export { comprasProveedores } from './comprasProveedor';
+export { detalleCompras } from './detalleCompras';
+export { sessions } from './sessions';
+export { empresas } from './empresas';
+export { roles } from './roles';
+export { categorias } from './categorias';
+export { depositos } from './depositos';
+export { localizaciones } from './localizacion';
+export { ubicaciones } from './ubicaciones';

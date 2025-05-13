@@ -9,6 +9,7 @@ import { lucia } from '../../../../lib/auth';
 import path from 'path';
 import fs from 'fs/promises';
 import jwt from 'jsonwebtoken';
+import { empresas } from '../../../../db/schema/empresas';
 
 export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
   const { token: confirmationToken } = params;
@@ -52,6 +53,25 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       emailVerificado: true,
     });
 
+    const empresaId = generateId(13);
+    const newEmpresa = (
+      await db
+        .insert(empresas)
+        .values([
+          {
+            id: empresaId,
+            created_at: new Date().toISOString(),
+            razonSocial: userFind.userName,
+            creadoPor: userFind.id,
+            userId: userFind.id,
+            activo: 1,
+            emailVerificado: true,
+            srcPhoto: '/avatarDefault.png',
+          },
+        ])
+        .returning()
+    ).at(0);
+
     // Crear Proveedor Comodín
 
     const [proveedorComodin] = await db
@@ -60,8 +80,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
         id: generateId(13),
         nombre: 'Proveedor General',
         creadoPor: userFind.id,
-        empresaId: userFind.id,
-        esComodin: true, // Añade esta bandera
+        empresaId: empresaId,
         telefono: 'N/A', // Campos obligatorios
         email: 'proveedor.general@tuempresa.com',
         direccion: 'N/A',
@@ -76,7 +95,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
         id: generateId(13),
         nombre: 'Cliente Final',
         creadoPor: userFind.id,
-        empresaId: userFind.id,
+        empresaId: empresaId,
         telefono: 'N/A', // Campos obligatorios
         email: 'cliente.final@tuempresa.com',
         direccion: 'N/A',
@@ -124,6 +143,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       email: userFind.email,
       rol: userFind.rol,
       creadoPor: userFind.creadoPor,
+      empresaId: newEmpresa.id,
     };
 
     const jwtToken = jwt.sign(
@@ -145,7 +165,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "Email verificado correctamente"
+        msg: 'Email verificado correctamente',
       }),
       { status: 200 }
     );
@@ -154,8 +174,8 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
     return new Response(
       JSON.stringify({
         status: 500,
-        msg: "Error al verificar el email",
-        error: error instanceof Error ? error.message : "Error desconocido"
+        msg: 'Error al verificar el email',
+        error: error instanceof Error ? error.message : 'Error desconocido',
       }),
       { status: 500 }
     );

@@ -16,6 +16,8 @@ export const productos = sqliteTable(
     categoria: text('categoria'),
     marca: text('marca'),
     impuesto: text('impuesto').default('21%'),
+    deposito: text('deposito').default('deposito 1'),
+    ubicacion: text('ubicacion').default('ubicacion 1'),
     empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),
     signoDescuento: text('signoDescuento'), //signos de descuento si hay , '$' o '%', si es monto o porcentaje
@@ -38,10 +40,9 @@ export const productos = sqliteTable(
     created_at: integer('created_at') // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
-    userId: text('userId').notNull(), // Agregamos userId
   },
   (t) => [
     // Índice único compuesto para evitar duplicados de código de barra por usuario
-    unique().on(t.codigoBarra, t.userId),
+    unique().on(t.codigoBarra, t.empresaId),
   ]
 );

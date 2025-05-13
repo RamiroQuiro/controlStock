@@ -1,5 +1,4 @@
 import type { APIContext } from 'astro';
-
 import { eq, or } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { generateId } from 'lucia';
@@ -53,27 +52,25 @@ export async function POST({
   const userId = generateId(15);
   // Hacemos hash de la contraseña
   const hashPassword = await bcrypt.hash(password, 12);
-
+  console.log(userId, email, password, userName, nombre, apellido, rol);
   const newUser = (
     await db
       .insert(users)
-      .values([
-        {
-          id: userId,
-          userName: userName,
-          nombre: nombre,
-          apellido: apellido,
-          srcPhoto: '/avatarDefault.png',
-          email: email,
-          rol: rol || 'admin',
-          password: hashPassword,
-          emailVerificado: false,
-          creadoPor: userId,
-        },
-      ])
+      .values({
+        id: userId,
+        userName,
+        nombre,
+        apellido,
+        srcPhoto: '/avatarDefault.png',
+        email,
+        rol: rol || 'admin',
+        password: hashPassword,
+        creadoPor: userId,
+      })
       .returning()
   ).at(0);
 
+  console.log('nuevo usuario', newUser);
   // generando el token de confirmacion de email
 
   const code = generateId(6);

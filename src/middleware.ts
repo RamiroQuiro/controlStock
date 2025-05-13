@@ -14,7 +14,10 @@ type UserData = {
 };
 export const onRequest = defineMiddleware(async (context, next) => {
   // Permitir todas las rutas de API de autenticación
-  if (context.url.pathname.startsWith('/api/auth/') || context.url.pathname.startsWith('/verificar-email/')) {
+  if (
+    context.url.pathname.startsWith('/api/auth/') ||
+    context.url.pathname.startsWith('/verificar-email/')
+  ) {
     return next();
   }
 
@@ -42,14 +45,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (PUBLIC_ROUTES.includes(context.url.pathname)) {
     return next();
   }
-  console.log(
-    'sessionId:',
-    sessionId,
-    'userDataCookie:',
-    userDataCookie,
-    'pathname:',
-    context.url.pathname
-  );
+
   // Verificar sesión para rutas que requieren autenticación
   if (!sessionId) {
     return context.redirect('/login');
@@ -99,12 +95,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = user;
     context.locals.session = session;
 
-    console.log('userData decodificado:', user);
     return next();
   } catch {
     // Sesión inválida
-    console.log('Ruta solicitada:', context.url.pathname);
-    console.log('¿Puede acceder?');
     return context.redirect('/login');
   }
 });

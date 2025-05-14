@@ -11,7 +11,7 @@ export default function Formulario({ isLogin }) {
   });
   const [confirmacion, setConfirmacion] = useState(false);
   const [isLook, setIsLook] = useState(false);
-
+console.log(isLogin)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -34,7 +34,7 @@ export default function Formulario({ isLogin }) {
       });
 
       const result = await response.json();
-
+console.log(result)
       if (response.ok) {
         if (result.status == 200) {
           setConfirmacion(true);

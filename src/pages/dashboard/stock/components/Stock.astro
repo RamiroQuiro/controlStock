@@ -13,9 +13,6 @@ import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
 const {user}=Astro.locals
 if(!user){ return Astro.redirect('/login')}
-
-// console.log('analisis de strock',analisisStock);
-// console.log('productos bajo movimiento',productosBajoMovimiento);
 ---
 
 <MainDashboard h1="Stock">
@@ -25,7 +22,7 @@ if(!user){ return Astro.redirect('/login')}
     class="flex items-center justify-end pb-2 md:gap-2 gap-1 pr-6 w-full"
   >
     <Modal label="Crear" id="agregarProducto">
-      <FormularioCargaProducto user={user} />
+      <FormularioCargaProducto  />
     </Modal>
     <Modal label="Comprar" id="compraProveedir">
       <FormularioCompra user={user} client:visible />

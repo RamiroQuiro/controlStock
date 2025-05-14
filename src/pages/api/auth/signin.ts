@@ -27,7 +27,7 @@ export async function POST({
   if (!findUser || findUser.activo === 0) {
     console.log('Usuario no encontrado o inactivo');
     return new Response(
-      JSON.stringify({ msg: 'email o contraseña incorrecta', status: 401 })
+      JSON.stringify({ msg: 'email incorrecta', status: 401 })
     );
   }
   if (!findUser.emailVerificado) {
@@ -80,7 +80,7 @@ export async function POST({
   // console.log('Login exitoso para usuario:', email);
   return new Response(
     JSON.stringify({
-      msg: 'usuario creado con exito',
+      msg: 'usuario logeado con exito',
       status: 200,
     })
   );

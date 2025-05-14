@@ -45,12 +45,12 @@ export const stockStore = atom({
   error: null,
 });
 
-export const fetchStockData = async (userId) => {
+export const fetchStockData = async (empresaId) => {
   stockStore.set({ loading: true, data: null, error: null });
   try {
     const response = await fetch('/api/stock/statistStock', {
       headers: {
-        'x-user-id': userId,
+        'xx-empresa-id': empresaId,
       },
     });
     const data = await response.json();

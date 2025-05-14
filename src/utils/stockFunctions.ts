@@ -3,9 +3,9 @@ import db from "../db";
 import { clientes, detalleVentas, movimientosStock, productos, proveedores, stockActual } from "../db/schema";
 import { cache } from "./cache"; 
 
-export const trayendoProductos = async (userId: string, page: number = 0, limit: number = 20) => {
+export const trayendoProductos = async (empresaId: string, page: number = 0, limit: number = 20) => {
   const offset = page * limit;
-  const cacheKey = `stock_data_${userId}_${page}_${limit}`;
+  const cacheKey = `stock_data_${empresaId}_${page}_${limit}`;
 
   // Check cache first
   const cachedData = await cache.get(cacheKey);
@@ -38,7 +38,7 @@ export const trayendoProductos = async (userId: string, page: number = 0, limit:
       })
       .from(productos)
       .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId, empresaId))
       .limit(limit)
       .offset(offset),
 
@@ -47,18 +47,18 @@ export const trayendoProductos = async (userId: string, page: number = 0, limit:
         count: sql<number>`COUNT(*)`.as("total"),
       })
       .from(productos)
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId, empresaId))
       .then(result => result.at(0)?.count ?? 0),
 
     db
       .select()
       .from(proveedores)
-      .where(eq(proveedores.userId, userId)),
+      .where(eq(proveedores.empresaId, empresaId)),
 
     db
       .select()
       .from(clientes)
-      .where(eq(clientes.userId, userId)),
+      .where(eq(clientes.empresaId, empresaId)),
 
     db
       .select({
@@ -67,7 +67,7 @@ export const trayendoProductos = async (userId: string, page: number = 0, limit:
       })
       .from(detalleVentas)
       .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId, empresaId))
       .groupBy(productos.id)
       .orderBy(desc(sql`totalVendido`))
       .limit(10),
@@ -79,7 +79,7 @@ export const trayendoProductos = async (userId: string, page: number = 0, limit:
       })
       .from(detalleVentas)
       .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId, empresaId))
       .groupBy(productos.id)
       .orderBy(asc(sql`totalVendido`))
       .limit(10),
@@ -94,7 +94,7 @@ export const trayendoProductos = async (userId: string, page: number = 0, limit:
       .from(productos)
       .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
       .leftJoin(movimientosStock, eq(movimientosStock.productoId, productos.id))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId, empresaId))
       .groupBy(productos.id)
       .orderBy(asc(sql`totalVendido`))
       .limit(10),
@@ -107,7 +107,7 @@ export const trayendoProductos = async (userId: string, page: number = 0, limit:
       })
       .from(productos)
       .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId, empresaId))
   ]);
 
   const obtenerFiltros = {

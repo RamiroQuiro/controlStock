@@ -6,7 +6,7 @@ import ContenedorInputForm from "../../../../components/moleculas/ContenedorInpu
 import ContenedorInputSelected from "../../../../components/moleculas/ContenedorInputSelected.astro";
 import InputFile from "../../../../components/moleculas/InputFile";
 
-const { user } = Astro.props;
+const { user } = Astro.locals;
 
 const impuestos = [
   {
@@ -64,6 +64,7 @@ const unidadMedida = [
   <div
     id="idCargaUsuario"
     data-user-id={user.id}
+    data-empresa-id={user.empresaId}
     class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
   >
     <ContenedorInputForm
@@ -148,6 +149,7 @@ const unidadMedida = [
     const erroresMsg = document.getElementById("erroresMsg");
     const userIdElement = document.getElementById("idCargaUsuario");
     const userId = userIdElement?.dataset.userId;
+    const empresaId = userIdElement?.dataset.empresaId;
 
     if (!formulario || !btnGuardar || !erroresMsg || !userId) {
       console.error("Error: Elementos del DOM no encontrados");

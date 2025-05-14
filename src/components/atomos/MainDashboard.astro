@@ -3,11 +3,13 @@
 const { title, h1 } = Astro.props;
 
 const {user}=Astro.locals
+console.log('mainDahs->',user)
 ---
 
 <main
 id="mainDashboard"
   data-usisisi={user?.id}
+  data-emprsisi={user?.empresaId}
   class="top-12 md:right-0 z-0  w-full mt-5 md:16  print:hidden flex flex-col items-center justify-center"
 >
  <div class="w-full flex items-center justify-start sha gap-4">

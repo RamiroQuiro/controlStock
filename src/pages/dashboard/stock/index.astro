@@ -9,8 +9,8 @@ import Stock from "./components/Stock.astro";
 <script>
   import { fetchStockData } from "../../../context/store";
 
-  const { usisisi } = document.getElementById("mainDashboard")?.dataset;
-  let userId = usisisi;
-
-  fetchStockData(userId);
+  const { emprsisi } = document.getElementById("mainDashboard")?.dataset;
+  let empresaId = emprsisi;
+console.log('id de la empresa',emprsisi)
+  fetchStockData(empresaId);
 </script>

@@ -1,10 +1,10 @@
 import type { APIContext } from 'astro';
-import { eq } from 'drizzle-orm';
-import db from '../../../db';
-import { users } from '../../../db/schema';
 import { lucia } from '../../../lib/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import db from '../../../db';
+import { users } from '../../../db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function POST({
   request,
@@ -20,12 +20,12 @@ export async function POST({
   }
 
   //   verificar si el usuario existe
-  const findUser = (
-    await db.select().from(users).where(eq(users.email, email))
-  ).at(0);
 
+  const [findUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email));
   if (!findUser || findUser.activo === 0) {
-    console.log('Usuario no encontrado o inactivo');
     return new Response(
       JSON.stringify({ msg: 'email incorrecta', status: 401 })
     );
@@ -77,7 +77,6 @@ export async function POST({
     maxAge: 14 * 24 * 3600, // 14 días
     path: '/',
   });
-  // console.log('Login exitoso para usuario:', email);
   return new Response(
     JSON.stringify({
       msg: 'usuario logeado con exito',

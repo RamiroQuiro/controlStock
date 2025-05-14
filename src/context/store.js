@@ -14,12 +14,13 @@ const columnSelectTable = atom({ asc: true, seleccion: '' });
 // Store para estadísticas del dashboard con estado inicial
 const statsDashStore = atom({ loading: true, data: null, error: null });
 
-const fetchStatsData = async (userId) => {
+const fetchStatsData = async (userId, empresaId) => {
   statsDashStore.set({ loading: true, data: null, error: null }); // Indicar que está cargando
   try {
     const response = await fetch('/api/statesDash/stadisticasDash', {
       headers: {
         'x-user-id': userId,
+        'xx-empresa-id': empresaId,
       },
     });
 
@@ -45,11 +46,12 @@ export const stockStore = atom({
   error: null,
 });
 
-export const fetchStockData = async (empresaId) => {
+export const fetchStockData = async (userId, empresaId) => {
   stockStore.set({ loading: true, data: null, error: null });
   try {
     const response = await fetch('/api/stock/statistStock', {
       headers: {
+        'x-user-id': userId,
         'xx-empresa-id': empresaId,
       },
     });

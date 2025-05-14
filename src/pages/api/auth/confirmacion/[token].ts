@@ -134,7 +134,6 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       sessionCookie.attributes
     );
 
-    console.log('nueva empresa ->',newEmpresa)
     // Crear una cookie con los datos del usuario
     const userData = {
       id: userFind.id,
@@ -144,7 +143,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       email: userFind.email,
       rol: userFind.rol,
       creadoPor: userFind.creadoPor,
-      empresaId: newEmpresa.id,
+      empresaId: empresaId,
     };
 
     const jwtToken = jwt.sign(

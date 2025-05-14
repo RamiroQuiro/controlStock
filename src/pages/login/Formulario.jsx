@@ -11,7 +11,7 @@ export default function Formulario({ isLogin }) {
   });
   const [confirmacion, setConfirmacion] = useState(false);
   const [isLook, setIsLook] = useState(false);
-console.log(isLogin)
+  console.log(isLogin);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -34,19 +34,23 @@ console.log(isLogin)
       });
 
       const result = await response.json();
-console.log(result)
+      console.log(result);
       if (response.ok) {
         if (result.status == 200) {
-          setConfirmacion(true);
-          showToast(result.msg || 'usuario creado con exito', {
-            background: 'bg-green-500',
-            time: 5000,
-            confirmText: 'Iniciar Sesión',
-            onConfirm: () => {
-              setConfirmacion(false);
-            },
-          });
-          loader(false);
+          if (isLogin) {
+            window.location.href = '/dashboard';
+          } else {
+            setConfirmacion(true);
+            showToast(result.msg || 'usuario creado con exito', {
+              background: 'bg-green-500',
+              time: 5000,
+              confirmText: 'Iniciar Sesión',
+              onConfirm: () => {
+                setConfirmacion(false);
+              },
+            });
+            loader(false);
+          }
         } else if (result.status == 401) {
           showToast(result.msg || 'email incorrecto', {
             background: 'bg-primary-400',

@@ -6,6 +6,7 @@ import { and, eq, sql } from "drizzle-orm";
 export const GET: APIRoute = async ({ request }) => {
   // Obtener userId y filtro de los headers. Si no hay filtro, usar añoActual por defecto
   const userId = request.headers.get("x-user-id");
+  const empresaId = request.headers.get("xx-empresa-id");
   const filtroSelector = request.headers.get("filtro-selector") || "añoActual";
 
   // Validación de usuario
@@ -80,7 +81,7 @@ export const GET: APIRoute = async ({ request }) => {
         cantidadVentas: sql<number>`count(*)`,
       })
       .from(ventas)
-      .where(and(eq(ventas.userId, userId), condicionFecha))
+      .where(and(eq(ventas.empresaId, empresaId), condicionFecha))
       .groupBy(filtroSelector === "mesActual" 
         ? sql`strftime('%d', datetime(${ventas.fecha}, 'unixepoch'))`
         : sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch'))`)

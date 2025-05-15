@@ -21,7 +21,7 @@ if (!user || !userId) {
     class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
   >
     <DivBox1 styleDiv="md:w-4/6 w-full items-stretch">
-      <ResumenVentas userId={userId} client:visible />
+      <ResumenVentas userId={userId} empresaId={user.empresaId} client:visible />
     </DivBox1>
 
     <DivBox1 styleDiv="md:w-2/6 w-full items-stretch">
@@ -46,8 +46,7 @@ if (!user || !userId) {
 
 <script>
   import { fetchStatsData } from '../../../context/store';
-  const { usisisi: userId }: { usisisi: string } =
-    document.getElementById('mainDashboard')?.dataset;
-
-  fetchStatsData(userId);
+  const { userId }: { userId: string } =document.getElementById('mainDashboard')?.dataset;
+  const { empresaId }: { empresaId: string } = document.getElementById('mainDashboard')?.dataset;
+  fetchStatsData(userId, empresaId);
 </script>

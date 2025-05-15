@@ -2,7 +2,7 @@ import { and, count, eq, lte, sql } from "drizzle-orm";
 import db from "../db";
 import { clientes, detalleVentas, productos, ventas } from "../db/schema";
 
-const stadisticasDash = async (userId: string) => {
+const stadisticasDash = async (userId: string,empresaId:string) => {
   const fechaActual = new Date();
   const mesActual = fechaActual.getMonth() + 1;
   const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
@@ -21,7 +21,7 @@ const stadisticasDash = async (userId: string) => {
         .from(ventas)
         .where(
           and(
-            eq(ventas.userId, userId),
+            eq(ventas.empresaId, empresaId),
             sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
           )
         )
@@ -31,7 +31,7 @@ const stadisticasDash = async (userId: string) => {
         .from(clientes)
         .where(
           and(
-            eq(clientes.userId, userId),
+            eq(clientes.empresaId, empresaId),
             sql`strftime('%m', datetime(${clientes.fechaAlta}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
           )
         )
@@ -41,7 +41,7 @@ const stadisticasDash = async (userId: string) => {
         .from(productos)
         .where(
           and(
-            eq(productos.userId, userId),
+            eq(productos.empresaId, empresaId),
             lte(productos.stock, productos.alertaStock)
           )
         )
@@ -56,7 +56,7 @@ const stadisticasDash = async (userId: string) => {
       })
         .from(ventas)
         .innerJoin(clientes, eq(clientes.id, ventas.clienteId))
-        .where(eq(ventas.userId, userId))
+        .where(eq(ventas.empresaId, empresaId))
         .orderBy(sql`ventas.fecha DESC`)
         .limit(10),
 
@@ -70,7 +70,7 @@ const stadisticasDash = async (userId: string) => {
         .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
         .where(
           and(
-            eq(productos.userId, userId),
+            eq(productos.empresaId, empresaId),
             sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
           )
         )
@@ -86,7 +86,7 @@ const stadisticasDash = async (userId: string) => {
         .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
         .where(
           and(
-            eq(productos.userId, userId),
+            eq(productos.empresaId, empresaId),
             sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesAnterior.toString().padStart(2, "0")}`
           )
         )

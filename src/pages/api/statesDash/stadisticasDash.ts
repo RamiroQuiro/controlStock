@@ -5,6 +5,7 @@ import { stadisticasDash } from '../../../services/dashboard.service';
 export const GET: APIRoute = async ({ params, request }) => {
   try {
     const userId = request.headers.get('x-user-id'); // Obtener el userId del encabezado
+    const empresaId = request.headers.get('xx-empresa-id'); // Obtener el userId del encabezado
     if (!userId) {
       return new Response(
         JSON.stringify({ message: 'User ID es requerido' }),
@@ -12,7 +13,7 @@ export const GET: APIRoute = async ({ params, request }) => {
       );
     }
 
-    const estadisticas = await stadisticasDash(userId);
+    const estadisticas = await stadisticasDash(userId,empresaId);
     if (!estadisticas) {
       return new Response(
         JSON.stringify({ message: 'error en la lectura, no encontrada' }),

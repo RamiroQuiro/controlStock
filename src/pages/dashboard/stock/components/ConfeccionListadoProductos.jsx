@@ -11,7 +11,7 @@ const ConfeccionListadoProductos = () => {
   const busquedaValue = useStore(busqueda);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
 
-
+console.log('data',data)
   return (
     <div className="flex w-full flex-col gap-1">
      {!loading? data?.listaProductos?.length > 0 ? (

@@ -54,6 +54,7 @@ export async function POST({
     sessionCookie.value,
     sessionCookie.attributes
   );
+
   // Crear una cookie con los datos del usuario
   const userData = {
     id: findUser.id,

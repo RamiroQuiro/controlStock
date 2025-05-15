@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 import { formateoMoneda } from "../../utils/formateoMoneda";
 
-const ResumenVentas: React.FC = ({ userId }: { userId: string }) => {
+const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId, empresaId }) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   
@@ -33,6 +33,7 @@ const ResumenVentas: React.FC = ({ userId }: { userId: string }) => {
         const response = await fetch('/api/sales/resumenVentas', {
           headers: {
             'x-user-id': userId,
+            'xx-empresa-id': empresaId,
             'filtro-selector': filtroTiempo
           }
         });
@@ -60,7 +61,7 @@ const ResumenVentas: React.FC = ({ userId }: { userId: string }) => {
     };
 
     fetchDatosVentas();
-  }, [userId, filtroTiempo]);
+  }, [userId, empresaId, filtroTiempo]);
 
   // Efecto para actualizar el gráfico
   useEffect(() => {

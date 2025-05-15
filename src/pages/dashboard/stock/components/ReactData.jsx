@@ -5,7 +5,6 @@ import { formateoMoneda } from '../../../../utils/formateoMoneda';
 
 export default function ReactData({ idData }) {
   const { data, loading } = useStore(stockStore);
-  console.log('data en modulo resactData->', data);
   // Memoizamos los cálculos para evitar recálculos innecesarios
   const calculatedData = useMemo(() => {
     if (!data?.listaProductos) return null;

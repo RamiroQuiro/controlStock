@@ -1,17 +1,18 @@
-import type { APIRoute } from "astro";
-import db from "../../../db";
+import type { APIRoute } from 'astro';
+import db from '../../../db';
 import {
   productos,
   stockActual,
   ventas,
   detalleVentas,
-} from "../../../db/schema";
-import { and, eq, sql, desc } from "drizzle-orm";
+} from '../../../db/schema';
+import { and, eq, sql, desc } from 'drizzle-orm';
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request }) => {
-  const userId = request.headers.get("x-user-id");
-  const filtroSelector = request.headers.get("filtro-selector") || "mesActual";
+  const userId = request.headers.get('x-user-id');
+  const empresaId = request.headers.get('xx-empresa-id');
+  const filtroSelector = request.headers.get('filtro-selector') || 'mesActual';
 
   const fechaActual = new Date();
   const mesActual = fechaActual.getMonth() + 1;
@@ -21,35 +22,34 @@ export const GET: APIRoute = async ({ request }) => {
   let condicionFecha;
 
   switch (filtroSelector) {
-    case "mesActual":
-      condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")} AND strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
+    case 'mesActual':
+      condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')} AND strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
       break;
-    case "ultimos6Meses":
+    case 'ultimos6Meses':
       // Calculamos la fecha de hace 6 meses
       const fecha6Meses = new Date();
       fecha6Meses.setMonth(fecha6Meses.getMonth() - 6);
       const timestamp6Meses = Math.floor(fecha6Meses.getTime() / 1000);
       condicionFecha = sql`${ventas.fecha} >= ${timestamp6Meses}`;
       break;
-    case "añoActual":
+    case 'añoActual':
       condicionFecha = sql`strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
       break;
     default:
-      condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`;
+      condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`;
   }
-
 
   try {
     // Primero obtenemos el total de ventas del período para calcular porcentajes
     const totalVentasPeriodo = await db
       .select({
         totalCantidad: sql<number>`sum(${detalleVentas.cantidad})`,
-        totalMonto: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`
+        totalMonto: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
       })
       .from(detalleVentas)
       .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
       .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
-      .where(and(eq(productos.userId, userId), condicionFecha))
+      .where(and(eq(productos.empresaId, empresaId), condicionFecha))
       .get();
 
     const topVentasMensual = await db
@@ -66,13 +66,13 @@ export const GET: APIRoute = async ({ request }) => {
         cantidadVendida: sql<number>`sum(${detalleVentas.cantidad})`,
         totalVendido: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
         porcentajeCantidad: sql<number>`round((sum(${detalleVentas.cantidad}) * 100.0 / ${totalVentasPeriodo.totalCantidad}), 2)`,
-        porcentajeMonto: sql<number>`round((sum(${detalleVentas.cantidad} * ${detalleVentas.precio}) * 100.0 / ${totalVentasPeriodo.totalMonto}), 2)`
+        porcentajeMonto: sql<number>`round((sum(${detalleVentas.cantidad} * ${detalleVentas.precio}) * 100.0 / ${totalVentasPeriodo.totalMonto}), 2)`,
       })
       .from(detalleVentas)
       .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
       .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
       .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
-      .where(and(eq(productos.userId, userId), condicionFecha))
+      .where(and(eq(productos.empresaId, empresaId), condicionFecha))
       .groupBy(productos.id)
       .orderBy(desc(sql`sum(${detalleVentas.cantidad})`))
       .limit(10);
@@ -81,14 +81,15 @@ export const GET: APIRoute = async ({ request }) => {
     const estadisticas = {
       totalProductosVendidos: totalVentasPeriodo.totalCantidad,
       montoTotalVentas: totalVentasPeriodo.totalMonto,
-      promedioVentaPorProducto: totalVentasPeriodo.totalCantidad / topVentasMensual.length,
-      productoMasVendido: topVentasMensual[0]
+      promedioVentaPorProducto:
+        totalVentasPeriodo.totalCantidad / topVentasMensual.length,
+      productoMasVendido: topVentasMensual[0],
     };
 
     return new Response(
       JSON.stringify({
         data: topVentasMensual,
-        msg: "peticion ok",
+        msg: 'peticion ok',
         status: 200,
       }),
       {
@@ -99,7 +100,7 @@ export const GET: APIRoute = async ({ request }) => {
     console.error(error);
     return new Response(
       JSON.stringify({
-        msg: "error al obtener estadistica",
+        msg: 'error al obtener estadistica',
         status: 404,
       }),
       {

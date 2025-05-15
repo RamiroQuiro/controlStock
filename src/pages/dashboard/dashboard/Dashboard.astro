@@ -21,11 +21,19 @@ if (!user || !userId) {
     class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
   >
     <DivBox1 styleDiv="md:w-4/6 w-full items-stretch">
-      <ResumenVentas userId={userId} empresaId={user.empresaId} client:visible />
+      <ResumenVentas
+        userId={userId}
+        empresaId={user.empresaId}
+        client:visible
+      />
     </DivBox1>
 
     <DivBox1 styleDiv="md:w-2/6 w-full items-stretch">
-      <ProductosMasVendidos userId={userId} client:visible />
+      <ProductosMasVendidos
+        userId={userId}
+        empresaId={user.empresaId}
+        client:visible
+      />
     </DivBox1>
   </div>
 
@@ -34,7 +42,11 @@ if (!user || !userId) {
     class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
   >
     <DivBox1 styleDiv="md:w-2/5 w-full">
-      <RendimientoCategoria userId={userId} client:load />
+      <RendimientoCategoria
+        userId={userId}
+        empresaId={user.empresaId}
+        client:load
+      />
     </DivBox1>
     <DivBox1 styleDiv="md:w-3/5 w-full">
       <UltimasTransacciones client:visible />
@@ -46,7 +58,9 @@ if (!user || !userId) {
 
 <script>
   import { fetchStatsData } from '../../../context/store';
-  const { userId }: { userId: string } =document.getElementById('mainDashboard')?.dataset;
-  const { empresaId }: { empresaId: string } = document.getElementById('mainDashboard')?.dataset;
+  const { userId }: { userId: string } =
+    document.getElementById('mainDashboard')?.dataset;
+  const { empresaId }: { empresaId: string } =
+    document.getElementById('mainDashboard')?.dataset;
   fetchStatsData(userId, empresaId);
 </script>

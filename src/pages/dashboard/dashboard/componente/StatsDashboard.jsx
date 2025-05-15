@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import DivReact from "../../../../components/atomos/DivReact";
+import { useEffect, useState } from 'react';
+import DivReact from '../../../../components/atomos/DivReact';
 
 export default function StatsDashboard({
   textColor,
@@ -25,7 +25,7 @@ export default function StatsDashboard({
     const stepTime = duration / steps;
     // Incremento por paso
     const increment = dataInfo / steps;
-    
+
     let current = 0;
     const timer = setInterval(() => {
       current += increment;
@@ -46,7 +46,9 @@ export default function StatsDashboard({
       <div className="flex items-end gap-2 h-1/2 w-full">
         <div className={`text-xs flex gap-2 justify-center mt-2 items-center`}>
           <Icon className={`${textColor} w-8 h-8`} />
-          <p className={`${textColor} text-2xl font-bold transition-all duration-200`}>
+          <p
+            className={`${textColor} text-2xl font-bold transition-all duration-200`}
+          >
             {count}
           </p>
         </div>

@@ -58,9 +58,8 @@ if (!user || !userId) {
 
 <script>
   import { fetchStatsData } from '../../../context/store';
-  const { userId }: { userId: string } =
+  const { usisisi, emprsisi } =
     document.getElementById('mainDashboard')?.dataset;
-  const { empresaId }: { empresaId: string } =
-    document.getElementById('mainDashboard')?.dataset;
-  fetchStatsData(userId, empresaId);
+  fetchStatsData(usisisi, emprsisi);
+  console.log('id de la empresa', emprsisi, usisisi);
 </script>

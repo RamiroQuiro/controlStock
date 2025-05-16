@@ -5,15 +5,14 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     const userId = request.headers.get('x-user-id');
     const empresaId = request.headers.get('xx-empresa-id');
-    console.log('empresaId',empresaId)
-    console.log('userId',userId)
+   
     if (!userId) {
       return new Response(JSON.stringify({ error: 'Usuario no autorizado' }), { 
         status: 401 
       });
     }
 
-    const data = await trayendoProductos(userId);
+    const data = await trayendoProductos(empresaId);
     
     return new Response(JSON.stringify(data), {
       status: 200,

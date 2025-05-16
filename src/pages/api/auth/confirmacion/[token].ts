@@ -117,14 +117,14 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
     });
 
     // crear directorio para iamgenes
-    const userDir = path.join(
+    const empresaDir = path.join(
       process.cwd(),
       'element',
       'imgs',
-      userFind.id,
+      empresaId,
       'productos'
     );
-    await fs.mkdir(userDir, { recursive: true });
+    await fs.mkdir(empresaDir, { recursive: true });
 
     // console.log('sesion de usuario de alta ', session);
     const sessionCookie = lucia.createSessionCookie(session.id);

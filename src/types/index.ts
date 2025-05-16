@@ -18,6 +18,27 @@ export type Users = {
   fechaAlta: number;
   activo: number;
 };
+export interface ProductoData {
+  nombre: string;
+  empresaId: string;
+  userId: string;
+  descripcion: string;
+  precio: number;
+  stock: number;
+  pVenta: string | null;
+  pCompra: string | null;
+  categoria: string | null;
+  deposito: string | null;
+  impuesto: string;
+  iva: string | null;
+  descuento: string | null;
+  modelo: string | null;
+  marca: string | null;
+  localizacion: string;
+  alertaStock: number;
+  codigoBarra: string;
+}
+
 
 export type Producto = {
   id: string; // ID único del producto
@@ -37,6 +58,11 @@ export type Producto = {
   pVenta?: number ; // Precio de venta del producto
   utilidad?: number; // Utilidad del producto
   stock: number; // Cantidad en stock
+  alertaStock: number; // Cantidad mínima de stock
+  deposito?: string; // Deposito del producto
+  ubicacion?: string; // Ubicación del producto
+  empresaId?: string; // ID de la empresa
+  creadoPor?: string; // ID del usuario que creó el producto
   activo: boolean; // Estado del producto (activo/inactivo)
   unidadMedida?: 'unidad' | 'litros' | 'kilogramos'| 'decena'; // Unidad de medida (unidad, kg, litro, etc.)
   precioMinimoVenta?: number; // Precio mínimo de venta del producto

@@ -7,26 +7,9 @@ import path from "path";
 import { promises as fs } from "fs";
 import sharp from "sharp";
 import { cache } from "../../../utils/cache";
+import type { Producto } from "../../../types";
 
-interface ProductoData {
-  nombre: string;
-  userId: string;
-  descripcion: string;
-  precio: number;
-  stock: number;
-  pVenta: string | null;
-  pCompra: string | null;
-  categoria: string | null;
-  deposito: string | null;
-  impuesto: string;
-  iva: string | null;
-  descuento: string | null;
-  modelo: string | null;
-  marca: string | null;
-  localizacion: string;
-  alertaStock: number;
-  codigoBarra: string;
-}
+
 
 export async function POST({ request }: APIContext): Promise<Response> {
   try {
@@ -48,23 +31,25 @@ export async function POST({ request }: APIContext): Promise<Response> {
     }
 
     // Extraer y validar datos
-    const productoData: ProductoData = {
+    const productoData: Producto = {
       nombre: data.get("nombre")?.toString() || "",
       userId: data.get("userId")?.toString() || "",
       descripcion: data.get("descripcion")?.toString() || "",
       precio: parseFloat(data.get("precio")?.toString() || "0"),
       stock: parseInt(data.get("stock")?.toString() || "0"),
-      pVenta: data.get("pVenta")?.toString() || null,
-      pCompra: data.get("pCompra")?.toString() || null,
-      categoria: data.get("categoria")?.toString() || null,
-      deposito: data.get("deposito")?.toString() || null,
-      impuesto: data.get("impuesto")?.toString() || "21%",
-      iva: data.get("iva")?.toString() || null,
-      descuento: data.get("descuento")?.toString() || null,
-      modelo: data.get("modelo")?.toString() || null,
-      marca: data.get("marca")?.toString() || null,
+      pVenta: Number(data.get("pVenta") || 0) ,
+      pCompra: Number(data.get("pCompra") || 0),
+      categoria: data.get("categoria")?.toString()||"" ,
+      deposito: data.get("deposito")?.toString()||"" ,
+      impuesto: data.get("impuesto")?.toString()||"21%" ,
+      empresaId: data.get("empresaId") || "",
+      creadoPor: data.get("userId")?.toString() || "",
+      iva: Number (data.get("iva") || 21),
+      descuento: Number(data.get("descuento") || 0),
+      modelo: data.get("modelo")?.toString() || "",
+      marca: data.get("marca")?.toString() || "",
       localizacion: data.get("localizacion")?.toString() || "",
-      alertaStock: parseInt(data.get("alertaStock")?.toString() || "0"),
+      alertaStock: Number(data.get("alertaStock") || 0),
       codigoBarra: data.get("codigoBarra")?.toString() || "",
     };
 
@@ -86,7 +71,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
       process.cwd(),
       "element",
       "imgs",
-      productoData.userId,
+      productoData.empresaId,
       "productos"
     );
     const dirExists = await fs
@@ -104,7 +89,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
     const extension = path.extname(fotoProducto.name);
     const nombreArchivo = `${imageId}${extension}`;
     const rutaGuardado = path.join(userDir, nombreArchivo);
-    const rutaRelativa = `/element/imgs/${productoData.userId}/productos/${nombreArchivo}`;
+    const rutaRelativa = `/element/imgs/${productoData.empresaId}/productos/${nombreArchivo}`;
 
     try {
       const buffer = await fotoProducto.arrayBuffer();
@@ -147,12 +132,12 @@ export async function POST({ request }: APIContext): Promise<Response> {
             alertaStock: productoData.alertaStock,
             modelo: productoData.modelo,
             descuento: productoData.descuento,
+            empresaId: productoData.empresaId,
             impuesto: productoData.impuesto,
             marca: productoData.marca,
             updatedAt: sql`(strftime('%s','now'))`,
             stock: productoData.stock,
             userId: productoData.userId,
-            cantidadAlerta: productoData.cantidadAlerta,
             srcPhoto: rutaRelativa,
           })
           .returning();

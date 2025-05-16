@@ -6,7 +6,7 @@ import { cache } from "./cache";
 export const trayendoProductos = async (empresaId: string, page: number = 0, limit: number = 20) => {
   const offset = page * limit;
   const cacheKey = `stock_data_${empresaId}_${page}_${limit}`;
-
+console.log('esta es la empresa id del stockguncion',empresaId)
   // Check cache first
   const cachedData = await cache.get(cacheKey);
   if (cachedData) return cachedData;

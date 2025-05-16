@@ -6,12 +6,10 @@ import Stock from './components/Stock.astro';
 <LayoutDash title="Stock">
   <Stock />
 </LayoutDash>
-<!-- <script>
+<script>
   import { fetchStockData } from '../../../context/store';
-
-  const { userId } = document.getElementById('mainDashboard')?.dataset;
-  const { emprsisi } = document.getElementById('mainDashboard')?.dataset;
+  const { emprsisi, usisisi } = document.getElementById('mainDashboard')?.dataset;
   let empresaId = emprsisi;
   console.log('id de la empresa', emprsisi);
-  fetchStockData(userId, empresaId);
-</script> -->
+    fetchStockData(usisisi, empresaId);
+</script>

@@ -148,8 +148,9 @@ const unidadMedida = [
     const btnGuardar = document.getElementById("btnCargarProducto");
     const erroresMsg = document.getElementById("erroresMsg");
     const userIdElement = document.getElementById("idCargaUsuario");
+    const empresaIdElement = document.getElementById("idCargaUsuario");
     const userId = userIdElement?.dataset.userId;
-    const empresaId = userIdElement?.dataset.empresaId;
+    const empresaId = empresaIdElement?.dataset.empresaId;
 
     if (!formulario || !btnGuardar || !erroresMsg || !userId) {
       console.error("Error: Elementos del DOM no encontrados");

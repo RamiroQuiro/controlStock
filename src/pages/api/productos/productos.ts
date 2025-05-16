@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const query = url.searchParams.get('search');
   const tipo = url.searchParams.get('tipo'); // Nuevo parámetro para distinguir el tipo de búsqueda
   const { user } = locals;
-  console.log('locals user', locals);
+  console.log('locals user', user);
   const creadoPor = user.creadoPor;
   if (!query) {
     return new Response(

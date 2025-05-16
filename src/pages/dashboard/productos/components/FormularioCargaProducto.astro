@@ -1,65 +1,66 @@
 ---
-import Button1 from "../../../../components/atomos/Button1.astro";
-import FormCont from "../../../../components/atomos/FormCont.astro";
-import LabelForm from "../../../../components/atomos/LabelForm.astro";
-import ContenedorInputForm from "../../../../components/moleculas/ContenedorInputForm.astro";
-import ContenedorInputSelected from "../../../../components/moleculas/ContenedorInputSelected.astro";
-import InputFile from "../../../../components/moleculas/InputFile";
+import Button1 from '../../../../components/atomos/Button1.astro';
+import FormCont from '../../../../components/atomos/FormCont.astro';
+import LabelForm from '../../../../components/atomos/LabelForm.astro';
+import ContenedorInputForm from '../../../../components/moleculas/ContenedorInputForm.astro';
+import ContenedorInputSelected from '../../../../components/moleculas/ContenedorInputSelected.astro';
+import InputFile from '../../../../components/moleculas/InputFile';
 
 const { user } = Astro.locals;
 
 const impuestos = [
   {
-    id: "1",
-    name: "21% IVA",
+    id: '1',
+    name: '21% IVA',
     value: 21,
     defaultSelect: true,
   },
   {
-    id: "2",
-    name: "27% IVA",
+    id: '2',
+    name: '27% IVA',
     value: 27,
   },
   {
-    id: "3",
-    name: "10.5% IVA",
+    id: '3',
+    name: '10.5% IVA',
     value: 10.5,
   },
   {
-    id: "4",
-    name: "No Aplica",
+    id: '4',
+    name: 'No Aplica',
     value: 0,
   },
 ];
 
 const unidadMedida = [
-{
-    id: "3",
-    name: "Unidad",
-    value: "unidad",
-   },
   {
-    id: "1",
-    name: "Kilogramo",
-    value: "kilogramo",
+    id: '3',
+    name: 'Unidad',
+    value: 'unidad',
   },
   {
-    id: "2",
-    name: "Litro",
-    value: "litro",
+    id: '1',
+    name: 'Kilogramo',
+    value: 'kilogramo',
   },
   {
-    id: "4",
-    name: "decena",
-    value: "decena",
+    id: '2',
+    name: 'Litro',
+    value: 'litro',
   },
   {
-    id: "5",
-    name: "No Aplica",
-    value: "no aplica",
+    id: '4',
+    name: 'decena',
+    value: 'decena',
+  },
+  {
+    id: '5',
+    name: 'No Aplica',
+    value: 'no aplica',
   },
 ];
 ---
+
 <FormCont title="Agregar Producto" id="formularioCargaProducto">
   <div
     id="idCargaUsuario"
@@ -85,8 +86,7 @@ const unidadMedida = [
           placeholder="Color, tamaño, categoria, trata o que describe al producto..."
           name="descripcion"
           id="descripcion"
-          required
-        ></textarea>
+          required></textarea>
       </div>
     </div>
   </div>
@@ -103,13 +103,22 @@ const unidadMedida = [
       label="Deposito"
       type="text"
     />
-    <ContenedorInputSelected options={unidadMedida} label="Unidad de Medida" defaultSelect={true} />
+    <ContenedorInputSelected
+      options={unidadMedida}
+      label="Unidad de Medida"
+      defaultSelect={true}
+    />
   </div>
 
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
     <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
-    <ContenedorInputSelected options={impuestos} name="iva" label="iva" defaultSelect={true}/>
+    <ContenedorInputSelected
+      options={impuestos}
+      name="iva"
+      label="iva"
+      defaultSelect={true}
+    />
     <ContenedorInputForm name="descuento" label="Descuento" type="text" />
   </div>
   <div class="w- flex gap-2 items-start justify-between">
@@ -143,78 +152,94 @@ const unidadMedida = [
     readonly elements: FormElements;
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const formulario = document.getElementById("formularioCargaProducto") as ProductoForm;
-    const btnGuardar = document.getElementById("btnCargarProducto");
-    const erroresMsg = document.getElementById("erroresMsg");
-    const userIdElement = document.getElementById("idCargaUsuario");
-    const empresaIdElement = document.getElementById("idCargaUsuario");
+  document.addEventListener('DOMContentLoaded', () => {
+    const formulario = document.getElementById(
+      'formularioCargaProducto'
+    ) as ProductoForm;
+    const btnGuardar = document.getElementById('btnCargarProducto');
+    const erroresMsg = document.getElementById('erroresMsg');
+    const userIdElement = document.getElementById('idCargaUsuario');
+    const empresaIdElement = document.getElementById('idCargaUsuario');
     const userId = userIdElement?.dataset.userId;
     const empresaId = empresaIdElement?.dataset.empresaId;
 
     if (!formulario || !btnGuardar || !erroresMsg || !userId) {
-      console.error("Error: Elementos del DOM no encontrados");
+      console.error('Error: Elementos del DOM no encontrados');
       return;
     }
 
     let fileData: File | null = null;
 
     // Manejador del input file
-    formulario.elements.fotoProducto?.addEventListener("change", (event: Event) => {
-      const input = event.target as HTMLInputElement;
-      const file = input.files?.[0];
+    formulario.elements.fotoProducto?.addEventListener(
+      'change',
+      (event: Event) => {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
 
-      if (file && file.type.startsWith("image/")) {
-        fileData = file;
-        console.log("Imagen seleccionada:", file.name);
-      } else {
-        console.error("Por favor selecciona un archivo de imagen válido");
-        input.value = "";
-        fileData = null;
+        if (file && file.type.startsWith('image/')) {
+          fileData = file;
+          console.log('Imagen seleccionada:', file.name);
+        } else {
+          console.error('Por favor selecciona un archivo de imagen válido');
+          input.value = '';
+          fileData = null;
+        }
       }
-    });
+    );
 
     // Validación y envío del formulario
-    formulario.addEventListener("submit", async (e: SubmitEvent) => {
+    formulario.addEventListener('submit', async (e: SubmitEvent) => {
       e.preventDefault();
 
       try {
         const formData = new FormData(formulario);
-        
+
         // Validaciones
-        const requiredFields = ["codigoBarra", "descripcion", "pCompra", "pVenta", "stock"];
-        const missingFields = requiredFields.filter(field => !formData.get(field));
+        const requiredFields = [
+          'codigoBarra',
+          'descripcion',
+          'pCompra',
+          'pVenta',
+          'stock',
+        ];
+        const missingFields = requiredFields.filter(
+          (field) => !formData.get(field)
+        );
 
         if (missingFields.length > 0) {
-          throw new Error(`Campos requeridos faltantes: ${missingFields.join(", ")}`);
+          throw new Error(
+            `Campos requeridos faltantes: ${missingFields.join(', ')}`
+          );
         }
 
         if (fileData) {
-          formData.set("fotoProducto", fileData);
+          formData.set('fotoProducto', fileData);
         }
-        formData.append("userId", userId);
+        formData.append('userId', userId);
+        formData.append('empresaId', empresaId);
 
-        const response = await fetch("/api/productos/create", {
-          method: "POST",
-          body: formData
+        const response = await fetch('/api/productos/create', {
+          method: 'POST',
+          body: formData,
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.msg || "Error en el servidor");
+          throw new Error(data.msg || 'Error en el servidor');
         }
 
         if (data.status === 200) {
           formulario.reset();
           window.location.reload();
         } else {
-          throw new Error(data.msg || "Error al guardar el producto");
+          throw new Error(data.msg || 'Error al guardar el producto');
         }
-
       } catch (error) {
-        console.error("Error:", error);
-        erroresMsg.textContent = error instanceof Error ? error.message : "Error inesperado";
+        console.error('Error:', error);
+        erroresMsg.textContent =
+          error instanceof Error ? error.message : 'Error inesperado';
       }
     });
   });

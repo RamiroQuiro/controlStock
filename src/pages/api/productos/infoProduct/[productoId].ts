@@ -18,13 +18,12 @@ export const GET: APIRoute = async ({ params }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
-
   try {
     const [productDataRaw, stockMovimientoRaw] = await Promise.all([
       db
         .select({
           id: productos.id,
-          userId: productos.userId,
+          creadoPor: productos.creadoPor,
           descripcion: productos.descripcion,
           stock: productos.stock,
           categoria: productos.categoria,
@@ -69,7 +68,6 @@ export const GET: APIRoute = async ({ params }) => {
     ]);
 
     const productData = productDataRaw?.[0] ?? null;
-
     const stockMovimiento = stockMovimientoRaw.map((mov) => ({
       id: mov.id,
       tipo: mov.tipo,

@@ -1,4 +1,4 @@
-import { and, eq, like, or } from 'drizzle-orm';
+import { and, eq, like, not, or } from 'drizzle-orm';
 import {
   detalleVentas,
   movimientosStock,
@@ -16,8 +16,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const query = url.searchParams.get('search');
   const tipo = url.searchParams.get('tipo'); // Nuevo parámetro para distinguir el tipo de búsqueda
   const { user } = locals;
-  console.log('locals user', user);
-  const creadoPor = user.creadoPor;
+  const empresaId = user?.empresaId;
   if (!query) {
     return new Response(
       JSON.stringify({ error: 'falta el parametro de busqueda' }),
@@ -36,7 +35,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         .select()
         .from(productos)
         .where(
-          and(eq(productos.userId, creadoPor), eq(productos.codigoBarra, query))
+          and(eq(productos.empresaId, empresaId), eq(productos.codigoBarra, query))
         );
       console.log('resultados', resultados);
     } else {
@@ -46,7 +45,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         .from(productos)
         .where(
           and(
-            eq(productos.userId, creadoPor),
+            eq(productos.empresaId, empresaId),
             or(
               like(productos.codigoBarra, `%${query}%`),
               like(productos.descripcion, `%${query}%`),
@@ -120,6 +119,9 @@ export const DELETE: APIRoute = async ({ request, params }) => {
         // No detenemos la eliminación del producto si falla la eliminación de la imagen
       }
     }
+      // Invalida el caché de productos para este usuario
+      await cache.invalidate(`stock_data_${productoId}`);
+
     // Invalida el caché de productos para este usuario
     return new Response(
       JSON.stringify({
@@ -173,13 +175,18 @@ export const PUT: APIRoute = async ({ request, params }) => {
     // Solo verificar unicidad si se está cambiando el código de barras
     if (data.codigoBarra && data.codigoBarra !== productoActual.codigoBarra) {
       // Verificar si ya existe otro producto con el mismo código de barras para este usuario
-      const productoExistente = await db.query.productos.findFirst({
-        where: and(
-          eq(productos.codigoBarra, data.codigoBarra),
-          eq(productos.userId, productoActual.userId),
-          not(eq(productos.id, query))
-        ),
-      });
+
+      const [productoExistente] = await db
+        .select()
+        .from(productos)
+        .where(
+          and(
+            eq(productos.codigoBarra, data.codigoBarra),
+            eq(productos.empresaId, productoActual.empresaId),
+            not(eq(productos.id, query))
+          )
+        )
+      
 
       if (productoExistente) {
         return new Response(
@@ -212,7 +219,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
       .where(eq(stockActual.productoId, query));
 
     // Invalida el caché de productos para este usuario
-    await cache.invalidate(`stock_data_${actualizarProducto.userId}`);
+    await cache.invalidate(`stock_data_${actualizarProducto.empresaId}`);
 
     return new Response(
       JSON.stringify({

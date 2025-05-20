@@ -7,6 +7,8 @@ import { showToast } from '../../utils/toast/toastShow';
 import ModalConfirmacion from '../moleculas/ModalConfirmacion';
 import { useStore } from '@nanostores/react';
 import { perfilProducto } from '../../context/store';
+import { downloadLoader } from '../../utils/loader/showDownloadLoader';
+import { loader } from '../../utils/loader/showLoader';
 
 export default function PerfilProducto({}) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
@@ -48,7 +50,7 @@ export default function PerfilProducto({}) {
 
   const handleEdit = async () => {
     setDisableEdit(!disableEdit);
-
+loader(true)
     if (!disableEdit) {
       try {
         const response = await fetch(
@@ -64,17 +66,22 @@ export default function PerfilProducto({}) {
         );
         const dataRes = await response.json();
         console.log(dataRes);
+        
         if (dataRes.status === 200) {
           showToast('producto actualizado', { background: 'bg-green-500' });
           setTimeout(() => window.location.reload(), 750);
+          loader(false)
         } else if (dataRes.status === 409) {
           showToast(dataRes.msg, { background: 'bg-red-500' });
+          loader(false)
         }
       } catch (error) {
         console.log(error);
         showToast('error al actualizar', { background: 'bg-red-500' });
-      }
+        loader(false)
+        }
     }
+    loader(false)
   };
 
   const handleChangeForm = (e) => {
@@ -83,6 +90,7 @@ export default function PerfilProducto({}) {
   };
 
   const handleDownloadPdf = async () => {
+    downloadLoader(true)
     try {
       const response = await fetch(
         `/api/productos/generarPdf/${data.productData.id}`,
@@ -103,13 +111,16 @@ export default function PerfilProducto({}) {
         document.body.appendChild(a);
         a.click();
         a.remove();
+        downloadLoader(false)
       } else {
         showToast('Error al generar PDF', { background: 'bg-red-500' });
+        downloadLoader(false)
       }
     } catch (error) {
       console.error('Error descargando PDF:', error);
       showToast('Error al descargar PDF', { background: 'bg-red-500' });
     }
+    downloadLoader(false)
   };
 
   return (

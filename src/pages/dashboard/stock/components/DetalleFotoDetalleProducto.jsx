@@ -52,8 +52,8 @@ export default function DetalleFotoDetalleProducto({
           <div className="w-full flex flex-col md:w-[50%] items-center justify-start relative rounded-lg overflow-hidden ">
             <div className="h-[80%] flex w-full rounded-lg  items-center ">
               <img
-                src={infoProducto.productData?.srcPhoto}
-                alt={infoProducto.productData?.descripcion}
+                src={infoProducto?.productData?.srcPhoto}
+                alt={infoProducto?.productData?.descripcion}
                 className=" object-scale-down w-full h-60 rounded-lg overflow-hidden hover:scale-105 duration-500"
               />
             </div>

@@ -9,6 +9,9 @@ export const empresas = sqliteTable(
     nombreFantasia: text('nombreFantasia'),
     documento: text('documento'), // CUIT/DNI
     telefono: text('telefono'),
+    theme: text('theme').default('clasica'),
+    layout: text('layout').default('clasica'),
+    nameStyles: text('nameStyles'),
     direccion: text('direccion'),
     email: text('email'),
     userId: text('userId').notNull(), //id del usuario dueño de la empresa

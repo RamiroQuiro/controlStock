@@ -141,6 +141,7 @@ loader(true)
           disableEdit={disableEdit}
           handleEdit={handleEdit}
           handleDelete={confirmarConModal}
+          data={data}
         />
       </div>
 

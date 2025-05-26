@@ -4,6 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
+        primario: 'var(--color-primary)',
+        secundario: 'var(--color-secondary)',
+        background: 'var(--color-background)',
         primary: {
           100: '#5FA5FA',
           150: '#5FA5FA50',

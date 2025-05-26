@@ -17,3 +17,5 @@ export { categorias } from './categorias';
 export { depositos } from './depositos';
 export { localizaciones } from './localizacion';
 export { ubicaciones } from './ubicaciones';
+export { plantillas } from './plantillas';
+export { empresaConfigTienda } from './empresaConfigTienda';

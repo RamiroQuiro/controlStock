@@ -1,14 +1,8 @@
 ---
-import {
-  Heart,
-  MenuIcon,
-  Search,
-  SearchIcon,
-  ShoppingBag,
-  Star,
-  Zap,
-} from "lucide-react";
-import NavBarModerno from "../components/NavBarModerno.astro";
+import NavBarModerno from '../components/plantillamoderno/NavBarModerno.astro';
+import Hero from '../components/plantillamoderno/Hero.astro';
+import { Search } from 'lucide-react';
+import SeccionProductos from '../components/plantillamoderno/SectionProductos.astro';
 
 interface Props {
   data: {
@@ -34,92 +28,32 @@ interface Props {
   };
 }
 
-const products = [
-  {
-    id: 1,
-    name: "Empanadas Caseras",
-    price: 180,
-    originalPrice: 220,
-    image:
-      "https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&h=400&fit=crop",
-    rating: 4.8,
-    isHot: true,
-  },
-  {
-    id: 2,
-    name: "Pizza Individual",
-    price: 850,
-    image:
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=400&fit=crop",
-    rating: 4.9,
-    isNew: true,
-  },
-  {
-    id: 3,
-    name: "Facturas Surtidas",
-    price: 120,
-    image:
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop",
-    rating: 4.7,
-  },
-  {
-    id: 4,
-    name: "Torta Casera",
-    price: 2800,
-    image:
-      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop",
-    rating: 5.0,
-    isHot: true,
-  },
-];
-
 const { data } = Astro.props as Props;
 
 const categorias = [
-  { id: 1, name: "Empanadas", icon: "empanada" },
-  { id: 2, name: "Pizzas", icon: "pizza" },
-  { id: 3, name: "Tortas", icon: "torta" },
+  { id: 1, name: 'Empanadas', icon: 'empanada' },
+  { id: 2, name: 'Pizzas', icon: 'pizza' },
+  { id: 3, name: 'Tortas', icon: 'torta' },
 ];
+
+console.log('esta es mid ata en moderna plantilla', data);
 ---
 
 <div class="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50">
-<NavBarModerno data={data} categorias={categorias} />
+  <NavBarModerno data={data} categorias={categorias} />
   {/* Hero Section */}
-  <section class="py-16 lg:py-24">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-     
-      <h1 class="text-4xl lg:text-6xl font-bold mb-6">
-        <span
-          class="bg-gradient-to-r from-pink-600 via-orange-500 to-yellow-500 bg-clip-text text-transparent"
-        >
-          Sabores auténticos
-        </span>
-        <span class="block text-gray-800">de Tucumán</span>
-      </h1>
-      <p class="text-lg lg:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-        Empanadas, pizzas y tortas caseras hechas con amor y tradición familiar
-        desde 1978
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <button
-          class="px-8 py-4 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-        >
-          Pedir ahora 🚀
-        </button>
-        <button
-          class="px-8 py-4 border-2 border-pink-300 text-pink-600 rounded-full font-semibold text-lg hover:bg-pink-50 transition-colors"
-        >
-          Ver menú completo
-        </button>
-      </div>
-    </div>
-  </section>
-
+  <Hero
+    titulo1="Empanadas Caseras"
+    texto2=""
+    boton1="pedir ahora 🚀"
+    boton2="ver menu 📚"
+  />
   {/* Search Bar */}
   <section class="py-8">
     <div class="max-w-2xl mx-auto px-4 sm:px-6">
       <div class="relative">
-        <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"
+        <Search
+          className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"
         />
         <input
           type="text"
@@ -131,76 +65,7 @@ const categorias = [
   </section>
 
   {/* Products */}
-  <section class="py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-          Los más pedidos 🔥
-        </h2>
-        <p class="text-gray-600 text-lg">
-          Productos que nuestros clientes aman
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {
-          products.map((product) => (
-            <div key={product.id} class="group cursor-pointer">
-              <div class="bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div class="relative aspect-square bg-gray-100 rounded-xl mb-4 overflow-hidden">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  {product.isHot && (
-                    <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                      🔥 HOT
-                    </div>
-                  )}
-                  {product.isNew && (
-                    <div class="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                      ✨ NUEVO
-                    </div>
-                  )}
-                  <button class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform">
-                    <Heart className={`w-4 h-4`} />
-                  </button>
-                </div>
-
-                <div class="space-y-2">
-                  <div class="flex items-center space-x-2">
-                    <div class="flex items-center">
-                      <Star class="w-4 h-4 text-yellow-400 fill-current" />
-                      <span class="text-sm text-gray-600 ml-1">
-                        {product.rating}
-                      </span>
-                    </div>
-                  </div>
-                  <h3 class="text-lg font-bold text-gray-800">
-                    {product.name}
-                  </h3>
-                  <div class="flex items-center space-x-2">
-                    <span class="text-xl font-bold text-pink-600">
-                      ${product.price}
-                    </span>
-                    {product.originalPrice && (
-                      <span class="text-sm text-gray-400 line-through">
-                        ${product.originalPrice}
-                      </span>
-                    )}
-                  </div>
-                  <button class="w-full py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                    Agregar al carrito
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+  <SeccionProductos />
 
   {/* Contact */}
   <footer class="bg-white mt-16">

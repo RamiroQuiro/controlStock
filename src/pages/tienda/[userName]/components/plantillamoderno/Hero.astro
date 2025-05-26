@@ -1,0 +1,37 @@
+---
+interface Props {
+  titulo1: string;
+  texto2: string;
+  boton1: string;
+  boton2: string;
+}
+
+const { titulo1, texto2, boton1, boton2 } = Astro.props;
+---
+
+<section class="py-16 lg:py-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+    <h1 class="text-4xl lg:text-6xl font-bold mb-6">
+      <span
+        class="bg-gradient-to-r from-pink-600 via-orange-500 to-yellow-500 bg-clip-text text-transparent"
+      >
+        {titulo1}
+      </span>
+    </h1>
+    <p class="text-lg lg:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+      {texto2}
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <button
+        class="px-8 py-4 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-full font-semibold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+      >
+        {boton1}
+      </button>
+      <button
+        class="px-8 py-4 border-2 border-pink-300 text-pink-600 rounded-full font-semibold text-lg hover:bg-pink-50 transition-colors"
+      >
+        {boton2}
+      </button>
+    </div>
+  </div>
+</section>

@@ -32,6 +32,7 @@ export const productos = sqliteTable(
     iva: integer('iva', { mode: 'number' }).default(21), // IVA aplicado al producto "21" o "10"o"27"
     activo: integer('activo', { mode: 'boolean' }).default(true),
     unidadMedida: text('unidadMedida').default('unidad'), // unidad, kg, litro, etc.
+    isEcommerce: integer('isEcommerce', { mode: 'boolean' }).default(false),
     precioMinimoVenta: integer('precioMinimoVenta', { mode: 'number' }),
     userUpdate: text('userUpdate'),
     ultimaActualizacion: integer('ultimaActualizacion') // Timestamp Unix

@@ -1,0 +1,74 @@
+:root {
+  /* Colores principales */
+  --color-primary: #4f46e5;        /* Botones, enlaces, acentos */
+  --color-secondary: #f59e42;      /* Botones secundarios, detalles */
+  --color-background: #f3f4f6;     /* Fondo general */
+  --color-surface: #ffffff;        /* Tarjetas, paneles, modales */
+  --color-navbar: #1e293b;         /* Barra de navegación */
+  --color-navbar-text: #ffffff;    /* Texto navbar */
+  --color-footer: #0f172a;         /* Footer */
+  --color-footer-text: #ffffff;    /* Texto footer */
+  --color-success: #22c55e;        /* Éxito */
+  --color-error: #ef4444;          /* Error */
+  --color-warning: #facc15;        /* Advertencia */
+  --color-info: #38bdf8;           /* Info */
+
+  /* Tipografía */
+  --font-family-base: 'Inter', 'Roboto', Arial, sans-serif;
+  --font-family-heading: 'Montserrat', 'Inter', Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-heading: 2rem;
+
+  /* Bordes y radios */
+  --border-radius: 0.75rem;
+  --border-color: #e5e7eb;
+
+  /* Sombra */
+  --shadow-elevated: 0 4px 24px 0 rgba(31, 41, 55, 0.08);
+
+  /* Logo y branding */
+  --logo-url: url('/logos/default-logo.png');
+
+  /* Otros */
+  --transition-main: 0.2s cubic-bezier(.4,0,.2,1);
+  --opacity-disabled: 0.5;
+}
+
+/* Ejemplo de uso directo */
+body {
+  background: var(--color-background);
+  font-family: var(--font-family-base);
+}
+
+header {
+  background: var(--color-navbar);
+  color: var(--color-navbar-text);
+}
+
+footer {
+  background: var(--color-footer);
+  color: var(--color-footer-text);
+}
+
+button {
+  border-radius: var(--border-radius);
+  transition: background var(--transition-main);
+}
+
+.card, .modal, .panel {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+/* Logo ejemplo */
+.logo {
+  background-image: var(--logo-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 120px;
+  height: 40px;
+}
+
+/* Puedes agregar más reglas para personalización avanzada */

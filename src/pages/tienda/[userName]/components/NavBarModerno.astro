@@ -1,0 +1,96 @@
+---
+import { MenuIcon, SearchIcon, ShoppingBag } from 'lucide-react';
+
+interface Props {
+  data: {
+    razonSocial: string;
+    categorias: {
+      id: string;
+      nombre: string;
+      icon: string;
+    }[];
+  };
+}
+const { data, categorias } = Astro.props;
+---
+
+  {/* Header */}
+  <header
+    class="bg-white/80 backdrop-blur-lg border-b border-pink-100 sticky top-0 z-50 shadow-sm"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <div class="flex items-center space-x-2">
+            <div
+              class="w-8 h-8 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center"
+            >
+              <span class="text-white font-bold text-sm">H</span>
+            </div>
+            <h1
+              class="text-xl font-bold bg-gradient-to-r from-pink-600 to-orange-600 bg-clip-text text-transparent"
+            >
+              {data?.razonSocial}
+            </h1>
+          </div>
+        </div>
+
+        {/* Desktop Navigation */}
+        <nav class="hidden md:flex items-center space-x-6">
+          {
+            categorias.map((categoria) => (
+              <a
+                href="#"
+                class="text-gray-700 hover:text-pink-600 transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-pink-50"
+              >
+                {categoria.icon} {categoria.nombre}
+              </a>
+            ))
+          }
+        </nav>
+
+        <div class="flex items-center space-x-3">
+          <button
+            class="p-2 text-gray-700 hover:text-pink-600 transition-colors rounded-full hover:bg-pink-50"
+          >
+            <SearchIcon className="w-5 h-5" />
+          </button>
+          <button
+            class="relative p-2 text-gray-700 hover:text-pink-600 transition-colors rounded-full hover:bg-pink-50"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            <span
+              class="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-pink-500 to-orange-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
+            >
+              4
+            </span>
+          </button>
+          <button
+            class="md:hidden p-2 text-gray-700 rounded-full hover:bg-pink-50"
+          >
+            <MenuIcon className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <!-- {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div class="md:hidden py-4 border-t border-pink-100 animate-fade-in">
+            <div class="flex flex-col space-y-2">
+              <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover:text-pink-600 hover:bg-pink-50 rounded-lg transition-colors">
+                🏠 Inicio
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover:text-pink-600 hover:bg-pink-50 rounded-lg transition-colors">
+                🥟 Empanadas
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover:text-pink-600 hover:bg-pink-50 rounded-lg transition-colors">
+                🍕 Pizzas
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover:text-pink-600 hover:bg-pink-50 rounded-lg transition-colors">
+                🎂 Tortas
+              </a>
+            </div>
+          </div>
+        )} -->
+    </div>
+  </header>

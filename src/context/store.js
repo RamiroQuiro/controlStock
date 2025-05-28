@@ -133,6 +133,34 @@ const fetchRolesData = async (userId) => {
   }
 };
 
+const tiendaStore = atom({
+  loading: true,
+  data: { empresa: {}, productos: [] ,configuracionEmpresa:{}},
+  error: null,
+});
+
+const fetchTiendaData = async (empresaId) => {
+  tiendaStore.set({ loading: true, data: null, error: null });
+  try {
+   const response = await fetch(`/api/tienda/${empresaId}`, {
+      headers: {
+        'xx-user-id': empresaId,
+      },
+    });
+    const data = await response.json();
+    console.log('trayendo -> tiendaStore',data)
+    tiendaStore.set({ loading: false, data: data.data, error: null });
+  } catch (error) {
+    console.error('Error fetching tienda data:', error);
+    tiendaStore.set({
+      loading: false,
+      data: null,
+      error: 'Error al cargar los datos de tienda',
+    });
+  }
+};
+
+
 const usuarioActivo = atom({});
 
 export {
@@ -149,4 +177,6 @@ export {
   usuarioActivo,
   statsDashStore,
   fetchStatsData,
+  tiendaStore,
+  fetchTiendaData,
 };

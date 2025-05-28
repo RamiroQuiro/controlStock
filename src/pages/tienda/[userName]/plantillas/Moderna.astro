@@ -1,8 +1,10 @@
 ---
-import NavBarModerno from '../components/plantillamoderno/NavBarModerno.astro';
-import Hero from '../components/plantillamoderno/Hero.astro';
-import { Search } from 'lucide-react';
-import SeccionProductos from '../components/plantillamoderno/SectionProductos.astro';
+import NavBarModerno from "../components/plantillamoderno/NavBarModerno.astro";
+import Hero from "../components/plantillamoderno/Hero.astro";
+import { Search } from "lucide-react";
+import SeccionProductos from "../components/plantillamoderno/SectionProductos.astro";
+import TiendaModernaData from "../components/plantillamoderno/TiendaModernaDataProvider.tsx";
+import BannerTiendaHome from "../components/plantillamoderno/BannerTiendaHome.astro";
 
 interface Props {
   data: {
@@ -30,42 +32,25 @@ interface Props {
 
 const { data } = Astro.props as Props;
 
-const categorias = [
-  { id: 1, name: 'Empanadas', icon: 'empanada' },
-  { id: 2, name: 'Pizzas', icon: 'pizza' },
-  { id: 3, name: 'Tortas', icon: 'torta' },
-];
 
-console.log('esta es mid ata en moderna plantilla', data);
 ---
 
-<div class="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50">
-  <NavBarModerno data={data} categorias={categorias} />
+<div class="min-h-screen flex flex-col w-full items-center justify-normal ">
+  <NavBarModerno data={data} />
   {/* Hero Section */}
   <Hero
+    empresaId={data.id}
     titulo1="Empanadas Caseras"
     texto2=""
     boton1="pedir ahora 🚀"
     boton2="ver menu 📚"
   />
-  {/* Search Bar */}
-  <section class="py-8">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6">
-      <div class="relative">
-        <Search
-          className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"
-        />
-        <input
-          type="text"
-          placeholder="¿Qué tenés ganas de comer hoy? 🤤"
-          class="w-full pl-14 pr-6 py-4 bg-white border-2 border-pink-200 rounded-2xl focus:outline-none focus:border-pink-400 text-lg shadow-lg"
-        />
-      </div>
-    </div>
-  </section>
+  {/* Banner Tarjetas */}
+  <BannerTiendaHome data={data} />
+ 
 
   {/* Products */}
-  <SeccionProductos />
+  <SeccionProductos data={data} />
 
   {/* Contact */}
   <footer class="bg-white mt-16">

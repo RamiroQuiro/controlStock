@@ -1,26 +1,28 @@
 ---
-import { MenuIcon, SearchIcon, ShoppingBag } from 'lucide-react';
+import { CircleAlert, Contact, FileQuestion, MenuIcon, PowerCircle, Salad, SearchIcon, ShoppingBag } from 'lucide-react';
 
 interface Props {
   data: {
     razonSocial: string;
-    categorias: {
-      id: string;
-      nombre: string;
-      icon: string;
-    }[];
+    
   };
 }
-const { data, categorias } = Astro.props;
+
+const menu = [
+  { id: 1, name: "Ofertas", icon: CircleAlert },
+  { id: 2, name: "Preguntas", icon: FileQuestion },
+  { id: 3, name: "Contacto", icon: Contact },
+];
+
+const { data } = Astro.props;
 ---
 
   {/* Header */}
-  <header
-    class="bg-white/80 backdrop-blur-lg border-b border-pink-100 sticky top-0 z-50 shadow-sm"
+  <nav
+    class="bg-white/80 backdrop-blur-lg  border-b text-primary-texto  fixed  w-10/12 rounded-3xl left-[8%] -translate-x- border border-primary-texto/20 top-4 z-50 shadow-md"
   >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center">
+    <div class="max-w-7xl mx-auto flex py-2 justify-between items-center px-4 sm:px-6">
+      <div class="flex items-center">
           <div class="flex items-center space-x-2">
             <div
               class="w-8 h-8 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center"
@@ -36,20 +38,21 @@ const { data, categorias } = Astro.props;
         </div>
 
         {/* Desktop Navigation */}
-        <nav class="hidden md:flex items-center space-x-6">
-          {
-            categorias.map((categoria) => (
-              <a
-                href="#"
-                class="text-gray-700 hover:text-pink-600 transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-pink-50"
-              >
-                {categoria.icon} {categoria.nombre}
-              </a>
-            ))
-          }
-        </nav>
-
-        <div class="flex items-center space-x-3">
+        
+        <div class="flex items-center space-x-1">
+          <nav class="hidden md:flex items-center space-x-6">
+            {
+              menu.map((item) => (
+                <a
+                  href="#"
+                  class="text-gray-700 flex gap-2 hover:text-pink-600 transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-pink-50"
+                >
+                  <item.icon  className="w-5 h-5 stroke-primary-texto"/>
+                  {item.name}
+                </a>
+              ))
+            }
+          </nav>
           <button
             class="p-2 text-gray-700 hover:text-pink-600 transition-colors rounded-full hover:bg-pink-50"
           >
@@ -93,4 +96,4 @@ const { data, categorias } = Astro.props;
           </div>
         )} -->
     </div>
-  </header>
+  </nav>

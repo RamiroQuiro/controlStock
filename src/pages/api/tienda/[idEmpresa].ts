@@ -1,6 +1,6 @@
 import type { APIContext } from "astro";
 import db from "../../../db";
-import { empresas, productos } from "../../../db/schema";
+import { empresaConfigTienda, empresas, productos } from "../../../db/schema";
 import { eq } from "drizzle-orm";
 
 export const GET = async ({ params }: APIContext) => {
@@ -11,18 +11,19 @@ export const GET = async ({ params }: APIContext) => {
     const [empresa] = await db
       .select()
       .from(empresas)
-      .where(eq(empresas.id, Number(idEmpresa)));
+      .where(eq(empresas.id, idEmpresa));
 
     if (!empresa) {
       return new Response(JSON.stringify({ msg: "Empresa no encontrada" }), { status: 404 });
     }
-
+    const [configuracionTienda]=await db.select().from(empresaConfigTienda).where(eq(empresaConfigTienda.empresaId,idEmpresa));
+    console.log(configuracionTienda)
     // 2. Obtener productos Ecommerce de la empresa
     const productosEcommerce = await db
       .select()
       .from(productos)
       .where(
-        eq(productos.empresaId, Number(idEmpresa)) &&
+        eq(productos.empresaId, idEmpresa) &&
         eq(productos.isEcommerce, true)
       );
 
@@ -41,6 +42,7 @@ export const GET = async ({ params }: APIContext) => {
         // agrega más campos si tienes
       },
       productos: productosEcommerce,
+      configuracionTienda: configuracionTienda,
     };
 
     return new Response(JSON.stringify(response), { status: 200 });

@@ -1,0 +1,32 @@
+---
+import { TarjetasColores } from "./TarjetasColores";
+
+---
+
+
+<div class="flex h-0 md:h-72 items-center gap-5 border justify-between w-full px-10 py-5 mx-auto bg-white">
+    <TarjetasColores
+    client:load
+      h2={"Express Delivery"}
+      span={"Whith selected Items"}
+      button="Ver Sillones"
+      src={"/0.png"}
+      className="bg-gradient-to-r from-[#65C1F9] to-[#76C7F7]"
+    />
+    <TarjetasColores
+    client:load
+      h2={"Cash On Delivery"}
+      span={">Gift Voucher"}
+      button="Ver Repisas"
+      src={"/1.png"}
+      className="bg-gradient-to-r from-[#FFAD5E] to-[#FCBB7A]"
+    />
+    <TarjetasColores
+    client:load
+      h2={"Gift Voucher"}
+      span={"Whith personal care items"}
+      button="Ver Sillones"
+      src={"/2.png"}
+      className="bg-gradient-to-r from-[#E67CC8] to-[#DC8DC6]"
+    />
+  </div>

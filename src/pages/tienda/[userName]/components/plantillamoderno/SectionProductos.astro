@@ -1,56 +1,54 @@
 ---
-import { Heart, Star } from 'lucide-react';
-import ProductosTienda from './ProductosTienda.jsx';
+import { Heart, Star } from "lucide-react";
+import ProductosTienda from "./ProductosTienda.jsx";
+import SidebarProductos from "./SidebarProductos";
 
 const products = [
   {
     id: 1,
-    name: 'Empanadas Caseras',
+    name: "Empanadas Caseras",
     price: 180,
     originalPrice: 220,
     image:
-      'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&h=400&fit=crop',
+      "https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&h=400&fit=crop",
     rating: 4.8,
     isHot: true,
   },
   {
     id: 2,
-    name: 'Pizza Individual',
+    name: "Pizza Individual",
     price: 850,
     image:
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=400&fit=crop',
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=400&fit=crop",
     rating: 4.9,
     isNew: true,
   },
   {
     id: 3,
-    name: 'Facturas Surtidas',
+    name: "Facturas Surtidas",
     price: 120,
     image:
-      'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop',
+      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop",
     rating: 4.7,
   },
   {
     id: 4,
-    name: 'Torta Casera',
+    name: "Torta Casera",
     price: 2800,
     image:
-      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop',
+      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop",
     rating: 5.0,
     isHot: true,
   },
 ];
+
+const { data } = Astro.props;
 ---
 
 {/* Products */}
-<section class="py-16">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-12">
-      <h2 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-        Los más pedidos 🔥
-      </h2>
-      <p class="text-gray-600 text-lg">Productos que nuestros clientes aman</p>
-    </div>
-    <ProductosTienda />
-  </div>
+<section class="py-16 relative w-full flex min-h-screen gap-3 ">
+  <!-- menu -->
+  <SidebarProductos client:load />
+
+  <ProductosTienda client:load />
 </section>

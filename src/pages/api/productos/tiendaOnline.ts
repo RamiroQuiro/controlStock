@@ -6,7 +6,6 @@ import { eq } from "drizzle-orm";
 export const POST:APIContext = async ({request,locals}) => {
     const {id,isEcommerce} = await request.json();
     const {user} = locals;
-    console.log(id, user)
     
     try {   
         if(!user){

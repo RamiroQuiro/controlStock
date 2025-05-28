@@ -1,5 +1,5 @@
 ---
-import Button1 from '../../../../components/atomos/Button1.astro';
+import BotonGuardar from '../../../../components/atomos/BotonGuardar';
 import FormCont from '../../../../components/atomos/FormCont.astro';
 import LabelForm from '../../../../components/atomos/LabelForm.astro';
 import ContenedorInputForm from '../../../../components/moleculas/ContenedorInputForm.astro';
@@ -131,7 +131,9 @@ const unidadMedida = [
   </div>
 
   <div class="w-full flex items-center justify-end my-3">
-    <Button1 id="btnCargarProducto" type="submit">Guardar</Button1>
+    <BotonGuardar client:load id="btnCargarProducto" type="submit">
+      Guardar
+    </BotonGuardar>
   </div>
   <div
     class="text-xs font-semibold h-6 w-full text-center tracking-wide uppercase animate-aparecer text-primary-400"

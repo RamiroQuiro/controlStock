@@ -5,6 +5,7 @@ import LabelForm from '../../../../components/atomos/LabelForm.astro';
 import ContenedorInputForm from '../../../../components/moleculas/ContenedorInputForm.astro';
 import ContenedorInputSelected from '../../../../components/moleculas/ContenedorInputSelected.astro';
 import InputFile from '../../../../components/moleculas/InputFile';
+import CategoriasSelector from './CategoriasSelector';
 
 const { user } = Astro.locals;
 
@@ -93,7 +94,7 @@ const unidadMedida = [
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="marca" label="Marca" type="text" />
     <ContenedorInputForm name="modelo" label="Modelo" type="number" />
-    <ContenedorInputForm name="categoria" label="Categoria" type="text" />
+    <CategoriasSelector client:load />
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />

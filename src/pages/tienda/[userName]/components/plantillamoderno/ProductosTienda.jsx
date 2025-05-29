@@ -14,7 +14,7 @@ export default function ProductosTienda() {
               <img
                 src={product.srcPhoto}
                 alt={product.descripcion}
-                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-contain   group-hover:scale-110 transition-transform duration-500"
               />
               {product.isHot && (
                 <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">

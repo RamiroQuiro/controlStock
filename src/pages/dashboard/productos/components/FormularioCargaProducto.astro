@@ -91,10 +91,10 @@ const unidadMedida = [
       </div>
     </div>
   </div>
-  <div class="w-full flex gap-2 items-start justify-between">
+  <div class="w-full flex gap-2 items-center justify-between">
     <ContenedorInputForm name="marca" label="Marca" type="text" />
     <ContenedorInputForm name="modelo" label="Modelo" type="number" />
-    <CategoriasSelector client:load />
+    <CategoriasSelector client:load empresaId={user.empresaId} />
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
@@ -114,6 +114,7 @@ const unidadMedida = [
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
     <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
+
     <ContenedorInputSelected
       options={impuestos}
       name="iva"

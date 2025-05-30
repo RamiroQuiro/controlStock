@@ -63,22 +63,23 @@ const unidadMedida = [
 ---
 
 <FormCont title="Agregar Producto" id="formularioCargaProducto">
+  <div class="w-full flex flex-col gap-2 items-start justify-between min-h-[80vh]">
   <div
     id="idCargaUsuario"
     data-user-id={user.id}
     data-empresa-id={user.empresaId}
-    class="w-full flex md:flex-col flex-row gap-2 items-start justify-between"
+    class="w-full  flex md:flex-row flex-col gap-2 items-start justify-between"
   >
-    <ContenedorInputForm
-      name="codigoBarra"
-      type="text"
-      label="Código de barra"
-      required
-    />
-    <div class="w-full flex items-start my-2 duration-300 group">
-      <div class="w-full flex gap-2 items-center justify-center">
-        <InputFile client:load name="fotoProducto" />
-      </div>
+  <div class="w-1/2 flex gap-2 items-center justify-center">
+    <InputFile client:load name="fotoProducto" />
+  </div>
+  <div class="w-1/2 flex flex-col items-start gap-2 my-2 duration-300 group">
+      <ContenedorInputForm
+        name="codigoBarra"
+        type="text"
+        label="Código de barra"
+        required
+      />
       <div class="w-full flex flex-col gap-2 items-start justify-between">
         <LabelForm name="descripcion">Descripción</LabelForm>
         <textarea
@@ -89,12 +90,13 @@ const unidadMedida = [
           id="descripcion"
           required></textarea>
       </div>
+      <CategoriasSelector client:load empresaId={user.empresaId} />
     </div>
   </div>
   <div class="w-full flex gap-2 items-center justify-between">
     <ContenedorInputForm name="marca" label="Marca" type="text" />
     <ContenedorInputForm name="modelo" label="Modelo" type="number" />
-    <CategoriasSelector client:load empresaId={user.empresaId} />
+  
   </div>
   <div class="w-full flex gap-2 items-start justify-between">
     <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
@@ -142,6 +144,7 @@ const unidadMedida = [
     id="erroresMsg"
   >
   </div>
+</div>
 </FormCont>
 
 <script>

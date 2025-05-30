@@ -2,14 +2,16 @@ import React from 'react';
 import { useState } from 'react';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 import { CircleX, PlusCircle } from 'lucide-react';
+import ModalAgregarCat from './ModalAgregarCat';
 
 export default function CategoriasSelector({ empresaId }) {
   const [categorias, setCategorias] = useState([]);
   const [categoria, setCategoria] = useState('');
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalAgregar, setMostrarModalAgregar] = useState(false)
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
-
   const handleBusquedaDeCategoria = async () => {
+    console.log('categorias',categorias);
     try {
       const response = await fetch(`/api/categorias?search=${categoria}`, {
         headers: {
@@ -22,15 +24,12 @@ export default function CategoriasSelector({ empresaId }) {
         setMostrarModal(true);
       }
       if (data.status === 205) {
-        setCategorias([{ nombre: 'no se encotraron categorias' }]);
+        setCategorias([{id:1, nombre: 'no se encotraron categorias' }]);
       }
       if (data.status == 404) {
         showToast(data.msg, { background: 'bg-red-600' });
       }
     } catch (error) {
-      if (data.status == 404) {
-        showToast(data.msg, { background: 'bg-red-600' });
-      }
       console.log(error);
     }
   };
@@ -45,12 +44,22 @@ export default function CategoriasSelector({ empresaId }) {
       setCategoriasSeleccionadas([...categoriasSeleccionadas, cat]);
     }
     setCategoria('');
-    setCategorias([]); // opcional: ocultar sugerencias
+    setCategorias([]); 
   };
-  const handleAgregarCategoria = () => {};
+  const handleAgregarCategoria = () => {
+    setMostrarModalAgregar(true);
+  };
+
+  const onClose = () => {
+    setMostrarModalAgregar(false);
+  };
 
   return (
+
     <div className="w-full flex items-center justify-between gap-2 relative">
+      {
+        mostrarModalAgregar && <ModalAgregarCat  setCategoriasSeleccionadas={setCategoriasSeleccionadas} handleAgregarCategoria={handleAgregarCategoria} onClose={onClose}  empresaId={empresaId}/>
+      }
       <div className=" flex flex-col gap-1 items-start w-full">
         <div className="flex gap-2 flex-wrap mt-2">
           {categoriasSeleccionadas.map((cat) => (

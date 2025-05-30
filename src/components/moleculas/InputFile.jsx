@@ -21,7 +21,7 @@ export default function InputFile({ name }) {
 
   return (
     <div>
-      <div className="w-52 h-28 flex mx-auto items-center justify-center overflow-hidden rounded-lg shadow ">
+      <div className=" h-[300px] w-[300px] flex mx-auto items-center justify-center overflow-hidden rounded-lg shadow ">
         {previewUrlFrente ? (
           <div className="relative w-full h-full group">
             <label
@@ -41,8 +41,8 @@ export default function InputFile({ name }) {
             <img
               src={previewUrlFrente}
               alt="Vista previa"
-              width={"200px"}
-              height={"150px"}
+              width={"100%"}
+              height={"100%"}
               className="object-cover w-full h-full"
             />
           </div>

@@ -63,88 +63,102 @@ const unidadMedida = [
 ---
 
 <FormCont title="Agregar Producto" id="formularioCargaProducto">
-  <div class="w-full flex flex-col gap-2 items-start justify-between min-h-[80vh]">
   <div
-    id="idCargaUsuario"
-    data-user-id={user.id}
-    data-empresa-id={user.empresaId}
-    class="w-full  flex md:flex-row flex-col gap-2 items-start justify-between"
+    class="w-full flex flex-col gap-2 items-start justify-between min-h-[80vh]"
   >
-  <div class="w-1/2 flex gap-2 items-center justify-center">
-    <InputFile client:load name="fotoProducto" />
-  </div>
-  <div class="w-1/2 flex flex-col items-start gap-2 my-2 duration-300 group">
-      <ContenedorInputForm
-        name="codigoBarra"
-        type="text"
-        label="Código de barra"
-        required
-      />
-      <div class="w-full flex flex-col gap-2 items-start justify-between">
-        <LabelForm name="descripcion">Descripción</LabelForm>
-        <textarea
-          class="flex-1 w-full text-sm p-2 text-primary-texto outline-none ring-0 border-gray-300 ring-primary-200/60 focus:ring-1 focus:border-primary-200/60 border-b rounded-lg"
-          rows="3"
-          placeholder="Color, tamaño, categoria, trata o que describe al producto..."
-          name="descripcion"
-          id="descripcion"
-          required></textarea>
+    <input
+      type="text"
+      name="categoriasIds"
+      value="categoriasIds"
+      id="categoriasIds"
+      hidden
+    />
+    <div
+      id="idCargaUsuario"
+      data-user-id={user.id}
+      data-empresa-id={user.empresaId}
+      class="w-full flex md:flex-row flex-col gap-2 items-start justify-between"
+    >
+      <div class="w-1/2 flex gap-2 items-center justify-center">
+        <InputFile client:load name="fotoProducto" />
       </div>
-      <CategoriasSelector client:load empresaId={user.empresaId} />
+      <div
+        class="w-1/2 flex flex-col items-start gap-2 my-2 duration-300 group"
+      >
+        <ContenedorInputForm
+          name="codigoBarra"
+          type="text"
+          label="Código de barra"
+          required
+        />
+        <div class="w-full flex flex-col gap-2 items-start justify-between">
+          <LabelForm name="descripcion">Descripción</LabelForm>
+          <textarea
+            class="flex-1 w-full text-sm p-2 text-primary-texto outline-none ring-0 border-gray-300 ring-primary-200/60 focus:ring-1 focus:border-primary-200/60 border-b rounded-lg"
+            rows="3"
+            placeholder="Color, tamaño, categoria, trata o que describe al producto..."
+            name="descripcion"
+            id="descripcion"
+            required></textarea>
+        </div>
+        <CategoriasSelector client:load empresaId={user.empresaId} />
+      </div>
+    </div>
+    <div class="w-full flex gap-2 items-center justify-between">
+      <ContenedorInputForm name="marca" label="Marca" type="text" />
+      <ContenedorInputForm name="modelo" label="Modelo" type="number" />
+    </div>
+    <div class="w-full flex gap-2 items-start justify-between">
+      <ContenedorInputForm
+        name="localizacion"
+        label="Localizacion"
+        type="text"
+      />
+      <ContenedorInputForm
+        name="deposito"
+        value="deposito 1"
+        label="Deposito"
+        type="text"
+      />
+      <ContenedorInputSelected
+        options={unidadMedida}
+        label="Unidad de Medida"
+        defaultSelect={true}
+      />
+    </div>
+
+    <div class="w-full flex gap-2 items-start justify-between">
+      <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
+      <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
+
+      <ContenedorInputSelected
+        options={impuestos}
+        name="iva"
+        label="iva"
+        defaultSelect={true}
+      />
+      <ContenedorInputForm name="descuento" label="Descuento" type="text" />
+    </div>
+    <div class="w- flex gap-2 items-start justify-between">
+      <ContenedorInputForm name="stock" label="Stock" type="number" />
+      <ContenedorInputForm
+        name="alertaStock"
+        label="Cantidad de Alerta"
+        type="number"
+      />
+    </div>
+
+    <div class="w-full flex items-center justify-end my-3">
+      <BotonGuardar client:load id="btnCargarProducto" type="submit">
+        Guardar
+      </BotonGuardar>
+    </div>
+    <div
+      class="text-xs font-semibold h-6 w-full text-center tracking-wide uppercase animate-aparecer text-primary-400"
+      id="erroresMsg"
+    >
     </div>
   </div>
-  <div class="w-full flex gap-2 items-center justify-between">
-    <ContenedorInputForm name="marca" label="Marca" type="text" />
-    <ContenedorInputForm name="modelo" label="Modelo" type="number" />
-  
-  </div>
-  <div class="w-full flex gap-2 items-start justify-between">
-    <ContenedorInputForm name="localizacion" label="Localizacion" type="text" />
-    <ContenedorInputForm
-      name="deposito"
-      value="deposito 1"
-      label="Deposito"
-      type="text"
-    />
-    <ContenedorInputSelected
-      options={unidadMedida}
-      label="Unidad de Medida"
-      defaultSelect={true}
-    />
-  </div>
-
-  <div class="w-full flex gap-2 items-start justify-between">
-    <ContenedorInputForm name="pCompra" label="Precio Compra" type="number" />
-    <ContenedorInputForm name="pVenta" label="Precio Venta" type="number" />
-
-    <ContenedorInputSelected
-      options={impuestos}
-      name="iva"
-      label="iva"
-      defaultSelect={true}
-    />
-    <ContenedorInputForm name="descuento" label="Descuento" type="text" />
-  </div>
-  <div class="w- flex gap-2 items-start justify-between">
-    <ContenedorInputForm name="stock" label="Stock" type="number" />
-    <ContenedorInputForm
-      name="alertaStock"
-      label="Cantidad de Alerta"
-      type="number"
-    />
-  </div>
-
-  <div class="w-full flex items-center justify-end my-3">
-    <BotonGuardar client:load id="btnCargarProducto" type="submit">
-      Guardar
-    </BotonGuardar>
-  </div>
-  <div
-    class="text-xs font-semibold h-6 w-full text-center tracking-wide uppercase animate-aparecer text-primary-400"
-    id="erroresMsg"
-  >
-  </div>
-</div>
 </FormCont>
 
 <script>
@@ -167,6 +181,7 @@ const unidadMedida = [
     const erroresMsg = document.getElementById('erroresMsg');
     const userIdElement = document.getElementById('idCargaUsuario');
     const empresaIdElement = document.getElementById('idCargaUsuario');
+
     const userId = userIdElement?.dataset.userId;
     const empresaId = empresaIdElement?.dataset.empresaId;
 
@@ -225,6 +240,13 @@ const unidadMedida = [
         }
         formData.append('userId', userId);
         formData.append('empresaId', empresaId);
+        // Obtener categorías seleccionadas
+        const categoriaIdsInput = document.getElementById('categoriasIds');
+        const categoriaIdsValue = categoriaIdsInput?.value || '[]';
+
+        // Eliminar el valor anterior y añadir el array como JSON
+        formData.delete('categoriasIds');
+        formData.append('categoriasIds', categoriaIdsValue);
 
         const response = await fetch('/api/productos/create', {
           method: 'POST',

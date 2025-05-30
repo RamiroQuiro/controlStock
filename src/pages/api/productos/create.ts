@@ -42,7 +42,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
       categoriasIds: data.get('categoriasIds')?.toString() || '[]',
       deposito: data.get('deposito')?.toString() || '',
       impuesto: data.get('impuesto')?.toString() || '21%',
-      empresaId: data.get('empresaId') || '',
+      empresaId: data.get('empresaId')?.toString() || '',
       creadoPor: data.get('userId')?.toString() || '',
       iva: Number(data.get('iva') || 21),
       descuento: Number(data.get('descuento') || 0),
@@ -52,142 +52,159 @@ export async function POST({ request }: APIContext): Promise<Response> {
       alertaStock: Number(data.get('alertaStock') || 0),
       codigoBarra: data.get('codigoBarra')?.toString() || '',
     };
-    // parsar catogoriasIds
-
-    const categoriasIds = JSON.parse(productoData.categoriasIds);
+    
+    // Parsear categoriasIds con manejo seguro de errores
+    let categoriasIds = [];
+    try {
+      categoriasIds = JSON.parse(productoData.categoriasIds);
+      if (!Array.isArray(categoriasIds)) {
+        categoriasIds = [];
+      }
+    } catch (e) {
+      console.error('Error al parsear categoriasIds:', e);
+      // Si hay error, inicializar como array vacío
+      categoriasIds = [];
+    }
+    
     console.log('categoriasIds ->', categoriasIds);
+    
     // Validar imagen
     const fotoProducto = data.get('fotoProducto') as File;
-    if (!fotoProducto || !(fotoProducto instanceof File)) {
-      console.error('Archivo de imagen no válido');
-      return new Response(
-        JSON.stringify({
-          status: 400,
-          msg: 'Se requiere una imagen válida para el producto',
-        }),
-        { status: 400 }
+    let rutaRelativa = '';
+    
+    if (fotoProducto && fotoProducto instanceof File && fotoProducto.size > 0) {
+      // Validar directorio
+      const userDir = path.join(
+        process.cwd(),
+        'element',
+        'imgs',
+        productoData.empresaId,
+        'productos'
       );
-    }
+      
+      try {
+        await fs.access(userDir);
+      } catch (e) {
+        // Directorio no existe, crearlo
+        await fs.mkdir(userDir, { recursive: true });
+      }
 
-    // Validar directorio
-    const userDir = path.join(
-      process.cwd(),
-      'element',
-      'imgs',
-      productoData.empresaId,
-      'productos'
-    );
-    const dirExists = await fs
-      .access(userDir)
-      .then(() => true)
-      .catch(() => false);
+      // Procesar imagen
+      const imageId = nanoid(10);
+      const extension = path.extname(fotoProducto.name);
+      const nombreArchivo = `${imageId}${extension}`;
+      const rutaGuardado = path.join(userDir, nombreArchivo);
+      rutaRelativa = `/element/imgs/${productoData.empresaId}/productos/${nombreArchivo}`;
 
-    if (!dirExists) {
-      console.error('Directorio no encontrado:', userDir);
-      await fs.mkdir(userDir, { recursive: true });
-    }
-
-    // Procesar imagen
-    const imageId = nanoid(10);
-    const extension = path.extname(fotoProducto.name);
-    const nombreArchivo = `${imageId}${extension}`;
-    const rutaGuardado = path.join(userDir, nombreArchivo);
-    const rutaRelativa = `/element/imgs/${productoData.empresaId}/productos/${nombreArchivo}`;
-
-    try {
-      const buffer = await fotoProducto.arrayBuffer();
-      await sharp(Buffer.from(buffer))
-        .resize(800, 800, {
-          fit: 'inside',
-          withoutEnlargement: true,
-        })
-        .jpeg({ quality: 80 })
-        .toFile(rutaGuardado);
-    } catch (error) {
-      console.error('Error al procesar la imagen:', error);
-      return new Response(
-        JSON.stringify({
-          status: 500,
-          msg: 'Error al procesar la imagen del producto',
-        }),
-        { status: 500 }
-      );
+      try {
+        const buffer = await fotoProducto.arrayBuffer();
+        await sharp(Buffer.from(buffer))
+          .resize(800, 800, {
+            fit: 'inside',
+            withoutEnlargement: true,
+          })
+          .jpeg({ quality: 80 })
+          .toFile(rutaGuardado);
+      } catch (error) {
+        console.error('Error al procesar la imagen:', error);
+        return new Response(
+          JSON.stringify({
+            status: 500,
+            msg: 'Error al procesar la imagen del producto',
+          }),
+          { status: 500 }
+        );
+      }
+    } else {
+      // Si no hay imagen, usar una imagen por defecto o dejar vacío
+      rutaRelativa = '/element/imgs/default-product.jpg';
     }
 
     // Crear producto en la base de datos
     const creacionProducto = await db.transaction(async (trx) => {
       const id = nanoid(10);
       const fechaHoy = new Date();
-      try {
-        const [insertedProduct] = await trx
-          .insert(productos)
-          .values({
-            id,
-            nombre: productoData.nombre,
-            created_at: fechaHoy,
-            descripcion: productoData.descripcion,
-            iva: productoData.iva,
-            precio: productoData.precio,
-            pCompra: productoData.pCompra,
-            pVenta: productoData.pVenta,
-            codigoBarra: productoData.codigoBarra,
-            alertaStock: productoData.alertaStock,
-            modelo: productoData.modelo,
-            descuento: productoData.descuento,
-            empresaId: productoData.empresaId,
-            impuesto: productoData.impuesto,
-            marca: productoData.marca,
-            updatedAt: sql`(strftime('%s','now'))`,
-            stock: productoData.stock,
-            userId: productoData.userId,
-            srcPhoto: rutaRelativa,
-          })
-          .returning();
-
-        if (categoriasIds && categoriasIds.length > 0) {
-          await Promise.all(
-            categoriasIds.map((categoriaId: string) =>
-              db.insert(productoCategorias).values({
-                id: generateId(10),
-                productoId: insertedProduct.id,
-                categoriaId,
-              })
-            )
-          );
-        }
-        // Crear registro de stock
-        await trx.insert(stockActual).values({
-          id: nanoid(10),
-          productoId: id,
-          cantidad: productoData.stock,
-          alertaStock: productoData.alertaStock,
-          localizacion: productoData.localizacion,
+      
+      // Insertar producto
+      const [insertedProduct] = await trx
+        .insert(productos)
+        .values({
+          id,
+          nombre: productoData.nombre,
           created_at: fechaHoy,
-          deposito: productoData.deposito,
-          updatedAt: sql`(strftime('%s','now'))`,
-        });
-
-        // Registrar movimiento de stock
-        await trx.insert(movimientosStock).values({
-          id: nanoid(10),
-          productoId: id,
-          cantidad: productoData.stock,
+          descripcion: productoData.descripcion,
+          iva: productoData.iva,
+          precio: productoData.precio,
+          pCompra: productoData.pCompra,
+          pVenta: productoData.pVenta,
+          codigoBarra: productoData.codigoBarra,
+          alertaStock: productoData.alertaStock,
+          modelo: productoData.modelo,
+          descuento: productoData.descuento,
+          empresaId: productoData.empresaId,
+          impuesto: productoData.impuesto,
+          marca: productoData.marca,
+          stock: productoData.stock,
           userId: productoData.userId,
-          clienteId: null,
-          proveedorId: null,
-          fecha: fechaHoy,
-          tipo: 'ingreso',
-          motivo: 'StockInicial',
-        });
+          srcPhoto: rutaRelativa,
+        })
+        .returning();
 
-        return insertedProduct;
-      } catch (dbError) {
-        console.error('Error en la transacción de base de datos:', dbError);
-        throw dbError;
+      // Insertar relaciones con categorías si existen
+      if (categoriasIds && categoriasIds.length > 0) {
+        for (const categoriaId of categoriasIds) {
+          await trx.insert(productoCategorias).values({
+            id: generateId(10),
+            productoId: id,
+            categoriaId,
+          })
+        }
       }
+      
+      // Crear registro de stock
+      await trx.insert(stockActual).values({
+        id: nanoid(10),
+        productoId: id,
+        cantidad: productoData.stock,
+        alertaStock: productoData.alertaStock,
+        localizacion: productoData.localizacion,
+        created_at: fechaHoy,
+        deposito: productoData.deposito,
+        empresaId: productoData.empresaId,
+      });
+
+      // Registrar movimiento de stock
+      await trx.insert(movimientosStock).values({
+        id: nanoid(10),
+        productoId: id,
+        cantidad: productoData.stock,
+        userId: productoData.userId,
+        clienteId: null,
+        empresaId: productoData.empresaId,
+        proveedorId: null,
+        fecha: fechaHoy,
+        tipo: 'ingreso',
+        motivo: 'StockInicial',
+      });
+
+      return insertedProduct;
     });
-    // Invalida el caché de productos para este usuario
-    await cache.invalidate(`stock_data_${productoData.userId}`);
+// Invalida el caché de productos para este usuario
+await cache.invalidate(`stock_data_${productoData.userId}`);
+
+// También podríamos invalidar otros cachés relacionados
+if (productoData.empresaId) {
+  await cache.invalidate(`empresa_productos_${productoData.empresaId}`);
+}
+
+// Si tienes un caché para categorías, también lo invalidamos
+if (categoriasIds.length > 0) {
+  await cache.invalidate(`categorias_data`);
+  for (const catId of categoriasIds) {
+    await cache.invalidate(`categoria_productos_${catId}`);
+  }
+}
+
     return new Response(
       JSON.stringify({
         status: 200,
@@ -212,8 +229,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
       JSON.stringify({
         status: 500,
         msg: 'Error interno del servidor al procesar la solicitud',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
+        error: error.message || 'Error desconocido',
       }),
       { status: 500 }
     );

@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import db from "../../../../db";
 import {
+  categorias,
   clientes,
   movimientosStock,
   productos,
@@ -8,6 +9,7 @@ import {
   stockActual,
 } from "../../../../db/schema";
 import { desc, eq, sql } from "drizzle-orm";
+import { productoCategorias } from "../../../../db/schema/productoCategorias";
 
 export const GET: APIRoute = async ({ params }) => {
   const { productoId } = params;
@@ -26,7 +28,6 @@ export const GET: APIRoute = async ({ params }) => {
           creadoPor: productos.creadoPor,
           descripcion: productos.descripcion,
           stock: productos.stock,
-          categoria: productos.categoria,
           marca: productos.marca,
           isEcommerce:productos.isEcommerce,
           srcPhoto: productos.srcPhoto,
@@ -68,6 +69,20 @@ export const GET: APIRoute = async ({ params }) => {
         .orderBy(desc(movimientosStock.fecha)),
     ]);
 
+    // Consulta adicional para obtener las categorías del producto
+    const categoriasDelProducto = await db
+      .select({
+        id: categorias.id,
+        nombre: categorias.nombre,
+        descripcion: categorias.descripcion,
+      })
+      .from(productoCategorias)
+      .innerJoin(
+        categorias,
+        eq(productoCategorias.categoriaId, categorias.id)
+      )
+      .where(eq(productoCategorias.productoId, productoId));
+
     const productData = productDataRaw?.[0] ?? null;
     const stockMovimiento = stockMovimientoRaw.map((mov) => ({
       id: mov.id,
@@ -88,7 +103,10 @@ export const GET: APIRoute = async ({ params }) => {
       JSON.stringify({
         status: 200,
         data: {
-          productData,
+          productData:{
+            ...productData,
+            categorias:categoriasDelProducto
+          },
           stockMovimiento,
         },
       }),

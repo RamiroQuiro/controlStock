@@ -4,7 +4,7 @@ import { categorias } from './categorias';
 import { sql } from 'drizzle-orm';
 
 export const productoCategorias = sqliteTable(
-  'producto_categorias',
+  'productoCategorias',
   {
     id: text('id').primaryKey(),
     productoId: text('productoId')

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import formatDate from "../../../../utils/formatDate";
 import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
@@ -6,6 +6,9 @@ import DivReact from "../../../../components/atomos/DivReact";
 import { useStore } from "@nanostores/react";
 import { perfilProducto } from "../../../../context/store";
 import { obtenerUltimaReposicion } from "../../../../utils/detallesProducto";
+import { CircleX, Plus } from "lucide-react";
+import BotonAgregarCat from "../../../../components/moleculas/BotonAgregarCat";
+import SelectorCategoriasExistentes from "./SelectorCategoriasExistentes";
 
 export default function DetalleFotoDetalleProducto({
   disableEdit,
@@ -13,12 +16,60 @@ export default function DetalleFotoDetalleProducto({
   formulario,
 }) {
   const { data: infoProducto, loading } = useStore(perfilProducto);
+console.log('indo del producto',infoProducto)
+  const handleRemoveCategoria = (categoriaId) => {
+    // Actualizar el store
+    const categoriasFiltradas = infoProducto.productData.categorias.filter(
+      (cat) => cat.id !== categoriaId
+    );
+    perfilProducto.setKey("productData", {
+      ...infoProducto.productData,
+      categorias: categoriasFiltradas,
+    });
+
+    // Actualizar el formulario
+    handleChangeForm({
+      target: {
+        name: "categorias",
+        value: categoriasFiltradas,
+      },
+    });
+  };
+
+  // Función para agregar una categoría existente
+  const handleAgregarCategoria = (categoria) => {
+    // Verificar si la categoría ya existe en el producto
+    const categoriaExistente = infoProducto.productData.categorias.find(
+      (cat) => cat.id === categoria.id
+    );
+    
+    if (categoriaExistente) return; // Evitar duplicados
+    
+    // Actualizar el store con la nueva categoría
+    const nuevasCategorias = [
+      ...infoProducto.productData.categorias,
+      categoria
+    ];
+    
+    perfilProducto.setKey("productData", {
+      ...infoProducto.productData,
+      categorias: nuevasCategorias,
+    });
+    
+    // Actualizar el formulario
+    handleChangeForm({
+      target: {
+        name: "categorias",
+        value: nuevasCategorias,
+      },
+    });
+  };
 
   const ultimaRepo = useMemo(() => {
     if (!infoProducto?.stockMovimiento) return null;
     return obtenerUltimaReposicion(infoProducto.stockMovimiento);
   }, [loading]);
-  
+
   return (
     <DivReact>
       {/* Sección de imagen */}
@@ -107,21 +158,35 @@ export default function DetalleFotoDetalleProducto({
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
                 <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Categoria:</span>
-                  <InputFormularioSolicitud
-                    disabled={disableEdit}
-                    onchange={handleChangeForm}
-                    className={
-                      "text-primary-textoTitle font-semibold animate-aparecer"
-                    }
-                    value={
-                      disableEdit
-                        ? infoProducto.productData?.categoria
-                        : formulario?.categoria
-                    }
-                    name={"categoria"}
-                    type={"text"}
-                  />
+                  <span className="">Categorias:</span>
+                  {!disableEdit && (
+                    <div className="flex items-center gap-2">
+                      <BotonAgregarCat empresaId={infoProducto.productData.empresaId} />
+                      <div className="w-40">
+                        <SelectorCategoriasExistentes 
+                          empresaId={infoProducto.productData.empresaId}
+                          onAgregarCategoria={handleAgregarCategoria}
+                          categoriasActuales={infoProducto.productData?.categorias || []}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex gap-1 flex-wrap items-start justify-normal">
+                    {infoProducto.productData?.categorias?.map(
+                      (categoria, idx) => (
+                        <span
+                        title="Eliminar categoria"
+                          key={idx}
+                          className="inline-flex items-center justify-center text-xs px-1 text-primary-texto py-0.5 rounded-lg border bg-primary-100/20"
+                        >
+                          {categoria.nombre}
+                          {!disableEdit && (
+                            <CircleX onClick={() => handleRemoveCategoria(categoria.id)} className="rounded-full bg-primary-400 ml-2 cursor-pointer text-white px-1 text-center active:-scale-95" />
+                          )}
+                        </span>
+                      )
+                    )}
+                  </div>
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">Marca:</span>

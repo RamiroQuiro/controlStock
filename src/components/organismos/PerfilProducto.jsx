@@ -24,6 +24,8 @@ export default function PerfilProducto({}) {
     }
   }, [data?.productData]);
 
+
+
   const confirmarConModal = () => {
     setModalConfirmacion(true);
   };

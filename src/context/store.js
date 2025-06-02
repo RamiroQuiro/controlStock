@@ -92,7 +92,6 @@ const fetchProducto = async (productoId) => {
     if (!res.ok) throw new Error('Error al obtener el producto');
 
     const data = await res.json();
-    console.log(data);
     perfilProducto.set({
       loading: false,
       data: data.data,

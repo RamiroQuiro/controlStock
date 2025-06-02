@@ -1,5 +1,6 @@
 import { and, eq, like, not, or } from 'drizzle-orm';
 import {
+  categorias,
   detalleVentas,
   movimientosStock,
   productos,
@@ -10,6 +11,8 @@ import type { APIRoute } from 'astro';
 import { cache } from '../../../utils/cache';
 import path from 'path';
 import { promises as fs } from 'fs';
+import { productoCategorias } from '../../../db/schema/productoCategorias';
+import { generateId } from 'lucia';
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, locals }) => {
   const url = new URL(request.url);
@@ -152,6 +155,17 @@ export const PUT: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get('search');
 
+    
+  // Extraer los IDs de categorías
+  const categoriasIds = data.categorias ? data.categorias.map((categoria:{id:string,nombre:string,descripcion:string}) => categoria.id) : [];
+  
+  // Eliminar categorías del objeto data para evitar problemas en la actualización
+  const { categorias, ...dataProducto } = data;
+  
+  console.log('IDs de categorías:', categoriasIds);
+  console.log('Datos del producto:', dataProducto);
+  
+
   try {
     // Obtener el producto actual
     const [productoActual] = await db
@@ -202,24 +216,52 @@ export const PUT: APIRoute = async ({ request, params }) => {
       }
     }
 
-    // Proceder con la actualización
-    const [actualizarProducto] = await db
+   // Proceder con la actualización
+   const dataUpdate = await db.transaction(async(trx) => {
+    // 1. Actualizar el producto
+    const [actualizarProducto] = await trx
       .update(productos)
-      .set(data)
+      .set(dataProducto)
       .where(eq(productos.id, query))
       .returning();
-
-    await db
+    
+    // 2. Eliminar las relaciones existentes de categorías
+    await trx
+      .delete(productoCategorias)
+      .where(eq(productoCategorias.productoId, actualizarProducto.id));
+    
+    // 3. Insertar las nuevas relaciones de categorías
+    if (categoriasIds.length > 0) {
+      // Usar Promise.all para ejecutar todas las inserciones
+      await Promise.all(
+        categoriasIds.map(async (categoriaId:string) => {
+          return await trx
+            .insert(productoCategorias)
+            .values({
+              id: generateId(10),
+              productoId: actualizarProducto.id,
+              categoriaId: categoriaId,
+            });
+        })
+      );
+    }
+    
+    // 4. Actualizar el stock
+    await trx
       .update(stockActual)
       .set({
-        deposito: data.deposito,
-        alertaStock: data.alertaStock,
-        localizacion: data.localizacion,
+        deposito: dataProducto.deposito,
+        alertaStock: dataProducto.alertaStock,
+        localizacion: dataProducto.localizacion,
       })
       .where(eq(stockActual.productoId, query));
+      
+    return actualizarProducto;
+  });
 
-    // Invalida el caché de productos para este usuario
-    await cache.invalidate(`stock_data_${actualizarProducto.empresaId}`);
+  // Invalidar caché
+  await cache.invalidate(`stock_data_${dataUpdate.empresaId}`);
+  await cache.invalidate(`categorias_${dataUpdate.empresaId}`)
 
     return new Response(
       JSON.stringify({

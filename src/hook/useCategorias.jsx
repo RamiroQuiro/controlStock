@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import debounce from 'debounce';
 
-export function useCategorias(empresaId) {
+export function useCategorias(empresaId, isAll) {
   const [categorias, setCategorias] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,9 +17,14 @@ export function useCategorias(empresaId) {
       setError(null);
 
       try {
-        const response = await fetch(`/api/categorias?search=${searchTerm}`, {
-          headers: { 'xx-empresa-id': empresaId },
-        });
+        const response = await fetch(
+          isAll
+            ? `/api/categorias?search=${searchTerm}&all=true`
+            : `/api/categorias?search=${searchTerm}`,
+          {
+            headers: { 'xx-empresa-id': empresaId },
+          }
+        );
         const data = await response.json();
 
         if (data.status === 200) {

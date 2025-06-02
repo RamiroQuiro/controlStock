@@ -42,12 +42,22 @@ export const GET: APIRoute = async ({ request }) => {
     const url = new URL(request.url);
     const query = url.searchParams.get('search')?.toLowerCase();
     const empresaId = request.headers.get('xx-empresa-id');
+    const isAll = url.searchParams.get('all');
 
     if (!empresaId) {
       return createResponse(400, 'ID de empresa requerido');
     }
 
     let whereCondition = eq(categorias.empresaId, empresaId);
+
+    if (isAll) {
+      const categoriasDB = await db
+        .select()
+        .from(categorias)
+        .where(whereCondition);
+
+      return createResponse(200, 'Categorias encontradas', categoriasDB);
+    }
 
     // Agregar condición de búsqueda solo si hay query
     if (query) {

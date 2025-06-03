@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import debounce from 'debounce';
+import { useState, useCallback } from "react";
+import debounce from "debounce";
 
 export function useCategorias(empresaId, isAll) {
   const [categorias, setCategorias] = useState([]);
@@ -15,14 +15,14 @@ export function useCategorias(empresaId, isAll) {
 
       setIsLoading(true);
       setError(null);
-
+      console.log("isAll", isAll);
       try {
         const response = await fetch(
           isAll
             ? `/api/categorias?search=${searchTerm}&all=true`
             : `/api/categorias?search=${searchTerm}`,
           {
-            headers: { 'xx-empresa-id': empresaId },
+            headers: { "xx-empresa-id": empresaId },
           }
         );
         const data = await response.json();
@@ -37,8 +37,8 @@ export function useCategorias(empresaId, isAll) {
           }
         }
       } catch (error) {
-        console.error('Error al buscar categorías:', error);
-        setError('Error al buscar categorías');
+        console.error("Error al buscar categorías:", error);
+        setError("Error al buscar categorías");
         setCategorias([]);
       } finally {
         setIsLoading(false);
@@ -52,10 +52,10 @@ export function useCategorias(empresaId, isAll) {
     setError(null);
 
     try {
-      const response = await fetch('/api/categorias', {
-        method: 'POST',
+      const response = await fetch("/api/categorias", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           nombre,
@@ -73,9 +73,9 @@ export function useCategorias(empresaId, isAll) {
         return { success: false, error: data.msg };
       }
     } catch (error) {
-      console.error('Error al agregar categoría:', error);
-      setError('Error al agregar categoría');
-      return { success: false, error: 'Error al agregar categoría' };
+      console.error("Error al agregar categoría:", error);
+      setError("Error al agregar categoría");
+      return { success: false, error: "Error al agregar categoría" };
     } finally {
       setIsLoading(false);
     }

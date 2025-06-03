@@ -22,11 +22,12 @@ console.log('indo del producto',infoProducto)
     const categoriasFiltradas = infoProducto.productData.categorias.filter(
       (cat) => cat.id !== categoriaId
     );
-    perfilProducto.setKey("productData", {
-      ...infoProducto.productData,
-      categorias: categoriasFiltradas,
-    });
-
+perfilProducto.set({data:{...infoProducto,
+  productData:{
+    ...infoProducto.productData,
+    categorias: categoriasFiltradas,
+  }
+}})
     // Actualizar el formulario
     handleChangeForm({
       target: {
@@ -38,11 +39,13 @@ console.log('indo del producto',infoProducto)
 
   // Función para agregar una categoría existente
   const handleAgregarCategoria = (categoria) => {
+    console.log("categoria", categoria);
+    console.log("infoProducto", infoProducto);
     // Verificar si la categoría ya existe en el producto
     const categoriaExistente = infoProducto.productData.categorias.find(
       (cat) => cat.id === categoria.id
     );
-    
+    console.log("categoriaExistente", categoriaExistente);
     if (categoriaExistente) return; // Evitar duplicados
     
     // Actualizar el store con la nueva categoría
@@ -50,12 +53,12 @@ console.log('indo del producto',infoProducto)
       ...infoProducto.productData.categorias,
       categoria
     ];
-    
-    perfilProducto.setKey("productData", {
-      ...infoProducto.productData,
-      categorias: nuevasCategorias,
-    });
-    
+perfilProducto.set({data:{...infoProducto,
+  productData:{
+    ...infoProducto.productData,
+    categorias: nuevasCategorias,
+  }
+}})  
     // Actualizar el formulario
     handleChangeForm({
       target: {
@@ -64,7 +67,10 @@ console.log('indo del producto',infoProducto)
       },
     });
   };
-
+  useEffect(() => {
+    console.log("infoProducto actualizado:", infoProducto);
+  }, [infoProducto]);
+  
   const ultimaRepo = useMemo(() => {
     if (!infoProducto?.stockMovimiento) return null;
     return obtenerUltimaReposicion(infoProducto.stockMovimiento);

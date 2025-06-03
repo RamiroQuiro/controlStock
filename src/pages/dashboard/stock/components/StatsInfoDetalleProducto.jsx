@@ -95,7 +95,7 @@ export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,f
             <p className="text-primary-textoTitle">Precio Stock</p>
           </div>
           <p className="font-bold text-2xl trakin text-primary-textoTitle">
-            {formateoMoneda.format(calculos.totalStockProducto)}
+            {formateoMoneda?.format(calculos.totalStockProducto)}
           </p>
         </div>
   

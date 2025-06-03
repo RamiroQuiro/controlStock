@@ -1,14 +1,14 @@
-import ContenedorBotonera from '../moleculas/ContenedorBotonera';
-import HistorialMovimientosDetalleProducto from '../../pages/dashboard/stock/components/HistorialMovimientosDetalleProducto';
-import StatsInfoDetalleProducto from '../../pages/dashboard/stock/components/StatsInfoDetalleProducto';
-import DetalleFotoDetalleProducto from '../../pages/dashboard/stock/components/DetalleFotoDetalleProducto';
-import { useEffect, useState } from 'react';
-import { showToast } from '../../utils/toast/toastShow';
-import ModalConfirmacion from '../moleculas/ModalConfirmacion';
-import { useStore } from '@nanostores/react';
-import { perfilProducto } from '../../context/store';
-import { downloadLoader } from '../../utils/loader/showDownloadLoader';
-import { loader } from '../../utils/loader/showLoader';
+import ContenedorBotonera from "../moleculas/ContenedorBotonera";
+import HistorialMovimientosDetalleProducto from "../../pages/dashboard/stock/components/HistorialMovimientosDetalleProducto";
+import StatsInfoDetalleProducto from "../../pages/dashboard/stock/components/StatsInfoDetalleProducto";
+import DetalleFotoDetalleProducto from "../../pages/dashboard/stock/components/DetalleFotoDetalleProducto";
+import { useEffect, useState } from "react";
+import { showToast } from "../../utils/toast/toastShow";
+import ModalConfirmacion from "../moleculas/ModalConfirmacion";
+import { useStore } from "@nanostores/react";
+import { perfilProducto } from "../../context/store";
+import { downloadLoader } from "../../utils/loader/showDownloadLoader";
+import { loader } from "../../utils/loader/showLoader";
 
 export default function PerfilProducto({}) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
@@ -22,9 +22,7 @@ export default function PerfilProducto({}) {
     if (data?.productData) {
       setFormulario(data.productData);
     }
-  }, [data?.productData]);
-
-
+  }, [data?.productData,formulario]);
 
   const confirmarConModal = () => {
     setModalConfirmacion(true);
@@ -37,30 +35,30 @@ export default function PerfilProducto({}) {
       const res = await fetch(
         `/api/productos/productos?search=${data.productData.id}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
         }
       );
       if (res.ok) {
-        window.location.href = '/dashboard/stock';
+        window.location.href = "/dashboard/stock";
       }
     } catch (error) {
       console.log(error);
       setModalConfirmacion(false);
-      showToast('error al eliminar', { backgorund: 'bg-red-500' });
+      showToast("error al eliminar", { backgorund: "bg-red-500" });
     }
   };
 
   const handleEdit = async () => {
     setDisableEdit(!disableEdit);
-loader(true)
+    loader(true);
     if (!disableEdit) {
       try {
         const response = await fetch(
           `/api/productos/productos?search=${data.productData.id}`,
           {
-            method: 'PUT',
+            method: "PUT",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               srcPhoto: data.productData.srcPhoto,
             },
             body: JSON.stringify(formulario),
@@ -68,22 +66,22 @@ loader(true)
         );
         const dataRes = await response.json();
         console.log(dataRes);
-        
+
         if (dataRes.status === 200) {
-          showToast('producto actualizado', { background: 'bg-green-500' });
+          showToast("producto actualizado", { background: "bg-green-500" });
           setTimeout(() => window.location.reload(), 750);
-          loader(false)
+          loader(false);
         } else if (dataRes.status === 409) {
-          showToast(dataRes.msg, { background: 'bg-red-500' });
-          loader(false)
+          showToast(dataRes.msg, { background: "bg-red-500" });
+          loader(false);
         }
       } catch (error) {
         console.log(error);
-        showToast('error al actualizar', { background: 'bg-red-500' });
-        loader(false)
-        }
+        showToast("error al actualizar", { background: "bg-red-500" });
+        loader(false);
+      }
     }
-    loader(false)
+    loader(false);
   };
 
   const handleChangeForm = (e) => {
@@ -92,14 +90,14 @@ loader(true)
   };
 
   const handleDownloadPdf = async () => {
-    downloadLoader(true)
+    downloadLoader(true);
     try {
       const response = await fetch(
         `/api/productos/generarPdf/${data.productData.id}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'xx-user-id': data.productDatauserId, // Asegúrate de tener userId disponible
+            "xx-user-id": data.productDatauserId, // Asegúrate de tener userId disponible
           },
         }
       );
@@ -107,22 +105,22 @@ loader(true)
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = `producto_${data.productData.id}.pdf`;
         document.body.appendChild(a);
         a.click();
         a.remove();
-        downloadLoader(false)
+        downloadLoader(false);
       } else {
-        showToast('Error al generar PDF', { background: 'bg-red-500' });
-        downloadLoader(false)
+        showToast("Error al generar PDF", { background: "bg-red-500" });
+        downloadLoader(false);
       }
     } catch (error) {
-      console.error('Error descargando PDF:', error);
-      showToast('Error al descargar PDF', { background: 'bg-red-500' });
+      console.error("Error descargando PDF:", error);
+      showToast("Error al descargar PDF", { background: "bg-red-500" });
     }
-    downloadLoader(false)
+    downloadLoader(false);
   };
 
   return (

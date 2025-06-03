@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
-import formatDate from "../../../../utils/formatDate";
-import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
-import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
-import DivReact from "../../../../components/atomos/DivReact";
-import { useStore } from "@nanostores/react";
-import { perfilProducto } from "../../../../context/store";
-import { obtenerUltimaReposicion } from "../../../../utils/detallesProducto";
-import { CircleX, Plus } from "lucide-react";
-import BotonAgregarCat from "../../../../components/moleculas/BotonAgregarCat";
-import SelectorCategoriasExistentes from "./SelectorCategoriasExistentes";
+import React, { useEffect, useMemo, useState } from 'react';
+import formatDate from '../../../../utils/formatDate';
+import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud';
+import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
+import DivReact from '../../../../components/atomos/DivReact';
+import { useStore } from '@nanostores/react';
+import { perfilProducto } from '../../../../context/store';
+import { obtenerUltimaReposicion } from '../../../../utils/detallesProducto';
+import { CircleX, Plus } from 'lucide-react';
+import BotonAgregarCat from '../../../../components/moleculas/BotonAgregarCat';
+import SelectorCategoriasExistentes from './SelectorCategoriasExistentes';
 
 export default function DetalleFotoDetalleProducto({
   disableEdit,
@@ -16,22 +16,25 @@ export default function DetalleFotoDetalleProducto({
   formulario,
 }) {
   const { data: infoProducto, loading } = useStore(perfilProducto);
-console.log('indo del producto',infoProducto)
+  // console.log('indo del producto',infoProducto)
   const handleRemoveCategoria = (categoriaId) => {
     // Actualizar el store
     const categoriasFiltradas = infoProducto.productData.categorias.filter(
       (cat) => cat.id !== categoriaId
     );
-perfilProducto.set({data:{...infoProducto,
-  productData:{
-    ...infoProducto.productData,
-    categorias: categoriasFiltradas,
-  }
-}})
+    perfilProducto.set({
+      data: {
+        ...infoProducto,
+        productData: {
+          ...infoProducto.productData,
+          categorias: categoriasFiltradas,
+        },
+      },
+    });
     // Actualizar el formulario
     handleChangeForm({
       target: {
-        name: "categorias",
+        name: 'categorias',
         value: categoriasFiltradas,
       },
     });
@@ -39,38 +42,41 @@ perfilProducto.set({data:{...infoProducto,
 
   // Función para agregar una categoría existente
   const handleAgregarCategoria = (categoria) => {
-    console.log("categoria", categoria);
-    console.log("infoProducto", infoProducto);
+    console.log('categoria', categoria);
+    console.log('infoProducto', infoProducto);
     // Verificar si la categoría ya existe en el producto
     const categoriaExistente = infoProducto.productData.categorias.find(
       (cat) => cat.id === categoria.id
     );
-    console.log("categoriaExistente", categoriaExistente);
+    console.log('categoriaExistente', categoriaExistente);
     if (categoriaExistente) return; // Evitar duplicados
-    
+
     // Actualizar el store con la nueva categoría
     const nuevasCategorias = [
       ...infoProducto.productData.categorias,
-      categoria
+      categoria,
     ];
-perfilProducto.set({data:{...infoProducto,
-  productData:{
-    ...infoProducto.productData,
-    categorias: nuevasCategorias,
-  }
-}})  
+    perfilProducto.set({
+      data: {
+        ...infoProducto,
+        productData: {
+          ...infoProducto.productData,
+          categorias: nuevasCategorias,
+        },
+      },
+    });
     // Actualizar el formulario
     handleChangeForm({
       target: {
-        name: "categorias",
+        name: 'categorias',
         value: nuevasCategorias,
       },
     });
   };
   useEffect(() => {
-    console.log("infoProducto actualizado:", infoProducto);
+    console.log('infoProducto actualizado:', infoProducto);
   }, [infoProducto]);
-  
+
   const ultimaRepo = useMemo(() => {
     if (!infoProducto?.stockMovimiento) return null;
     return obtenerUltimaReposicion(infoProducto.stockMovimiento);
@@ -123,7 +129,7 @@ perfilProducto.set({data:{...infoProducto,
                 <div className="flex w- items-center justify-start gap-3 ">
                   <span className="">Codigo/ID:</span>
                   <p className="font-medium text-primary-textoTitle">
-                    {" "}
+                    {' '}
                     {infoProducto.productData?.id}
                   </p>
                 </div>
@@ -132,15 +138,15 @@ perfilProducto.set({data:{...infoProducto,
                   <InputFormularioSolicitud
                     disabled={disableEdit}
                     className={
-                      "text-primary-textoTitle w-full font-semibold animate-aparecer "
+                      'text-primary-textoTitle w-full font-semibold animate-aparecer '
                     }
                     value={
                       disableEdit
                         ? infoProducto.productData?.codigoBarra
                         : formulario?.codigoBarra
                     }
-                    name={"codigoBarra"}
-                    type={"text"}
+                    name={'codigoBarra'}
+                    type={'text'}
                     onchange={handleChangeForm}
                   />
                 </div>
@@ -151,15 +157,15 @@ perfilProducto.set({data:{...infoProducto,
                   disabled={disableEdit}
                   onchange={handleChangeForm}
                   className={
-                    "text-primary-textoTitle font-semibold animate-aparecer"
+                    'text-primary-textoTitle font-semibold animate-aparecer'
                   }
                   value={
                     disableEdit
                       ? infoProducto.productData?.descripcion
                       : formulario?.descripcion
                   }
-                  name={"descripcion"}
-                  type={"text"}
+                  name={'descripcion'}
+                  type={'text'}
                 />
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
@@ -167,12 +173,16 @@ perfilProducto.set({data:{...infoProducto,
                   <span className="">Categorias:</span>
                   {!disableEdit && (
                     <div className="flex items-center gap-2">
-                      <BotonAgregarCat empresaId={infoProducto.productData.empresaId} />
+                      <BotonAgregarCat
+                        empresaId={infoProducto.productData.empresaId}
+                      />
                       <div className="w-40">
-                        <SelectorCategoriasExistentes 
+                        <SelectorCategoriasExistentes
                           empresaId={infoProducto.productData.empresaId}
                           onAgregarCategoria={handleAgregarCategoria}
-                          categoriasActuales={infoProducto.productData?.categorias || []}
+                          categoriasActuales={
+                            infoProducto.productData?.categorias || []
+                          }
                         />
                       </div>
                     </div>
@@ -181,13 +191,18 @@ perfilProducto.set({data:{...infoProducto,
                     {infoProducto.productData?.categorias?.map(
                       (categoria, idx) => (
                         <span
-                        title="Eliminar categoria"
+                          title="Eliminar categoria"
                           key={idx}
                           className="inline-flex items-center justify-center text-xs px-1 text-primary-texto py-0.5 rounded-lg border bg-primary-100/20"
                         >
                           {categoria.nombre}
                           {!disableEdit && (
-                            <CircleX onClick={() => handleRemoveCategoria(categoria.id)} className="rounded-full bg-primary-400 ml-2 cursor-pointer text-white px-1 text-center active:-scale-95" />
+                            <CircleX
+                              onClick={() =>
+                                handleRemoveCategoria(categoria.id)
+                              }
+                              className="rounded-full bg-primary-400 ml-2 cursor-pointer text-white px-1 text-center active:-scale-95"
+                            />
                           )}
                         </span>
                       )
@@ -198,15 +213,15 @@ perfilProducto.set({data:{...infoProducto,
                   <span className="">Marca:</span>
                   <InputFormularioSolicitud
                     className={
-                      "text-primary-textoTitle font-semibold animate-aparecer"
+                      'text-primary-textoTitle font-semibold animate-aparecer'
                     }
                     value={
                       disableEdit
                         ? infoProducto.productData?.marca
                         : formulario?.marca
                     }
-                    name={"marca"}
-                    type={"text"}
+                    name={'marca'}
+                    type={'text'}
                     onchange={handleChangeForm}
                     disabled={disableEdit}
                   />
@@ -217,15 +232,15 @@ perfilProducto.set({data:{...infoProducto,
                   <span className="">Modelo:</span>
                   <InputFormularioSolicitud
                     className={
-                      "text-primary-textoTitle font-semibold animate-aparecer"
+                      'text-primary-textoTitle font-semibold animate-aparecer'
                     }
                     value={
                       disableEdit
                         ? infoProducto.productData?.modelo
                         : formulario?.modelo
                     }
-                    name={"modelo"}
-                    type={"text"}
+                    name={'modelo'}
+                    type={'text'}
                     onchange={handleChangeForm}
                     disabled={disableEdit}
                   />
@@ -234,15 +249,15 @@ perfilProducto.set({data:{...infoProducto,
                   <span className="">Reservado:</span>
                   <InputFormularioSolicitud
                     className={
-                      "text-primary-textoTitle font-semibold animate-aparecer"
+                      'text-primary-textoTitle font-semibold animate-aparecer'
                     }
                     value={
                       disableEdit
                         ? infoProducto.productData?.reservado
                         : formulario?.reservado
                     }
-                    name={"reservado"}
-                    type={"text"}
+                    name={'reservado'}
+                    type={'text'}
                     onchange={handleChangeForm}
                     disabled={disableEdit}
                   />
@@ -255,15 +270,15 @@ perfilProducto.set({data:{...infoProducto,
                     disabled={disableEdit}
                     onchange={handleChangeForm}
                     className={
-                      "text-primary-textoTitle font-semibold capitalize animate-aparecer"
+                      'text-primary-textoTitle font-semibold capitalize animate-aparecer'
                     }
                     value={
                       disableEdit
                         ? infoProducto.productData?.deposito
                         : formulario?.deposito
                     }
-                    name={"deposito"}
-                    type={"text"}
+                    name={'deposito'}
+                    type={'text'}
                   />
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
@@ -272,15 +287,15 @@ perfilProducto.set({data:{...infoProducto,
                     disabled={disableEdit}
                     onchange={handleChangeForm}
                     className={
-                      "text-primary-textoTitle font-semibold animate-aparecer"
+                      'text-primary-textoTitle font-semibold animate-aparecer'
                     }
                     value={
                       disableEdit
                         ? infoProducto.productData?.localizacion
                         : formulario?.localizacion
                     }
-                    name={"localizacion"}
-                    type={"text"}
+                    name={'localizacion'}
+                    type={'text'}
                   />
                 </div>
               </div>
@@ -299,15 +314,15 @@ perfilProducto.set({data:{...infoProducto,
                   <InputFormularioSolicitud
                     disabled={disableEdit}
                     className={
-                      "text-primary-textoTitle font-semibold animate-aparecer"
+                      'text-primary-textoTitle font-semibold animate-aparecer'
                     }
                     value={
                       disableEdit
                         ? infoProducto.productData?.alertaStock
                         : formulario?.alertaStock
                     }
-                    name={"alertaStock"}
-                    type={"text"}
+                    name={'alertaStock'}
+                    type={'text'}
                     onchange={handleChangeForm}
                   />
                 </div>
@@ -394,11 +409,11 @@ perfilProducto.set({data:{...infoProducto,
                         <option value="$">$</option>
                       </select>
                       <InputComponenteJsx
-                        placeholder={"ingrese el descuento"}
-                        className={"text-sm py-1 px-1"}
-                        name={"descuento"}
+                        placeholder={'ingrese el descuento'}
+                        className={'text-sm py-1 px-1'}
+                        name={'descuento'}
                         handleChange={handleChangeForm}
-                        type={"number"}
+                        type={'number'}
                       />
                     </div>
                   )}

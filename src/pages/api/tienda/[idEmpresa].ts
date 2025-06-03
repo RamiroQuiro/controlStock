@@ -1,7 +1,13 @@
-import type { APIContext } from "astro";
-import db from "../../../db";
-import { empresaConfigTienda, empresas, productos } from "../../../db/schema";
-import { eq } from "drizzle-orm";
+import type { APIContext } from 'astro';
+import db from '../../../db';
+import {
+  categorias,
+  empresaConfigTienda,
+  empresas,
+  productos,
+} from '../../../db/schema';
+import { eq } from 'drizzle-orm';
+import { productoCategorias } from '../../../db/schema/productoCategorias';
 
 export const GET = async ({ params }: APIContext) => {
   const { idEmpresa } = params;
@@ -14,20 +20,28 @@ export const GET = async ({ params }: APIContext) => {
       .where(eq(empresas.id, idEmpresa));
 
     if (!empresa) {
-      return new Response(JSON.stringify({ msg: "Empresa no encontrada" }), { status: 404 });
+      return new Response(JSON.stringify({ msg: 'Empresa no encontrada' }), {
+        status: 404,
+      });
     }
-    const [configuracionTienda]=await db.select().from(empresaConfigTienda).where(eq(empresaConfigTienda.empresaId,idEmpresa));
-    console.log(configuracionTienda)
+    const [configuracionTienda] = await db
+      .select()
+      .from(empresaConfigTienda)
+      .where(eq(empresaConfigTienda.empresaId, idEmpresa));
+    console.log(configuracionTienda);
     // 2. Obtener productos Ecommerce de la empresa
     const productosEcommerce = await db
       .select()
       .from(productos)
       .where(
-        eq(productos.empresaId, idEmpresa) &&
-        eq(productos.isEcommerce, true)
-      );
+        eq(productos.empresaId, idEmpresa) && eq(productos.isEcommerce, true)
+      )
+      .limit(16);
 
-    
+    const categoriasDB = await db
+      .select()
+      .from(categorias)
+      .where(eq(categorias.empresaId, idEmpresa));
 
     // 4. Preparar respuesta
     const response = {
@@ -41,6 +55,7 @@ export const GET = async ({ params }: APIContext) => {
         srcPhoto: empresa.srcPhoto, // url o base64
         // agrega más campos si tienes
       },
+      categorias: categoriasDB,
       productos: productosEcommerce,
       configuracionTienda: configuracionTienda,
     };
@@ -48,7 +63,7 @@ export const GET = async ({ params }: APIContext) => {
     return new Response(JSON.stringify(response), { status: 200 });
   } catch (error) {
     return new Response(
-      JSON.stringify({ msg: "Error al obtener datos de la tienda", error }),
+      JSON.stringify({ msg: 'Error al obtener datos de la tienda', error }),
       { status: 500 }
     );
   }

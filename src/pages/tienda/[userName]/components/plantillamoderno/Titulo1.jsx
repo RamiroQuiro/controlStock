@@ -19,7 +19,7 @@ export default function Titulo1({empresaId}) {
   }, []); 
 
   return (
-    <h1 class="bg-gradient-to-r from-pink-600 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+    <h1 className="bg-gradient-to-r from-pink-600 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
       {data?.configuracionEmpresa?.titulo1}
     </h1>
   );

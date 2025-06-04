@@ -162,6 +162,8 @@ const fetchTiendaData = async (empresaId) => {
 
 const usuarioActivo = atom({});
 
+const carritoStore = atom([]);
+
 export {
   rolesStore,
   fetchRolesData,
@@ -178,4 +180,5 @@ export {
   fetchStatsData,
   tiendaStore,
   fetchTiendaData,
+  carritoStore,
 };

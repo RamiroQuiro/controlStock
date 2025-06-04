@@ -80,6 +80,10 @@ export default {
           '50%': { transform: 'translateY(-1%) translateX(0.5%)' },
           '100%': { transform: 'translateY(0%)' },
         },
+        'bounce-side': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '50%': { transform: 'translateX(3px)' },
+        },
       },
       animation: {
         'waving-hand': 'abrirCat 2s linear infinite',
@@ -87,6 +91,7 @@ export default {
         apDeArriba: 'aparecerDeArriba .25s ease-in ',
         desaparecerCostado: 'desaparecerCote .3s ease-in ',
         float: 'float 3s ease-in-out infinite',
+        'bounce-side': 'bounce-side 0.5s ease-in-out infinite',
       },
       boxShadow: {
         shadowCaja1: '10px 10px 25px -7px rgba(66,66,66,0.7)',

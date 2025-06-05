@@ -1,20 +1,31 @@
 import { useStore } from '@nanostores/react';
-import React from 'react'
+import React, { useEffect } from 'react'
 import { carritoStore } from '../../../../context/store';
+import { CarritoService } from '../../../../services/carricoEcommerce.service';
 
 export default function ButtonAñadirCarrito({item}: {item: any}) {
-    const arrayFind = useStore(carritoStore);
+    const $carritoStore = useStore(carritoStore);
+const carritoService = new CarritoService()
+    console.log('este es mi carrito en button añadir: ->',$carritoStore)
     const handleRestarItems = () => {
         
     }
 
-    const qtyItems = arrayFind.length;
-    const handleButton = () => {
-        
+
+    const handleButton = (e: React.MouseEvent,prod: any) => {
+      const qtyItems = $carritoStore.items.find((item)=>item.id === prod.id)
+      console.log('qtyItems',qtyItems)
+      const newArray=[...$carritoStore.items,prod]
+      console.log('newArray',newArray)
+      carritoStore.set({
+          ...$carritoStore,
+          items:newArray
+        }
+      )
     }
   return (
     <>
-      {arrayFind.length  > 0 && (
+      {/* {$carritoStore.items.length  > 0 && (
         <button 
         onClick={handleRestarItems}
         className="w-auto animate-[aparecer_0.5s_ease-in-out] px-3 py-3 text-xs text-white bg-primary-100 border-0 duration-200  focus:outline-none  mx-auto items-center hover:bg-primary-600 rounded-lg ">
@@ -45,14 +56,14 @@ export default function ButtonAñadirCarrito({item}: {item: any}) {
         </button>
       )}
 
-      {arrayFind.length  > 0 ?
+      {$carritoStore.existeEnCarrito(item.id, item.opciones) ?
       <span className={`py-2.5 w-4/12 mx-auto text-white border-0 font-medium  focus:outline-none bg-primary-500 text-center `}>{qtyItems  }</span>
       :
       null
-    }
+    } */}
       <button
-        onClick={handleButton}
-        className={`flex py-3 w-11/12 flex-auto items-center  border-0 font-medium  focus:outline-none hover:bg-primary-600 ${arrayFind.length>0?"rounded-r bg-primary-00 text-gray-100 pr-2":"rounded text-neutral-500  bg-neutral-200  hover:text-white"}`}
+        onClick={(e)=>handleButton(e,item)}
+        className={`flex py-2 w-11/12 flex-auto items-center  border-0 font-medium  focus:outline-none hover:bg-primary-600 `}
       >
         <span className="text-sm text-center mx-auto"> Añadir al Carrito</span>
       </button>

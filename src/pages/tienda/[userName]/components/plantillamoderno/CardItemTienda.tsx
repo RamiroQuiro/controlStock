@@ -38,7 +38,7 @@ export default function CardItemTienda({ product }: CardItemTiendaProps) {
 
   return (
     <div
-    className="lg:w-[260px] md:w-1/2 py-3 px-4 w-full mb-3 border-lg bg-white rounded-lg md:shadow flex flex-col   items-start justify-around shadow-gray-300/50 h-[420px] hover:-translate-y-0.5 duration-150 hover:shadow-gray-300 animate-[aparecer_.5s]"
+    className="lg:w-[260px] md:w-1/2 py-3 px-4 w-full mb-3 border-lg bg-white rounded-lg md:shadow flex flex-col   items-start justify-around shadow-gray-300/50 h-[350px] hover:-translate-y-0.5 duration-150 hover:shadow-gray-300 animate-[aparecer_.5s]"
     key={product.id}
   >
     <a
@@ -47,9 +47,11 @@ export default function CardItemTienda({ product }: CardItemTiendaProps) {
     >
       <img
         sizes="320"
+        width="320"
+        height="320"  
         alt={product.descripcion}
         src={product.srcPhoto}
-        className=" object-cover  object-center rounded"
+        className=" object-contain  object-center rounded"
       />
     </a>
     <div className="mt-5 ml-2">

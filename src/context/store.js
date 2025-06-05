@@ -162,7 +162,54 @@ const fetchTiendaData = async (empresaId) => {
 
 const usuarioActivo = atom({});
 
-const carritoStore = atom([]);
+// Store para el carrito de compras
+const IVA = 0.21;
+
+function compararOpciones(a, b) {
+  if (!a && !b) return true;
+  if (!a || !b) return false;
+
+  const clavesA = Object.keys(a).sort();
+  const clavesB = Object.keys(b).sort();
+
+  if (clavesA.length !== clavesB.length) return false;
+
+  return clavesA.every(key => a[key] === b[key]);
+}
+
+ const carritoStore = atom({
+  items: [],
+  subtotal: 0,
+  descuento: 0,
+  envio: 0,
+  impuestos: 0,
+  total: 0,
+  cupon: null,
+  direccionEnvio: null,
+  metodoPago: null,
+  ultimaActualizacion: null,
+});
+
+// // Suscripción para depuración
+// carritoStore.subscribe((state) => {
+//   console.log('Estado actual del carrito:', state);
+//   if (typeof window !== 'undefined') {
+//     localStorage.setItem('carrito', JSON.stringify(state));
+//   }
+// });
+
+// Cargar estado inicial desde localStorage
+if (typeof window !== 'undefined') {
+  const carritoGuardado = localStorage.getItem('carrito');
+  if (carritoGuardado) {
+    try {
+      const parsed = JSON.parse(carritoGuardado);
+      carritoStore.set(parsed);
+    } catch (error) {
+      console.error('Error al cargar el carrito:', error);
+    }
+  }
+}
 
 export {
   rolesStore,

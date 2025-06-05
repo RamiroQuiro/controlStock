@@ -23,40 +23,48 @@ function compararOpciones(op1: any, op2: any) {
 }
 
 export const carritoService = {
-  agregarItem: (item: any, cantidad = 1) => {
-    carritoStore.set((state) => {
-      const existenteIndex = state.items.findIndex(i => 
-        i.id === item.id && compararOpciones(i.opciones, item.opciones)
-      );
-
-      const items = [...state.items];
-      if (existenteIndex >= 0) {
-        items[existenteIndex].cantidad += cantidad;
-      } else {
-        items.push({ ...item, cantidad, agregadoEl: new Date().toISOString() });
-      }
-
-      return {
-        ...state,
-        items,
-        ...calcularTotales({ ...state, items }),
-        ultimaActualizacion: new Date().toISOString()
-      };
+  agregarItem: (item: any, cantidad = 1,prevArray:[]) => {
+    
+    const existenteIndex = prevArray.findIndex((i:any) => 
+      i.id === item.id && compararOpciones(i.opciones, item.opciones)
+    );
+    if (existenteIndex >= 0) {
+      prevArray[existenteIndex].cantidad += cantidad;
+    } else {
+      prevArray.push({ ...item, cantidad, agregadoEl: new Date().toISOString() });
+    }
+    
+    carritoStore.set({
+      ...carritoStore.get(),
+      items: prevArray,
+      ultimaActualizacion: new Date().toISOString()
     });
   },
 
-  eliminarItem: (itemId: string, opciones: any = {}) => {
-    carritoStore.set((state) => {
-      const items = state.items.filter(item => 
-        !(item.id === itemId && compararOpciones(item.opciones, opciones))
-      );
-      
-      return {
-        ...state,
-        items,
-        ...calcularTotales({ ...state, items }),
-        ultimaActualizacion: new Date().toISOString()
-      };
+  restarItem: (itemId: string,prevArray:[]) => {
+    prevArray=prevArray.map(item=>{
+        if(item.cantidad===0){
+            const index=prevArray.findIndex(item=>item.id===itemId)
+            return prevArray.filter((_,i)=>i!==index)
+        }
+        if(item.id===itemId){
+            item.cantidad--
+        }
+        return item
+    })
+    carritoStore.set({
+      ...carritoStore.get(),
+      items: prevArray,
+      ultimaActualizacion: new Date().toISOString()
+    });
+  },
+
+  eliminarItem: (itemId: string,prevArray:[]) => {
+    prevArray=prevArray.filter(item=>item.id!==itemId)
+    carritoStore.set({
+      ...carritoStore.get(),
+      items: prevArray,
+      ultimaActualizacion: new Date().toISOString()
     });
   },
 

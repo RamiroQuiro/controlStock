@@ -1,31 +1,24 @@
 import { useStore } from '@nanostores/react';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { carritoStore } from '../../../../context/store';
-import { CarritoService } from '../../../../services/carricoEcommerce.service';
-
+import {carritoService} from '../../../../services/carricoEcommerce.service'
 export default function ButtonAñadirCarrito({item}: {item: any}) {
     const $carritoStore = useStore(carritoStore);
-const carritoService = new CarritoService()
+    const [qtyItems,setQtyItems] = useState(0)
     console.log('este es mi carrito en button añadir: ->',$carritoStore)
     const handleRestarItems = () => {
-        
+          carritoService.restarItem(item.id,$carritoStore.items)
     }
-
-
-    const handleButton = (e: React.MouseEvent,prod: any) => {
-      const qtyItems = $carritoStore.items.find((item)=>item.id === prod.id)
-      console.log('qtyItems',qtyItems)
-      const newArray=[...$carritoStore.items,prod]
-      console.log('newArray',newArray)
-      carritoStore.set({
-          ...$carritoStore,
-          items:newArray
-        }
-      )
+useEffect(()=>{
+    const qtyItems = $carritoStore.items.find(prod => prod.id === item.id)?.cantidad;
+    setQtyItems(qtyItems)
+},[$carritoStore])
+    const handleButtonAdd = (e: React.MouseEvent,prod: any) => {
+        carritoService.agregarItem(prod,1,$carritoStore.items)
     }
   return (
     <>
-      {/* {$carritoStore.items.length  > 0 && (
+       {$carritoStore.items.length  > 0 && (
         <button 
         onClick={handleRestarItems}
         className="w-auto animate-[aparecer_0.5s_ease-in-out] px-3 py-3 text-xs text-white bg-primary-100 border-0 duration-200  focus:outline-none  mx-auto items-center hover:bg-primary-600 rounded-lg ">
@@ -56,13 +49,13 @@ const carritoService = new CarritoService()
         </button>
       )}
 
-      {$carritoStore.existeEnCarrito(item.id, item.opciones) ?
+      {$carritoStore.items.some(prod => prod.id === item.id) ?
       <span className={`py-2.5 w-4/12 mx-auto text-white border-0 font-medium  focus:outline-none bg-primary-500 text-center `}>{qtyItems  }</span>
       :
       null
-    } */}
+    } 
       <button
-        onClick={(e)=>handleButton(e,item)}
+        onClick={(e)=>handleButtonAdd(e,item)}
         className={`flex py-2 w-11/12 flex-auto items-center  border-0 font-medium  focus:outline-none hover:bg-primary-600 `}
       >
         <span className="text-sm text-center mx-auto"> Añadir al Carrito</span>

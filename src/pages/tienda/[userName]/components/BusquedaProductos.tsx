@@ -1,15 +1,15 @@
-import { PlusCircle, Search } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useStore } from "@nanostores/react";
-import { tiendaStore } from "../../../../context/store";
-import useBusquedaFiltros from "../../../../hook/useBusquedaFiltro";
+import { PlusCircle, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useStore } from '@nanostores/react';
+import { tiendaStore } from '../../../../context/store';
+import useBusquedaFiltros from '../../../../hook/useBusquedaFiltro';
 
 export default function BusquedaProductos() {
   const { data, loading } = useStore(tiendaStore);
   const [productosOriginales, setProductosOriginales] = useState([]);
   const { encontrado, handleSearch, setSearch, search } = useBusquedaFiltros(
     data?.productos,
-    ["descripcion", "categoria"]
+    ['descripcion', 'categoria']
   );
   useEffect(() => {
     if (data?.productos) {
@@ -17,7 +17,6 @@ export default function BusquedaProductos() {
     }
   }, [loading]);
 
-  console.log("productos originales", productosOriginales);
   // 🔁 Cuando cambia el resultado de búsqueda
   useEffect(() => {
     tiendaStore.set({
@@ -29,9 +28,8 @@ export default function BusquedaProductos() {
     if (search && encontrado.length === 0) {
       fetchProductosRemotos(search);
     }
-    console.log("est es el data ->", data);
     // 🔁 Si se limpia la búsqueda, restaurar los productos originales
-    if (search === "") {
+    if (search === '') {
       tiendaStore.set({
         ...tiendaStore.get(),
         data: { ...data, productos: productosOriginales },
@@ -43,11 +41,11 @@ export default function BusquedaProductos() {
   const fetchProductosRemotos = async (termino: string) => {
     try {
       const res = await fetch(`/api/productos/productos?search=${termino}`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "xx-user-id": data?.empresa?.id,
-          "Content-Type": "application/json",
-          Accept: "application/json",
+          'xx-user-id': data?.empresa?.id,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       });
 
@@ -58,7 +56,7 @@ export default function BusquedaProductos() {
         data: { ...data, productos: productos },
       });
     } catch (err) {
-      console.error("Error buscando productos remotos:", err);
+      console.error('Error buscando productos remotos:', err);
     }
   };
 

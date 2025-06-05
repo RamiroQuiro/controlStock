@@ -6,7 +6,7 @@ import {
   empresas,
   productos,
 } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { productoCategorias } from '../../../db/schema/productoCategorias';
 
 export const GET = async ({ params }: APIContext) => {
@@ -36,8 +36,35 @@ export const GET = async ({ params }: APIContext) => {
       .where(
         eq(productos.empresaId, idEmpresa) && eq(productos.isEcommerce, true)
       )
-      .limit(16);
+      .limit(20);
 
+    const categoriaDeProducto = await db
+      .select({
+        productoId: productoCategorias.productoId,
+        categoriaId: productoCategorias.categoriaId,
+        nombre: categorias.nombre,
+      })
+      .from(productoCategorias)
+      .innerJoin(categorias, eq(productoCategorias.categoriaId, categorias.id))
+      .where(
+        inArray(
+          productoCategorias.productoId,
+          productosEcommerce.map((p) => p.id)
+        )
+      );
+
+    const productosConCategorias = productosEcommerce.map((prod) => {
+      const categoriasProd = categoriaDeProducto.filter(
+        (cat) => cat.productoId === prod.id
+      );
+      return {
+        ...prod,
+        categorias: categoriasProd.map((cat) => ({
+          id: cat.categoriaId,
+          nombre: cat.nombre,
+        })),
+      };
+    });
     const categoriasDB = await db
       .select()
       .from(categorias)
@@ -56,7 +83,7 @@ export const GET = async ({ params }: APIContext) => {
         // agrega más campos si tienes
       },
       categorias: categoriasDB,
-      productos: productosEcommerce,
+      productos: productosConCategorias,
       configuracionTienda: configuracionTienda,
     };
 

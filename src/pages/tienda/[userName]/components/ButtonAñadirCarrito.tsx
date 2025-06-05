@@ -1,27 +1,30 @@
 import { useStore } from '@nanostores/react';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { carritoStore } from '../../../../context/store';
-import {carritoService} from '../../../../services/carricoEcommerce.service'
-export default function ButtonAñadirCarrito({item}: {item: any}) {
-    const $carritoStore = useStore(carritoStore);
-    const [qtyItems,setQtyItems] = useState(0)
-    console.log('este es mi carrito en button añadir: ->',$carritoStore)
-    const handleRestarItems = () => {
-          carritoService.restarItem(item.id,$carritoStore.items)
-    }
-useEffect(()=>{
-    const qtyItems = $carritoStore.items.find(prod => prod.id === item.id)?.cantidad;
-    setQtyItems(qtyItems)
-},[$carritoStore])
-    const handleButtonAdd = (e: React.MouseEvent,prod: any) => {
-        carritoService.agregarItem(prod,1,$carritoStore.items)
-    }
+import { carritoService } from '../../../../services/carricoEcommerce.service';
+export default function ButtonAñadirCarrito({ item }: { item: any }) {
+  const $carritoStore = useStore(carritoStore);
+  const [qtyItems, setQtyItems] = useState(0);
+  const handleRestarItems = () => {
+    carritoService.restarItem(item.id, $carritoStore.items);
+  };
+  useEffect(() => {
+    const qtyItems = $carritoStore.items.find(
+      (prod) => prod.id === item.id
+    )?.cantidad;
+    setQtyItems(qtyItems);
+  }, [$carritoStore]);
+  console.log('qtyItems', qtyItems);
+  const handleButtonAdd = (e: React.MouseEvent, prod: any) => {
+    carritoService.agregarItem(prod, 1, $carritoStore.items);
+  };
   return (
     <>
-       {$carritoStore.items.length  > 0 && (
-        <button 
-        onClick={handleRestarItems}
-        className="w-auto animate-[aparecer_0.5s_ease-in-out] px-3 py-3 text-xs text-white bg-primary-100 border-0 duration-200  focus:outline-none  mx-auto items-center hover:bg-primary-600 rounded-lg ">
+      {qtyItems > 0 && (
+        <button
+          onClick={handleRestarItems}
+          className="w-auto animate-[aparecer_0.5s_ease-in-out] px-3 py-2 text-xs text-white bg-primary-100 border-0 duration-300 hover:bg-primary-600  focus:outline-none  mx-auto items-center rounded-l-lg "
+        >
           <svg
             width="18"
             height="20"
@@ -49,17 +52,19 @@ useEffect(()=>{
         </button>
       )}
 
-      {$carritoStore.items.some(prod => prod.id === item.id) ?
-      <span className={`py-2.5 w-4/12 mx-auto text-white border-0 font-medium  focus:outline-none bg-primary-500 text-center `}>{qtyItems  }</span>
-      :
-      null
-    } 
+      {$carritoStore.items.some((prod) => prod.id === item.id) ? (
+        <span
+          className={`py-2 w-4/12 mx-auto text-primary-textoTitle  font-medium  focus:outline-none bg-primary-100/30 border  text-center rounded-md border-primary-texto/50 shadow-md`}
+        >
+          {qtyItems}
+        </span>
+      ) : null}
       <button
-        onClick={(e)=>handleButtonAdd(e,item)}
-        className={`flex py-2 w-11/12 flex-auto items-center  border-0 font-medium  focus:outline-none hover:bg-primary-600 `}
+        onClick={(e) => handleButtonAdd(e, item)}
+        className={`flex py-2 w-11/12 flex-auto items-center  border-0 font-medium  focus:outline-none hover:bg-primary-100/80 duration-300 bg-primary-100 text-primary-textoTitle ${qtyItems > 0 ? 'rounded-r-lg' : 'rounded-lg'} shadow-md`}
       >
         <span className="text-sm text-center mx-auto"> Añadir al Carrito</span>
       </button>
-      </>
-  )
+    </>
+  );
 }

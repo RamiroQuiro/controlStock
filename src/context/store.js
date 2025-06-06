@@ -134,20 +134,20 @@ const fetchRolesData = async (userId) => {
 
 const tiendaStore = atom({
   loading: true,
-  data: { empresa: {}, productos: [] ,configuracionEmpresa:{}},
+  data: { empresa: {}, productos: [], configuracionEmpresa: {} },
   error: null,
 });
 
 const fetchTiendaData = async (empresaId) => {
   tiendaStore.set({ loading: true, data: null, error: null });
   try {
-   const response = await fetch(`/api/tienda/${empresaId}`, {
+    const response = await fetch(`/api/tienda/${empresaId}`, {
       headers: {
         'xx-user-id': empresaId,
       },
     });
     const data = await response.json();
-    console.log('trayendo -> tiendaStore',data)
+    console.log('trayendo -> tiendaStore', data);
     tiendaStore.set({ loading: false, data: data.data, error: null });
   } catch (error) {
     console.error('Error fetching tienda data:', error);
@@ -158,7 +158,6 @@ const fetchTiendaData = async (empresaId) => {
     });
   }
 };
-
 
 const usuarioActivo = atom({});
 
@@ -174,10 +173,10 @@ function compararOpciones(a, b) {
 
   if (clavesA.length !== clavesB.length) return false;
 
-  return clavesA.every(key => a[key] === b[key]);
+  return clavesA.every((key) => a[key] === b[key]);
 }
 
- const carritoStore = atom({
+const carritoStore = atom({
   items: [],
   subtotal: 0,
   descuento: 0,
@@ -185,6 +184,7 @@ function compararOpciones(a, b) {
   impuestos: 0,
   total: 0,
   cupon: null,
+  isOpen: false,
   direccionEnvio: null,
   metodoPago: null,
   ultimaActualizacion: null,

@@ -14,7 +14,6 @@ export default function ButtonAñadirCarrito({ item }: { item: any }) {
     )?.cantidad;
     setQtyItems(qtyItems);
   }, [$carritoStore]);
-  console.log('qtyItems', qtyItems);
   const handleButtonAdd = (e: React.MouseEvent, prod: any) => {
     carritoService.agregarItem(prod, 1, $carritoStore.items);
   };

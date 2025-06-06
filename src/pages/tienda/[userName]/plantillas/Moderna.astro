@@ -1,12 +1,11 @@
 ---
-import NavBarModerno from "../components/plantillamoderno/NavBarModerno.astro";
-import Hero from "../components/plantillamoderno/Hero.astro";
-import { Search } from "lucide-react";
-import SeccionProductos from "../components/plantillamoderno/SectionProductos.astro";
-import TiendaModernaData from "../components/plantillamoderno/TiendaModernaDataProvider.tsx";
-import BannerTiendaHome from "../components/plantillamoderno/BannerTiendaHome.astro";
-import CarritoFixed from "../components/CarritoFixed";
-
+import NavBarModerno from '../components/plantillamoderno/NavBarModerno.astro';
+import Hero from '../components/plantillamoderno/Hero.astro';
+import { Search } from 'lucide-react';
+import SeccionProductos from '../components/plantillamoderno/SectionProductos.astro';
+import BannerTiendaHome from '../components/plantillamoderno/BannerTiendaHome.astro';
+import CarritoFixed from '../components/CarritoFixed';
+import CarritoCostadoDetalles from '../components/CarritoCostadoDetalles';
 interface Props {
   data: {
     id: string;
@@ -32,17 +31,17 @@ interface Props {
 }
 
 const { data } = Astro.props as Props;
-
-
 ---
+
 <script>
-  import { carritoStore } from "../../../../context/store";
+  import { carritoStore } from '../../../../context/store';
   carritoStore.subscribe((state) => {
-    console.log("cambio en carritoStore", state);
+    console.log('cambio en carritoStore', state);
   });
 </script>
 
-<div class="min-h-screen flex flex-col w-full items-center justify-normal ">
+<div class="min-h-screen flex flex-col w-full items-center justify-normal">
+  <CarritoCostadoDetalles client:load />
   <NavBarModerno data={data} />
   {/* Hero Section */}
   <Hero
@@ -54,11 +53,10 @@ const { data } = Astro.props as Props;
   />
   {/* Banner Tarjetas */}
   <BannerTiendaHome data={data} />
- 
 
   {/* Products */}
   <SeccionProductos data={data} />
-<CarritoFixed client:load/>
+  <CarritoFixed client:load />
   {/* Contact */}
   <footer class="bg-white mt-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">

@@ -33,12 +33,12 @@ interface Props {
 const { data } = Astro.props as Props;
 ---
 
-<script>
+<!-- <script>
   import { carritoStore } from '../../../../context/store';
   carritoStore.subscribe((state) => {
     console.log('cambio en carritoStore', state);
   });
-</script>
+</script> -->
 
 <div class="min-h-screen flex flex-col w-full items-center justify-normal">
   <CarritoCostadoDetalles client:load />

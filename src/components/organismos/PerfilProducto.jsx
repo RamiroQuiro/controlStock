@@ -85,6 +85,7 @@ export default function PerfilProducto({}) {
   };
 
   const handleChangeForm = (e) => {
+    if (disableEdit) return;
     const { name, value } = e.target;
     setFormulario((prevFormulario) => ({ ...prevFormulario, [name]: value }));
   };

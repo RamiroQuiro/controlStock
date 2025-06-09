@@ -39,7 +39,7 @@ export default function CarritoCostadoDetalles() {
     >
       <div className="h-full flex flex-col">
         {/* Header */}
-        <div className="text-primary-texto px-6 py-4 border-b w-full inline-flex items-center justify-between border-gray-200">
+        <div className="text-primary-100 px-6 py-4 border-b w-full inline-flex items-center justify-start gap-2 border-gray-200">
           <h2 className="text-xl font-semibold">Carrito de Compras</h2>
           <ShoppingCart className="w-6 h-6" />
         </div>

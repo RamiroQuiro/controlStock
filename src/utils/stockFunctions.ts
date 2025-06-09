@@ -32,13 +32,20 @@ console.log('esta es la empresa id del stockguncion',empresaId)
         pVenta: productos.pVenta,
         stock: productos.stock,
         srcPhoto: productos.srcPhoto,
+        reservado: productos.reservado,
+        reservadoOffLine: productos.reservadoOffLine,
+        reservadoOnline: productos.reservadoOnline,
         localizacion: stockActual.localizacion,
         alertaStock: stockActual.alertaStock,
         ultimaActualizacion: productos.ultimaActualizacion,
+        ventas: sql<number>`sum(${detalleVentas.cantidad})`.as("ventas"),
       })
       .from(productos)
       .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
+      .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
       .where(eq(productos.empresaId, empresaId))
+      .groupBy(productos.id)
+      .orderBy(desc(sql`ventas`))
       .limit(limit)
       .offset(offset),
 

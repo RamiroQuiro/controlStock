@@ -209,7 +209,10 @@ export default function DetalleFotoDetalleProducto({
                     )}
                   </div>
                 </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
+                
+              </div>
+              <div className="flex w-full items-center justify-start gap-3 ">
+              <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">Marca:</span>
                   <InputFormularioSolicitud
                     className={
@@ -226,8 +229,6 @@ export default function DetalleFotoDetalleProducto({
                     disabled={disableEdit}
                   />
                 </div>
-              </div>
-              <div className="flex w-full items-center justify-start gap-3 ">
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">Modelo:</span>
                   <InputFormularioSolicitud
@@ -245,23 +246,7 @@ export default function DetalleFotoDetalleProducto({
                     disabled={disableEdit}
                   />
                 </div>
-                <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Reservado:</span>
-                  <InputFormularioSolicitud
-                    className={
-                      'text-primary-textoTitle font-semibold animate-aparecer'
-                    }
-                    value={
-                      disableEdit
-                        ? infoProducto.productData?.reservado
-                        : formulario?.reservado
-                    }
-                    name={'reservado'}
-                    type={'text'}
-                    onchange={handleChangeForm}
-                    disabled={disableEdit}
-                  />
-                </div>
+               
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
                 <div className="flex w-full items-center justify-start gap-3 ">
@@ -324,6 +309,23 @@ export default function DetalleFotoDetalleProducto({
                     name={'alertaStock'}
                     type={'text'}
                     onchange={handleChangeForm}
+                  />
+                </div>
+                <div className="flex w-full items-center justify-start gap-3 ">
+                  <span className="">Reservado:</span>
+                  <InputFormularioSolicitud
+                    className={
+                      'text-primary-textoTitle font-semibold animate-aparecer'
+                    }
+                    value={
+                      disableEdit
+                        ? infoProducto.productData?.reservado
+                        : formulario?.reservado
+                    }
+                    name={'reservado'}
+                    type={'text'}
+                    onchange={handleChangeForm}
+                    disabled={disableEdit}
                   />
                 </div>
               </div>

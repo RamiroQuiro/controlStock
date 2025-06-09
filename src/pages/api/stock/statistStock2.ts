@@ -1,9 +1,6 @@
 import type { APIRoute } from 'astro';
-<<<<<<< HEAD
 import { productos,movimientosStock as movimientos } from '../../../db/schema';
-=======
-import { productos, movimientosStock as movimientos } from '../../../db/schema';
->>>>>>> 137a3dd2b873a240cf2de0654ce786cac3324a7a
+
 import { eq, sql, desc, asc } from 'drizzle-orm';
 import db from '../../../db';
 

@@ -250,6 +250,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
     await trx
       .update(stockActual)
       .set({
+        reservado:dataProducto.reservado,
         deposito: dataProducto.deposito,
         alertaStock: dataProducto.alertaStock,
         localizacion: dataProducto.localizacion,

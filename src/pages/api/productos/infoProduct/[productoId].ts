@@ -32,11 +32,15 @@ export const GET: APIRoute = async ({ params }) => {
           isEcommerce:productos.isEcommerce,
           srcPhoto: productos.srcPhoto,
           empresaId:productos.empresaId,
+          peso:productos.peso,
+          dimensiones:productos.dimensiones,
           codigoBarra: productos.codigoBarra,
           unidadMedida: productos.unidadMedida,
           creado: productos.created_at,
           ultimaActualizacion: productos.ultimaActualizacion,
           pCompra: productos.pCompra,
+          isOferta:productos.isOferta,
+          reservado:stockActual.reservado,
           pVenta: productos.pVenta,
           iva: productos.iva,
           impuesto: productos.impuesto,
@@ -67,7 +71,8 @@ export const GET: APIRoute = async ({ params }) => {
         .leftJoin(proveedores, eq(proveedores.id, movimientosStock.proveedorId))
         .leftJoin(clientes, eq(clientes.id, movimientosStock.clienteId))
         .where(eq(movimientosStock.productoId, productoId))
-        .orderBy(desc(movimientosStock.fecha)),
+        .orderBy(desc(movimientosStock.fecha))
+        .limit(10),
     ]);
 
     // Consulta adicional para obtener las categorías del producto

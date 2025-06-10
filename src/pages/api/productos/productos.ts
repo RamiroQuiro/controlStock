@@ -38,7 +38,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
         .select()
         .from(productos)
         .where(
-          and(eq(productos.empresaId, empresaId), eq(productos.codigoBarra, query))
+          and(
+            eq(productos.empresaId, empresaId),
+            eq(productos.codigoBarra, query)
+          )
         );
       console.log('resultados', resultados);
     } else {
@@ -122,8 +125,8 @@ export const DELETE: APIRoute = async ({ request, params }) => {
         // No detenemos la eliminación del producto si falla la eliminación de la imagen
       }
     }
-      // Invalida el caché de productos para este usuario
-      await cache.invalidate(`stock_data_${productoId}`);
+    // Invalida el caché de productos para este usuario
+    await cache.invalidate(`stock_data_${productoId}`);
 
     // Invalida el caché de productos para este usuario
     return new Response(
@@ -155,16 +158,18 @@ export const PUT: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get('search');
 
-    
   // Extraer los IDs de categorías
-  const categoriasIds = data.categorias ? data.categorias.map((categoria:{id:string,nombre:string,descripcion:string}) => categoria.id) : [];
-  
+  const categoriasIds = data.categorias
+    ? data.categorias.map(
+        (categoria: { id: string; nombre: string; descripcion: string }) =>
+          categoria.id
+      )
+    : [];
+
   // Eliminar categorías del objeto data para evitar problemas en la actualización
   const { categorias, ...dataProducto } = data;
-  
-  console.log('IDs de categorías:', categoriasIds);
+
   console.log('Datos del producto:', dataProducto);
-  
 
   try {
     // Obtener el producto actual
@@ -199,8 +204,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
             eq(productos.empresaId, productoActual.empresaId),
             not(eq(productos.id, query))
           )
-        )
-      
+        );
 
       if (productoExistente) {
         return new Response(
@@ -216,53 +220,51 @@ export const PUT: APIRoute = async ({ request, params }) => {
       }
     }
 
-   // Proceder con la actualización
-   const dataUpdate = await db.transaction(async(trx) => {
-    // 1. Actualizar el producto
-    const [actualizarProducto] = await trx
-      .update(productos)
-      .set(dataProducto)
-      .where(eq(productos.id, query))
-      .returning();
-    
-    // 2. Eliminar las relaciones existentes de categorías
-    await trx
-      .delete(productoCategorias)
-      .where(eq(productoCategorias.productoId, actualizarProducto.id));
-    
-    // 3. Insertar las nuevas relaciones de categorías
-    if (categoriasIds.length > 0) {
-      // Usar Promise.all para ejecutar todas las inserciones
-      await Promise.all(
-        categoriasIds.map(async (categoriaId:string) => {
-          return await trx
-            .insert(productoCategorias)
-            .values({
+    // Proceder con la actualización
+    const dataUpdate = await db.transaction(async (trx) => {
+      // 1. Actualizar el producto
+      const [actualizarProducto] = await trx
+        .update(productos)
+        .set(dataProducto)
+        .where(eq(productos.id, query))
+        .returning();
+
+      // 2. Eliminar las relaciones existentes de categorías
+      await trx
+        .delete(productoCategorias)
+        .where(eq(productoCategorias.productoId, actualizarProducto.id));
+
+      // 3. Insertar las nuevas relaciones de categorías
+      if (categoriasIds.length > 0) {
+        // Usar Promise.all para ejecutar todas las inserciones
+        await Promise.all(
+          categoriasIds.map(async (categoriaId: string) => {
+            return await trx.insert(productoCategorias).values({
               id: generateId(10),
               productoId: actualizarProducto.id,
               categoriaId: categoriaId,
             });
-        })
-      );
-    }
-    
-    // 4. Actualizar el stock
-    await trx
-      .update(stockActual)
-      .set({
-        reservado:dataProducto.reservado,
-        deposito: dataProducto.deposito,
-        alertaStock: dataProducto.alertaStock,
-        localizacion: dataProducto.localizacion,
-      })
-      .where(eq(stockActual.productoId, query));
-      
-    return actualizarProducto;
-  });
+          })
+        );
+      }
 
-  // Invalidar caché
-  await cache.invalidate(`stock_data_${dataUpdate.empresaId}`);
-  await cache.invalidate(`categorias_${dataUpdate.empresaId}`)
+      // 4. Actualizar el stock
+      await trx
+        .update(stockActual)
+        .set({
+          reservado: dataProducto.reservado,
+          deposito: dataProducto.deposito,
+          alertaStock: dataProducto.alertaStock,
+          localizacion: dataProducto.localizacion,
+        })
+        .where(eq(stockActual.productoId, query));
+
+      return actualizarProducto;
+    });
+
+    // Invalidar caché
+    await cache.invalidate(`stock_data_${dataUpdate.empresaId}`);
+    await cache.invalidate(`categorias_${dataUpdate.empresaId}`);
 
     return new Response(
       JSON.stringify({

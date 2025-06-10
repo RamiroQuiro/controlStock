@@ -1,5 +1,5 @@
-import type { APIRoute } from "astro";
-import db from "../../../../db";
+import type { APIRoute } from 'astro';
+import db from '../../../../db';
 import {
   categorias,
   clientes,
@@ -7,18 +7,21 @@ import {
   productos,
   proveedores,
   stockActual,
-} from "../../../../db/schema";
-import { desc, eq, sql } from "drizzle-orm";
-import { productoCategorias } from "../../../../db/schema/productoCategorias";
+} from '../../../../db/schema';
+import { desc, eq, sql } from 'drizzle-orm';
+import { productoCategorias } from '../../../../db/schema/productoCategorias';
 
 export const GET: APIRoute = async ({ params }) => {
   const { productoId } = params;
 
   if (!productoId) {
-    return new Response(JSON.stringify({ error: "ID del producto no proporcionado" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: 'ID del producto no proporcionado' }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
   try {
     const [productDataRaw, stockMovimientoRaw] = await Promise.all([
@@ -29,19 +32,21 @@ export const GET: APIRoute = async ({ params }) => {
           descripcion: productos.descripcion,
           stock: productos.stock,
           marca: productos.marca,
-          isEcommerce:productos.isEcommerce,
+          isEcommerce: productos.isEcommerce,
           srcPhoto: productos.srcPhoto,
-          empresaId:productos.empresaId,
-          peso:productos.peso,
-          dimensiones:productos.dimensiones,
+          empresaId: productos.empresaId,
+          peso: productos.peso,
+          dimensiones: productos.dimensiones,
           codigoBarra: productos.codigoBarra,
           unidadMedida: productos.unidadMedida,
           creado: productos.created_at,
           ultimaActualizacion: productos.ultimaActualizacion,
           pCompra: productos.pCompra,
-          isOferta:productos.isOferta,
-          reservado:stockActual.reservado,
+          isOferta: productos.isOferta,
+          reservado: stockActual.reservado,
           pVenta: productos.pVenta,
+          diasOferta: productos.diasOferta,
+          precioOferta: productos.precioOferta,
           iva: productos.iva,
           impuesto: productos.impuesto,
           signoDescuento: productos.signoDescuento,
@@ -83,10 +88,7 @@ export const GET: APIRoute = async ({ params }) => {
         descripcion: categorias.descripcion,
       })
       .from(productoCategorias)
-      .innerJoin(
-        categorias,
-        eq(productoCategorias.categoriaId, categorias.id)
-      )
+      .innerJoin(categorias, eq(productoCategorias.categoriaId, categorias.id))
       .where(eq(productoCategorias.productoId, productoId));
 
     const productData = productDataRaw?.[0] ?? null;
@@ -96,41 +98,40 @@ export const GET: APIRoute = async ({ params }) => {
       cantidad: mov.cantidad,
       motivo: mov.motivo,
       fecha: mov.fecha,
-      nombreResponsable:
-        mov.proveedorNombre || mov.clienteNombre || "Sistema",
+      nombreResponsable: mov.proveedorNombre || mov.clienteNombre || 'Sistema',
       tipoResponsable: mov.proveedorNombre
-        ? "Proveedor"
+        ? 'Proveedor'
         : mov.clienteNombre
-        ? "Cliente"
-        : "Sistema",
+          ? 'Cliente'
+          : 'Sistema',
     }));
 
     return new Response(
       JSON.stringify({
         status: 200,
         data: {
-          productData:{
+          productData: {
             ...productData,
-            categorias:categoriasDelProducto
+            categorias: categoriasDelProducto,
           },
           stockMovimiento,
         },
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
-    console.error("Error al obtener los datos del producto:", error);
+    console.error('Error al obtener los datos del producto:', error);
     return new Response(
       JSON.stringify({
         status: 400,
-        msg: "Error al buscar los datos del producto",
+        msg: 'Error al buscar los datos del producto',
       }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }

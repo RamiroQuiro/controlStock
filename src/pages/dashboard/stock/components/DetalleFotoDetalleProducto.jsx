@@ -6,7 +6,7 @@ import DivReact from '../../../../components/atomos/DivReact';
 import { useStore } from '@nanostores/react';
 import { perfilProducto } from '../../../../context/store';
 import { obtenerUltimaReposicion } from '../../../../utils/detallesProducto';
-import { CircleX, Plus } from 'lucide-react';
+import { CircleCheck, CircleX, Plus } from 'lucide-react';
 import BotonAgregarCat from '../../../../components/moleculas/BotonAgregarCat';
 import SelectorCategoriasExistentes from './SelectorCategoriasExistentes';
 
@@ -16,7 +16,32 @@ export default function DetalleFotoDetalleProducto({
   formulario,
 }) {
   const { data: infoProducto, loading } = useStore(perfilProducto);
-  // console.log('indo del producto',infoProducto)
+  const [stateOferta, setStateOferta] = useState(false);
+
+  const ultimaRepo = useMemo(() => {
+    if (!infoProducto?.stockMovimiento) return null;
+    return obtenerUltimaReposicion(infoProducto.stockMovimiento);
+  }, [loading]);
+
+  console.log('isOPfera', infoProducto?.productData.isOferta);
+  // 1. Inicializar el estado local con el valor inicial cuando infoProducto cambia
+  useEffect(() => {
+    if (infoProducto?.productData?.isOferta !== undefined) {
+      setStateOferta(infoProducto.productData.isOferta);
+    }
+  }, [infoProducto]);
+
+  // 2. Cada vez que stateOferta cambia, actualizar el formulario
+  useEffect(() => {
+    handleChangeForm({
+      target: {
+        name: 'isOferta',
+        value: stateOferta,
+      },
+    });
+  }, [stateOferta]);
+
+  console.log('stateOferta', stateOferta);
   const handleRemoveCategoria = (categoriaId) => {
     // Actualizar el store
     const categoriasFiltradas = infoProducto.productData.categorias.filter(
@@ -31,6 +56,7 @@ export default function DetalleFotoDetalleProducto({
         },
       },
     });
+
     // Actualizar el formulario
     handleChangeForm({
       target: {
@@ -40,15 +66,23 @@ export default function DetalleFotoDetalleProducto({
     });
   };
 
+  const handleChangeIsOferta = (e) => {
+    const { checked } = e.target;
+    setStateOferta(checked);
+    console.log('checked', checked);
+    handleChangeForm({
+      target: {
+        name: 'isOferta',
+        value: checked,
+      },
+    });
+  };
   // Función para agregar una categoría existente
   const handleAgregarCategoria = (categoria) => {
-    console.log('categoria', categoria);
-    console.log('infoProducto', infoProducto);
     // Verificar si la categoría ya existe en el producto
     const categoriaExistente = infoProducto.productData.categorias.find(
       (cat) => cat.id === categoria.id
     );
-    console.log('categoriaExistente', categoriaExistente);
     if (categoriaExistente) return; // Evitar duplicados
 
     // Actualizar el store con la nueva categoría
@@ -73,14 +107,6 @@ export default function DetalleFotoDetalleProducto({
       },
     });
   };
-  useEffect(() => {
-    console.log('infoProducto actualizado:', infoProducto);
-  }, [infoProducto]);
-
-  const ultimaRepo = useMemo(() => {
-    if (!infoProducto?.stockMovimiento) return null;
-    return obtenerUltimaReposicion(infoProducto.stockMovimiento);
-  }, [loading]);
 
   return (
     <DivReact>
@@ -136,15 +162,10 @@ export default function DetalleFotoDetalleProducto({
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="whitespace-nowrap">Codigo de Barra:</span>
                   <InputFormularioSolicitud
-                    disabled={disableEdit}
                     className={
                       'text-primary-textoTitle w-full font-semibold animate-aparecer '
                     }
-                    value={
-                      disableEdit
-                        ? infoProducto.productData?.codigoBarra
-                        : formulario?.codigoBarra
-                    }
+                    value={infoProducto.productData?.codigoBarra}
                     name={'codigoBarra'}
                     type={'text'}
                     onchange={handleChangeForm}
@@ -209,10 +230,9 @@ export default function DetalleFotoDetalleProducto({
                     )}
                   </div>
                 </div>
-                
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
-              <div className="flex w-full items-center justify-start gap-3 ">
+                <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">Marca:</span>
                   <InputFormularioSolicitud
                     className={
@@ -246,7 +266,6 @@ export default function DetalleFotoDetalleProducto({
                     disabled={disableEdit}
                   />
                 </div>
-               
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
                 <div className="flex w-full items-center justify-start gap-3 ">
@@ -329,7 +348,7 @@ export default function DetalleFotoDetalleProducto({
                   />
                 </div>
               </div>
-              <div className="flex wfull items-center justify-start gap-3 ">
+              <div className="flex wfull items-center justify-between gap-2 ">
                 <div className="flex wfull items-center justify-start gap-3 ">
                   <span className="w-full whitespace-nowrap">
                     Unidad de Medida:
@@ -360,8 +379,6 @@ export default function DetalleFotoDetalleProducto({
                     </select>
                   )}
                 </div>
-              </div>
-              <div className="flex w-full items-center justify-start gap-3 ">
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">IVA:</span>
                   {disableEdit ? (
@@ -373,7 +390,7 @@ export default function DetalleFotoDetalleProducto({
                       onChange={handleChangeForm}
                       name="iva"
                       id="iva"
-                      className="w- text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
+                      className="w-1/2 text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
                     >
                       <option selected>seleccionar </option>
                       <option value={21} className="px-3 w-full">
@@ -390,6 +407,35 @@ export default function DetalleFotoDetalleProducto({
                       </option>
                     </select>
                   )}
+                </div>
+              </div>
+              <div className="flex w-full items-center justify-between gap-3 ">
+                <div
+                  className="flex  items-center justify-start gap-1 w-1/3
+                 "
+                >
+                  <label
+                    htmlFor="isOferta"
+                    className="flex items-center w-  text-primary-textoTitle font-semibold text-xs gap-1 cursor-pointer hover:text-primary-title duration-300 hover:bg-primary-100/50 hover:text-primary-title px-2 py-1 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      name="isOferta"
+                      id="isOferta"
+                      checked={stateOferta}
+                      onChange={handleChangeIsOferta}
+                      disabled={disableEdit}
+                      className="hidden"
+                    />
+                    ¿está en oferta?
+                  </label>
+                  <div>
+                    {stateOferta ? (
+                      <CircleCheck className="w-6 h-6 stroke-green-500" />
+                    ) : (
+                      <CircleX className="w-6 h-6 stroke-primary-400" />
+                    )}
+                  </div>
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="w- whitespace-nowrap">Descuento:</span>

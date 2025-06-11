@@ -5,6 +5,7 @@ const PUBLIC_ROUTES = [
   '/register',
   '/tienda',
   '/payment',
+  '/tienda/',
   '/api/auth/signout',
   '/api/auth/confirmacion/',
   '/api/auth/signin',

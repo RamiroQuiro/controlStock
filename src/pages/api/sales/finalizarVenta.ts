@@ -18,9 +18,9 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       empresaId,
       data,
     } = await request.json();
-    console.log('finalizando venta', productosSeleccionados, userId, data);
     const { user } = locals;
-    console.log('user de locals del enpoiunt', user);
+    const clienteId = data.clienteId === null ? user?.clienteDefault : data.clienteId;
+    console.log('este es el cliente id', clienteId);
     // Validaciones previas
     if (!productosSeleccionados?.length || !empresaId || !userId || !data) {
       return new Response(
@@ -50,9 +50,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             id: nanoid(12),
             empresaId,
             userId,
-            clienteId:
-              data.clienteId === null ? user?.clienteDefault : data.clienteId,
-            fecha: sql`(strftime('%s','now'))`,
+            clienteId,
+            fecha: new Date(),
             ...data,
           })
           .returning();
@@ -66,6 +65,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               productoId: prod.id,
               cantidad: prod.cantidad,
               precio: prod.pVenta,
+              
             });
 
             // Actualizar el stock en la tabla productos
@@ -88,13 +88,12 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               productoId: prod.id,
               cantidad: prod.cantidad,
               tipo: 'egreso',
-              fecha: sql`(strftime('%s','now'))`,
+              fecha: new Date(),
               userId,
               empresaId,
               proveedorId: null,
               motivo: 'venta',
-              clienteId:
-                data.clienteId === null ? user?.clienteDefault : data.clienteId,
+              clienteId
             });
           })
         );

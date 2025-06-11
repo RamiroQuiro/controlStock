@@ -1,8 +1,10 @@
 import { eq } from "drizzle-orm";
 import db from "../db";
-import { clientes, detalleVentas, productos, ventas } from "../db/schema";
+import { clientes, detalleVentas, empresas, productos, ventas } from "../db/schema";
 
-export const traerVentasUser = async (userId: string) => {
+export const traerVentasUser = async (empresaId: string) => {
+  console.log('empresaId', empresaId);
+
   try {
     const ventasData = await db
       .select({
@@ -15,10 +17,17 @@ export const traerVentasUser = async (userId: string) => {
         nCheque: ventas.nCheque,
         vencimientoCheque: ventas.vencimientoCheque,
         dniCliente: clientes.dni,
+        direccionCliente: clientes.direccion,
+        empresaId: ventas.empresaId,
+        razonSocial: empresas.razonSocial,
+        direccionEmpresa:empresas.direccion,
+        documentoEmpresa:empresas.documento,
       })
       .from(ventas)
       .innerJoin(clientes, eq(clientes.id, ventas.clienteId))
-      .where(eq(ventas.userId, userId));
+      .innerJoin(empresas, eq(ventas.empresaId, empresas.id))
+      .where(eq(ventas.empresaId, empresaId));
+      console.log('dentro de la funcion ventasData ->', ventasData);
     return ventasData;
   } catch (error) {
     console.log(error);
@@ -31,6 +40,11 @@ interface VentaDetalle {
     nombre: string;
     dni: string;
     direccion: string;
+  };
+  empresa: {
+    razonSocial: string;
+    direccion: string;
+    documento: string;
   };
   comprobante: {
     numero: string;
@@ -63,6 +77,7 @@ export const traerVentaId = async (
       .select({
         // Datos de la venta
         venta: ventas,
+        empresa: empresas,
         // Datos del cliente
         clienteNombre: clientes.nombre,
         clienteDni: clientes.dni,
@@ -80,6 +95,7 @@ export const traerVentaId = async (
       .innerJoin(detalleVentas, eq(detalleVentas.ventaId, ventas.id))
       .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
       .innerJoin(clientes, eq(ventas.clienteId, clientes.id))
+      .innerJoin(empresas, eq(ventas.empresaId, empresas.id))
       .where(eq(ventas.id, ventaId));
 
     if (!ventaDB.length) return null;
@@ -88,10 +104,16 @@ export const traerVentaId = async (
     const venta: VentaDetalle = {
       id: ventaDB[0].venta.id,
       fecha: ventaDB[0].venta.fecha,
+      empresa: {
+        razonSocial: ventaDB[0].empresa.razonSocial,
+        direccion: ventaDB[0].empresa.direccion,
+        documento: ventaDB[0].empresa.documento,
+        logo:ventaDB[0].empresa.srcPhoto,
+      },
       cliente: {
         nombre: ventaDB[0].clienteNombre,
-        dni: ventaDB[0].clienteDni,
-        direccion: ventaDB[0].clienteDireccion,
+        dni: ventaDB[0].clienteDni?.toString() || '',
+        direccion: ventaDB[0].clienteDireccion || '',
       },
       comprobante: {
         numero: ventaDB[0].venta.nComprobante,

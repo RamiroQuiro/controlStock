@@ -14,6 +14,11 @@ interface VentaDetalleProps {
     dni: string;
     direccion?: string;
   };
+  empresa: {
+    razonSocial: string;
+    direccion: string;
+    documento: string;
+  };
   comprobante: {
     numero: string;
     metodoPago: string;
@@ -41,30 +46,37 @@ const VentaDetalle: React.FC<VentaDetalleProps> = ({
   cliente,
   fecha,
   items,
+  empresa,
   totales,
 }) => {
-
-  let razonSocial="Mi Negocio"
-
-
-const subtotal=items?.reduce((acc,producto)=>acc+(producto.subtotal),0)
+  const subtotal = items?.reduce((acc, producto) => acc + producto.subtotal, 0);
 
   return (
     <div className="bg-white px-4 py-6 flex flex-col  h-full mx-auto">
       <div className="pb-5">
-            <p className="text-xs">ID de la venta: {id}</p>
-        <h1 className="text-2xl font-bold">{razonSocial}</h1>
+        <p>Fecha: {formatDate(fecha)}</p>
+        <p className="text-xs">ID de la venta: {id}</p>
+        <h1 className="text-2xl font-bold">{empresa?.razonSocial}</h1>
+        <p className="text-xs">
+          Direccion de la empresa: {empresa?.direccion || "No hay direccion"}
+        </p>
+        <p className="text-xs">
+          Documento de la empresa: {empresa?.documento || "No hay documento"}
+        </p>
         <div className="flex justify-between mt-2">
           <div className="text-sm">
-              <p>Fecha: {formatDate(fecha)}</p>
-              <p>N°: {comprobante?.numero}</p>
-            <p>Cliente: <span className="text-base text-primary-textoTitle font-semibold">{cliente?.nombre}</span></p>
+            <p>N°: {comprobante?.numero}</p>
+            <p>
+              Cliente:{" "}
+              <span className="text-base text-primary-textoTitle font-semibold">
+                {cliente?.nombre}
+              </span>
+            </p>
             <p>Documento: {cliente?.dni}</p>
             {cliente?.direccion && <p>Dirección: {cliente.direccion}</p>}
           </div>
         </div>
       </div>
-
 
       <ul className="text-  space- my-2 border-y py-2 w-full overflow-y-auto space-y-0.5">
         {items?.map((producto, index) => (
@@ -95,7 +107,7 @@ const subtotal=items?.reduce((acc,producto)=>acc+(producto.subtotal),0)
       )}
       <div className="flex justify-between mb-2">
         <span>IVA:</span>
-        <span>{formateoMoneda.format(totales?.total-subtotal)}</span>
+        <span>{formateoMoneda.format(totales?.total - subtotal)}</span>
       </div>
       <div className="flex justify-between font-bold text-lg border-t pt-2">
         <span>Total:</span>
@@ -104,13 +116,29 @@ const subtotal=items?.reduce((acc,producto)=>acc+(producto.subtotal),0)
 
       <div className="flex justify-center text-sm w-full  gap-4 mt-8">
         <button
-          onClick={() => comprobanteService.imprimirComprobante()}
+          onClick={() => comprobanteService.imprimirComprobante({
+            id,
+            fecha,
+            cliente,
+            empresa,
+            comprobante,
+            items,
+            totales
+          })}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Imprimir
         </button>
         <button
-          onClick={() => comprobanteService.descargarPDF(data)}
+          onClick={() => comprobanteService.descargarPDF({
+            id,
+            fecha,
+            cliente,
+            empresa,
+            comprobante,
+            items,
+            totales
+          })}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Descargar PDF

@@ -7,12 +7,13 @@ import { formateoMoneda } from "../../../../../utils/formateoMoneda";
 import DivReact from "../../../../../components/atomos/DivReact";
 import ContenedorVisorDetalleVenta from "./ContenedorVisorDetalleVenta";
 
-export default function ConfeccionTabla({ userId }) {
+export default function ConfeccionTabla({ userId, empresaId }) {
   const [seleccionador, setSeleccionador] = useState({
     id: null,
     "N°": null,
     nComprobante: null,
     cliente: null,
+    direccionCliente: null,
     dniCliente: null,
     metodoPago: null,
     fechaVenta: null,
@@ -31,6 +32,7 @@ export default function ConfeccionTabla({ userId }) {
         headers: {
           "Content-Type": "application/json",
           "xx-user-id": userId,
+          "xx-empresa-id": empresaId,
         },
       });
       const data = await res.json();

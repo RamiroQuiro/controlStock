@@ -5,7 +5,6 @@ import LayoutDash from "../../../components/layouts/LayoutDash.astro";
 import ConfeccionTabla from "./components/VentasTodas/ConfeccionTabla";
 
 const {user}=Astro.locals
-console.log(user)
 ---
 
 <LayoutDash title="Ventas">
@@ -48,7 +47,7 @@ console.log(user)
       </div>
   
 
-      <ConfeccionTabla client:load userId={user?.id} />
+      <ConfeccionTabla client:load userId={user?.id} empresaId={user?.empresaId} />
     </div>
   </MainDashboard>
 </LayoutDash>

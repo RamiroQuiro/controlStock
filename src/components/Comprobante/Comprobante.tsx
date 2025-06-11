@@ -38,6 +38,8 @@ const Comprobante = ({
   onShare,
   onClose,
 }: ComprobanteProps) => {
+
+  console.log('estos son los datos del comprobante', data);
   return (
     <div
       className="bg-white relative p-6 flex items-stretch justify-normal flex-col h-full  mx-auto"

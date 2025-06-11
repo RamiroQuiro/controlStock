@@ -68,6 +68,7 @@ useEffect(() => {
             }
         })
         const data=await response.json()
+        console.log('data en el contenedorVisorDetalleVenta', data);
         setVenta(data.data)
     } catch (error) {
         console.log(error)

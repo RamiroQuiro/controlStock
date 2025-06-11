@@ -23,15 +23,12 @@ export default function DetalleFotoDetalleProducto({
     return obtenerUltimaReposicion(infoProducto.stockMovimiento);
   }, [loading]);
 
-  console.log('isOPfera', infoProducto?.productData.isOferta);
-  // 1. Inicializar el estado local con el valor inicial cuando infoProducto cambia
   useEffect(() => {
     if (infoProducto?.productData?.isOferta !== undefined) {
       setStateOferta(infoProducto.productData.isOferta);
     }
   }, [infoProducto]);
 
-  // 2. Cada vez que stateOferta cambia, actualizar el formulario
   useEffect(() => {
     handleChangeForm({
       target: {
@@ -41,7 +38,6 @@ export default function DetalleFotoDetalleProducto({
     });
   }, [stateOferta]);
 
-  console.log('stateOferta', stateOferta);
   const handleRemoveCategoria = (categoriaId) => {
     // Actualizar el store
     const categoriasFiltradas = infoProducto.productData.categorias.filter(

@@ -50,7 +50,7 @@ const { user } = Astro.locals;
             Detalle de Venta</H2
           >
         </div>
-        <CarritoVenta client:load userId={user.id} />
+        <CarritoVenta client:load user={user} />
       </DivBox1>
     </div>
   </div>

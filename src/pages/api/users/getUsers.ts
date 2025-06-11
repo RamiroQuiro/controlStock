@@ -12,7 +12,7 @@ export const GET: APIRoute = async ({ request, params }) => {
     const [userDB] = await db
       .select({
         id: users.id,
-        userName: users.userName,
+        razonSocial: users.razonSocial,
         nombre: users.nombre,
         apellido: users.apellido,
         email: users.email,

@@ -61,7 +61,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
           {
             id: empresaId,
             created_at: new Date().toISOString(),
-            razonSocial: userFind.userName,
+            razonSocial: userFind.razonSocial,
             creadoPor: userFind.id,
             userId: userFind.id,
             activo: 1,
@@ -78,7 +78,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       .insert(proveedores)
       .values({
         id: generateId(13),
-        nombre: 'Proveedor General',
+        nombre: 'proveedor general',
         creadoPor: userFind.id,
         empresaId: empresaId,
         telefono: 'N/A', // Campos obligatorios
@@ -93,11 +93,11 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       .insert(clientes)
       .values({
         id: generateId(13),
-        nombre: 'Cliente Final',
+        nombre: 'consumidor final',
         creadoPor: userFind.id,
         empresaId: empresaId,
         telefono: 'N/A', // Campos obligatorios
-        email: 'cliente.final@tuempresa.com',
+        email: 'consumidor.final@tuempresa.com',
         direccion: 'N/A',
         fechaAlta: new Date().toISOString(), // Usa formato ISO
       })
@@ -141,6 +141,8 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       apellido: userFind.apellido,
       userName: userFind.userName,
       email: userFind.email,
+      clienteDefault: clienteFinal.id,
+      proveedorDefault: proveedorComodin.id,
       rol: userFind.rol,
       creadoPor: userFind.creadoPor,
       empresaId: empresaId,

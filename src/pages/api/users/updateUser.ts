@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import db from '../../../db';
 import fs from 'fs';
 import path from 'path';
+import { empresas } from '../../../db/schema';
 
 export const POST: APIRoute = async ({ request }) => {
   const {
@@ -14,8 +15,18 @@ export const POST: APIRoute = async ({ request }) => {
     email,
     telefono,
     direccion,
+    razonSocial,
   } = await request.json();
-  console.log(id, nombre, srcPhoto, apellido, email, telefono, direccion);
+  console.log(
+    id,
+    nombre,
+    srcPhoto,
+    apellido,
+    email,
+    telefono,
+    direccion,
+    razonSocial
+  );
   if (!id) {
     return new Response(JSON.stringify({ error: 'Falta el id de usuario' }), {
       status: 400,
@@ -61,10 +72,18 @@ export const POST: APIRoute = async ({ request }) => {
         email,
         telefono,
         direccion,
+        razonSocial,
         ...(photoPath && { srcPhoto: photoPath }),
       })
       .where(eq(users.id, id))
       .returning();
+
+    await db
+      .update(empresas)
+      .set({
+        razonSocial,
+      })
+      .where(eq(empresas.userId, userUpdate.id));
 
     return new Response(
       JSON.stringify({ msg: 'Usuario actualizado', data: userUpdate }),

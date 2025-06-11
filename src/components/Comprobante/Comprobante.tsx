@@ -12,6 +12,7 @@ interface ComprobanteProps {
     };
     items: Array<{
       producto: string;
+      descripcion: string;
       cantidad: number;
       precioUnitario: number;
       subtotal: number;

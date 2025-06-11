@@ -13,9 +13,10 @@ export async function POST({
   cookies,
 }: APIContext): Promise<Response> {
   const formData = await request.json();
-  const { email, password, userName, nombre, apellido, rol } = await formData;
+  const { email, password, razonSocial, nombre, apellido, rol } =
+    await formData;
   // console.log(email, password);
-  if (!email || !password || !userName || !nombre || !apellido) {
+  if (!email || !password || !razonSocial || !nombre || !apellido) {
     return new Response(
       JSON.stringify({
         data: 'faltan campos requeridos',
@@ -36,12 +37,12 @@ export async function POST({
   const existingUser = await db
     .select()
     .from(users)
-    .where(or(eq(users.email, email), eq(users.userName, userName)));
+    .where(or(eq(users.email, email), eq(users.razonSocial, razonSocial)));
 
   if (existingUser.length > 0) {
     return new Response(
       JSON.stringify({
-        msg: 'email o userName ya registrado',
+        msg: 'email o razonSocial ya registrado',
         status: 400,
       })
     );
@@ -52,13 +53,13 @@ export async function POST({
   const userId = generateId(15);
   // Hacemos hash de la contraseña
   const hashPassword = await bcrypt.hash(password, 12);
-  console.log(userId, email, password, userName, nombre, apellido, rol);
+  console.log(userId, email, password, razonSocial, nombre, apellido, rol);
   const newUser = (
     await db
       .insert(users)
       .values({
         id: userId,
-        userName,
+        razonSocial,
         nombre,
         apellido,
         srcPhoto: '/avatarDefault.png',
@@ -70,7 +71,6 @@ export async function POST({
       .returning()
   ).at(0);
 
-  console.log('nuevo usuario', newUser);
   // generando el token de confirmacion de email
 
   const code = generateId(6);

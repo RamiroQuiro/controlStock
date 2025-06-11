@@ -11,9 +11,8 @@ import {
 import { useEffect, useState } from 'react';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 import LoaderReact from '../../../../utils/loader/LoaderReact';
-import Button3 from '../../../../components/atomos/Button3';
 const initialUserData = {
-  userName: '',
+  razonSocial: '',
   apellido: '',
   email: '',
   rol: '',
@@ -25,7 +24,7 @@ const initialUserData = {
   srcPhoto: '',
 };
 export default function FormularioPerfilUser({ user }) {
-  const [userData, setUserData] = useState({...initialUserData, ...user});
+  const [userData, setUserData] = useState({ ...initialUserData, ...user });
   const [disable, setDisable] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -129,14 +128,14 @@ export default function FormularioPerfilUser({ user }) {
           <h2 className="text-3xl font-bold text-primary-textoTitle flex items-center gap-2">
             <User className="w-7 h-7 text-primary-100" />
             {!disable ? (
-              userData.userName
+              userData.razonSocial
             ) : (
-              <div className="w-full lowercase">
+              <div className="w-full ">
                 <InputComponenteJsx
                   type="text"
-                  name="userName"
-                  className="lowercase"
-                  value={userData.userName}
+                  name="razonSocial"
+                  className=""
+                  value={userData.razonSocial}
                   handleChange={handleChange}
                 />
               </div>

@@ -1,6 +1,5 @@
-
-import React from 'react'
-import Comprobante from './Comprobante'
+import React from 'react';
+import Comprobante from './Comprobante';
 import { ComprobanteService } from '../../services/comprobante.service';
 
 const comprobanteService = new ComprobanteService();
@@ -14,30 +13,30 @@ export default function ModalComprobante({
   descuento,
   totalVenta,
   subtotal,
-  setModalConfirmacion
+  setModalConfirmacion,
 }) {
   const data = {
     codigo: ventaFinalizada.codigo,
     fecha: ventaFinalizada.fecha,
     cliente: cliente,
-    items: $productos.map(p => ({
+    items: $productos.map((p) => ({
       producto: p.nombre,
       cantidad: p.cantidad,
       precioUnitario: p.pVenta,
       subtotal: p.cantidad * p.pVenta,
       impuesto: p.iva,
-      descripcion: p.descripcion
+      descripcion: p.descripcion,
     })),
     tipo: esPresupuesto,
     subtotal,
     impuestos: ivaMonto,
     descuentos: descuento,
     total: totalVenta,
-    expira_at: esPresupuesto ? ventaFinalizada.expira_at : undefined
-  }
+    expira_at: esPresupuesto ? ventaFinalizada.expira_at : undefined,
+  };
 
   const handleClose = () => {
-window.location.reload()
+    window.location.reload();
   };
 
   const handleModalClick = (e) => {
@@ -49,7 +48,7 @@ window.location.reload()
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center"
       onClick={handleClose} // Cierra el modal al hacer clic en el fondo
     >
-      <div 
+      <div
         className="bg-white rounded-lg md:p-6 p-2 md:w-10/12 z-50 w-11/12 md:h-[90vh] h-[97vh]"
         onClick={handleModalClick} // Evita que el modal se cierre al hacer clic dentro
       >
@@ -57,11 +56,13 @@ window.location.reload()
           onClose={handleClose}
           tipo={esPresupuesto ? 'presupuesto' : 'comprobante'}
           data={data}
-          onPrint={() => comprobanteService.imprimirComprobante()}
+          onPrint={() => comprobanteService.imprimirComprobante(data)}
           onDownload={() => comprobanteService.descargarPDF(data)}
-          onShare={() => comprobanteService.compartirComprobante(ventaFinalizada.codigo)}
+          onShare={() =>
+            comprobanteService.compartirComprobante(ventaFinalizada.codigo)
+          }
         />
       </div>
     </div>
-  )
+  );
 }

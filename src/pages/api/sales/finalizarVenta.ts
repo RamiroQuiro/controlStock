@@ -10,17 +10,19 @@ import {
 import { nanoid } from 'nanoid';
 import { eq, sql } from 'drizzle-orm';
 
-export async function POST({ request, params }: APIContext): Promise<Response> {
+export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
     const {
       productos: productosSeleccionados,
       userId,
+      empresaId,
       data,
     } = await request.json();
-    // console.log('finalizando venta',productosSeleccionados, userId,data);
-
+    console.log('finalizando venta', productosSeleccionados, userId, data);
+    const { user } = locals;
+    console.log('user de locals del enpoiunt', user);
     // Validaciones previas
-    if (!productosSeleccionados?.length || !userId || !data.clienteId) {
+    if (!productosSeleccionados?.length || !empresaId || !userId || !data) {
       return new Response(
         JSON.stringify({
           status: 400,
@@ -46,8 +48,11 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           .insert(ventas)
           .values({
             id: nanoid(12),
+            empresaId,
             userId,
-            fecha: new Date(),
+            clienteId:
+              data.clienteId === null ? user?.clienteDefault : data.clienteId,
+            fecha: sql`(strftime('%s','now'))`,
             ...data,
           })
           .returning();
@@ -83,11 +88,13 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
               productoId: prod.id,
               cantidad: prod.cantidad,
               tipo: 'egreso',
-              fecha: new Date(),
+              fecha: sql`(strftime('%s','now'))`,
               userId,
+              empresaId,
               proveedorId: null,
               motivo: 'venta',
-              clienteId: data.clienteId,
+              clienteId:
+                data.clienteId === null ? user?.clienteDefault : data.clienteId,
             });
           })
         );

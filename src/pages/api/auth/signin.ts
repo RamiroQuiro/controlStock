@@ -3,8 +3,8 @@ import { lucia } from '../../../lib/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../../../db';
-import { users } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { clientes, proveedores, users } from '../../../db/schema';
+import { and, eq } from 'drizzle-orm';
 
 export async function POST({
   request,
@@ -25,6 +25,25 @@ export async function POST({
     .select()
     .from(users)
     .where(eq(users.email, email));
+  const [findClienteDefault] = await db
+    .select()
+    .from(clientes)
+    .where(
+      and(
+        eq(clientes.empresaId, findUser.empresaId),
+        eq(clientes.nombre, 'consumidor final')
+      )
+    );
+  const [findProovedorDefault] = await db
+    .select()
+    .from(proveedores)
+    .where(
+      and(
+        eq(proveedores.empresaId, findUser.empresaId),
+        eq(proveedores.nombre, 'proveedor general')
+      )
+    );
+
   if (!findUser || findUser.activo === 0) {
     return new Response(
       JSON.stringify({ msg: 'email incorrecta', status: 401 })
@@ -64,6 +83,8 @@ export async function POST({
     srcPhoto: findUser.srcPhoto,
     email: findUser.email,
     rol: findUser.rol,
+    clienteDefault: findClienteDefault.id,
+    proveedorDefault: findProovedorDefault.id,
     creadoPor: findUser.creadoPor,
     empresaId: findUser.empresaId,
   };

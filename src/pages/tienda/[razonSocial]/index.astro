@@ -1,0 +1,49 @@
+---
+import { eq } from 'drizzle-orm';
+import db from '../../../db';
+import { empresas } from '../../../db/schema';
+import Clasica from '../../../layouts/tienda/Clasica.astro';
+import Moderna from '../../../layouts/tienda/Moderna.astro';
+import Minimal from '../../../layouts/tienda/Minimal.astro';
+import ModernaPlantilla from './plantillas/Moderna.astro';
+const { razonSocial } = Astro.params;
+const dataSEO = {
+  title: 'Minimal',
+  description:
+    'controlStock: Solución integral para gestión de inventario y punto de venta. Optimiza tu negocio con control de stock, ventas y reportes en tiempo real.',
+  keywords: [
+    'gestión de inventario',
+    'punto de venta',
+    'software para negocios',
+    'control de stock',
+    'sistema de ventas',
+  ],
+  image: '/og-image.png',
+  canonicalURL: 'controlStock',
+};
+
+const [dataDB] = await db
+  .select()
+  .from(empresas)
+  .where(eq(empresas.razonSocial, razonSocial));
+
+if (!dataDB) {
+  return Astro.redirect('/noEncontrado');
+}
+---
+
+{
+  dataDB.theme === 'clasica' ? (
+    <Clasica>
+      <slot />
+    </Clasica>
+  ) : dataDB.theme === 'moderna' ? (
+    <Moderna data={dataDB}>
+      <ModernaPlantilla data={dataDB as any} />
+    </Moderna>
+  ) : (
+    <Minimal>
+      <slot />
+    </Minimal>
+  )
+}

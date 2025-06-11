@@ -14,14 +14,14 @@ export default function ModalPago({
   $productos,
   totalVenta,
   subtotal,
-  userId,
+  user,
   ivaMonto,
 }) {
   const [cliente, setCliente] = useState({
     nombre: 'consumidor final',
     dni: '00000000',
     celular: '0000000000',
-    id: '000000',
+    id: null,
   });
   const [formularioVenta, setFormularioVenta] = useState({
     clienteId: cliente.id,
@@ -73,7 +73,8 @@ export default function ModalPago({
         body: JSON.stringify({
           productos: $productos,
           totalVenta,
-          userId,
+          userId: user.id,
+          empresaId: user.empresaId,
           data: formularioVenta,
         }),
       });
@@ -109,7 +110,8 @@ export default function ModalPago({
         body: JSON.stringify({
           productos: $productos,
           totalVenta,
-          userId,
+          userId: user.id,
+          empresaId: user.empresaId,
           data: formularioVenta,
         }),
       });
@@ -153,7 +155,7 @@ export default function ModalPago({
               <ClientesSelect
                 cliente={cliente}
                 setCliente={setCliente}
-                userId={userId}
+                empresaId={user.empresaId}
               />
               {cliente.id !== '1' && (
                 <div className="mt-2 text-sm w-full flex items-start justify-normal gap-3 text-gray-600">

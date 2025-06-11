@@ -1,43 +1,47 @@
-import { useState } from "react";
-import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
-import LoaderReact from "../../../../utils/loader/LoaderReact";
+import { useState } from 'react';
+import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud';
+import LoaderReact from '../../../../utils/loader/LoaderReact';
 
-export default function FormularioCambiarPassword({user}) {
+export default function FormularioCambiarPassword({ user }) {
   const [form, setForm] = useState({
-    actual: "",
-    nueva: "",
-    repetir: "",
+    actual: '',
+    nueva: '',
+    repetir: '',
   });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     if (form.nueva !== form.repetir) {
-      setError("Las contraseñas nuevas no coinciden.");
+      setError('Las contraseñas nuevas no coinciden.');
       return;
     }
     // Aquí llamas a tu API para cambiar la contraseña
-    const res = await fetch("/api/users/changePassword", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({id:user.id, actual: form.actual, nueva: form.nueva }),
+    const res = await fetch('/api/users/changePassword', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: user.id,
+        actual: form.actual,
+        nueva: form.nueva,
+      }),
     });
     if (res.ok) {
       setLoading(false);
-      setSuccess("Contraseña cambiada correctamente.");
-      setForm({ actual: "", nueva: "", repetir: "" });
+      setSuccess('Contraseña cambiada correctamente.');
+      setForm({ actual: '', nueva: '', repetir: '' });
     } else {
       setLoading(false);
-      setError("Error al cambiar la contraseña. Verifica la actual.");
+      setError('Error al cambiar la contraseña. Verifica la actual.');
     }
   };
 
@@ -80,11 +84,7 @@ export default function FormularioCambiarPassword({user}) {
         Contraseña actual
       </InputFormularioSolicitud>
       <div className="w-full h-8 text-sm flex items-center justify-center ">
-        {
-          loading && (
-           <LoaderReact/>
-          )
-        }
+        {loading && <LoaderReact />}
         {error && <div className="text-red-500">{error}</div>}
         {success && <div className="text-green-600">{success}</div>}
       </div>
@@ -93,7 +93,7 @@ export default function FormularioCambiarPassword({user}) {
           type="submit"
           className="bg-gray-200  text-primary-100 px-4 py-2 rounded hover:bg-gray-300 transition"
         >
-          Cambiar Contraseña Cambiar Contraseña
+          Cambiar Contraseña
         </button>
       </div>
     </form>

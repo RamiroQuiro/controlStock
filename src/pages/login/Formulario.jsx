@@ -7,7 +7,7 @@ export default function Formulario({ isLogin }) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    userName: '',
+    razonSocial: '',
   });
   const [confirmacion, setConfirmacion] = useState(false);
   const [isLook, setIsLook] = useState(false);
@@ -103,19 +103,16 @@ export default function Formulario({ isLogin }) {
       {!isLogin && (
         <div>
           <div className="w-full">
-            <label htmlFor="userName" className="sr-only">
-              Nombre de Usuario
-            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <User className="text-gray-400" size={20} />
               </div>
               <input
-                id="userName"
-                name="userName"
+                id="razonSocial"
+                name="razonSocial"
                 type="text"
                 required={!isLogin}
-                value={formData.userName}
+                value={formData.razonSocial}
                 onChange={handleChange}
                 className="appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 placeholder="Nombre de Fantasía"

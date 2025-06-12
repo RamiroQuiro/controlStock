@@ -2,6 +2,7 @@ import type { APIContext } from 'astro';
 import db from '../../../db';
 import {
   detalleVentas,
+  empresas,
   movimientosStock,
   productos,
   stockActual,
@@ -19,14 +20,26 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       data,
     } = await request.json();
     const { user } = locals;
-    const clienteId = data.clienteId === null ? user?.clienteDefault : data.clienteId;
-    console.log('este es el cliente id', clienteId);
+    
+    // Validación específica para clienteId
+    let clienteId;
+    if (data.clienteId && data.clienteId !== '') {
+      clienteId = data.clienteId;
+    } else {
+      clienteId = user?.clienteDefault;
+    }
+
+    // Log para debug
+    console.log('Cliente ID recibido:', data.clienteId);
+    console.log('Cliente ID por defecto:', user?.clienteDefault);
+    console.log('Cliente ID final:', clienteId);
+
     // Validaciones previas
-    if (!productosSeleccionados?.length || !empresaId || !userId || !data) {
+    if (!productosSeleccionados?.length || !empresaId || !userId || !data || !clienteId) {
       return new Response(
         JSON.stringify({
           status: 400,
-          msg: 'Datos inválidos o incompletos',
+          msg: 'Datos inválidos o incompletos. Cliente no especificado.',
         }),
         { status: 400 }
       );
@@ -98,7 +111,21 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
           })
         );
 
-        return ventaFinalizada[0];
+        const [dataEmpresa] = await trx.select({
+          razonSocial: empresas.razonSocial,
+          documento: empresas.documento,
+          direccion: empresas.direccion,
+          telefono: empresas.telefono,
+          logo:empresas.srcPhoto,
+          email: empresas.email,
+        })
+          .from(empresas)
+          .where(eq(empresas.id, empresaId));
+
+        return {
+          ...ventaFinalizada[0],
+          dataEmpresa
+        };
       })
       .catch((error) => {
         console.log(error);

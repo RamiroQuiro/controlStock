@@ -124,12 +124,12 @@ export class ComprobanteService {
           <div class="comprobante">
             <div class="header">
               <div class="logo-container">
-                <img src="${data.empresa?.logo || ''}" alt="Logo">
+                <img src="${data.empresa?.logo || ""}" alt="Logo">
                 <div class="empresa-datos">
-                  <strong>${data.empresa?.razonSocial || ''}</strong><br>
-                  CUIT: ${data.empresa?.documento || ''}<br>
-                  ${data.empresa?.direccion || ''}<br>
-                  ${data.empresa?.condicionIva ? `IVA: ${data.empresa.condicionIva}` : ''}
+                  <strong>${data.empresa?.razonSocial || ""}</strong><br>
+                  CUIT: ${data.empresa?.documento || ""}<br>
+                  ${data.empresa?.direccion || ""}<br>
+                  ${data.empresa?.condicionIva ? `IVA: ${data.empresa.condicionIva}` : ""}
                 </div>
               </div>
               <div style="text-align: right;">
@@ -138,23 +138,28 @@ export class ComprobanteService {
                   <strong>${tipoFactura}</strong><br>
                   N°: <b>${data.codigo}</b><br>
                   Fecha: ${new Date(data.fecha).toLocaleDateString()}<br>
-                  ${data.tipo === 'presupuesto' ? 
-                    `<span style="color: red">Válido hasta: ${new Date(data.expira_at).toLocaleDateString()}</span><br>` 
-                    : ''
+                  ${
+                    data.tipo === "presupuesto"
+                      ? `<span style="color: red">Válido hasta: ${new Date(data.expira_at).toLocaleDateString()}</span><br>`
+                      : ""
                   }
                 </div>
               </div>
             </div>
   
-            ${data.cliente ? `
+            ${
+              data.cliente
+                ? `
               <div class="cliente">
                 <h2>Cliente</h2>
                 <div><b>${data.cliente.nombre}</b></div>
-                <div>CUIT/DNI: ${data.cliente.documento || '-'}</div>
-                ${data.cliente.direccion ? `<div>Dirección: ${data.cliente.direccion}</div>` : ''}
-                ${data.cliente.condicionIva ? `<div>IVA: ${data.cliente.condicionIva}</div>` : ''}
+                <div>CUIT/DNI: ${data.cliente.documento || "-"}</div>
+                ${data.cliente.direccion ? `<div>Dirección: ${data.cliente.direccion}</div>` : ""}
+                ${data.cliente.condicionIva ? `<div>IVA: ${data.cliente.condicionIva}</div>` : ""}
               </div>
-            ` : ''}
+            `
+                : ""
+            }
   
             <table>
               <thead>
@@ -166,44 +171,56 @@ export class ComprobanteService {
                 </tr>
               </thead>
               <tbody>
-                ${data.items.map(item => `
+                ${data.items
+                  .map(
+                    (item) => `
                   <tr>
                     <td>${item.descripcion}</td>
                     <td style="text-align: right">${item.cantidad}</td>
-                    <td style="text-align: right">${formateoMoneda.format(item.precio)}</td>
+                    <td style="text-align: right">${formateoMoneda.format(item.precioUnitario)}</td>
                     <td style="text-align: right">${formateoMoneda.format(item.subtotal)}</td>
                   </tr>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </tbody>
             </table>
   
             <div class="totales">
               <div class="totales-row">
                 <span>Subtotal:</span>
-                <span>${formateoMoneda.format(data.totales.subtotal)}</span>
+                <span>${formateoMoneda.format(data.subtotal)}</span>
               </div>
-              ${data.totales.descuentos > 0 ? `
+              ${
+                data.descuentos > 0
+                  ? `
                 <div class="totales-row" style="color: #b71c1c;">
                   <span>Descuentos:</span>
-                  <span>- ${formateoMoneda.format(data.totales.descuentos)}</span>
+                  <span>- ${formateoMoneda.format(data.descuentos)}</span>
                 </div>
-              ` : ''}
+              `
+                  : ""
+              }
               <div class="totales-row">
                 <span>IVA:</span>
-                <span>${formateoMoneda.format(data.totales.impuestos)}</span>
+                <span>${formateoMoneda.format(data.impuestos)}</span>
               </div>
               <div class="totales-row total">
                 <span>Total:</span>
-                <span>${formateoMoneda.format(data.totales.total)}</span>
+                <span>${formateoMoneda.format(data.total)}</span>
               </div>
             </div>
   
             <div class="info-fiscal">
-              ${data.cae ? `
+              ${
+                data.cae
+                  ? `
                 <div class="cae-box">
-                  CAE: <b>${data.cae}</b> &nbsp; | &nbsp; Vencimiento CAE: ${data.cae_vto ? new Date(data.cae_vto).toLocaleDateString() : '-'}
+                  CAE: <b>${data.cae}</b> &nbsp; | &nbsp; Vencimiento CAE: ${data.cae_vto ? new Date(data.cae_vto).toLocaleDateString() : "-"}
                 </div>
-              ` : ''}
+              `
+                  : ""
+              }
               <div>
                 <b>Comprobante autorizado por AFIP</b>.<br>
                 Este comprobante fue generado electrónicamente. Consulte su validez en www.afip.gob.ar
@@ -241,16 +258,15 @@ export class ComprobanteService {
       impuesto?: number;
       descripcion: string;
     }>;
-    totales: {
+   
       subtotal: number;
       impuestos: number;
       descuentos: number;
       total: number;
-    };
  
 
   }) {
-    const { id, fecha, cliente, empresa, comprobante, items, totales } = data;
+    const { id, fecha, cliente, empresa, comprobante, items } = data;
   
     return `
   <!DOCTYPE html>

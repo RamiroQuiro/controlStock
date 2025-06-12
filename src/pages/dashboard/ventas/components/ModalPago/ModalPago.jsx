@@ -21,7 +21,7 @@ export default function ModalPago({
     nombre: 'consumidor final',
     dni: '00000000',
     celular: '0000000000',
-    id: null,
+    id: user?.clienteDefault,
   });
   const [formularioVenta, setFormularioVenta] = useState({
     clienteId: cliente.id,

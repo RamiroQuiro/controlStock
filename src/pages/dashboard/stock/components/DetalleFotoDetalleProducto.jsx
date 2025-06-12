@@ -437,15 +437,15 @@ export default function DetalleFotoDetalleProducto({
                   <span className="w- whitespace-nowrap">Descuento:</span>
                   {disableEdit ? (
                     <p className="capitalize font-medium text-primary-textoTitle">
-                      {infoProducto.productData.signoDescuento}
+                      {infoProducto.productData?.signoDescuento}
                       {infoProducto.productData?.descuento}
                     </p>
                   ) : (
                     <div className="flex w-full items-center justify-normal gap-2">
                       <select
                         onChange={handleChangeForm}
-                        value={infoProducto.productData?.signoDescuento}
                         name="signoDescuento"
+                        value={formulario?.signoDescuento}
                         id="signoDescuento"
                         className="w- text-end capitalize py-1 px-1  text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
                       >
@@ -456,6 +456,7 @@ export default function DetalleFotoDetalleProducto({
                         placeholder={'ingrese el descuento'}
                         className={'text-sm py-1 px-1'}
                         name={'descuento'}
+                        value={formulario?.descuento}
                         handleChange={handleChangeForm}
                         type={'number'}
                       />

@@ -62,6 +62,11 @@ export default function FiltroProductos({ mostrarProductos, userId,empresaId }) 
 
           busqueda.set({ productosBuscados: data.data });
           setEncontrados(data.data);
+          if(data.data[0].stock <= 0) {
+            alert("El producto no tiene stock disponible");
+            setLoading(false);
+            return;
+          }
           handleClick(data.data[0]);
           setLoading(false);
           return;
@@ -158,17 +163,30 @@ export default function FiltroProductos({ mostrarProductos, userId,empresaId }) 
                   <tr
                     key={i}
                     tabIndex={i}
-                    className="cursor-pointer hover:bg-primary-100/40 transition"
-                    onClick={() => handleClick(producto)}
+                    className={`transition ${
+                      producto.stock <= 0 
+                        ? 'bg-red-50 cursor-not-allowed opacity-60' 
+                        : 'cursor-pointer hover:bg-primary-100/40'
+                    }`}
+                    onClick={() => producto.stock > 0 && handleClick(producto)}
                   >
                     <td className="px-3 py-2 border-b">
                       {producto.codigoBarra}
                     </td>
                     <td className="px-3 py-2 border-b">
                       {producto.descripcion}
+                      {producto.stock <= 0 && (
+                        <span className="text-red-500 text-xs ml-2">
+                          (Sin stock disponible)
+                        </span>
+                      )}
                     </td>
                     <td className="px-3 py-2 border-b">{producto.marca}</td>
-                    <td className="px-3 py-2 border-b">{producto.stock}</td>
+                    <td className={`px-3 py-2 border-b ${
+                      producto.stock <= 0 ? 'text-red-500 font-semibold' : ''
+                    }`}>
+                      {producto.stock}
+                    </td>
                     <td className="px-3 py-2 border-b">${producto.pVenta}</td>
                   </tr>
                 ))}

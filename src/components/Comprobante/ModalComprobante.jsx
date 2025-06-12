@@ -19,6 +19,15 @@ export default function ModalComprobante({
     codigo: ventaFinalizada.codigo,
     fecha: ventaFinalizada.fecha,
     cliente: cliente,
+    dataEmpresa:{
+      razonSocial: ventaFinalizada.dataEmpresa.razonSocial,
+      documento: ventaFinalizada.dataEmpresa.documento,
+      direccion: ventaFinalizada.dataEmpresa.direccion,
+      telefono: ventaFinalizada.dataEmpresa?.telefono,
+      email: ventaFinalizada.dataEmpresa?.email,
+      web: ventaFinalizada.dataEmpresa?.web,
+      logo: ventaFinalizada.dataEmpresa?.logo,
+    },
     items: $productos.map((p) => ({
       producto: p.nombre,
       cantidad: p.cantidad,
@@ -35,6 +44,7 @@ export default function ModalComprobante({
     expira_at: esPresupuesto ? ventaFinalizada.expira_at : undefined,
   };
 
+  console.log("esto son los datos del modal comprobante ->", data,'venta finalidaa ->',ventaFinalizada);
   const handleClose = () => {
     window.location.reload();
   };

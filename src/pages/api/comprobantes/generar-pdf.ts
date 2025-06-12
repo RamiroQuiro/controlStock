@@ -5,7 +5,7 @@ import { ComprobanteService } from '../../../services/comprobante.service';
 export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
-    
+    console.log("data", data);
     // Iniciar Puppeteer
     const browser = await puppeteer.launch({
       headless: 'new'

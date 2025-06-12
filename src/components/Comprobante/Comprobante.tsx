@@ -5,6 +5,13 @@ interface ComprobanteProps {
   data: {
     codigo: string;
     fecha: number;
+    dataEmpresa:{
+      razonSocial: string;
+      documento: string;
+      direccion?: string;
+      telefono?: string;
+      email?: string;
+    }
     cliente?: {
       nombre: string;
       documento: string;
@@ -48,13 +55,13 @@ const Comprobante = ({
       {/* Encabezado */}
       <div className="border-b md:pb-4 md:mb-4">
         <h1 className="text-2xl font-bold">
-          {tipo === 'comprobante' ? 'Comprobante' : 'Presupuesto'}
+          {tipo == "comprobante" ? "Comprobante" : "Preaaasupuesto"}
         </h1>
         <div className="flex justify-between mt-2">
           <div>
             <p>N°: {data.codigo}</p>
             <p>Fecha: {new Date(data.fecha).toLocaleDateString()}</p>
-            {tipo === 'presupuesto' && (
+            {tipo === "presupuesto" && (
               <p className="text-red-500">
                 Válido hasta: {new Date(data.expira_at).toLocaleDateString()}
               </p>
@@ -62,8 +69,15 @@ const Comprobante = ({
           </div>
           <div>
             {/* Logo o datos de la empresa */}
-            <p>Tu Empresa S.A.</p>
-            <p>CUIT: XX-XXXXXXXX-X</p>
+            <h1 className="font-semibold text-xl ">
+              {data.dataEmpresa.razonSocial}
+            </h1>
+            <p className="font- text-sm ">
+              CUIT:{data.dataEmpresa.documento}
+            </p>
+            <p className="font- text-sm ">Dirección:{data.dataEmpresa.direccion}</p>
+            <p className="font- text-sm ">Telefono:{data.dataEmpresa.telefono}</p>
+            <p className="font- text-sm ">Email:{data.dataEmpresa.email}</p>
           </div>
         </div>
       </div>

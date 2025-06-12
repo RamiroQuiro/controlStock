@@ -12,7 +12,7 @@ import OdenaientoProductos from "../OdenaientoProductos";
 export default function SidebarProductos() {
   const { data, loading } = useStore(tiendaStore);
   const [productosOriginales, setProductosOriginales] = useState([]);
-  const categoriasProdcutos = data.productos?.map((item) => item.categorias);
+  const categoriasProdcutos = data?.productos?.map((item) => item.categorias);
   const categoriasUnicas = categoriasProdcutos?.flat().reduce((acc, cat) => {
     if (!acc.find((item) => item.id === cat.id)) {
       acc.push(cat);

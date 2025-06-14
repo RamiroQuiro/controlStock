@@ -1,9 +1,8 @@
-import { eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import db from "../db";
 import { clientes, detalleVentas, empresas, productos, ventas } from "../db/schema";
 
-export const traerVentasUser = async (empresaId: string) => {
-  console.log('empresaId', empresaId);
+export const traerVentasEmpresa = async (empresaId: string) => {
 
   try {
     const ventasData = await db
@@ -26,8 +25,11 @@ export const traerVentasUser = async (empresaId: string) => {
       .from(ventas)
       .innerJoin(clientes, eq(clientes.id, ventas.clienteId))
       .innerJoin(empresas, eq(ventas.empresaId, empresas.id))
-      .where(eq(ventas.empresaId, empresaId));
-      console.log('dentro de la funcion ventasData ->', ventasData);
+      .where(eq(ventas.empresaId, empresaId))
+      .orderBy(desc(ventas.fecha));
+    // console.log('ventasData ->', ventasData);
+      
+      // console.log('dentro de la funcion ventasData ->', ventasData);
     return ventasData;
   } catch (error) {
     console.log(error);

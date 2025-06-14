@@ -11,6 +11,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     const {
       productos: productosSeleccionados,
       userId,
+      empresaId,  
       data
     } = await request.json();
     
@@ -36,9 +37,10 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     }
 
     // Calcular fecha de expiración (5 días)
+    const diasExpiracion = 5; // Variable para los días de expiración
     const fecha = new Date();
     const expira_at = new Date();
-    expira_at.setDate(fecha.getDate() + 5);
+    expira_at.setDate(fecha.getDate() + diasExpiracion);
 
     const presupuestoDB = await db
       .transaction(async (trx) => {
@@ -51,6 +53,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
             id: nanoid(),
             codigo,
             userId,
+            empresaId,
             fecha,
             expira_at,
             estado: 'activo',

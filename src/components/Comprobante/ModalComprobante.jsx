@@ -16,7 +16,7 @@ export default function ModalComprobante({
   setModalConfirmacion,
 }) {
   const data = {
-    codigo: ventaFinalizada.codigo,
+    codigo: ventaFinalizada?.codigo || ventaFinalizada?.id,
     fecha: ventaFinalizada.fecha,
     cliente: cliente,
     dataEmpresa:{

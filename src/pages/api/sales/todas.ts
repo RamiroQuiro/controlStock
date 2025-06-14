@@ -1,15 +1,15 @@
 import type { APIContext, APIRoute } from "astro";
 import db from "../../../db";
 import { eq } from "drizzle-orm";
-import { traerVentasUser } from "../../../services/ventastodas.service";
+import { traerVentasEmpresa } from "../../../services/ventastodas.service";
 
 export const GET:APIRoute=async ({request}) => {
     const userId=request.headers.get('xx-user-id')
-    const empresaId=request.headers.get('xx-empresa-id')
+    const empresaId = request.headers.get("xx-empresa-id") || "";
     console.log('empresaId->',empresaId)
     try {
-       const traerVentaUser=await traerVentasUser(empresaId)
-       console.log('ventas ->',traerVentaUser)
+       const traerVentaUser=await traerVentasEmpresa(empresaId)
+      //  console.log('ventas ->',traerVentaUser)
         return new Response(JSON.stringify({
             msg:'datos enviados',
             data:traerVentaUser,

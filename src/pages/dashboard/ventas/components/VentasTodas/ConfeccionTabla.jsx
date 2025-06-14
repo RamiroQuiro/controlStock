@@ -88,8 +88,9 @@ export default function ConfeccionTabla({ userId, empresaId }) {
         </div>
       ) : (
       <Table
+      styleTable={"cursor-pointer w-full"}
         columnas={columnasVentasTodas}
-        arrayBody={newArray}
+        arrayBody={newArray.sort((a, b) => a.fechaVenta> b.fechaVenta)}
         onClickRegistro={selectRegistro}
         />
       )

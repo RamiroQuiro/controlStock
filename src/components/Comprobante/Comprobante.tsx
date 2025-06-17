@@ -46,7 +46,7 @@ const Comprobante = ({
   onClose,
 }: ComprobanteProps) => {
 
-  console.log('estos son los datos del comprobante', data);
+  console.log('estos son los datos del comprobante', tipo );
   return (
     <div
       className="bg-white relative p-6 flex items-stretch justify-normal flex-col h-full  mx-auto"
@@ -55,7 +55,7 @@ const Comprobante = ({
       {/* Encabezado */}
       <div className="border-b md:pb-4 md:mb-4">
         <h1 className="text-2xl font-bold">
-          {tipo == "comprobante" ? "Comprobante" : "Preaaasupuesto"}
+          {tipo == "comprobante" ? "Comprobante" : "Presupuesto"}
         </h1>
         <div className="flex justify-between mt-2">
           <div>

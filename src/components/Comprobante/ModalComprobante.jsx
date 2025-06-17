@@ -41,10 +41,9 @@ export default function ModalComprobante({
     impuestos: ivaMonto,
     descuentos: descuento,
     total: totalVenta,
-    expira_at: esPresupuesto ? ventaFinalizada.expira_at : undefined,
+    expira_at: esPresupuesto ? ventaFinalizada.expira_at : null,
   };
 
-  console.log("esto son los datos del modal comprobante ->", data,'venta finalidaa ->',ventaFinalizada);
   const handleClose = () => {
     window.location.reload();
   };
@@ -64,7 +63,7 @@ export default function ModalComprobante({
       >
         <Comprobante
           onClose={handleClose}
-          tipo={esPresupuesto ? 'presupuesto' : 'comprobante'}
+          tipo={esPresupuesto}
           data={data}
           onPrint={() => comprobanteService.imprimirComprobante(data)}
           onDownload={() => comprobanteService.descargarPDF(data)}

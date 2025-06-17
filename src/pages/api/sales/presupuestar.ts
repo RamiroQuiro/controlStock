@@ -3,7 +3,7 @@ import db from "../../../db";
 
 import { nanoid } from "nanoid";
 import { eq, sql } from "drizzle-orm";
-import { detallePresupuesto, presupuesto } from "../../../db/schema";
+import { detallePresupuesto, empresas, presupuesto } from "../../../db/schema";
 import type { Producto } from "../../../types";
 
 export async function POST({ request, params }: APIContext): Promise<Response> {
@@ -36,6 +36,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       );
     }
 
+
     // Calcular fecha de expiración (5 días)
     const diasExpiracion = 5; // Variable para los días de expiración
     const fecha = new Date();
@@ -61,6 +62,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           })
           .returning();
 
+
         // Procesar cada producto del presupuesto
         await Promise.all(
           productosSeleccionados.map(async (prod) => {
@@ -77,7 +79,21 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           })
         );
 
-        return presupuestoFinalizado[0];
+ const [dataEmpresa] = await trx.select({
+          razonSocial: empresas.razonSocial,
+          documento: empresas.documento,
+          direccion: empresas.direccion,
+          telefono: empresas.telefono,
+          logo:empresas.srcPhoto,
+          email: empresas.email,
+        })
+          .from(empresas)
+          .where(eq(empresas.id, empresaId));
+        
+        return {
+          ...presupuestoFinalizado[0],
+          dataEmpresa
+        };
       })
       .catch((error) => {
         console.error("Error en transacción:", error);

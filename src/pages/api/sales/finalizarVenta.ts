@@ -29,10 +29,10 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       clienteId = user?.clienteDefault;
     }
 
-    // Log para debug
-    console.log('Cliente ID recibido:', data.clienteId);
-    console.log('Cliente ID por defecto:', user?.clienteDefault);
-    console.log('Cliente ID final:', clienteId);
+    // // Log para debug
+    // console.log('Cliente ID recibido:', data.clienteId);
+    // console.log('Cliente ID por defecto:', user?.clienteDefault);
+    // console.log('Cliente ID final:', clienteId);
 
     // Validaciones previas
     if (!productosSeleccionados?.length || !empresaId || !userId || !data || !clienteId) {

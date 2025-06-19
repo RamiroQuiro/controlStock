@@ -52,7 +52,6 @@ export const productos = sqliteTable(
     descripcionLarga:text('descripcionLarga'),
     descripcionCorta:text('descripcionCorta'),
     palabrasSEO:text('palabrasSEO'),
-    ventasTotales: integer('ventasTotales', { mode: 'number' }).default(0),
     userUpdate: text('userUpdate'),
     ultimaActualizacion: integer('ultimaActualizacion') // Timestamp Unix
       .notNull()

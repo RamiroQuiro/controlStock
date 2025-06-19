@@ -1,15 +1,27 @@
-import type { APIRoute } from 'astro';
-import { getTokenData } from '../../../../lib/confrmacionEmail';
-import db from '../../../../db';
-import { clientes, proveedores, users } from '../../../../db/schema';
-import { eq } from 'drizzle-orm';
-import { generateId } from 'lucia';
-import { inicializarRoles } from '../../../../services/roles.sevices';
-import { lucia } from '../../../../lib/auth';
-import path from 'path';
-import fs from 'fs/promises';
-import jwt from 'jsonwebtoken';
-import { empresas } from '../../../../db/schema/empresas';
+import type { APIRoute } from "astro";
+import { getTokenData } from "../../../../lib/confrmacionEmail";
+import db from "../../../../db";
+import {
+  users,
+} from "../../../../db/schema";
+import { eq } from "drizzle-orm";
+import { lucia } from "../../../../lib/auth";
+import jwt from "jsonwebtoken";
+import { inicializarEmpresaParaUsuario } from "../../../../services/creacionInicialEmpresa.services";
+
+type userData= {
+  id: string;
+  nombre: string;
+  apellido: string;
+  userName: string;
+  email: string;
+  clienteDefault: string;
+  proveedorDefault: string;
+  rol: string;
+  puntosDeVenta: string;
+  empresaId: string;
+}
+ 
 
 export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
   const { token: confirmationToken } = params;
@@ -18,19 +30,18 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
     return new Response(
       JSON.stringify({
         status: 400,
-        msg: 'Token no proporcionado',
+        msg: "Token no proporcionado",
       })
     );
   }
 
   try {
     const { data } = getTokenData(confirmationToken);
-    console.log('esta es la verificacoin', data);
     if (!data) {
       return new Response(
         JSON.stringify({
           msg: 400,
-          message: 'error al obtener la data',
+          message: "error al obtener la data",
         })
       );
     }
@@ -44,7 +55,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
         JSON.stringify({
           sucess: false,
           status: 200,
-          msg: 'no se encontro usuario',
+          msg: "no se encontro usuario",
         })
       );
     }
@@ -53,78 +64,12 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       emailVerificado: true,
     });
 
-    const empresaId = generateId(13);
-    const newEmpresa = (
-      await db
-        .insert(empresas)
-        .values([
-          {
-            id: empresaId,
-            created_at: new Date().toISOString(),
-            razonSocial: userFind.razonSocial,
-            creadoPor: userFind.id,
-            userId: userFind.id,
-            activo: 1,
-            emailVerificado: true,
-            srcPhoto: '/avatarDefault.png',
-          },
-        ])
-        .returning()
-    ).at(0);
+const { clienteDefault, proveedorDefault, puntoVenta,empresa } =
+  await inicializarEmpresaParaUsuario(userFind);
 
-    // Crear Proveedor Comodín
-
-    const [proveedorComodin] = await db
-      .insert(proveedores)
-      .values({
-        id: generateId(13),
-        nombre: 'proveedor general',
-        creadoPor: userFind.id,
-        empresaId: empresaId,
-        telefono: 'N/A', // Campos obligatorios
-        email: 'proveedor.general@tuempresa.com',
-        direccion: 'N/A',
-        created_at: new Date().toISOString(), // Usa formato ISO
-      })
-      .returning();
-
-    // Crear Cliente Final
-    const [clienteFinal] = await db
-      .insert(clientes)
-      .values({
-        id: generateId(13),
-        nombre: 'consumidor final',
-        creadoPor: userFind.id,
-        empresaId: empresaId,
-        telefono: 'N/A', // Campos obligatorios
-        email: 'consumidor.final@tuempresa.com',
-        direccion: 'N/A',
-        fechaAlta: new Date().toISOString(), // Usa formato ISO
-      })
-      .returning();
-
-    // Si el usuario es admin, inicializar roles
-    if (userFind && userFind.rol === 'admin') {
-      try {
-        await inicializarRoles(userFind.id);
-      } catch (rolesError) {
-        console.error('Error al inicializar roles:', rolesError);
-        // Opcional: manejar el error sin interrumpir el registro
-      }
-    }
-    const session = await lucia.createSession(userFind.id, {
+        const session = await lucia.createSession(userFind.id, {
       userName: userFind.userName,
     });
-
-    // crear directorio para iamgenes
-    const empresaDir = path.join(
-      process.cwd(),
-      'element',
-      'imgs',
-      empresaId,
-      'productos'
-    );
-    await fs.mkdir(empresaDir, { recursive: true });
 
     // console.log('sesion de usuario de alta ', session);
     const sessionCookie = lucia.createSessionCookie(session.id);
@@ -135,49 +80,49 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
     );
 
     // Crear una cookie con los datos del usuario
-    const userData = {
+    const userData: userData = {
       id: userFind.id,
       nombre: userFind.nombre,
       apellido: userFind.apellido,
       userName: userFind.userName,
       email: userFind.email,
-      clienteDefault: clienteFinal.id,
-      proveedorDefault: proveedorComodin.id,
+      clienteDefault: clienteDefault,
+      proveedorDefault: proveedorDefault,
+      puntosDeVenta:puntoVenta,
       rol: userFind.rol,
-      creadoPor: userFind.creadoPor,
-      empresaId: empresaId,
+      empresaId: empresa.id,
     };
 
     const jwtToken = jwt.sign(
       userData,
       import.meta.env.SECRET_KEY_CREATECOOKIE,
       {
-        expiresIn: '14d',
+        expiresIn: "14d",
       }
     );
-    cookies.set('userData', jwtToken, {
+    cookies.set("userData", jwtToken, {
       httpOnly: true,
-      secure: import.meta.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: import.meta.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 14 * 24 * 3600,
-      path: '/',
+      path: "/",
     });
 
     // En lugar de redirigir, devolvemos una respuesta JSON
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: 'Email verificado correctamente',
+        msg: "Email verificado correctamente",
       }),
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error en la confirmación:', error);
+    console.error("Error en la confirmación:", error);
     return new Response(
       JSON.stringify({
         status: 500,
-        msg: 'Error al verificar el email',
-        error: error instanceof Error ? error.message : 'Error desconocido',
+        msg: "Error al verificar el email",
+        error: error instanceof Error ? error.message : "Error desconocido",
       }),
       { status: 500 }
     );

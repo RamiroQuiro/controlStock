@@ -16,6 +16,8 @@ export const detallePresupuesto = sqliteTable('detallePresupuesto', {
     precioUnitario: integer('precio_unitario', { mode: "number" }).notNull(),
     subtotal: integer('subtotal', { mode: "number" }).notNull(),
     descuento: integer('descuento', { mode: "number" }).default(0),
+    nComprobante: text('nComprobante').notNull(), // Número de comprobante asociado
     impuesto: integer('impuesto', { mode: "number" }).default(0),
+    
   });
   

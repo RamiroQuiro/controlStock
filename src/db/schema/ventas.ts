@@ -14,6 +14,12 @@ export const ventas = sqliteTable('ventas', {
   clienteId: text('clienteId').references(() => clientes.id),
   metodoPago: text('metodoPago').default('efectivo'),
   nComprobante: text('nComprobante'),
+  tipo: text('tipo', {
+    enum: ['FC_A', 'FC_B', 'FC_C', 'PR', 'NC'],
+  })
+    .notNull()
+    .default('FC_B'), // 'FC_A', 'FC_B', 'FC_C', 'PR' (Presupuesto), etc.
+  puntoVenta: text('puntoVenta').notNull(), // ej. '0001'
   srcComprobante: text('srcComprobante'),
   nCheque: text('nCheque'),
   vencimientoCheque: text('vencimientoCheque'),

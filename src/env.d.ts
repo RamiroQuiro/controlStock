@@ -8,6 +8,7 @@ declare namespace App {
       userName: string;
       email: string;
       clienteDefault: string;
+      puntosDeVenta: string;
       proveedorDefault: string;
       empresaId: string;
       rol: string;

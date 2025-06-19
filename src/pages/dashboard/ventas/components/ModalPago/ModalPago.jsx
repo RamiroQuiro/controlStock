@@ -26,6 +26,8 @@ export default function ModalPago({
   const [formularioVenta, setFormularioVenta] = useState({
     clienteId: cliente.id,
     descuento: 0,
+    tipoComprobante: 'FC_B',
+    puntoVenta: user.puntoVenta || 1,
     metodoPago: 'efectivo',
     nComprobante: 0,
     fotoComprobante: '',
@@ -147,7 +149,28 @@ export default function ModalPago({
     <>
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
         <div className="bg-white relative h-4/5 rounded-lg py-4 px-6 md:h-[95vh] md:w-full z-50 max-w-2xl md:mb-0 mb-24 animate-aparecer">
-          <h2 className="text-2xl font-semibold mb-2">Finalizar Venta</h2>
+        <div className='w-full flex items-start justify-between mb-2'>
+
+          <h2 className="text-2xl font-semibold ">Finalizar Venta</h2>
+              
+              {/* Agregar selector de tipo de comprobante */}
+              <div className=" flex items-center md:w-1/3 justify-start gap-">
+                <label className="text-xs block w-fit">Tipo de Comp.</label>
+                <select
+                  name="tipoComprobante"
+                  value={formularioVenta.tipoComprobante}
+                  onChange={handleChange}
+                  className="w-full border text-sm rounded-lg p-1 bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
+                >
+                  <option value="FC_B">Factura B</option>
+                  <option value="FC_A">Factura A</option>
+                  <option value="FC_C">Factura C</option>
+                  <option value="PR">Presupuesto</option>
+                  <option value="NT">Nota Credito</option>
+                </select>
+              </div>
+
+        </div>
           <div className=" flex flex-col h-full w-full overflow-y-auto pb-10">
             {/* Sección Cliente */}
             <div className="mb-6">
@@ -157,6 +180,7 @@ export default function ModalPago({
                 setCliente={setCliente}
                 empresaId={user.empresaId}
               />
+          
               {cliente.id !== '1' && (
                 <div className="mt-2 text-sm w-full flex items-start justify-normal gap-3 text-gray-600">
                   <p>DNI: {cliente.dni}</p>

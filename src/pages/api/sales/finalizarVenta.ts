@@ -1,6 +1,7 @@
 import type { APIContext } from 'astro';
 import db from '../../../db';
 import {
+  comprobanteNumeracion,
   detalleVentas,
   empresas,
   movimientosStock,
@@ -9,7 +10,7 @@ import {
   ventas,
 } from '../../../db/schema';
 import { nanoid } from 'nanoid';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
@@ -21,6 +22,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     } = await request.json();
     const { user } = locals;
     
+    
     // Validación específica para clienteId
     let clienteId;
     if (data.clienteId && data.clienteId !== '') {
@@ -29,10 +31,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       clienteId = user?.clienteDefault;
     }
 
-    // // Log para debug
-    // console.log('Cliente ID recibido:', data.clienteId);
-    // console.log('Cliente ID por defecto:', user?.clienteDefault);
-    // console.log('Cliente ID final:', clienteId);
+    // Log para debug
+    console.log('data traido por frontend ->', data);
 
     // Validaciones previas
     if (!productosSeleccionados?.length || !empresaId || !userId || !data || !clienteId) {
@@ -57,6 +57,55 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
 
     const ventaDB = await db
       .transaction(async (trx) => {
+        // Obtener y actualizar numeración
+        const [numeracion] = await trx
+          .select()
+          .from(comprobanteNumeracion)
+          .where(
+            and(
+              eq(comprobanteNumeracion.empresaId, empresaId),
+              eq(comprobanteNumeracion.tipo, data.tipoComprobante || 'FC_B'),
+              eq(comprobanteNumeracion.puntoVenta, data.puntoVenta)
+            )
+          )
+          .limit(1);
+
+        if (!numeracion) {
+          throw new Error('No se encontró numeración para el tipo de comprobante');
+        }
+
+        const nuevoNumero = numeracion.numeroActual + 1;
+        const numeroFormateado = `${data.tipoComprobante}-${data.puntoVenta.toString().padStart(4, '0')}-${nuevoNumero.toString().padStart(8, '0')}`;
+
+        // Actualizar numeración
+        await trx
+          .update(comprobanteNumeracion)
+          .set({ 
+            numeroActual: nuevoNumero,
+            updatedAt: new Date().toISOString()
+          })
+          .where(eq(comprobanteNumeracion.empresaId, empresaId))
+          .where(eq(comprobanteNumeracion.tipo, data.tipoComprobante))
+          .where(eq(comprobanteNumeracion.puntoVenta, data.puntoVenta));
+
+        // Crear comprobante
+        const [comprobanteCreado] = await trx
+          .insert(comprobantes)
+          .values({
+            id: nanoid(12),
+            empresaId,
+            tipo: data.tipoComprobante || 'FC_B',
+            puntoVenta: data.puntoVenta.toString(),
+            numero: nuevoNumero,
+            numeroFormateado,
+            fecha: new Date(),
+            fechaEmision: new Date(),
+            clienteId,
+            total: data.total,
+            estado: 'emitido'
+          })
+          .returning();
+
         const ventaFinalizada = await trx
           .insert(ventas)
           .values({

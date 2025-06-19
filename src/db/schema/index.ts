@@ -19,3 +19,6 @@ export { localizaciones } from './localizacion';
 export { ubicaciones } from './ubicaciones';
 export { plantillas } from './plantillas';
 export { empresaConfigTienda } from './empresaConfigTienda';
+export { comprobanteNumeracion } from './comprobanteNumeracion';
+export { comprobantes } from './compobantes';
+export  {puntosDeVenta} from './puntosDeVentas';

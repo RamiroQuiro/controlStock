@@ -17,6 +17,7 @@ export const presupuesto = sqliteTable('presupuesto', {
     .default(sql`(strftime('%s', 'now'))`),
   clienteId: text('clienteId').references(() => clientes.id),
   total: integer('total', { mode: 'number' }).notNull(),
+  nComprobante: text('nComprobante').notNull(), // Número de comprobante asociado
   impuesto: integer('impuesto', { mode: 'number' }).notNull().default(0),
   descuento: integer('descuento', { mode: 'number' }).notNull().default(0),
   estado: text('estado', { enum: ['activo', 'convertido', 'expirado'] })

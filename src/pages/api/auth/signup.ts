@@ -1,12 +1,12 @@
-import type { APIContext } from 'astro';
-import { eq, or } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
-import { generateId } from 'lucia';
-import db from '../../../db';
-import { getToken } from '../../../lib/confrmacionEmail';
-import { sendMailer } from '../../../lib/nodemailer';
-import { users } from '../../../db/schema';
-import { getTemplate } from '../../../lib/templatesEmail/templates';
+import type { APIContext } from "astro";
+import { and, eq, or } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { generateId } from "lucia";
+import db from "../../../db";
+import { getToken } from "../../../lib/confrmacionEmail";
+import { sendMailer } from "../../../lib/nodemailer";
+import { users } from "../../../db/schema";
+import { getTemplate } from "../../../lib/templatesEmail/templates";
 
 export async function POST({
   request,
@@ -19,7 +19,7 @@ export async function POST({
   if (!email || !password || !razonSocial || !nombre || !apellido) {
     return new Response(
       JSON.stringify({
-        data: 'faltan campos requeridos',
+        data: "faltan campos requeridos",
         status: 400,
       })
     );
@@ -27,25 +27,60 @@ export async function POST({
   if (password.length < 6) {
     return new Response(
       JSON.stringify({
-        data: 'contraseña mayor a 6 caracteres',
+        data: "contraseña mayor a 6 caracteres",
         status: 400,
       })
     );
   }
 
   //   verificar si el usuario existe
-  const existingUser = await db
+  const [existingUser] = await db
     .select()
     .from(users)
-    .where(or(eq(users.email, email), eq(users.razonSocial, razonSocial)));
+    .where(or(eq(users.email, email), eq(users.razonSocial, razonSocial)))
 
-  if (existingUser.length > 0) {
-    return new Response(
-      JSON.stringify({
-        msg: 'email o razonSocial ya registrado',
-        status: 400,
-      })
-    );
+  if (existingUser) {
+    if (existingUser.emailVerificado) {
+      // Usuario ya existe y está verificado
+      return new Response(
+        JSON.stringify({
+          msg: "Email o razón social ya registrado y verificado",
+          status: 400,
+        })
+      );
+    } else {
+      // Usuario existe pero NO está verificado → reenviar email de confirmación
+      const code = generateId(6);
+      const tokenConfirmacionEmail = getToken({
+        email: existingUser.email,
+        code,
+      });
+      const template = getTemplate(
+        `${existingUser.nombre} ${existingUser.apellido}`,
+        tokenConfirmacionEmail
+      );
+      try {
+        await sendMailer(
+          existingUser.email,
+          "Confirmación de Cuenta controlStock",
+          template
+        );
+      } catch (error) {
+        console.log(error);
+        return new Response(
+          JSON.stringify({
+            msg: "Error al enviar el email de confirmacion",
+            status: 500,
+          })
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          msg: "El usuario ya existe pero no está verificado. Se reenvió el email de confirmación.",
+          status: 200,
+        })
+      );
+    }
   }
 
   // crear usuario en DB
@@ -62,9 +97,9 @@ export async function POST({
         razonSocial,
         nombre,
         apellido,
-        srcPhoto: '/avatarDefault.png',
+        srcPhoto: "/avatarDefault.png",
         email,
-        rol: rol || 'admin',
+        rol: rol || "admin",
         password: hashPassword,
         creadoPor: userId,
       })
@@ -80,12 +115,22 @@ export async function POST({
   });
   const template = getTemplate(`${nombre} ${apellido}`, tokenConfirmacionEmail);
 
-  await sendMailer(email, 'Confirmacion de Cuenta controlStock', template);
+  try {
+    await sendMailer(email, "Confirmacion de Cuenta controlStock", template);
 
-  return new Response(
-    JSON.stringify({
-      msg: 'Email de confirmacion enviado, revise su correo',
-      status: 200,
-    })
-  );
+    return new Response(
+      JSON.stringify({
+        msg: "Email de confirmacion enviado, revise su correo",
+        status: 200,
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    return new Response(
+      JSON.stringify({
+        msg: "Error al enviar el email de confirmacion",
+        status: 500,
+      })
+    );
+  }
 }

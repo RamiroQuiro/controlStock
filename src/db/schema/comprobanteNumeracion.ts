@@ -6,7 +6,7 @@ import { users } from './users';
 export const comprobanteNumeracion = sqliteTable(
   "comprobanteNumeracion",
   {
-    empresaId: text("empresa_id").notNull(),
+    empresaId: text("empresaId").notNull(),
       tipo: text("tipo",{enum: ["FC_A", "FC_B", "FC_C", "PR", "NC","RECIBO", "PRESUPUESTO"]})
     .notNull()
     .default("FC_B"), // 'FC_A', 'FC_B', 'FC_C', 'PR' (Presupuesto), etc.

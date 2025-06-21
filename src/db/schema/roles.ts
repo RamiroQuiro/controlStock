@@ -19,6 +19,6 @@ export const roles = sqliteTable(
   },
   (t) => [
     // Índice único compuesto para evitar duplicados de dni por usuario
-    unique().on(t.id, t.nombre, t.creadoPor),
+    unique().on(t.id, t.nombre, t.empresaId),
   ]
 );

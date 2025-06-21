@@ -1,15 +1,13 @@
 import type { APIRoute } from "astro";
 import { getTokenData } from "../../../../lib/confrmacionEmail";
 import db from "../../../../db";
-import {
-  users,
-} from "../../../../db/schema";
+import { users } from "../../../../db/schema";
 import { eq } from "drizzle-orm";
 import { lucia } from "../../../../lib/auth";
 import jwt from "jsonwebtoken";
-import { inicializarEmpresaParaUsuario } from "../../../../services/creacionInicialEmpresa.services";
+import { inicializarEmpresaParaUsuario } from "../../../../services/creacionInicialEmpresa.service";
 
-type userData= {
+type userData = {
   id: string;
   nombre: string;
   apellido: string;
@@ -20,8 +18,7 @@ type userData= {
   rol: string;
   puntosDeVenta: string;
   empresaId: string;
-}
- 
+};
 
 export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
   const { token: confirmationToken } = params;
@@ -60,14 +57,22 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       );
     }
 
+    const { clienteDefault, proveedorDefault, puntoVenta, empresaId } =
+      await inicializarEmpresaParaUsuario(userFind);
+    console.log(
+      "datos de la inicilaziaacion",
+      clienteDefault,
+      proveedorDefault,
+      puntoVenta,
+      empresaId
+    );
+
     await db.update(users).set({
       emailVerificado: true,
-    });
+      empresaId: empresaId,
+    }).where(eq(users.id, userFind.id));
 
-const { clienteDefault, proveedorDefault, puntoVenta,empresa } =
-  await inicializarEmpresaParaUsuario(userFind);
-
-        const session = await lucia.createSession(userFind.id, {
+    const session = await lucia.createSession(userFind.id, {
       userName: userFind.userName,
     });
 
@@ -88,9 +93,9 @@ const { clienteDefault, proveedorDefault, puntoVenta,empresa } =
       email: userFind.email,
       clienteDefault: clienteDefault,
       proveedorDefault: proveedorDefault,
-      puntosDeVenta:puntoVenta,
+      puntosDeVenta: puntoVenta,
       rol: userFind.rol,
-      empresaId: empresa.id,
+      empresaId: empresaId,
     };
 
     const jwtToken = jwt.sign(

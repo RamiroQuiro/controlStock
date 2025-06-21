@@ -10,6 +10,10 @@ import {
   proveedores,
   puntosDeVenta,
 } from "../db/schema";
+import { inicializarRoles } from "./roles.sevice";
+import { inciarCategoria } from "./categoriaInicial.service";
+import { ubicacionesInicial } from "./ubicacionesInicial.service";
+import { depositoInicial } from "./depositoInicial.service";
 
 export async function inicializarEmpresaParaUsuario(user: any) {
   const empresaId = generateId(13);
@@ -105,14 +109,22 @@ export async function inicializarEmpresaParaUsuario(user: any) {
     await db.insert(comprobanteNumeracion).values({
       empresaId,
       tipo: comp.tipo,
-      puntoVenta: "0001",
-      userId:user?.id,
+      puntoVenta: 1,
+      userId: user?.id,
       numeroActual: 0,
       updatedAt: new Date(),
     });
   }
+  // 5. Inicializacion de roles
+  await inicializarRoles(user.id, empresaId);
+  // 6. Inicializacion de categoria
+  await inciarCategoria(empresaId, user.id);
+  // 7. Inicializacion de ubicaciones
+  await ubicacionesInicial(empresaId, user.id);
+  // 8. Inicializacion de depositos
+  await depositoInicial(empresaId, user.id);
 
-  // 5. Crear carpeta para imágenes
+  // 9. Crear carpeta para imágenes
   const empresaDir = path.join(
     process.cwd(),
     "element",
@@ -122,9 +134,9 @@ export async function inicializarEmpresaParaUsuario(user: any) {
   );
   await fs.mkdir(empresaDir, { recursive: true });
 
-  // 7. Retornar info útil
+  // 9. Retornar info útil
   return {
-    empresa: newEmpresa,
+    empresaId: empresaId,
     clienteDefault: clienteFinal?.id,
     proveedorDefault: proveedorGeneral?.id,
     puntoVenta: puntoVenta?.id,

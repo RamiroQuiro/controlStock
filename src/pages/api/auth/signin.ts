@@ -25,6 +25,19 @@ export async function POST({
     .select()
     .from(users)
     .where(eq(users.email, email));
+
+  if (!findUser || findUser.activo === 0) {
+    return new Response(
+      JSON.stringify({ msg: 'email incorrecta', status: 401 })
+    );
+  }
+  if (!findUser.emailVerificado) {
+    console.log('Usuario no tiene email verificado');
+    return new Response(
+      JSON.stringify({ msg: 'email no verificado', status: 401 })
+    );
+  }
+
   const [findClienteDefault] = await db
     .select()
     .from(clientes)
@@ -43,18 +56,6 @@ export async function POST({
         eq(proveedores.nombre, 'proveedor general')
       )
     );
-
-  if (!findUser || findUser.activo === 0) {
-    return new Response(
-      JSON.stringify({ msg: 'email incorrecta', status: 401 })
-    );
-  }
-  if (!findUser.emailVerificado) {
-    console.log('Usuario no tiene email verificado');
-    return new Response(
-      JSON.stringify({ msg: 'email no verificado', status: 401 })
-    );
-  }
 
   // crear usuario en DB
   // Hacemos comapracion  hash de la contraseña

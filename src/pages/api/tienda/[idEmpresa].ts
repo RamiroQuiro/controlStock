@@ -1,13 +1,13 @@
-import type { APIContext } from 'astro';
-import db from '../../../db';
+import type { APIContext } from "astro";
+import db from "../../../db";
 import {
   categorias,
   empresaConfigTienda,
   empresas,
   productos,
-} from '../../../db/schema';
-import { eq, inArray } from 'drizzle-orm';
-import { productoCategorias } from '../../../db/schema/productoCategorias';
+} from "../../../db/schema";
+import { and, eq, inArray } from "drizzle-orm";
+import { productoCategorias } from "../../../db/schema/productoCategorias";
 
 export const GET = async ({ params }: APIContext) => {
   const { idEmpresa } = params;
@@ -20,7 +20,7 @@ export const GET = async ({ params }: APIContext) => {
       .where(eq(empresas.id, idEmpresa));
 
     if (!empresa) {
-      return new Response(JSON.stringify({ msg: 'Empresa no encontrada' }), {
+      return new Response(JSON.stringify({ msg: "Empresa no encontrada" }), {
         status: 404,
       });
     }
@@ -34,7 +34,7 @@ export const GET = async ({ params }: APIContext) => {
       .select()
       .from(productos)
       .where(
-        eq(productos.empresaId, idEmpresa) && eq(productos.isEcommerce, true)
+        and(eq(productos.empresaId, idEmpresa), eq(productos.isEcommerce, true))
       )
       .limit(20);
 
@@ -90,7 +90,7 @@ export const GET = async ({ params }: APIContext) => {
     return new Response(JSON.stringify(response), { status: 200 });
   } catch (error) {
     return new Response(
-      JSON.stringify({ msg: 'Error al obtener datos de la tienda', error }),
+      JSON.stringify({ msg: "Error al obtener datos de la tienda", error }),
       { status: 500 }
     );
   }

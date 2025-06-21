@@ -143,7 +143,7 @@ const fetchTiendaData = async (empresaId) => {
   try {
     const response = await fetch(`/api/tienda/${empresaId}`, {
       headers: {
-        'xx-user-id': empresaId,
+        'xx-empresa-id': empresaId,
       },
     });
     const data = await response.json();

@@ -11,13 +11,19 @@ type Producto = {
 
 type CarritoItem = Producto & { cantidad: number };
 
-const TiendaOnline: React.FC = () => {
+const TiendaOnline: React.FC = ({params}:{params:string}) => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [carrito, setCarrito] = useState<CarritoItem[]>([]);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
 
   useEffect(() => {
-    fetch("/api/productos/tiendaOnline")
+    fetch("/api/productos/tiendaOnline",{
+      method:'GET',
+      headers:{
+        'xx-razonSocial-xx': params,
+        'Content-Type': 'application/json',
+      }
+    })
       .then((res) => res.json())
       .then((data) => setProductos(data));
   }, []);

@@ -1,20 +1,34 @@
-import { formateoMoneda } from "../utils/formateoMoneda"
+import { formateoMoneda } from "../utils/formateoMoneda";
 import { loader } from "../utils/loader/showLoader";
-import { downloadLoader } from '../utils/loader/showDownloadLoader';
+import { downloadLoader } from "../utils/loader/showDownloadLoader";
 import formatDate from "../utils/formatDate";
 
 export class ComprobanteService {
   public async generarComprobanteHTML(data: any) {
+    console.log("este es el data del comprbante", data);
     // Determina letra de comprobante (A, B, C)
-    const letra = data.letra || 'B'; // Por defecto B si no viene
-    const tipoFactura = {
-      A: 'Factura A',
-      B: 'Factura B',
-      C: 'Factura C',
-      X: 'Factura X',
-      PRESUPUESTO: 'Presupuesto'
-    }[letra] || 'Comprobante';
-  
+    const letra = data.tipo || "FC_B"; // Por defecto B si no viene
+    const letraAImpirmir =
+      {
+        FC_A: "A",
+        FC_B: "B",
+        FC_C: "C",
+        FC_X: "X",
+        NC: "C",
+        RC: "C",
+        PRESUPUESTO: "P",
+      }[letra] || "Comprobante";
+    const tipoFactura =
+      {
+        FC_A: "Factura A",
+        FC_B: "Factura B",
+        FC_C: "Factura C",
+        FC_X: "Factura X",
+        NC: "Nota de Credito",
+        RC: "Recibo",
+        PRESUPUESTO: "Presupuesto",
+      }[letra] || "Comprobante";
+
     return `
       <!DOCTYPE html>
       <html>
@@ -38,9 +52,17 @@ export class ComprobanteService {
               padding-bottom: 18px;
               margin-bottom: 24px;
             }
-            .logo-container { flex: 1; }
+            .logo-container { width: 40%; }
             .logo-container img { max-width: 150px; margin-bottom: 8px; }
-            .empresa-datos { font-size: 15px; color: #444; }
+            .empresa-datos { font-size: 15px; color: #444; width: 40%; }
+          
+            .contenedor-factura-tipo {
+              width: fit-content;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              align-items: center;
+            }
             .factura-tipo {
               border: 2px solid #222;
               border-radius: 7px;
@@ -55,7 +77,7 @@ export class ComprobanteService {
               background: #f5f5f5;
               margin-bottom: 6px;
             }
-            .factura-info { text-align: right; font-size: 15px; }
+            .factura-info { text-align: right;width: 40%;   font-size: 15px; }
             .cliente {
               background: #f4f8fa;
               border-radius: 8px;
@@ -105,6 +127,20 @@ export class ComprobanteService {
               border-top: 1px dashed #bbb;
               padding-top: 10px;
             }
+            .footer {
+              margin-top: 28px;
+              font-size: 13px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              width: 100%;
+              height: 50px;
+              background: #f9fafb;
+              color: #555;
+              margin-top: 28px;
+              border-top: 1px dashed #bbb;
+              padding-top: 10px;
+            }
             .cae-box {
               margin-top: 12px;
               font-size: 13px;
@@ -124,19 +160,20 @@ export class ComprobanteService {
           <div class="comprobante">
             <div class="header">
               <div class="logo-container">
-                <img src="${data.empresa?.logo || ""}" alt="Logo">
+                <img src=".${data.dataEmpresa?.logo || ""}" alt="Logo">
                 <div class="empresa-datos">
-                  <strong>${data.empresa?.razonSocial || ""}</strong><br>
-                  CUIT: ${data.empresa?.documento || ""}<br>
-                  ${data.empresa?.direccion || ""}<br>
-                  ${data.empresa?.condicionIva ? `IVA: ${data.empresa.condicionIva}` : ""}
+                  <strong>${data.dataEmpresa?.razonSocial || ""}</strong><br>
+                  CUIT: ${data.dataEmpresa?.documento || ""}<br>
+                  ${data.dataEmpresa?.direccion || ""}<br>
+                  ${data.dataEmpresa?.condicionIva ? `IVA: ${data.dataEmpresa.condicionIva}` : ""}
                 </div>
               </div>
-              <div style="text-align: right;">
-                <div class="factura-tipo">${letra}</div>
-                <div class="factura-info">
-                  <strong>${tipoFactura}</strong><br>
-                  N°: <b>${data.codigo}</b><br>
+              <div class="contenedor-factura-tipo">
+                <div class="factura-tipo">${letraAImpirmir}</div>
+                <strong>${tipoFactura}</strong><br>
+              </div>
+              <div class="factura-info">
+                  N°: <b>${data.numeroFormateado}</b><br>
                   Fecha: ${new Date(data.fecha).toLocaleDateString()}<br>
                   ${
                     data.tipo === "presupuesto"
@@ -227,14 +264,19 @@ export class ComprobanteService {
               </div>
             </div>
           </div>
+          <div class="footer">
+          <p><b>Gracias por su compra</b></p>
+          <span>id de transaccion:<b>${data.codigo}</b></span>
+          </div>
         </body>
       </html>
     `;
   }
-  
+
   public async generarTicketHTML(data: {
     id: string;
     fecha: string;
+    codigo: string;
     cliente: {
       nombre: string;
       dni: string;
@@ -258,16 +300,14 @@ export class ComprobanteService {
       impuesto?: number;
       descripcion: string;
     }>;
-   
-      subtotal: number;
-      impuestos: number;
-      descuentos: number;
-      total: number;
- 
 
+    subtotal: number;
+    impuestos: number;
+    descuentos: number;
+    total: number;
   }) {
     const { id, fecha, cliente, empresa, comprobante, items } = data;
-  
+
     return `
   <!DOCTYPE html>
   <html lang="es">
@@ -349,7 +389,7 @@ export class ComprobanteService {
       <div class="cliente-info">
         <p><strong>Cliente:</strong> ${cliente.nombre}</p>
         <p><strong>Documento:</strong> ${cliente.dni}</p>
-        ${cliente.direccion ? `<p><strong>Dirección:</strong> ${cliente.direccion}</p>` : ''}
+        ${cliente.direccion ? `<p><strong>Dirección:</strong> ${cliente.direccion}</p>` : ""}
       </div>
   
       <table class="items">
@@ -373,7 +413,7 @@ export class ComprobanteService {
             </tr>
           `
             )
-            .join('')}
+            .join("")}
         </tbody>
       </table>
   
@@ -388,7 +428,7 @@ export class ComprobanteService {
                 <td>Descuentos:</td>
                 <td style="text-align:right">-${formateoMoneda.format(totales.descuentos)}</td>
               </tr>`
-            : ''
+            : ""
         }
         <tr>
           <td>IVA:</td>
@@ -404,23 +444,23 @@ export class ComprobanteService {
   </html>
     `;
   }
-  
+
   async descargarPDF(data: any) {
     downloadLoader(true);
     try {
-      const response = await fetch('/api/comprobantes/generar-pdf', {
-        method: 'POST',
+      const response = await fetch("/api/comprobantes/generar-pdf", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error('Error generando PDF');
+      if (!response.ok) throw new Error("Error generando PDF");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `comprobante-${data.codigo}.pdf`;
       document.body.appendChild(a);
@@ -428,7 +468,7 @@ export class ComprobanteService {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Error al generar PDF:', error);
+      console.error("Error al generar PDF:", error);
       throw error;
     } finally {
       downloadLoader(false);
@@ -438,19 +478,19 @@ export class ComprobanteService {
   async imprimirComprobante(data: any) {
     try {
       // Similar a descargarPDF pero abriendo en nueva pestaña
-      const response = await fetch('/api/comprobantes/generar-pdf', {
-        method: 'POST',
+      const response = await fetch("/api/comprobantes/generar-pdf", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error('Error generando PDF');
+      if (!response.ok) throw new Error("Error generando PDF");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      
+
       // Abrir en nueva pestaña para imprimir
       const printWindow = window.open(url);
       if (printWindow) {
@@ -459,7 +499,7 @@ export class ComprobanteService {
         };
       }
     } catch (error) {
-      console.error('Error al imprimir:', error);
+      console.error("Error al imprimir:", error);
       throw error;
     }
   }
@@ -468,13 +508,13 @@ export class ComprobanteService {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Comprobante',
+          title: "Comprobante",
           text: `Comprobante #${codigo}`,
-          url: window.location.href
+          url: window.location.href,
         });
       } catch (error) {
-        console.error('Error compartiendo:', error);
+        console.error("Error compartiendo:", error);
       }
     }
   }
-} 
+}

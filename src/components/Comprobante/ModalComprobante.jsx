@@ -18,6 +18,10 @@ export default function ModalComprobante({
   const data = {
     codigo: ventaFinalizada?.codigo || ventaFinalizada?.id,
     fecha: ventaFinalizada.fecha,
+    numeroFormateado: ventaFinalizada.numeroFormateado,
+    puntoVenta: ventaFinalizada.puntoVenta,
+    tipo: ventaFinalizada.tipo,
+    empresaId: ventaFinalizada.empresaId,
     cliente: cliente,
     dataEmpresa:{
       razonSocial: ventaFinalizada.dataEmpresa.razonSocial,
@@ -36,7 +40,7 @@ export default function ModalComprobante({
       impuesto: p.iva,
       descripcion: p.descripcion,
     })),
-    tipo: esPresupuesto,
+    esPresupuesto: esPresupuesto,
     subtotal,
     impuestos: ivaMonto,
     descuentos: descuento,
@@ -63,7 +67,7 @@ export default function ModalComprobante({
       >
         <Comprobante
           onClose={handleClose}
-          tipo={esPresupuesto}
+          esPresupuesto={esPresupuesto}
           data={data}
           onPrint={() => comprobanteService.imprimirComprobante(data)}
           onDownload={() => comprobanteService.descargarPDF(data)}

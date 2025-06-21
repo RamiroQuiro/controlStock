@@ -2,6 +2,7 @@ import type { APIContext } from 'astro';
 import db from '../../../db';
 import {
   comprobanteNumeracion,
+  comprobantes,
   detalleVentas,
   empresas,
   movimientosStock,
@@ -82,7 +83,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
           .update(comprobanteNumeracion)
           .set({ 
             numeroActual: nuevoNumero,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date()
           })
           .where(eq(comprobanteNumeracion.empresaId, empresaId))
           .where(eq(comprobanteNumeracion.tipo, data.tipoComprobante))
@@ -113,6 +114,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             empresaId,
             userId,
             clienteId,
+            comprobanteId: comprobanteCreado.id,
+            numeroFormateado,
             fecha: new Date(),
             ...data,
           })
@@ -125,9 +128,10 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               id: nanoid(),
               ventaId: ventaFinalizada[0].id,
               productoId: prod.id,
+              nComprobante: ventaFinalizada[0].numeroFormateado,
               cantidad: prod.cantidad,
               precio: prod.pVenta,
-              
+              subtotal: prod.cantidad * prod.pVenta,
             });
 
             // Actualizar el stock en la tabla productos
@@ -155,7 +159,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               empresaId,
               proveedorId: null,
               motivo: 'venta',
-              clienteId
+              clienteId,
+              nComprobante: ventaFinalizada[0].nComprobante,
             });
           })
         );

@@ -3,6 +3,7 @@ import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
 import { clientes } from './clientes';
 import { empresas } from './empresas';
+import { comprobantes } from './compobantes';
 
 export const ventas = sqliteTable('ventas', {
   id: text('id').primaryKey(),
@@ -14,6 +15,8 @@ export const ventas = sqliteTable('ventas', {
   clienteId: text('clienteId').references(() => clientes.id),
   metodoPago: text('metodoPago').default('efectivo'),
   nComprobante: text('nComprobante'),
+  numeroFormateado: text('numeroFormateado'),
+  comprobanteId: text('comprobanteId').references(() => comprobantes.id),
   tipo: text('tipo', {
     enum: ['FC_A', 'FC_B', 'FC_C', 'PR', 'NC'],
   })

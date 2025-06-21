@@ -1,8 +1,11 @@
 import { formateoMoneda } from '../../utils/formateoMoneda';
 
 interface ComprobanteProps {
-  tipo: 'comprobante' | 'presupuesto';
+  esPresupuesto: 'comprobante' | 'presupuesto';
   data: {
+    numeroFormateado: string;
+    puntoVenta: number;
+    tipo: string;
     codigo: string;
     fecha: number;
     dataEmpresa:{
@@ -38,7 +41,7 @@ interface ComprobanteProps {
 }
 
 const Comprobante = ({
-  tipo,
+  esPresupuesto,
   data,
   onPrint,
   onDownload,
@@ -46,7 +49,7 @@ const Comprobante = ({
   onClose,
 }: ComprobanteProps) => {
 
-  console.log('estos son los datos del comprobante', tipo );
+  console.log('estos son los datos del comprobante', esPresupuesto );
   return (
     <div
       className="bg-white relative p-6 flex items-stretch justify-normal flex-col h-full  mx-auto"
@@ -55,13 +58,13 @@ const Comprobante = ({
       {/* Encabezado */}
       <div className="border-b md:pb-4 md:mb-4">
         <h1 className="text-2xl font-bold">
-          {tipo == "comprobante" ? "Comprobante" : "Presupuesto"}
+          {esPresupuesto == "comprobante" ? "Comprobante" : "Presupuesto"}
         </h1>
         <div className="flex justify-between mt-2">
           <div>
-            <p>N°: {data.codigo}</p>
+            <p>N°: {data.numeroFormateado}</p>
             <p>Fecha: {new Date(data.fecha).toLocaleDateString()}</p>
-            {tipo === "presupuesto" && (
+            {esPresupuesto === "presupuesto" && (
               <p className="text-red-500">
                 Válido hasta: {new Date(data.expira_at).toLocaleDateString()}
               </p>

@@ -2,19 +2,20 @@ import type { APIContext } from "astro";
 import db from "../../../db";
 
 import { nanoid } from "nanoid";
-import { eq, sql } from "drizzle-orm";
-import { detallePresupuesto, empresas, presupuesto } from "../../../db/schema";
+import { eq, and } from "drizzle-orm";
+import { comprobanteNumeracion, detallePresupuesto, empresas, presupuesto } from "../../../db/schema";
 import type { Producto } from "../../../types";
+import { agregarCeros } from "../../../lib/calculos";
 
 export async function POST({ request, params }: APIContext): Promise<Response> {
   try {
     const {
       productos: productosSeleccionados,
       userId,
-      empresaId,  
-      data
+      empresaId,
+      data,
     } = await request.json();
-    
+
     // Validaciones previas
     if (!productosSeleccionados?.length || !userId || !data.clienteId) {
       return new Response(
@@ -36,7 +37,6 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       );
     }
 
-
     // Calcular fecha de expiración (5 días)
     const diasExpiracion = 5; // Variable para los días de expiración
     const fecha = new Date();
@@ -47,6 +47,20 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       .transaction(async (trx) => {
         // Generar código único para el presupuesto
         const codigo = nanoid(8).toUpperCase();
+        // obtener numeracion anterior
+        const [numeracion] = await trx
+          .select()
+          .from(comprobanteNumeracion)
+          .where(
+            and(
+              eq(comprobanteNumeracion.empresaId, empresaId),
+              eq(comprobanteNumeracion.tipo, "PRESUPUESTO"),
+              eq(comprobanteNumeracion.puntoVenta, data.puntoVenta)
+            )
+          )
+          .limit(1);
+        const nuevoNumero = numeracion.numeroActual + 1;
+        const numeroFormateado = `${data.tipoComprobante}-${agregarCeros(data.puntoVenta,4)}-${agregarCeros(nuevoNumero,8)}`;
 
         const presupuestoFinalizado = await trx
           .insert(presupuesto)
@@ -56,43 +70,45 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
             userId,
             empresaId,
             fecha,
+            numeroFormateado,
             expira_at,
-            estado: 'activo',
-            ...data
+            estado: "activo",
+            ...data,
           })
           .returning();
-
 
         // Procesar cada producto del presupuesto
         await Promise.all(
           productosSeleccionados.map(async (prod) => {
             await trx.insert(detallePresupuesto).values({
               id: nanoid(),
+              nComprobante:numeroFormateado,
               presupuestoId: presupuestoFinalizado[0].id,
               productoId: prod.id,
               cantidad: prod.cantidad,
               precioUnitario: prod.pVenta,
               subtotal: prod.cantidad * prod.pVenta,
               impuesto: prod.iva || 0,
-              descuento: prod.descuento || 0
+              descuento: prod.descuento || 0,
             });
           })
         );
 
- const [dataEmpresa] = await trx.select({
-          razonSocial: empresas.razonSocial,
-          documento: empresas.documento,
-          direccion: empresas.direccion,
-          telefono: empresas.telefono,
-          logo:empresas.srcPhoto,
-          email: empresas.email,
-        })
+        const [dataEmpresa] = await trx
+          .select({
+            razonSocial: empresas.razonSocial,
+            documento: empresas.documento,
+            direccion: empresas.direccion,
+            telefono: empresas.telefono,
+            logo: empresas.srcPhoto,
+            email: empresas.email,
+          })
           .from(empresas)
           .where(eq(empresas.id, empresaId));
-        
+
         return {
           ...presupuestoFinalizado[0],
-          dataEmpresa
+          dataEmpresa,
         };
       })
       .catch((error) => {
@@ -104,10 +120,9 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       JSON.stringify({
         status: 200,
         msg: "Presupuesto generado con éxito",
-        data:presupuestoDB
+        data: presupuestoDB,
       })
     );
-
   } catch (error) {
     console.error("Error al generar presupuesto:", error);
     return new Response(

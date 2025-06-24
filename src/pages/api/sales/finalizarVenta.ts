@@ -12,6 +12,7 @@ import {
 } from '../../../db/schema';
 import { nanoid } from 'nanoid';
 import { and, eq, sql } from 'drizzle-orm';
+import { agregarCeros } from '../../../lib/calculos';
 
 export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
@@ -70,14 +71,14 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             )
           )
           .limit(1);
-
+console.log('numeracion',numeracion)
         if (!numeracion) {
           throw new Error('No se encontró numeración para el tipo de comprobante');
         }
 
         const nuevoNumero = numeracion.numeroActual + 1;
-        const numeroFormateado = `${data.tipoComprobante}-${data.puntoVenta.toString().padStart(4, '0')}-${nuevoNumero.toString().padStart(8, '0')}`;
-
+        const numeroFormateado = `${data.tipoComprobante}-${agregarCeros(data.puntoVenta,4)}-${agregarCeros(nuevoNumero,8)}`;
+console.log('numeroFormateado',numeroFormateado)
         // Actualizar numeración
         await trx
           .update(comprobanteNumeracion)
@@ -85,9 +86,13 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             numeroActual: nuevoNumero,
             updatedAt: new Date()
           })
-          .where(eq(comprobanteNumeracion.empresaId, empresaId))
-          .where(eq(comprobanteNumeracion.tipo, data.tipoComprobante))
-          .where(eq(comprobanteNumeracion.puntoVenta, data.puntoVenta));
+          .where(
+            and(
+              eq(comprobanteNumeracion.empresaId, empresaId),
+              eq(comprobanteNumeracion.tipo, data.tipoComprobante || 'FC_B'),
+              eq(comprobanteNumeracion.puntoVenta, data.puntoVenta)
+            )
+          );
 
         // Crear comprobante
         const [comprobanteCreado] = await trx
@@ -96,7 +101,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             id: nanoid(12),
             empresaId,
             tipo: data.tipoComprobante || 'FC_B',
-            puntoVenta: data.puntoVenta.toString(),
+            puntoVenta: data.puntoVenta,
             numero: nuevoNumero,
             numeroFormateado,
             fecha: new Date(),
@@ -115,7 +120,11 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             userId,
             clienteId,
             comprobanteId: comprobanteCreado.id,
+            nComprobante: numeroFormateado,
             numeroFormateado,
+            puntoVenta: data.puntoVenta,
+            tipo: data.tipoComprobante || 'FC_B',
+            metodoPago: data.metodoPago,
             fecha: new Date(),
             ...data,
           })
@@ -128,7 +137,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               id: nanoid(),
               ventaId: ventaFinalizada[0].id,
               productoId: prod.id,
-              nComprobante: ventaFinalizada[0].numeroFormateado,
+              nComprobante: numeroFormateado,
               cantidad: prod.cantidad,
               precio: prod.pVenta,
               subtotal: prod.cantidad * prod.pVenta,
@@ -160,7 +169,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               proveedorId: null,
               motivo: 'venta',
               clienteId,
-              nComprobante: ventaFinalizada[0].nComprobante,
+              nComprobante: numeroFormateado,
             });
           })
         );

@@ -3,7 +3,7 @@ import db from "../../../db";
 
 import { nanoid } from "nanoid";
 import { eq, and } from "drizzle-orm";
-import { comprobanteNumeracion, detallePresupuesto, empresas, presupuesto } from "../../../db/schema";
+import { comprobanteNumeracion, comprobantes, detallePresupuesto, empresas, presupuesto } from "../../../db/schema";
 import type { Producto } from "../../../types";
 import { agregarCeros } from "../../../lib/calculos";
 
@@ -58,19 +58,54 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
               eq(comprobanteNumeracion.puntoVenta, data.puntoVenta)
             )
           )
-          .limit(1);
         const nuevoNumero = numeracion.numeroActual + 1;
-        const numeroFormateado = `${data.tipoComprobante}-${agregarCeros(data.puntoVenta,4)}-${agregarCeros(nuevoNumero,8)}`;
+        const numeroFormateado = `${'PRESUPUESTO'}-${agregarCeros(data.puntoVenta,4)}-${agregarCeros(nuevoNumero,8)}`;
+
+        // Actualizar numeración
+        await trx
+          .update(comprobanteNumeracion)
+          .set({ 
+            numeroActual: nuevoNumero,
+            updatedAt: new Date()
+          })
+          .where(
+            and(
+              eq(comprobanteNumeracion.empresaId, empresaId),
+              eq(comprobanteNumeracion.tipo, 'PRESUPUESTO'),
+              eq(comprobanteNumeracion.puntoVenta, data.puntoVenta)
+            )
+          );
+  // Crear comprobante
+        const [comprobanteCreado] = await trx
+          .insert(comprobantes)
+          .values({
+            id: nanoid(12),
+            empresaId,
+            tipo: 'PRESUPUESTO',
+            puntoVenta: data.puntoVenta,
+            numero: nuevoNumero,
+            numeroFormateado,
+            fecha: new Date(),
+            fechaEmision: new Date(),
+            clienteId:data.clienteId,
+            total: data.total,
+            estado: 'emitido'
+          })
+          .returning();
 
         const presupuestoFinalizado = await trx
           .insert(presupuesto)
           .values({
-            id: nanoid(),
+            id: nanoid(12),
             codigo,
             userId,
             empresaId,
             fecha,
+            puntoVenta:data.puntoVenta,
+            tipoComprobante:'PRESUPUESTO',
             numeroFormateado,
+            comprobanteId:comprobanteCreado.id,
+            nComprobante:numeroFormateado,
             expira_at,
             estado: "activo",
             ...data,
@@ -115,6 +150,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         console.error("Error en transacción:", error);
         throw error;
       });
+        console.log('este es el endpoint presupuestar ->',presupuestoDB)
 
     return new Response(
       JSON.stringify({

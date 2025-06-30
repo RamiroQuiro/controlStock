@@ -16,7 +16,8 @@ const { user } = Astro.locals;
     slot={'menu'}
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
-    <div class="flex gap-3">
+  <div class="flex gap-3">
+      <Button1 id="presupuestosTodos"> Todos los presupuestos </Button1>
       <Button1 id="ventasTodas"> Todas las ventas </Button1>
     </div>
   </div>
@@ -75,10 +76,16 @@ const { user } = Astro.locals;
     }
   });
 
-  document
-    .getElementById('ventasTodas')
-    ?.addEventListener(
-      'click',
-      () => (window.location.href = '/dashboard/ventas/todas')
-    );
+document
+  .getElementById('ventasTodas')
+  ?.addEventListener(
+    'click',
+    () => (window.location.href = '/dashboard/ventas/todas')
+  );
+document
+  .getElementById('presupuestosTodos')
+  ?.addEventListener(
+    'click',
+    () => (window.location.href = '/dashboard/ventas/presupuestos')
+  );
 </script>

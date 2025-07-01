@@ -9,7 +9,7 @@ import tailwind from '@astrojs/tailwind';
 // https://astro.build/config
 export default defineConfig({
   server: {
-    port: 4321,
+    port: 4323,
     host: true,
   },
   devToolbar: {
@@ -22,9 +22,6 @@ export default defineConfig({
     mode: 'standalone',
   }),
   vite: {
-    server: {
-      allowedHosts: ['controlstock.online'],
-    },
     resolve: {
       alias: {
         '@': '/src',

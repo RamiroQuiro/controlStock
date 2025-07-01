@@ -1,0 +1,136 @@
+---
+import Button1 from "../../../../components/atomos/Button1.astro"
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro"
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro"
+import ConfeccionTabla from "../components/PresupuestosTodas/ConfeccionTabla"
+
+
+
+const {user}=Astro.locals
+---
+
+<LayoutDash title="Ventas">
+  <MainDashboard h1="Ventas">
+    <div
+      slot={"menu"}
+      class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+    >
+      <div class="flex gap-3">
+        <Button1 id="btnExportarPDF"> Exportar PDF </Button1>
+        <Button1 id="btnExportar"> Exportar CSV </Button1>
+      </div>
+    </div>
+
+    <div class=" w-full h-auto pb-10">
+      <div class="md:mb-4 mb-2 flex flex-wrap md:flex-nowrap md:gap-4 gap-2">
+        <input
+          type="text"
+          id="buscarCliente"
+          placeholder="Buscar cliente..."
+          class="w-full max-w-xs md:px-4  px-2 py-2 text-xs md:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+        />
+        <select
+          id="filtroCategoria"
+          class="md:px-4 px-2 py-2 md:w-full w-[44%] border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+        >
+          <option value="">Todas las categorías</option>
+          <option value="VIP">VIP</option>
+          <option value="regular">Regular</option>
+          <option value="nuevo">Nuevo</option>
+        </select>
+        <select
+          id="filtroEstado"
+          class="md:px-4 px-2 py-2 md:w-full w-[44%] border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+        >
+          <option value="">Todos los estados</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+  
+
+      <ConfeccionTabla client:load userId={user?.id} empresaId={user?.empresaId} />
+    </div>
+  </MainDashboard>
+</LayoutDash>
+<script>
+import { downloadLoader } from "../../../../utils/loader/showDownloadLoader";
+import { showToast } from "../../../../utils/toast/toastShow";
+
+
+
+  // Manejador para el botón de exportar
+  document
+    .getElementById("btnExportar")
+    ?.addEventListener("click", async () => {
+      downloadLoader(true);
+      try {
+        const response = await fetch("/api/clientes/exportar-csv");
+
+        if (!response.ok) {
+          throw new Error("Error al exportar");
+        }
+
+        // Crear blob desde la respuesta
+        const blob = await response.blob();
+
+        // Crear URL temporal para el blob
+        const url = window.URL.createObjectURL(blob);
+
+        // Crear elemento <a> temporal
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `clientes-${new Date().toISOString().split("T")[0]}.csv`;
+
+        // Agregar al DOM y simular click
+        document.body.appendChild(a);
+        a.click();
+
+        // Limpiar
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        downloadLoader(false);
+      } catch (error) {
+        console.error("Error al exportar:", error);
+        // Aquí podrías mostrar un toast de error si lo deseas
+        downloadLoader(false);
+        showToast("Error al exportar clientes", { background: "bg-red-600" });
+      }
+    });
+
+  // Manejador para el botón de nuevo cliente
+  document.getElementById("btnNuevoCliente")?.addEventListener("click", () => {
+    window.location.href = "/dashboard/clientes/nuevo";
+  });
+
+  // Manejador para el botón de exportar PDF
+  document
+    .getElementById("btnExportarPDF")
+    ?.addEventListener("click", async () => {
+      downloadLoader(true);
+      try {
+        const response = await fetch("/api/clientes/exportar-pdf");
+
+        if (!response.ok) {
+          throw new Error("Error al exportar PDF");
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `clientes-${new Date().toISOString().split("T")[0]}.pdf`;
+
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        downloadLoader(false);
+      } catch (error) {
+        console.error("Error al exportar:", error);
+        downloadLoader(false);
+        showToast("Error al exportar PDF", { background: "bg-red-600" });
+      }
+    });
+</script>

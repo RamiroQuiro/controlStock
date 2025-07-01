@@ -22,6 +22,9 @@ export default defineConfig({
     mode: 'standalone',
   }),
   vite: {
+    server: {
+      allowedHosts: ['controlstock.online'],
+    },
     resolve: {
       alias: {
         '@': '/src',

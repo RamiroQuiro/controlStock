@@ -1,5 +1,5 @@
 ---
-import Loader from '../utils/loader/Loader.astro';
+import Loader from "../utils/loader/Loader.astro";
 
 interface Props {
   title?: string;
@@ -10,17 +10,21 @@ interface Props {
 }
 
 const {
-  title = 'controlStock - Gestioná tu stock como un profesional',
-  description = 'controlStock: Solución integral para gestión de inventario y punto de venta. Optimiza tu negocio con control de stock, ventas y reportes en tiempo real.',
+  title = "controlStock - Gestioná tu stock como un profesional",
+  description = "controlStock: Solución integral para gestión de inventario y punto de venta. Optimiza tu negocio con control de stock, ventas y reportes en tiempo real.",
   keywords = [
-    'gestión de inventario',
-    'punto de venta',
-    'software para negocios',
-    'control de stock',
-    'sistema de ventas',
+    "gestión de inventario",
+    "control de stock",
+    "sistema de ventas",
+    "facturación fácil",
+    "gestión de inventario argentina",
+    "ventas kiosco",
+    "punto de venta digital",
+    "app ventas Argentina",
+    "control inventario negocios pequeños",
   ],
-  image = '/og-image.png',
-  canonicalURL = 'controlStock',
+  image = "/og-image.png",
+  canonicalURL = "https://controlstock.online",
 } = Astro.props;
 
 const currentURL = Astro.url.href;
@@ -37,7 +41,7 @@ const currentURL = Astro.url.href;
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="keywords" content={keywords.join(', ')} />
+    <meta name="keywords" content={keywords.join(", ")} />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -67,7 +71,18 @@ const currentURL = Astro.url.href;
     <!-- Geolocation -->
     <meta name="geo.region" content="AR" />
     <meta name="geo.placename" content="Argentina" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-72T4TPKPXY"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
+      gtag("config", "G-72T4TPKPXY");
+    </script>
     <!-- Generator -->
     <meta name="generator" content={Astro.generator} />
 

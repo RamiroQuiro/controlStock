@@ -54,7 +54,9 @@ export const trayendoProductos = async (
       .from(productos)
       .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
       .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
-      .where(eq(productos.empresaId, empresaId))
+      .where(
+        and(eq(productos.empresaId, empresaId), eq(productos.activo, true))
+      )
       .groupBy(productos.id)
       .orderBy(desc(sql`ventas`))
       .limit(limit)

@@ -1,0 +1,20 @@
+---
+import DivBox1 from '../../../../../components/atomos/DivBox1.astro';
+import MainDashboard from '../../../../../components/atomos/MainDashboard.astro';
+import LayoutDash from '../../../../../components/layouts/LayoutDash.astro';
+import { traerPresupuestoId } from '../../../../../services/presupuestos.service';
+import VentaDetalle from '../../components/VentaDetalle';
+
+const { presupuestoId } = Astro.params as { presupuestoId: string };
+
+const presupuestoDB = await traerPresupuestoId(presupuestoId);
+console.log('esta es la venta con el id', presupuestoDB);
+---
+
+<LayoutDash title={`Presupuesto ${presupuestoId}`}>
+  <MainDashboard>
+    <DivBox1 styleDiv="h-full">
+      <VentaDetalle client:load {...presupuestoDB} />
+    </DivBox1>
+  </MainDashboard>
+</LayoutDash>

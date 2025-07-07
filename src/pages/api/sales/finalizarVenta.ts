@@ -23,8 +23,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       data,
     } = await request.json();
     const { user } = locals;
-    
-    
+
     // Validación específica para clienteId
     let clienteId;
     if (data.clienteId && data.clienteId !== '') {
@@ -37,7 +36,13 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     console.log('data traido por frontend ->', data);
 
     // Validaciones previas
-    if (!productosSeleccionados?.length || !empresaId || !userId || !data || !clienteId) {
+    if (
+      !productosSeleccionados?.length ||
+      !empresaId ||
+      !userId ||
+      !data ||
+      !clienteId
+    ) {
       return new Response(
         JSON.stringify({
           status: 400,
@@ -71,20 +76,20 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             )
           )
           .limit(1);
-console.log('numeracion',numeracion)
         if (!numeracion) {
-          throw new Error('No se encontró numeración para el tipo de comprobante');
+          throw new Error(
+            'No se encontró numeración para el tipo de comprobante'
+          );
         }
 
         const nuevoNumero = numeracion.numeroActual + 1;
-        const numeroFormateado = `${data.tipoComprobante}-${agregarCeros(data.puntoVenta,4)}-${agregarCeros(nuevoNumero,8)}`;
-console.log('numeroFormateado',numeroFormateado)
+        const numeroFormateado = `${data.tipoComprobante}-${agregarCeros(data.puntoVenta, 4)}-${agregarCeros(nuevoNumero, 8)}`;
         // Actualizar numeración
         await trx
           .update(comprobanteNumeracion)
-          .set({ 
+          .set({
             numeroActual: nuevoNumero,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(
             and(
@@ -108,7 +113,7 @@ console.log('numeroFormateado',numeroFormateado)
             fechaEmision: new Date(),
             clienteId,
             total: data.total,
-            estado: 'emitido'
+            estado: 'emitido',
           })
           .returning();
 
@@ -174,20 +179,21 @@ console.log('numeroFormateado',numeroFormateado)
           })
         );
 
-        const [dataEmpresa] = await trx.select({
-          razonSocial: empresas.razonSocial,
-          documento: empresas.documento,
-          direccion: empresas.direccion,
-          telefono: empresas.telefono,
-          logo:empresas.srcPhoto,
-          email: empresas.email,
-        })
+        const [dataEmpresa] = await trx
+          .select({
+            razonSocial: empresas.razonSocial,
+            documento: empresas.documento,
+            direccion: empresas.direccion,
+            telefono: empresas.telefono,
+            logo: empresas.srcPhoto,
+            email: empresas.email,
+          })
           .from(empresas)
           .where(eq(empresas.id, empresaId));
 
         return {
           ...ventaFinalizada[0],
-          dataEmpresa
+          dataEmpresa,
         };
       })
       .catch((error) => {

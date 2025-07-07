@@ -5,7 +5,7 @@ import formatDate from "../../../../../utils/formatDate";
 import { SearchCheck } from "lucide-react";
 import { formateoMoneda } from "../../../../../utils/formateoMoneda";
 import DivReact from "../../../../../components/atomos/DivReact";
-import ContenedorVisorDetalleVenta from "./ContenedorVisorDetalleVenta";
+import ContenedorVisorDetallePresupuesto from "./ContenedorVisorDetallePresupuesto";
 
 export default function ConfeccionTabla({ userId, empresaId }) {
   const [seleccionador, setSeleccionador] = useState({
@@ -36,13 +36,14 @@ export default function ConfeccionTabla({ userId, empresaId }) {
         },
       });
       const data = await res.json();
+      // console.log('este es la data de os presupuestos ->',data)
       setNewArray(
         data?.data?.map((venta, i) => {
           const fecha = formatDate(venta.fecha);
           return {
             id: venta.id,
             "N°": i + 1,
-            nComprobante: venta.nComprobante,
+            nComprobante: venta.numeroFormateado,
             cliente: venta.cliente,
             dniCliente: venta.dniCliente,
             metodoPago: venta.metodoPago,
@@ -79,28 +80,28 @@ export default function ConfeccionTabla({ userId, empresaId }) {
   return (
     <div className="w-full flex items-start relative   justify-between gap-3">
       <div className="w-full overflow-x-auto">
-      {isLoading ? (
-        <div
-          colSpan={"2"}
-          className="border-b last:border-0 text-xs font-semibold animate-pulse bg-white text-center p-4"
-        >
-          Cargando...
-        </div>
-      ) : (
-      <Table
-      styleTable={"cursor-pointer w-full"}
-        columnas={columnasVentasTodas}
-        arrayBody={newArray.sort((a, b) => a.fechaVenta> b.fechaVenta)}
-        onClickRegistro={selectRegistro}
-        />
-      )
-      
-    }
-    </div>
+        {isLoading ? (
+          <div
+            colSpan={"2"}
+            className="border-b last:border-0 text-xs font-semibold animate-pulse bg-white text-center p-4"
+          >
+            Cargando...
+          </div>
+        ) : (
+          <Table
+            styleTable={"cursor-pointer w-full"}
+            columnas={columnasVentasTodas}
+            arrayBody={newArray.sort((a, b) => a.fechaVenta > b.fechaVenta)}
+            onClickRegistro={selectRegistro}
+          />
+        )
+
+        }
+      </div>
       <div className="md:flex items-center justify-center gap-2 w-1/3 hidden sticky top-4">
         <DivReact>
-          
-          <ContenedorVisorDetalleVenta ventaId={seleccionador?.id} />
+
+          <ContenedorVisorDetallePresupuesto presupuestoId={seleccionador?.id} />
         </DivReact>
       </div>
     </div>

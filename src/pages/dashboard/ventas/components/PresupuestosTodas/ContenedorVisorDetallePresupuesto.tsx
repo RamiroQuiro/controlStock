@@ -3,7 +3,7 @@ import VentaDetalle from '../VentaDetalle'
 
 
 interface Props{
-    ventaId:string
+  presupuestoId:string
 }
 interface VentaDetalleProps {
     id: string;
@@ -35,7 +35,7 @@ interface VentaDetalleProps {
   }
   
 
-export default function ContenedorVisorDetalleVenta({ventaId}:Props) {
+export default function ContenedorVisorDetalleVenta({presupuestoId}:Props) {
     const [venta, setVenta] = useState<VentaDetalleProps>({
         cliente:{
             dni:0,
@@ -61,7 +61,7 @@ export default function ContenedorVisorDetalleVenta({ventaId}:Props) {
 useEffect(() => {
   const peticionVenta=async()=>{
     try {
-        const response=await fetch(`/api/sales/${ventaId}`,{
+        const response=await fetch(`/api/presupuestos/${presupuestoId}`,{
             method:'GET',
             headers:{
                 'x-user-id':'1'
@@ -76,8 +76,8 @@ useEffect(() => {
     }
   }
 
-  peticionVenta(ventaId)
-}, [ventaId])
+  peticionVenta(presupuestoId)
+}, [presupuestoId])
 
 
   return (

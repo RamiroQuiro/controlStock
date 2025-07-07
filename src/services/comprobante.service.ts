@@ -214,7 +214,7 @@ export class ComprobanteService {
                   <tr>
                     <td>${item.descripcion}</td>
                     <td style="text-align: right">${item.cantidad}</td>
-                    <td style="text-align: right">${formateoMoneda.format(item.precioUnitario)}</td>
+                    <td style="text-align: right">${formateoMoneda.format(item.precio)}</td>
                     <td style="text-align: right">${formateoMoneda.format(item.subtotal)}</td>
                   </tr>
                 `

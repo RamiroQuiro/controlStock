@@ -9,6 +9,8 @@ const comprobanteService = new ComprobanteService();
 interface VentaDetalleProps {
   id: string;
   fecha: string;
+  tipo: string;
+  expira_at: string;
   cliente: {
     nombre: string;
     dni: string;
@@ -32,24 +34,32 @@ interface VentaDetalleProps {
     impuesto: number;
     descripcion: string;
   }>;
-  totales: {
-    subtotal: number;
-    impuestos: number;
-    descuentos: number;
-    total: number;
-  };
+  iva: string;
+  subtotal: number;
+  impuestos: number;
+  descuentos: number;
+  total: number;
 }
 
 const VentaDetalle: React.FC<VentaDetalleProps> = ({
   id,
   comprobante,
+  total,
+  descuentos,
+  expira_at,
+  iva,
+  impuestos,
+  subtotal,
+  tipo,
   cliente,
   fecha,
   items,
   empresa,
-  totales,
 }) => {
-  const subtotal = items?.reduce((acc, producto) => acc + producto.subtotal, 0);
+  const subtotalOperacion = items?.reduce(
+    (acc, producto) => acc + producto.subtotal,
+    0
+  );
 
   return (
     <div className="bg-white px-4 py-6 flex flex-col  h-full mx-auto">
@@ -97,48 +107,62 @@ const VentaDetalle: React.FC<VentaDetalleProps> = ({
 
       <div className="flex justify-between mb-2">
         <span>Subtotal:</span>
-        <span>{formateoMoneda.format(subtotal)}</span>
+        <span>{formateoMoneda.format(subtotalOperacion)}</span>
       </div>
-      {totales?.descuentos > 0 && (
+      {descuentos > 0 && (
         <div className="flex justify-between mb-2 text-red-500">
           <span>Descuentos:</span>
-          <span>-${formateoMoneda.format(totales.descuentos)}</span>
+          <span>-${formateoMoneda.format(descuentos)}</span>
         </div>
       )}
       <div className="flex justify-between mb-2">
         <span>IVA:</span>
-        <span>{formateoMoneda.format(totales?.total - subtotal)}</span>
+        <span>{formateoMoneda.format(total - subtotalOperacion)}</span>
       </div>
       <div className="flex justify-between font-bold text-lg border-t pt-2">
         <span>Total:</span>
-        <span>{formateoMoneda.format(totales?.total)}</span>
+        <span>{formateoMoneda.format(total)}</span>
       </div>
 
       <div className="flex justify-center text-sm w-full  gap-4 mt-8">
         <button
-          onClick={() => comprobanteService.imprimirComprobante({
-            id,
-            fecha,
-            cliente,
-            empresa,
-            comprobante,
-            items,
-            totales
-          })}
+          onClick={() =>
+            comprobanteService.imprimirComprobante({
+              id,
+              fecha,
+              cliente,
+              empresa,
+              comprobante,
+              items,
+              total,
+              expira_at,
+              descuentos,
+              subtotal,
+              impuestos,
+            })
+          }
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Imprimir
         </button>
         <button
-          onClick={() => comprobanteService.descargarPDF({
-            id,
-            fecha,
-            cliente,
-            empresa,
-            comprobante,
-            items,
-            totales
-          })}
+          onClick={() =>
+            comprobanteService.descargarPDF({
+              id,
+              fecha,
+              iva,
+              cliente,
+              empresa,
+              comprobante,
+              items,
+              total,
+              descuentos,
+              tipo,
+              expira_at,
+              subtotal,
+              impuestos,
+            })
+          }
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Descargar PDF

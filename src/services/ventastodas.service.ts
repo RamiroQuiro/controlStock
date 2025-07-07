@@ -38,6 +38,7 @@ export const traerVentasEmpresa = async (empresaId: string) => {
 interface VentaDetalle {
   id: string;
   fecha: number;
+  tipo:string,
   cliente: {
     nombre: string;
     dni: string;
@@ -46,7 +47,7 @@ interface VentaDetalle {
   empresa: {
     razonSocial: string;
     direccion: string;
-    documento: string;
+    documento: number;
   };
   comprobante: {
     numero: string;

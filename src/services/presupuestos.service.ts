@@ -1,68 +1,17 @@
-import { eq } from "drizzle-orm";
-import db from "../db";
+import { eq } from 'drizzle-orm';
+import db from '../db';
 import {
   clientes,
   detallePresupuesto,
   empresas,
   presupuesto,
   productos,
-} from "../db/schema/index";
+} from '../db/schema/index';
+import type { ComprobanteDetalle } from '../types';
 
-export interface PresupuestoDetalle {
-  id: string;
-  codigo: string;
-  numeroFormateado: string;
-  puntoVenta: string;
-  empresaId: string;
-  fecha: string;
-  tipo: string;
-  subtotal: number;
-  impuesto: string;
-  descuento: string;
-  total: number;
-  expira_at: string;
-  cliente: {
-    nombre: string;
-    dni: string;
-    direccion: string;
-  };
-  dataEmpresa: {
-    razonSocial: string;
-    direccion: string;
-    documento: number;
-    telefono: string;
-    email: string;
-    web: string;
-    logo: string;
-  };
-  comprobante: {
-    numero: string;
-    presupuesto: string;
-    metodoPago: string;
-    nCheque?: string;
-    tipo: string;
-    vencimientoCheque?: string;
-  };
-  items: Array<{
-    id: string;
-    producto: string;
-    cantidad: number;
-    precio: number;
-    impuesto: number;
-    iva: number;
-    descuento: number;
-    subtotal: number;
-  }>;
-  totales: {
-    subtotal: number;
-    impuesto: number;
-    descuento: number;
-    total: number;
-  };
-}
 export const traerPresupuestoId = async (
   presupuestoId: string
-): Promise<PresupuestoDetalle[] | null> => {
+): Promise<ComprobanteDetalle | null> => {
   try {
     const presupuestosData = await db
       .select({
@@ -78,12 +27,14 @@ export const traerPresupuestoId = async (
         // Datos del producto y detalles
         detalleId: detallePresupuesto.id,
         cantidad: detallePresupuesto.cantidad,
-        precio: detallePresupuesto.precioUnitario,
-        impuestoItem: detallePresupuesto.impuesto,
-        descuentoItem: detallePresupuesto.descuento,
-        descipcionProducto: productos.descripcion,
-        ivaProducto: productos.iva,
-        expira_at:presupuesto.expira_at
+        precioUnitario: detallePresupuesto.precioUnitario,
+        impuesto: detallePresupuesto.impuesto,
+        subtotal: detallePresupuesto.subtotal,
+        descuento: detallePresupuesto.descuento,
+        descripcion: productos.descripcion,
+        iva: productos.iva,
+        expira_at: presupuesto.expira_at,
+        fecha: presupuesto.fecha,
       })
       .from(presupuesto)
       .innerJoin(
@@ -96,46 +47,60 @@ export const traerPresupuestoId = async (
       .where(eq(presupuesto.id, presupuestoId));
 
     if (!presupuestosData.length) return null;
-
+    // console.log('presupuestosData ->', presupuestosData);
     // Estructuramos la respuesta
-    const presupuestos: PresupuestoDetalle = {
+    const presupuestos: ComprobanteDetalle = {
       id: presupuestosData[0].presupuesto.id,
       fecha: presupuestosData[0].presupuesto.fecha,
-      tipo: "PRESUPUESTO",
-      empresa: {
+      tipo: 'PRESUPUESTO',
+      dataEmpresa: {
         razonSocial: presupuestosData[0].empresa.razonSocial,
-        direccion: presupuestosData[0].empresa.direccion || "",
-        documento: presupuestosData[0].empresa.documento || 0,
+        direccion: presupuestosData[0].empresa.direccion || '',
+        documento: presupuestosData[0].empresa.documento || '',
+        telefono: presupuestosData[0].empresa.telefono || '',
+        email: presupuestosData[0].empresa.emailEmpresa || '',
         logo: presupuestosData[0].empresa.srcPhoto,
       },
       cliente: presupuestosData[0].cliente,
       comprobante: {
         numero: presupuestosData[0].presupuesto.numeroFormateado,
-        tipo: "PRESUPUESTO",
+        numeroFormateado: presupuestosData[0].presupuesto.numeroFormateado,
+        fecha: presupuestosData[0].presupuesto.fecha,
+        tipo: 'PRESUPUESTO',
+        subtotal:
+          presupuestosData[0].presupuesto.total -
+          presupuestosData[0].presupuesto.impuesto +
+          presupuestosData[0].presupuesto.descuento,
+        impuestos: presupuestosData[0].presupuesto.impuesto,
+        descuentos: presupuestosData[0].presupuesto.descuento,
+        total: presupuestosData[0].presupuesto.total,
+        expira_at: presupuestosData[0].expira_at,
+        fecha: presupuestosData[0].fecha,
+      },
+      totales: {
+        subtotal:
+          presupuestosData[0].presupuesto.total -
+          presupuestosData[0].presupuesto.impuesto +
+          presupuestosData[0].presupuesto.descuento,
+        impuesto: presupuestosData[0].presupuesto.impuesto,
+        descuento: presupuestosData[0].presupuesto.descuento,
+        total: presupuestosData[0].presupuesto.total,
       },
       items: presupuestosData.map((item) => {
         const precioSubtotal =
-          item.precio - (item.precio * item.ivaProducto) / 100;
+          item.precioUnitario - (item.precioUnitario * item.iva) / 100;
 
         return {
           id: item.detalleId,
-          descripcion: item.descipcionProducto,
+          descripcion: item.descripcion,
           cantidad: item.cantidad,
-          precio: item.precio,
-          iva: item.ivaProducto,
-          descuento: item.descuentoItem,
-          subtotal: precioSubtotal,
+          precioUnitario: item.precioUnitario,
+          impuesto: item.impuesto || 0,
+          iva: item.iva || 0,
+          descuento: item.descuento || 0,
+          subtotal: item.subtotal,
         };
       }),
-
-      subtotal:
-        presupuestosData[0].presupuesto.total -
-        presupuestosData[0].presupuesto.impuesto +
-        presupuestosData[0].presupuesto.descuento,
-      impuestos: presupuestosData[0].presupuesto.impuesto,
-      descuentos: presupuestosData[0].presupuesto.descuento,
-      total: presupuestosData[0].presupuesto.total,
-      expira_at: presupuestosData[0].expira_at,
     };
 
     return presupuestos;

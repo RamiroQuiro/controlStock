@@ -46,7 +46,70 @@ export interface ProductoData {
   alertaStock: number;
   codigoBarra: string;
 }
-
+export interface ComprobanteDetalle {
+  id: string;
+  codigo: string;
+  numeroFormateado: string;
+  puntoVenta: string;
+  empresaId: string;
+  fecha: string;
+  tipo: string;
+  subtotal: number;
+  impuesto: string;
+  descuento: string;
+  total: number;
+  expira_at: string;
+  cliente: {
+    nombre: string;
+    dni: string;
+    direccion: string;
+  };
+  dataEmpresa: {
+    razonSocial: string;
+    direccion: string;
+    documento: number;
+    telefono: string;
+    email: string;
+    web: string;
+    logo: string;
+  };
+  comprobante: {
+    numero: string;
+    numeroFormateado: string;
+    presupuesto?: string;
+    metodoPago?: string;
+    nCheque?: string;
+    tipo: string;
+    vencimientoCheque?: string;
+    puntoVenta?: string;
+    subtotal?: number;
+    impuesto?: number;
+    iva?: number;
+    nTransferencia?: string;
+    descuento?: number;
+    fecha?: string;
+    expira_at?: string;
+    total?: number;
+    cae?: string;
+    cae_vto?: string;
+  };
+  items: Array<{
+    id: string;
+    descripcion: string;
+    cantidad: number;
+    precioUnitario: number;
+    impuesto: number;
+    iva: number;
+    descuento: number;
+    subtotal: number;
+  }>;
+  totales: {
+    subtotal: number;
+    impuesto: number;
+    descuento: number;
+    total: number;
+  };
+}
 export type Producto = {
   id: string; // ID único del producto
   nombre: string; // Nombre del producto

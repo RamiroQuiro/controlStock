@@ -23,7 +23,18 @@ export default function ModalComprobante({
     tipo: ventaFinalizada.tipo,
     empresaId: ventaFinalizada.empresaId,
     cliente: cliente,
-    dataEmpresa:{
+    comprobante: {
+      numero: ventaFinalizada.numero,
+      tipo: ventaFinalizada.tipo,
+      puntoVenta: ventaFinalizada.puntoVenta,
+      numeroFormateado: ventaFinalizada.numeroFormateado,
+      fecha: ventaFinalizada.fecha,
+      fechaEmision: ventaFinalizada.fechaEmision,
+      clienteId: ventaFinalizada.clienteId,
+      total: ventaFinalizada.total,
+      estado: ventaFinalizada.estado,
+    },
+    dataEmpresa: {
       razonSocial: ventaFinalizada.dataEmpresa.razonSocial,
       documento: ventaFinalizada.dataEmpresa.documento,
       direccion: ventaFinalizada.dataEmpresa.direccion,

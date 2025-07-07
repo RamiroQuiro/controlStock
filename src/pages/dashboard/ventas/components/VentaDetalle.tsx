@@ -1,63 +1,34 @@
-import React from "react";
+import React from 'react';
 
-import { formateoMoneda } from "../../../../utils/formateoMoneda";
-import { ComprobanteService } from "../../../../services/comprobante.service";
-import formatDate from "../../../../utils/formatDate";
+import { formateoMoneda } from '../../../../utils/formateoMoneda';
+import { ComprobanteService } from '../../../../services/comprobante.service';
+import formatDate from '../../../../utils/formatDate';
+import type { ComprobanteDetalle } from '../../../../types';
 
 const comprobanteService = new ComprobanteService();
 
-interface VentaDetalleProps {
-  id: string;
-  fecha: string;
-  tipo: string;
-  expira_at: string;
-  cliente: {
-    nombre: string;
-    dni: string;
-    direccion?: string;
-  };
-  empresa: {
-    razonSocial: string;
-    direccion: string;
-    documento: string;
-  };
-  comprobante: {
-    numero: string;
-    metodoPago: string;
-    nCheque: string;
-    vencimientoCheque: string;
-  };
-  items: Array<{
-    cantidad: number;
-    precioUnitario: number;
-    subtotal: number;
-    impuesto: number;
-    descripcion: string;
-  }>;
-  iva: string;
-  subtotal: number;
-  impuestos: number;
-  descuentos: number;
-  total: number;
-}
+const VentaDetalle: React.FC<ComprobanteDetalle> = (data) => {
+  const {
+    id,
+    fecha,
+    cliente,
+    dataEmpresa,
+    comprobante,
+    items,
+    totales,
+    subtotal,
+    total,
+  } = data as ComprobanteDetalle;
+  const sumaTotal = items?.reduce(
+    (acc, producto) => acc + producto.precioUnitario * producto.cantidad,
+    0
+  );
 
-const VentaDetalle: React.FC<VentaDetalleProps> = ({
-  id,
-  comprobante,
-  total,
-  descuentos,
-  expira_at,
-  iva,
-  impuestos,
-  subtotal,
-  tipo,
-  cliente,
-  fecha,
-  items,
-  empresa,
-}) => {
-  const subtotalOperacion = items?.reduce(
-    (acc, producto) => acc + producto.subtotal,
+  const sumaSubtotal = items?.reduce(
+    (acc, producto) =>
+      acc +
+      (producto.precioUnitario * producto.cantidad) /
+        (1 + producto.impuesto / 100),
     0
   );
 
@@ -66,18 +37,20 @@ const VentaDetalle: React.FC<VentaDetalleProps> = ({
       <div className="pb-5">
         <p>Fecha: {formatDate(fecha)}</p>
         <p className="text-xs">ID de la venta: {id}</p>
-        <h1 className="text-2xl font-bold">{empresa?.razonSocial}</h1>
+        <h1 className="text-2xl font-bold">{dataEmpresa?.razonSocial}</h1>
         <p className="text-xs">
-          Direccion de la empresa: {empresa?.direccion || "No hay direccion"}
+          Direccion de la empresa:{' '}
+          {dataEmpresa?.direccion || 'No hay direccion'}
         </p>
         <p className="text-xs">
-          Documento de la empresa: {empresa?.documento || "No hay documento"}
+          Documento de la empresa:{' '}
+          {dataEmpresa?.documento || 'No hay documento'}
         </p>
         <div className="flex justify-between mt-2">
           <div className="text-sm">
             <p>N°: {comprobante?.numero}</p>
             <p>
-              Cliente:{" "}
+              Cliente:{' '}
               <span className="text-base text-primary-textoTitle font-semibold">
                 {cliente?.nombre}
               </span>
@@ -95,11 +68,11 @@ const VentaDetalle: React.FC<VentaDetalleProps> = ({
             className="flex justify-between py-0.5 boder-b items-center bg-primary-bg-componentes px-0.5  text-sm gap-3 font-IndieFlower  w-full capitalize "
           >
             <span>
-              {producto.descripcion} ({producto.cantidad} x ${producto.subtotal}
-              )
+              {producto.descripcion} ({producto.cantidad} x $
+              {producto.precioUnitario})
             </span>
             <span className="text text-primary-textoTitle">
-              ${producto.cantidad * producto.subtotal}
+              ${producto.cantidad * producto.precioUnitario}
             </span>
           </li>
         ))}
@@ -107,62 +80,32 @@ const VentaDetalle: React.FC<VentaDetalleProps> = ({
 
       <div className="flex justify-between mb-2">
         <span>Subtotal:</span>
-        <span>{formateoMoneda.format(subtotalOperacion)}</span>
+        <span>{formateoMoneda.format(sumaSubtotal)}</span>
       </div>
-      {descuentos > 0 && (
+      {totales?.descuento > 0 && (
         <div className="flex justify-between mb-2 text-red-500">
           <span>Descuentos:</span>
-          <span>-${formateoMoneda.format(descuentos)}</span>
+          <span>-${formateoMoneda.format(totales?.descuento)}</span>
         </div>
       )}
       <div className="flex justify-between mb-2">
         <span>IVA:</span>
-        <span>{formateoMoneda.format(total - subtotalOperacion)}</span>
+        <span>{formateoMoneda.format(sumaTotal - sumaSubtotal)}</span>
       </div>
       <div className="flex justify-between font-bold text-lg border-t pt-2">
         <span>Total:</span>
-        <span>{formateoMoneda.format(total)}</span>
+        <span>{formateoMoneda.format(totales?.total)}</span>
       </div>
 
       <div className="flex justify-center text-sm w-full  gap-4 mt-8">
         <button
-          onClick={() =>
-            comprobanteService.imprimirComprobante({
-              id,
-              fecha,
-              cliente,
-              empresa,
-              comprobante,
-              items,
-              total,
-              expira_at,
-              descuentos,
-              subtotal,
-              impuestos,
-            })
-          }
+          onClick={() => comprobanteService.imprimirComprobante(data)}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Imprimir
         </button>
         <button
-          onClick={() =>
-            comprobanteService.descargarPDF({
-              id,
-              fecha,
-              iva,
-              cliente,
-              empresa,
-              comprobante,
-              items,
-              total,
-              descuentos,
-              tipo,
-              expira_at,
-              subtotal,
-              impuestos,
-            })
-          }
+          onClick={() => comprobanteService.descargarPDF(data)}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Descargar PDF

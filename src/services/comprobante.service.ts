@@ -1,34 +1,46 @@
-import { formateoMoneda } from "../utils/formateoMoneda";
-import { loader } from "../utils/loader/showLoader";
-import { downloadLoader } from "../utils/loader/showDownloadLoader";
-import formatDate from "../utils/formatDate";
+import { formateoMoneda } from '../utils/formateoMoneda';
+import { loader } from '../utils/loader/showLoader';
+import { downloadLoader } from '../utils/loader/showDownloadLoader';
+import formatDate from '../utils/formatDate';
+import type { ComprobanteDetalle } from '../types';
 
 export class ComprobanteService {
-  public async generarComprobanteHTML(data: any) {
-    console.log("este es el data del comprbante", data);
+  public async generarComprobanteHTML(data: ComprobanteDetalle) {
+    console.log('este es el data del comprbante', data);
     // Determina letra de comprobante (A, B, C)
-    const letra = data.tipo || "FC_B"; // Por defecto B si no viene
+    const letra = data.comprobante.tipo || 'FC_B'; // Por defecto B si no viene
     const letraAImpirmir =
       {
-        FC_A: "A",
-        FC_B: "B",
-        FC_C: "C",
-        FC_X: "X",
-        NC: "C",
-        RC: "C",
-        PRESUPUESTO: "P",
-      }[letra] || "Comprobante";
+        FC_A: 'A',
+        FC_B: 'B',
+        FC_C: 'C',
+        FC_X: 'X',
+        NC: 'C',
+        RC: 'C',
+        PRESUPUESTO: 'P',
+      }[letra] || 'Comprobante';
     const tipoFactura =
       {
-        FC_A: "Factura A",
-        FC_B: "Factura B",
-        FC_C: "Factura C",
-        FC_X: "Factura X",
-        NC: "Nota de Credito",
-        RC: "Recibo",
-        PRESUPUESTO: "Presupuesto",
-      }[letra] || "Comprobante";
+        FC_A: 'Factura A',
+        FC_B: 'Factura B',
+        FC_C: 'Factura C',
+        FC_X: 'Factura X',
+        NC: 'Nota de Credito',
+        RC: 'Recibo',
+        PRESUPUESTO: 'Presupuesto',
+      }[letra] || 'Comprobante';
+    const sumaTotal = data.items?.reduce(
+      (acc, producto) => acc + producto.precioUnitario * producto.cantidad,
+      0
+    );
 
+    const sumaSubtotal = data.items?.reduce(
+      (acc, producto) =>
+        acc +
+        (producto.precioUnitario * producto.cantidad) /
+          (1 + producto.impuesto / 100),
+      0
+    );
     return `
       <!DOCTYPE html>
       <html>
@@ -160,12 +172,12 @@ export class ComprobanteService {
           <div class="comprobante">
             <div class="header">
               <div class="logo-container">
-                <img src=".${data.dataEmpresa?.logo || ""}" alt="Logo">
+                <img src=".${data.dataEmpresa?.logo || ''}" alt="Logo">
                 <div class="empresa-datos">
-                  <strong>${data.dataEmpresa?.razonSocial || ""}</strong><br>
-                  CUIT: ${data.dataEmpresa?.documento || ""}<br>
-                  ${data.dataEmpresa?.direccion || ""}<br>
-                  ${data.dataEmpresa?.condicionIva ? `IVA: ${data.dataEmpresa.condicionIva}` : ""}
+                  <strong>${data.dataEmpresa?.razonSocial || ''}</strong><br>
+                  CUIT: ${data.dataEmpresa?.documento || ''}<br>
+                  ${data.dataEmpresa?.direccion || ''}<br>
+                  ${data.dataEmpresa?.condicionIva ? `IVA: ${data.dataEmpresa.condicionIva}` : ''}
                 </div>
               </div>
               <div class="contenedor-factura-tipo">
@@ -173,12 +185,12 @@ export class ComprobanteService {
                 <strong>${tipoFactura}</strong><br>
               </div>
               <div class="factura-info">
-                  N°: <b>${data.numeroFormateado}</b><br>
-                  Fecha: ${new Date(data.fecha).toLocaleDateString()}<br>
+                  N°: <b>${data.comprobante.numeroFormateado}</b><br>
+                  Fecha: ${new Date(data.comprobante.fecha).toLocaleDateString()}<br>
                   ${
-                    data.tipo === "presupuesto"
-                      ? `<span style="color: red">Válido hasta: ${new Date(data.expira_at).toLocaleDateString()}</span><br>`
-                      : ""
+                    data.comprobante.tipo === 'PRESUPUESTO'
+                      ? `<span style="color: red">Válido hasta: ${new Date(data.comprobante.expira_at).toLocaleDateString()}</span><br>`
+                      : ''
                   }
                 </div>
               </div>
@@ -190,12 +202,12 @@ export class ComprobanteService {
               <div class="cliente">
                 <h2>Cliente</h2>
                 <div><b>${data.cliente.nombre}</b></div>
-                <div>CUIT/DNI: ${data.cliente.documento || "-"}</div>
-                ${data.cliente.direccion ? `<div>Dirección: ${data.cliente.direccion}</div>` : ""}
-                ${data.cliente.condicionIva ? `<div>IVA: ${data.cliente.condicionIva}</div>` : ""}
+                <div>CUIT/DNI: ${data.cliente.documento || '-'}</div>
+                ${data.cliente.direccion ? `<div>Dirección: ${data.cliente.direccion}</div>` : ''}
+                ${data.cliente.condicionIva ? `<div>IVA: ${data.cliente.condicionIva}</div>` : ''}
               </div>
             `
-                : ""
+                : ''
             }
   
             <table>
@@ -204,7 +216,7 @@ export class ComprobanteService {
                   <th>Producto</th>
                   <th style="text-align: right">Cantidad</th>
                   <th style="text-align: right">Precio Unit.</th>
-                  <th style="text-align: right">Subtotal</th>
+                  <th style="text-align: right">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -214,49 +226,49 @@ export class ComprobanteService {
                   <tr>
                     <td>${item.descripcion}</td>
                     <td style="text-align: right">${item.cantidad}</td>
-                    <td style="text-align: right">${formateoMoneda.format(item.precio)}</td>
+                    <td style="text-align: right">${formateoMoneda.format(item.precioUnitario)}</td>
                     <td style="text-align: right">${formateoMoneda.format(item.subtotal)}</td>
                   </tr>
                 `
                   )
-                  .join("")}
+                  .join('')}
               </tbody>
             </table>
   
             <div class="totales">
               <div class="totales-row">
                 <span>Subtotal:</span>
-                <span>${formateoMoneda.format(data.subtotal)}</span>
+                <span>${formateoMoneda.format(sumaSubtotal)}</span>
               </div>
               ${
-                data.descuentos > 0
+                data.comprobante.descuento > 0
                   ? `
                 <div class="totales-row" style="color: #b71c1c;">
                   <span>Descuentos:</span>
-                  <span>- ${formateoMoneda.format(data.descuentos)}</span>
+                  <span>- ${formateoMoneda.format(data.comprobante.descuento)}</span>
                 </div>
               `
-                  : ""
+                  : ''
               }
               <div class="totales-row">
                 <span>IVA:</span>
-                <span>${formateoMoneda.format(data.impuestos)}</span>
+                <span>${formateoMoneda.format(sumaTotal - sumaSubtotal)}</span>
               </div>
               <div class="totales-row total">
                 <span>Total:</span>
-                <span>${formateoMoneda.format(data.total)}</span>
+                <span>${formateoMoneda.format(sumaTotal)}</span>
               </div>
             </div>
   
             <div class="info-fiscal">
               ${
-                data.cae
+                data.comprobante.cae
                   ? `
                 <div class="cae-box">
-                  CAE: <b>${data.cae}</b> &nbsp; | &nbsp; Vencimiento CAE: ${data.cae_vto ? new Date(data.cae_vto).toLocaleDateString() : "-"}
+                  CAE: <b>${data.comprobante.cae}</b> &nbsp; | &nbsp; Vencimiento CAE: ${data.comprobante.cae_vto ? new Date(data.comprobante.cae_vto).toLocaleDateString() : '-'}
                 </div>
               `
-                  : ""
+                  : ''
               }
               <div>
                 <b>Comprobante autorizado por AFIP</b>.<br>
@@ -266,7 +278,7 @@ export class ComprobanteService {
           </div>
           <div class="footer">
           <p><b>Gracias por su compra</b></p>
-          <span>id de transaccion:<b>${data.codigo}</b></span>
+          <span>id de transaccion:<b>${data.id}</b></span>
           </div>
         </body>
       </html>
@@ -289,6 +301,14 @@ export class ComprobanteService {
     };
     comprobante: {
       numero: string;
+      numeroFormateado: string;
+      fecha: string;
+      fechaEmision: string;
+      clienteId: string;
+      total: number;
+      estado: string;
+      tipo: string;
+      puntoVenta: string;
       metodoPago?: string;
       nCheque?: string;
       vencimientoCheque?: string;
@@ -389,7 +409,7 @@ export class ComprobanteService {
       <div class="cliente-info">
         <p><strong>Cliente:</strong> ${cliente.nombre}</p>
         <p><strong>Documento:</strong> ${cliente.dni}</p>
-        ${cliente.direccion ? `<p><strong>Dirección:</strong> ${cliente.direccion}</p>` : ""}
+        ${cliente.direccion ? `<p><strong>Dirección:</strong> ${cliente.direccion}</p>` : ''}
       </div>
   
       <table class="items">
@@ -413,7 +433,7 @@ export class ComprobanteService {
             </tr>
           `
             )
-            .join("")}
+            .join('')}
         </tbody>
       </table>
   
@@ -428,7 +448,7 @@ export class ComprobanteService {
                 <td>Descuentos:</td>
                 <td style="text-align:right">-${formateoMoneda.format(totales.descuentos)}</td>
               </tr>`
-            : ""
+            : ''
         }
         <tr>
           <td>IVA:</td>
@@ -448,27 +468,27 @@ export class ComprobanteService {
   async descargarPDF(data: any) {
     downloadLoader(true);
     try {
-      const response = await fetch("/api/comprobantes/generar-pdf", {
-        method: "POST",
+      const response = await fetch('/api/comprobantes/generar-pdf', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error("Error generando PDF");
+      if (!response.ok) throw new Error('Error generando PDF');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
-      a.download = `comprobante-${data.codigo}.pdf`;
+      a.download = `comprobante-${data.id}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error("Error al generar PDF:", error);
+      console.error('Error al generar PDF:', error);
       throw error;
     } finally {
       downloadLoader(false);
@@ -478,15 +498,15 @@ export class ComprobanteService {
   async imprimirComprobante(data: any) {
     try {
       // Similar a descargarPDF pero abriendo en nueva pestaña
-      const response = await fetch("/api/comprobantes/generar-pdf", {
-        method: "POST",
+      const response = await fetch('/api/comprobantes/generar-pdf', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error("Error generando PDF");
+      if (!response.ok) throw new Error('Error generando PDF');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -499,21 +519,21 @@ export class ComprobanteService {
         };
       }
     } catch (error) {
-      console.error("Error al imprimir:", error);
+      console.error('Error al imprimir:', error);
       throw error;
     }
   }
 
-  async compartirComprobante(codigo: string) {
+  async compartirComprobante(id: string) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Comprobante",
-          text: `Comprobante #${codigo}`,
+          title: 'Comprobante',
+          text: `Comprobante #${id}`,
           url: window.location.href,
         });
       } catch (error) {
-        console.error("Error compartiendo:", error);
+        console.error('Error compartiendo:', error);
       }
     }
   }

@@ -56,7 +56,7 @@ const VentaDetalle: React.FC<VentaDetalleProps> = ({
   items,
   empresa,
 }) => {
-  const subtotalOperacion = items?.reduce(
+  const subtotalOperacion = items?.reduce(1 
     (acc, producto) => acc + producto.subtotal,
     0
   );

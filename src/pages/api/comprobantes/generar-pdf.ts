@@ -5,13 +5,14 @@ import { ComprobanteService } from '../../../services/comprobante.service';
 export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
-    console.log("data", data);
+    console.log('data', data);
     // Iniciar Puppeteer
     const browser = await puppeteer.launch({
-      headless: 'new'
+      headless: 'shell',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
-    
+
     // Generar HTML usando el servicio
     const comprobanteService = new ComprobanteService();
     const html = await comprobanteService.generarComprobanteHTML(data);
@@ -19,7 +20,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Cargar HTML
     await page.setContent(html, {
-      waitUntil: 'networkidle0'
+      waitUntil: 'networkidle0',
     });
 
     // Generar PDF
@@ -29,9 +30,9 @@ export const POST: APIRoute = async ({ request }) => {
         top: '20px',
         right: '20px',
         bottom: '20px',
-        left: '20px'
+        left: '20px',
       },
-      printBackground: true
+      printBackground: true,
     });
 
     await browser.close();
@@ -40,17 +41,16 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(pdf, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename=comprobante-${data.codigo}.pdf`
-      }
+        'Content-Disposition': `attachment; filename=comprobante-${data.codigo}.pdf`,
+      },
     });
-
   } catch (error) {
     console.error('Error generando PDF:', error);
     return new Response(JSON.stringify({ error: 'Error generando PDF' }), {
       status: 500,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
   }
-}; 
+};

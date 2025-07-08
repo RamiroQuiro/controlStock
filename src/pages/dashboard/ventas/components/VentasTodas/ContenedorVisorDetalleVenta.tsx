@@ -1,63 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import VentaDetalle from '../VentaDetalle'
+import type { ComprobanteDetalle } from '../../../../../types'
 
 
 interface Props{
     ventaId:string
 }
-interface VentaDetalleProps {
-    id: string;
-    fecha: string;
-    cliente: {
-      nombre: string;
-      dni: number;
-      direccion?: string;
-    };
-    comprobante: {
-      numero: string;
-      metodoPago: string;
-      nCheque: string;
-      vencimientoCheque: string;
-    };
-    items: Array<{
-      cantidad: number;
-      precioUnitario: number;
-      subtotal: number;
-      impuesto: number;
-      descripcion: string;
-    }>;
-    totales: {
-      subtotal: number;
-      impuestos: number;
-      descuentos: number;
-      total: number;
-    };
-  }
-  
+
 
 export default function ContenedorVisorDetalleVenta({ventaId}:Props) {
-    const [venta, setVenta] = useState<VentaDetalleProps>({
-        cliente:{
-            dni:0,
-            nombre:"",
-            direccion:""
-        },
-        comprobante:{
-            metodoPago:"",
-            nCheque:"",
-            numero:"",
-            vencimientoCheque:""
-        },
-        fecha:"",
-        id:"",
-        items:[],
-        totales:{
-            descuentos:0,
-            impuestos:0,
-            subtotal:0,
-            total:0
-        }
-    })
+    const [venta, setVenta] = useState<ComprobanteDetalle>({})
 useEffect(() => {
   const peticionVenta=async()=>{
     try {

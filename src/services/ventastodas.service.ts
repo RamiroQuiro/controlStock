@@ -1,13 +1,13 @@
-import { asc, desc, eq } from 'drizzle-orm';
-import db from '../db';
+import { asc, desc, eq } from "drizzle-orm";
+import db from "../db";
 import {
   clientes,
   detalleVentas,
   empresas,
   productos,
   ventas,
-} from '../db/schema';
-import type { ComprobanteDetalle } from './presupuestos.service';
+} from "../db/schema";
+import type { ComprobanteDetalle } from "../types";
 
 export const traerVentasEmpresa = async (empresaId: string) => {
   try {
@@ -42,9 +42,7 @@ export const traerVentasEmpresa = async (empresaId: string) => {
   }
 };
 
-export const traerVentaId = async (
-  ventaId: string
-): Promise<ComprobanteDetalle | null> => {
+export const traerVentaId = async (ventaId: string) => {
   try {
     const ventaDB = await db
       .select({
@@ -61,11 +59,11 @@ export const traerVentaId = async (
         detalleId: detalleVentas.id,
         cantidad: detalleVentas.cantidad,
         precioUnitario: detalleVentas.precio,
-        impuesto: detalleVentas.impuesto,
-        subtotal: detalleVentas.subtotal,
-        descuento: detalleVentas.descuento,
+        impuesto: detalleVentas.impuesto || 0,
+        subtotal: detalleVentas.subtotal || 0,
+        descuento: detalleVentas.descuento || 0,
         descripcion: productos.descripcion,
-        iva: productos.iva,
+        iva: productos.iva || 0,
       })
       .from(ventas)
       .innerJoin(detalleVentas, eq(detalleVentas.ventaId, ventas.id))
@@ -82,59 +80,59 @@ export const traerVentaId = async (
       fecha: ventaDB[0].venta.fecha,
       dataEmpresa: {
         razonSocial: ventaDB[0].empresa.razonSocial,
-        direccion: ventaDB[0].empresa.direccion,
-        documento: ventaDB[0].empresa.documento,
-        logo: ventaDB[0].empresa.srcPhoto,
-        telefono: ventaDB[0].empresa.telefono,
-        email: ventaDB[0].empresa.emailEmpresa,
+        direccion: ventaDB[0].empresa.direccion || "",
+        documento: ventaDB[0].empresa.documento || 0 ,
+        telefono: ventaDB[0].empresa.telefono || "",
+        email: ventaDB[0].empresa.email || "",
+        logo: ventaDB[0].empresa.srcPhoto || "",
       },
       cliente: {
         nombre: ventaDB[0].cliente.nombre,
-        dni: ventaDB[0].cliente.dni?.toString() || '',
-        direccion: ventaDB[0].cliente.direccion || '',
+        dni: ventaDB[0].cliente.dni?.toString() || "",
+        direccion: ventaDB[0].cliente.direccion || "",
       },
       comprobante: {
-        numero: ventaDB[0].venta.nComprobante,
+        numero: ventaDB[0].venta.nComprobante || 0 ,
         tipo: ventaDB[0].venta.tipo,
         fecha: ventaDB[0].venta.fecha,
-        metodoPago: ventaDB[0].venta.metodoPago,
-        nCheque: ventaDB[0].venta.nCheque,
-        vencimientoCheque: ventaDB[0].venta.vencimientoCheque,
-        numeroFormateado: ventaDB[0].venta.numeroFormateado,
+        metodoPago: ventaDB[0].venta.metodoPago || "EFECTIVO",
+        nCheque: ventaDB[0].venta.nCheque || "",
+        vencimientoCheque: ventaDB[0].venta.vencimientoCheque || "",
+        numeroFormateado: ventaDB[0].venta.numeroFormateado || "",
         puntoVenta: ventaDB[0].venta.puntoVenta,
-        impuesto: ventaDB[0].venta.impuesto,
-        descuento: ventaDB[0].venta.descuento,
-        total: ventaDB[0].venta.total,
+        impuesto: ventaDB[0].venta.impuesto || 0,
+        descuento: ventaDB[0].venta.descuento || 0,
+        total: ventaDB[0].venta.total || 0,
       },
       items: ventaDB.map((item) => {
         const precioSubtotal =
-          item.precioUnitario - (item.precioUnitario * item.impuesto) / 100;
+          item.precioUnitario - (item.precioUnitario * item.iva) / 100;
 
         return {
           id: item.detalleId,
           descripcion: item.descripcion,
           cantidad: item.cantidad,
           precioUnitario: item.precioUnitario,
-          impuesto: item.impuesto,
-          iva: item.iva,
-          descuento: item.descuento,
+          impuesto: item.impuesto || 0,
+          iva: item.iva || 0,
+          descuento: item.descuento || 0,
           subtotal: precioSubtotal,
         };
       }),
       totales: {
         subtotal:
-          ventaDB[0].venta.total -
-          ventaDB[0].venta.impuesto +
-          ventaDB[0].venta.descuento,
-        impuesto: ventaDB[0].venta.impuesto,
-        descuento: ventaDB[0].venta.descuento,
-        total: ventaDB[0].venta.total,
+          ventaDB[0].venta.total || 0 -
+          ventaDB[0].venta.impuesto || 0 +
+          ventaDB[0].venta.descuento || 0,
+        impuesto: ventaDB[0].venta.impuesto || 0,
+        descuento: ventaDB[0].venta.descuento || 0,
+        total: ventaDB[0].venta.total || 0,
       },
     };
-
+console.log('venta ->', venta)
     return venta;
   } catch (error) {
-    console.error('Error al obtener la venta:', error);
-    throw new Error('Error al obtener los detalles de la venta');
+    console.error("Error al obtener la venta:", error);
+    throw new Error("Error al obtener los detalles de la venta");
   }
 };

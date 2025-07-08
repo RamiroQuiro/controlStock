@@ -1,12 +1,20 @@
 import { formateoMoneda } from '../utils/formateoMoneda';
-import { loader } from '../utils/loader/showLoader';
 import { downloadLoader } from '../utils/loader/showDownloadLoader';
 import formatDate from '../utils/formatDate';
 import type { ComprobanteDetalle } from '../types';
+import fs from 'fs/promises';
+import path from 'path';
 
 export class ComprobanteService {
-  public async generarComprobanteHTML(data: ComprobanteDetalle) {
-    console.log('este es el data del comprbante', data);
+  public async generarComprobanteHTML2(data: ComprobanteDetalle) {
+    const logoPath = path.resolve(`./public${data.dataEmpresa?.logo}`);
+    let logoBase64 = '';
+    try {
+      const logoBuffer = await fs.readFile(logoPath);
+      logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+    } catch (error) {
+      console.error('Error reading logo file:', error);
+    }
     // Determina letra de comprobante (A, B, C)
     const letra = data.comprobante.tipo || 'FC_B'; // Por defecto B si no viene
     const letraAImpirmir =
@@ -172,7 +180,7 @@ export class ComprobanteService {
           <div class="comprobante">
             <div class="header">
               <div class="logo-container">
-                <img src=".${data.dataEmpresa?.logo || ''}" alt="Logo">
+                <img src="${logoBase64}" alt="Logo">
                 <div class="empresa-datos">
                   <strong>${data.dataEmpresa?.razonSocial || ''}</strong><br>
                   CUIT: ${data.dataEmpresa?.documento || ''}<br>
@@ -536,5 +544,256 @@ export class ComprobanteService {
         console.error('Error compartiendo:', error);
       }
     }
+  }
+
+  public async generarComprobanteHTML(data: ComprobanteDetalle) {
+    const logoPath = path.resolve(`./public${data.dataEmpresa?.logo}`);
+    let logoBase64 = '';
+    try {
+      const logoBuffer = await fs.readFile(logoPath);
+      logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+    } catch (error) {
+      console.error('Error reading logo file:', error);
+    }
+    // Determina letra de comprobante (A, B, C)
+    const letra = data.comprobante.tipo || 'FC_B'; // Por defecto B si no viene
+    const letraAImpirmir =
+      {
+        FC_A: 'A',
+        FC_B: 'B',
+        FC_C: 'C',
+        FC_X: 'X',
+        NC: 'C',
+        RC: 'C',
+        PRESUPUESTO: 'P',
+      }[letra] || 'Comprobante';
+    const tipoFactura =
+      {
+        FC_A: 'Factura A',
+        FC_B: 'Factura B',
+        FC_C: 'Factura C',
+        FC_X: 'Factura X',
+        NC: 'Nota de Credito',
+        RC: 'Recibo',
+        PRESUPUESTO: 'Presupuesto',
+      }[letra] || 'Comprobante';
+    const sumaTotal = data.items?.reduce(
+      (acc, producto) => acc + producto.precioUnitario * producto.cantidad,
+      0
+    );
+
+    const sumaSubtotal = data.items?.reduce(
+      (acc, producto) =>
+        acc +
+        (producto.precioUnitario * producto.cantidad) /
+          (1 + producto.impuesto / 100),
+      0
+    );
+
+    // New template starts here
+    return `
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${tipoFactura} - ${data.comprobante.numeroFormateado}</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+          body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+          .shadow-custom { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+          @media print {
+            body { background: white !important; }
+            .no-print { display: none !important; }
+            .print-full { width: 100% !important; max-width: none !important; margin: 0 !important; }
+          }
+        </style>
+      </head>
+      <body class="bg-gray-50 min-h-screen">
+        <div class="w-full mx-auto p-2 md:p-1">
+          <div class="bg-white border border-gray-200 rounded-md overflow-hidden print-full">
+            <div class="p-4 md:p-6">
+              <!-- Header -->
+              <div class="border-b-2 border-gray-800 pb-6 mb-8">
+                <div class="flex  justify-between items-start gap-2">
+                  <!-- Empresa -->
+                  <div class="flex-1">
+                    <img src="${logoBase64}" alt="Logo" class="h-16 w-auto mb-4 object-contain">
+                    <div class="space-y-1 text-gray-700">
+                      <h1 class="text-xl font-bold text-gray-900">${data.dataEmpresa?.razonSocial || ''}</h1>
+                      <p class="text-sm">CUIT: ${data.dataEmpresa?.documento || ''}</p>
+                      <p class="text-sm">${data.dataEmpresa?.direccion || ''}</p>
+                      <p class="text-sm">IVA: ${data.dataEmpresa?.condicionIva || ''}</p>
+                    </div>
+                  </div>
+                  <!-- Tipo -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-xl border-4 border-gray-600 flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
+                      <span class="text-3xl font-bold text-gray-800">${letraAImpirmir}</span>
+                    </div>
+                    <div class="mt-3 text-center">
+                      <p class="font-semibold text-gray-800">${tipoFactura}</p>
+                    </div>
+                  </div>
+                  <!-- Info -->
+                  <div class="flex-1  text-right space-y-3">
+                    <div class="bg-gray-50 p-4 w- rounded-lg">
+                      <p class="text-md text-gray-600">Número</p>
+                      <p class="text-sm font-bold text-gray-900">${data.comprobante.numeroFormateado}</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 w- rounded-lg">
+                      <p class="text-md text-gray-600">Fecha</p>
+                      <p class="text-sm font-semibold text-gray-900">${new Date(data.comprobante.fecha).toLocaleDateString()}</p>
+                       ${
+                         data.comprobante.tipo === 'PRESUPUESTO'
+                           ? `<span style="color: red">Válido hasta: ${new Date(data.comprobante.expira_at).toLocaleDateString()}</span><br>`
+                           : ''
+                       }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Cliente -->
+              ${
+                data.cliente
+                  ? `
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  Datos del Cliente
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p class="text-gray-600">Nombre / Razón Social</p>
+                    <p class="font-semibold text-gray-900">${data.cliente.nombre}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-600">CUIT/DNI</p>
+                    <p class="font-semibold text-gray-900">${data.cliente.documento || '-'}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-600">Dirección</p>
+                    <p class="font-semibold text-gray-900">${data.cliente.direccion || ''}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-600">Condición IVA</p>
+                    <p class="font-semibold text-gray-900">${data.cliente.condicionIva || ''}</p>
+                  </div>
+                </div>
+              </div>`
+                  : ''
+              }
+              <!-- Items -->
+              <div class="mb-8">
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Descripción</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Cantidad</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Precio Unit.</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                      ${data.items
+                        .map(
+                          (item) => `
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">${item.descripcion}</td>
+                        <td class="px-6 py-4 text-right text-sm text-gray-900">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${item.cantidad}
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 text-right text-sm font-medium text-gray-900">${formateoMoneda.format(item.precioUnitario)}</td>
+                        <td class="px-6 py-4 text-right text-sm font-bold text-gray-900">${formateoMoneda.format(item.subtotal)}</td>
+                      </tr>
+                      `
+                        )
+                        .join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- Totales -->
+              <div class="flex justify-end mb-8">
+                <div class="w-full max-w-md">
+                  <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen</h3>
+                    <div class="space-y-3">
+                      <div class="flex justify-between items-center py-2">
+                        <span class="text-sm text-gray-600">Subtotal</span>
+                        <span class="text-sm font-medium text-gray-900">${formateoMoneda.format(sumaSubtotal)}</span>
+                      </div>
+                      ${
+                        data.comprobante.descuento > 0
+                          ? `
+                      <div class="flex justify-between items-center py-2">
+                        <span class="text-sm text-gray-600">Descuentos</span>
+                        <span class="text-sm font-medium text-red-600">- ${formateoMoneda.format(data.comprobante.descuento)}</span>
+                      </div>`
+                          : ''
+                      }
+                      <div class="flex justify-between items-center py-2">
+                        <span class="text-sm text-gray-600">IVA</span>
+                        <span class="text-sm font-medium text-gray-900">${formateoMoneda.format(sumaTotal - sumaSubtotal)}</span>
+                      </div>
+                      <div class="border-t-2 border-gray-800 pt-3 mt-4">
+                        <div class="flex justify-between items-center">
+                          <span class="text-lg font-bold text-gray-900">Total</span>
+                          <span class="text-xl font-bold text-gray-900">${formateoMoneda.format(sumaTotal)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Footer -->
+              <div class="space-y-6 mt-8">
+                ${
+                  data.comprobante.cae
+                    ? `
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                  <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="font-semibold text-green-800">CAE: ${data.comprobante.cae}</span>
+                  </div>
+                  <p class="text-sm text-green-700">
+                    Vencimiento: ${data.comprobante.cae_vto ? new Date(data.comprobante.cae_vto).toLocaleDateString() : '-'}
+                  </p>
+                </div>`
+                    : ''
+                }
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p class="text-sm text-blue-700">
+                    <strong>Comprobante autorizado por AFIP.</strong><br>
+                    Este comprobante fue generado electrónicamente. Consulte su validez en www.afip.gob.ar
+                  </p>
+                </div>
+                <div class="gradient-bg text-white rounded-lg p-6">
+                  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-center md:text-left">
+                      <p class="text-lg font-semibold mb-1">¡Gracias por su compra!</p>
+                      <p class="text-blue-100 text-sm">Esperamos verle pronto nuevamente</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-lg">
+                      <span class="text-sm">ID: <strong>${data.id}</strong></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+    `;
   }
 }

@@ -8,7 +8,7 @@ export const POST: APIRoute = async ({ request }) => {
     console.log('data', data);
     // Iniciar Puppeteer
     const browser = await puppeteer.launch({
-      headless: 'shell',
+      headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
@@ -26,6 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Generar PDF
     const pdf = await page.pdf({
       format: 'A4',
+      scale: 0.8,
       margin: {
         top: '20px',
         right: '20px',

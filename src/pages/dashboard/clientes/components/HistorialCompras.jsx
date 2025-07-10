@@ -1,6 +1,7 @@
 import React from "react";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import DivReact from "../../../../components/atomos/DivReact";
+import formatDate from "../../../../utils/formatDate";
 
 export default function HistorialCompras({ compras,loading }) {
   return (
@@ -26,7 +27,7 @@ export default function HistorialCompras({ compras,loading }) {
             compras.map((compra) => (
               <tr key={compra.id} className="border-b">
               <td className="py-3">
-                  {new Date(compra.fecha * 1000).toLocaleDateString()}
+                  {formatDate(compra.fecha)}
                   </td>
                   <td className="py-3">{formateoMoneda.format(compra.total)}</td>
                   <td className="py-3">

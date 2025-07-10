@@ -659,14 +659,14 @@ export class ComprobanteService {
               ${
                 data.cliente
                   ? `
-              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-4">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg>
                   Datos del Cliente
                 </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                   <div>
                     <p class="text-gray-600">Nombre / Razón Social</p>
                     <p class="font-semibold text-gray-900">${data.cliente.nombre}</p>
@@ -688,15 +688,15 @@ export class ComprobanteService {
                   : ''
               }
               <!-- Items -->
-              <div class="mb-8">
+              <div class="mb-4">
                 <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                   <table class="w-full">
                     <thead>
                       <tr class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Descripción</th>
-                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Cantidad</th>
-                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Precio Unit.</th>
-                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Subtotal</th>
+                        <th class="px-6 py-2 text-left text-sm font-semibold text-gray-900">Descripción</th>
+                        <th class="px-6 py-2 text-right text-sm font-semibold text-gray-900">Cantidad</th>
+                        <th class="px-6 py-2 text-right text-sm font-semibold text-gray-900">Precio Unit.</th>
+                        <th class="px-6 py-2 text-right text-sm font-semibold text-gray-900">Subtotal</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -704,14 +704,14 @@ export class ComprobanteService {
                         .map(
                           (item) => `
                       <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 text-sm text-gray-900">${item.descripcion}</td>
-                        <td class="px-6 py-4 text-right text-sm text-gray-900">
+                        <td class="px-6 py-2 text-sm text-gray-900">${item.descripcion}</td>
+                        <td class="px-6 py-2 text-right text-sm text-gray-900">
                           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             ${item.cantidad}
                           </span>
                         </td>
-                        <td class="px-6 py-4 text-right text-sm font-medium text-gray-900">${formateoMoneda.format(item.precioUnitario)}</td>
-                        <td class="px-6 py-4 text-right text-sm font-bold text-gray-900">${formateoMoneda.format(item.subtotal)}</td>
+                        <td class="px-6 py-2 text-right text-sm font-medium text-gray-900">${formateoMoneda.format(item.precioUnitario)}</td>
+                        <td class="px-6 py-2 text-right text-sm font-bold text-gray-900">${formateoMoneda.format(item.subtotal)}</td>
                       </tr>
                       `
                         )
@@ -721,7 +721,7 @@ export class ComprobanteService {
                 </div>
               </div>
               <!-- Totales -->
-              <div class="flex justify-end mb-8">
+              <div class="flex justify-end mb-4">
                 <div class="w-full max-w-md">
                   <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 shadow-sm">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen</h3>

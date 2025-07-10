@@ -98,6 +98,7 @@ export const traerVentaId = async (ventaId: string) => {
         metodoPago: ventaDB[0].venta.metodoPago || "EFECTIVO",
         nCheque: ventaDB[0].venta.nCheque || "",
         vencimientoCheque: ventaDB[0].venta.vencimientoCheque || "",
+        subtotal:ventaDB[0].venta.total - ventaDB[0].venta.impuesto - ventaDB[0].venta.descuento,
         numeroFormateado: ventaDB[0].venta.numeroFormateado || "",
         puntoVenta: ventaDB[0].venta.puntoVenta,
         impuesto: ventaDB[0].venta.impuesto || 0,
@@ -116,7 +117,7 @@ export const traerVentaId = async (ventaId: string) => {
           impuesto: item.impuesto || 0,
           iva: item.iva || 0,
           descuento: item.descuento || 0,
-          subtotal: precioSubtotal,
+          subtotal: item.subtotal,
         };
       }),
       totales: {

@@ -1,7 +1,7 @@
 ---
 import PerfilCliente from "../components/PerfilCliente";
 import { clientes } from "../../../../db/schema/clientes";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
 import db from "../../../../db";
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
@@ -10,36 +10,48 @@ import FormularioCliente from "../components/FormularioCliente";
 import Modal from "../../../../components/moleculas/Modal.astro";
 
 const { clienteId } = Astro.params;
-
+const { user } = Astro.locals;
 // Obtener datos del cliente
-const cliente = (await db.select().from(clientes).where(eq(clientes.id,clienteId))).at(0)
-console.log('cliente ->',cliente)
+const [cliente] = await db
+  .select()
+  .from(clientes)
+  .where(
+    and(eq(clientes.id, clienteId), eq(clientes.empresaId, user?.empresaId))
+  );
+console.log("cliente ->", cliente);
 if (!cliente) {
-  return Astro.redirect('/dashboard/clientes');
+  return Astro.redirect("/dashboard/clientes");
 }
-
 ---
+
 <LayoutDash title={`Cliente - ${cliente.nombre}`}>
   <MainDashboard h1=`${cliente.nombre}`>
     <div
-    slot={"menu"}
-    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
-  >
-        <p>
-          Cliente desde: {new Date(cliente.fechaAlta * 1000).toLocaleDateString()}
-        </p>
-        <Modal label="Editar Cliente" id="editarCliente">
-            
-      
-              
-          <FormularioCliente client:visible modo="editar" cliente={cliente}  userId="1"/>
-    </Modal>
-      </div>
+      slot={"menu"}
+      class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+    >
+      <p>
+        Cliente desde: {new Date(cliente.fechaAlta).toLocaleDateString()}
+      </p>
+      <Modal label="Editar Cliente" id="editarCliente">
+        <FormularioCliente
+          client:visible
+          modo="editar"
+          cliente={cliente}
+          userId={user?.id}
+        />
+      </Modal>
+    </div>
 
     <PerfilCliente client:load cliente={cliente} />
   </MainDashboard>
-</LayoutDash> 
+</LayoutDash>
 
-<script define:vars={{clienteId}}>
-document.getElementById('btnEdit').addEventListener('click',()=>window.location.href=`/dashboard/clientes/${clienteId}/editar`)
+<script define:vars={{ clienteId }}>
+  document
+    .getElementById("btnEdit")
+    .addEventListener(
+      "click",
+      () => (window.location.href = `/dashboard/clientes/${clienteId}/editar`)
+    );
 </script>

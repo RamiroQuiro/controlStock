@@ -9,26 +9,26 @@ import PerfilProveedor from './components/PerfilProveedor'
 import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioProveedor from "./components/FormularioProveedor";
 const { proveedorId } = Astro.params;
-
+const { user } = Astro.locals;
 // Obtener datos del cliente
-const proveedor = (await db.select().from(proveedores).where(eq(proveedores.id,proveedorId))).at(0)
+const [proveedor] = (await db.select().from(proveedores).where(eq(proveedores.id,proveedorId)))
 
 if (!proveedor) {
   return Astro.redirect('/dashboard/proveedores');
 }
 console.log(proveedor)
 ---
-<LayoutDash title={`Proveedor - ${proveedor.nombre}`}>
-  <MainDashboard h1=`${proveedor.nombre}`>
+<LayoutDash title={`Proveedor - ${proveedor?.nombre}`}>
+  <MainDashboard h1=`${proveedor?.nombre}`>
     <div
     slot={"menu"}
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
         <p>
-          Cliente desde: {new Date(proveedor.created_at * 1000).toLocaleDateString()}
+          Cliente desde: {new Date(proveedor?.created_at).toLocaleDateString()}
         </p>
         <Modal id="editarProveedor"label="Editar Proveedor">
-          <FormularioProveedor client:visible userId="1" modo="editar" proveedor={proveedor}/>
+          <FormularioProveedor client:visible userId={user?.id} modo="editar" proveedor={proveedor}/>
         </Modal>
       </div>
 

@@ -9,8 +9,9 @@ import {
   proveedores,
 } from "../../../../db/schema";
 
-export const GET: APIRoute = async ({ params, request }) => {
+export const GET: APIRoute = async ({ params,locals,request }) => {
   const userId = request.headers.get("x-user-id"); // Asumiendo que tienes el userId en headers
+  const empresaId=locals?.user?.empresaId
   try {
     const proveedorId = params.id;
 
@@ -21,7 +22,7 @@ export const GET: APIRoute = async ({ params, request }) => {
       .where(
         and(
           eq(comprasProveedores.proveedorId, proveedorId),
-          eq(comprasProveedores.userId, userId)
+          eq(comprasProveedores.empresaId,empresaId)
         )
       )
       .orderBy(desc(comprasProveedores.fecha)) // Puedes ordenar por fecha si lo necesitas

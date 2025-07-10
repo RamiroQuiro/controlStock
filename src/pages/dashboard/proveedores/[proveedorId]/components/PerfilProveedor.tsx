@@ -15,7 +15,7 @@ interface Compra {
   estado: string;
 }
 
-export default function PerfilCliente({ proveedor }: { proveedor: Proveedor }) {
+export default function PerfilProveedor({ proveedor }: { proveedor: Proveedor }) {
   const [comprasProveedor, setComprasProveedor] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,7 +28,7 @@ export default function PerfilCliente({ proveedor }: { proveedor: Proveedor }) {
     ultimaCompra: null,
     variacionPrecios: [],
   });
-
+console.log('proveedor',proveedor)
   useEffect(() => {
     cargarHistorialCompras();
   }, []);

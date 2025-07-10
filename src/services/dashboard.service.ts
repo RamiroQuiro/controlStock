@@ -1,8 +1,8 @@
-import { and, count, eq, lte, sql } from "drizzle-orm";
-import db from "../db";
-import { clientes, detalleVentas, productos, ventas } from "../db/schema";
+import { and, count, eq, lte, sql } from 'drizzle-orm';
+import db from '../db';
+import { clientes, detalleVentas, productos, ventas } from '../db/schema';
 
-const stadisticasDash = async (userId: string,empresaId:string) => {
+const stadisticasDash = async (userId: string, empresaId: string) => {
   const fechaActual = new Date();
   const mesActual = fechaActual.getMonth() + 1;
   const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
@@ -15,79 +15,86 @@ const stadisticasDash = async (userId: string,empresaId:string) => {
       productosBajoStock,
       ultimasTransacciones,
       ventasPorCategoria,
-      ventasAnteriores
+      ventasAnteriores,
     ] = await Promise.all([
-      db.select({ nVentasMes: count() })
+      db
+        .select({ nVentasMes: count() })
         .from(ventas)
         .where(
           and(
             eq(ventas.empresaId, empresaId),
-            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
+            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`
           )
         )
         .then((res) => res.at(0)),
 
-      db.select({ nClientesNuevos: count() })
+      db
+        .select({ nClientesNuevos: count() })
         .from(clientes)
         .where(
           and(
             eq(clientes.empresaId, empresaId),
-            sql`strftime('%m', datetime(${clientes.fechaAlta}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
+            sql`strftime('%m', datetime(${clientes.fechaAlta}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`
           )
         )
         .then((res) => res.at(0)),
 
-      db.select({ cantidadBajoStock: count() })
+      db
+        .select({ cantidadBajoStock: count() })
         .from(productos)
         .where(
           and(
             eq(productos.empresaId, empresaId),
+            eq(productos.activo, true),
             lte(productos.stock, productos.alertaStock)
           )
         )
         .then((res) => res.at(0)),
 
-      db.select({
-        idVenta: ventas.id,
-        cliente: clientes.nombre,
-        fecha: ventas.fecha,
-        total: ventas.total,
-        metodoPago: ventas.metodoPago,
-      })
+      db
+        .select({
+          idVenta: ventas.id,
+          cliente: clientes.nombre,
+          fecha: ventas.fecha,
+          total: ventas.total,
+          metodoPago: ventas.metodoPago,
+        })
         .from(ventas)
         .innerJoin(clientes, eq(clientes.id, ventas.clienteId))
         .where(eq(ventas.empresaId, empresaId))
         .orderBy(sql`ventas.fecha DESC`)
         .limit(10),
 
-      db.select({
-        categoria: productos.categoria,
-        totalVentas: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
-        cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`,
-      })
+      db
+        .select({
+          categoria: productos.categoria,
+          totalVentas: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
+          cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`,
+        })
         .from(detalleVentas)
         .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
         .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
         .where(
           and(
             eq(productos.empresaId, empresaId),
-            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
+            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`
           )
         )
         .groupBy(productos.categoria),
 
-      db.select({
-        categoria: productos.categoria,
-        totalVentas: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
-        cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`,
-      })
+      db
+        .select({
+          categoria: productos.categoria,
+          totalVentas: sql<number>`sum(${detalleVentas.cantidad} * ${detalleVentas.precio})`,
+          cantidadVentas: sql<number>`sum(${detalleVentas.cantidad})`,
+        })
         .from(detalleVentas)
         .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
         .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
         .where(
           and(
             eq(productos.empresaId, empresaId),
-            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesAnterior.toString().padStart(2, "0")}`
+            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesAnterior.toString().padStart(2, '0')}`
           )
         )
         .groupBy(productos.categoria),
@@ -107,11 +114,11 @@ const stadisticasDash = async (userId: string,empresaId:string) => {
           100
       );
 
-      let tendencia: "subida" | "bajada" | "estable" = "estable";
+      let tendencia: 'subida' | 'bajada' | 'estable' = 'estable';
       if (catAnterior) {
         const diferencia = catActual.totalVentas - catAnterior.totalVentas;
         tendencia =
-          diferencia > 0 ? "subida" : diferencia < 0 ? "bajada" : "estable";
+          diferencia > 0 ? 'subida' : diferencia < 0 ? 'bajada' : 'estable';
       }
 
       return {
@@ -139,10 +146,9 @@ const stadisticasDash = async (userId: string,empresaId:string) => {
       },
     };
   } catch (error) {
-    console.log("Error en stadisticasDash:", error);
+    console.log('Error en stadisticasDash:', error);
     return { dataDb: null };
   }
 };
-
 
 export { stadisticasDash };

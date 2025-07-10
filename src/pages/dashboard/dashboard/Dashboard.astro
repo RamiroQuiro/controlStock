@@ -6,6 +6,7 @@ import RendimientoCategoria from '../../../components/dashboard/RendimientoCateg
 import ResumenVentas from '../../../components/dashboard/ResumenVentas';
 import UltimasTransacciones from '../../../components/dashboard/UltimasTransacciones';
 import ContenedorStats from './componente/ContenedorStats';
+import AnalisisIA from '../../../components/dashboard/AnalisisIA';
 
 const { user } = Astro.locals;
 const userId = user?.id;
@@ -15,6 +16,9 @@ if (!user || !userId) {
 ---
 
 <MainDashboard h1="Dashboard Principal">
+  <div class="w-full mb-2">
+    <AnalisisIA client:load />
+  </div>
   <ContenedorStats client:load />
   {/* Gráficos principales */}
   <div

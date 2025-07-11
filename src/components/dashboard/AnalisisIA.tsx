@@ -51,8 +51,12 @@ const AnalisisIA = () => {
 
  return(
     <div
+<<<<<<< HEAD
       id="analisisIA"
       className={`${loading ? "animate-pulse bg-primary-400/30" : ""} relative bg-primary-bg-componentes h-[400px] overflow-y-auto w-full 100 text-primary-texto  border shadow-[0_0_10px_0.5px_rgb(95-165-250)] shadow-primary-100/50  border-primary-100 duration-300 p-6 rounded-xl `}
+=======
+      className={`${loading ? 'animate-pulse bg-primary-400/30' : ''} bg-primary-bg-componentes h-[400px] overflow-y-auto w-full 100  animate-aparecer text-primary-texto  border border-primary-texto/50 duration-300 p-6 rounded-xl `}
+>>>>>>> 5c1b2a5ed2b16974c3de0be88f2645a08493012a
     >
       <button onClick={handleCancel} className="absolute top-2 right-2 cursor-pointer text-primary-texto  duration-200 hover:text-primary-100">
         {openDiv ? <ChevronDown className="w-6 h-6 mr-2 stroke-primary-100 stroke-2" /> : <ChevronUp className="w-6 h-6 mr-2 stroke-primary-100 stroke-2" />}

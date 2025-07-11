@@ -7,6 +7,7 @@ import ResumenVentas from '../../../components/dashboard/ResumenVentas';
 import UltimasTransacciones from '../../../components/dashboard/UltimasTransacciones';
 import ContenedorStats from './componente/ContenedorStats';
 import AnalisisIA from '../../../components/dashboard/AnalisisIA';
+import { ArrowDownCircleIcon, Brain } from 'lucide-react';
 
 const { user } = Astro.locals;
 const userId = user?.id;
@@ -16,9 +17,18 @@ if (!user || !userId) {
 ---
 
 <MainDashboard h1="Dashboard Principal">
-  <div class="w-full mb-2">
+  <details
+    open
+    class="w-full mb-2 cursor-pointer text-primary-textoTitle duration-300"
+    title="Analisis IA"
+  >
+    <summary
+      class={` w-full inline-flex text-sm gap-2 font-semibold mb-2 text-primary-100 duration-300`}
+    >
+      Analisis IA <ArrowDownCircleIcon width={20} height={20} /></summary
+    >
     <AnalisisIA client:load />
-  </div>
+  </details>
   <ContenedorStats client:load />
   {/* Gráficos principales */}
   <div

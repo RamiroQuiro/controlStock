@@ -46,6 +46,20 @@ export interface ProductoData {
   alertaStock: number;
   codigoBarra: string;
 }
+
+export interface User {
+  id: string;
+  nombre: string;
+  apellido: string;
+  userName: string;
+  email: string;
+  clienteDefault: string;
+  puntosDeVenta: string;
+  proveedorDefault: string;
+  empresaId: string;
+  rol: string;
+}
+
 export interface ComprobanteDetalle {
   id: string;
   codigo: string;

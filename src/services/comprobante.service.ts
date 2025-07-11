@@ -590,6 +590,8 @@ export class ComprobanteService {
       0
     );
 
+    const colorAcento = data.dataEmpresa?.colorAsset || '#667eea'; // Color por defecto si no hay nada
+
     // New template starts here
     return `
     <!DOCTYPE html>
@@ -602,8 +604,9 @@ export class ComprobanteService {
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
           body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-          .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+          .gradient-bg { background: ${colorAcento}; }
           .shadow-custom { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+          .header-border { border-color: ${colorAcento}; }
           @media print {
             body { background: white !important; }
             .no-print { display: none !important; }
@@ -616,7 +619,7 @@ export class ComprobanteService {
           <div class="bg-white border border-gray-200 rounded-md overflow-hidden print-full">
             <div class="p-4 md:p-6">
               <!-- Header -->
-              <div class="border-b-2 border-gray-800 pb-6 mb-8">
+              <div class="border-b-2 header-border pb-6 mb-8">
                 <div class="flex  justify-between items-start gap-2">
                   <!-- Empresa -->
                   <div class="flex-1">

@@ -74,10 +74,11 @@ export const proveedorColumns: ColumnaType[] = [
 ];
 export const columnsUltimasTransacciones = [
   { label: 'Id', id: 1, selector: (row) => '' },
-  { label: 'Cliente', id: 2, selector: (row) => row.cliente },
   { label: 'Fecha', id: 3, selector: (row) => row.fecha },
-  { label: 'Monto', id: 4, selector: (row: ProveedorRow) => row.total },
-  { label: 'Metodo', id: 7, selector: (row: ProveedorRow) => row.metodoPago },
+  { label: 'Clien/Prov', id: 2, selector: (row) => row.cliente },
+  { label: 'Tipo', id: 6, selector: (row) => row.tipo },
+  { label: 'Monto', id: 4, selector: (row) => row.total },
+  { label: 'Metodo', id: 7, selector: (row) => row.metodoPago },
   { label: 'Acciones', id: 8, selector: () => {} },
 ];
 

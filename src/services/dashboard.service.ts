@@ -1,4 +1,4 @@
-import { and, count, eq, lte, sql } from 'drizzle-orm';
+import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
 import db from '../db';
 import { clientes, detalleVentas, productos, ventas } from '../db/schema';
 
@@ -23,11 +23,10 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         .where(
           and(
             eq(ventas.empresaId, empresaId),
-            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`
+            gte(ventas.fecha, sql`date('now', '-1 month')`)
           )
         )
-        .then((res) => res.at(0)),
-
+     ,
       db
         .select({ nClientesNuevos: count() })
         .from(clientes)

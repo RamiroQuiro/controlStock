@@ -1,19 +1,27 @@
-import { and, count, eq, lte, sql } from 'drizzle-orm';
+import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
 import db from '../db';
-import { clientes, detalleVentas, productos, ventas } from '../db/schema';
+import {
+  clientes,
+  comprasProveedores,
+  detalleVentas,
+  productos,
+  proveedores,
+  ventas,
+} from '../db/schema';
 
 const stadisticasDash = async (userId: string, empresaId: string) => {
   const fechaActual = new Date();
   const mesActual = fechaActual.getMonth() + 1;
   const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
+  const fechaAnterior = new Date(fechaActual.getFullYear(), mesAnterior - 1, 1);
   const añoActual = fechaActual.getFullYear();
-
   try {
     const [
       nVentasDelMes,
       clientesNuevosMes,
       productosBajoStock,
-      ultimasTransacciones,
+      ultimasVentas,
+      ultimasCompras,
       ventasPorCategoria,
       ventasAnteriores,
     ] = await Promise.all([
@@ -23,7 +31,8 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         .where(
           and(
             eq(ventas.empresaId, empresaId),
-            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`
+            gte(ventas.fecha, fechaAnterior),
+            lte(ventas.fecha, fechaActual)
           )
         )
         .then((res) => res.at(0)),
@@ -53,7 +62,7 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
 
       db
         .select({
-          idVenta: ventas.id,
+          id: ventas.id,
           cliente: clientes.nombre,
           fecha: ventas.fecha,
           total: ventas.total,
@@ -64,7 +73,22 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         .where(eq(ventas.empresaId, empresaId))
         .orderBy(sql`ventas.fecha DESC`)
         .limit(10),
-
+      db
+        .select({
+          id: comprasProveedores.id,
+          proveedor: proveedores.nombre,
+          fecha: comprasProveedores.fecha,
+          total: comprasProveedores.total,
+          metodoPago: comprasProveedores.metodoPago,
+        })
+        .from(comprasProveedores)
+        .innerJoin(
+          proveedores,
+          eq(proveedores.id, comprasProveedores.proveedorId)
+        )
+        .where(eq(comprasProveedores.empresaId, empresaId))
+        .orderBy(sql`comprasProveedores.fecha DESC`)
+        .limit(10),
       db
         .select({
           categoria: productos.categoria,
@@ -99,20 +123,27 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         )
         .groupBy(productos.categoria),
     ]);
-
+    const ultimasTransacciones = [...ultimasVentas, ...ultimasCompras];
+    ultimasTransacciones?.map((transaccion) => {
+      if (transaccion.cliente) {
+        transaccion.tipo = 'venta';
+      } else {
+        transaccion.tipo = 'compra';
+      }
+    });
     const rendimientoCategorias = ventasPorCategoria.map((catActual) => {
       const catAnterior = ventasAnteriores.find(
         (cat) => cat.categoria === catActual.categoria
       );
 
-      const porcentaje = Math.round(
-        (catActual.cantidadVentas /
-          ventasPorCategoria.reduce(
-            (acc, curr) => acc + curr.cantidadVentas,
-            0
-          )) *
-          100
+      const totalVentasMes = ventasPorCategoria.reduce(
+        (acc, curr) => acc + curr.cantidadVentas,
+        0
       );
+      const porcentaje =
+        totalVentasMes > 0
+          ? Math.round((catActual.cantidadVentas / totalVentasMes) * 100)
+          : 0;
 
       let tendencia: 'subida' | 'bajada' | 'estable' = 'estable';
       if (catAnterior) {
@@ -130,10 +161,15 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       };
     });
 
-    const rendimientoPromedio = Math.round(
-      rendimientoCategorias.reduce((acc, curr) => acc + curr.porcentaje, 0) /
-        rendimientoCategorias.length
-    );
+    const rendimientoPromedio =
+      rendimientoCategorias.length > 0
+        ? Math.round(
+            rendimientoCategorias.reduce(
+              (acc, curr) => acc + curr.porcentaje,
+              0
+            ) / rendimientoCategorias.length
+          )
+        : 0;
 
     return {
       dataDb: {

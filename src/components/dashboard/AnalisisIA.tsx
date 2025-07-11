@@ -28,7 +28,9 @@ const AnalisisIA = () => {
 
   const renderContent = () => {
     if (loading) {
-      return <p className="text-gray-500">Analizando datos, por favor espera...</p>;
+      return (
+        <p className="text-gray-500">Analizando datos, por favor espera...</p>
+      );
     }
     if (error) {
       return <p className="text-red-500">Error: {error}</p>;
@@ -39,7 +41,7 @@ const AnalisisIA = () => {
 
   return (
     <div
-      className={`${loading ? 'animate-pulse bg-primary-400/30' : ''} bg-primary-bg-componentes h-[400px] overflow-y-auto w-full 100 text-primary-texto  border border-primary-texto/50 duration-300 p-6 rounded-xl `}
+      className={`${loading ? 'animate-pulse bg-primary-400/30' : ''} bg-primary-bg-componentes h-[400px] overflow-y-auto w-full 100  animate-aparecer text-primary-texto  border border-primary-texto/50 duration-300 p-6 rounded-xl `}
     >
       <h3 className="text-xl font-bold mb-4 flex items-center ">
         <Brain className="w-6 h-6 mr-2 stroke-primary-100 stroke-2" />

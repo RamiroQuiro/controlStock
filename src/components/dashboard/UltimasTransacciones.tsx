@@ -9,28 +9,63 @@ import { statsDashStore } from '../../context/store';
 
 interface Transaccion {
   id: string;
-  cliente: string;
+  cliente?: string;
+  proveedor?: string;
   fecha: string;
-  monto: number;
+  total: number;
   metodoPago: string;
 }
 
 const UltimasTransacciones: React.FC = () => {
-const {data}=useStore(statsDashStore)
-let arrayUltimasTransacciones:Transaccion[]=data?.data?.dataDb?.ultimasTransacciones ||[]
+  const { data } = useStore(statsDashStore);
+  let arrayUltimasTransacciones: Transaccion[] =
+    data?.data?.dataDb?.ultimasTransacciones || [];
 
-  const newArray=arrayUltimasTransacciones?.map((venta)=>{
-
-    return{
-      ...venta,
-      fecha:<p className='text-xs'>{formatDate(venta.fecha)}</p>,
-      total:formateoMoneda.format(venta.total),
-      idVenta:<p className='text-xs relative group'>...{(venta.idVenta).slice(6,-1)}</p>,
-      acciones:<div className='flex items-center justify-center gap-2 w-full'>
-      <button id="impresionVenta" className='bg-primary-bg-componentes relative rounded-full group py-0.5 px-1'> <span className='absolute left-1/2 -translate-x-1/2 bottom-[103%] bg-primary-textoTitle/90 px-1 py-0.5 w-16 text-xs text-white hidden group-hover:flex items-center justify-center animate-aparecer'>imprimir</span><Printer className='w-5 stroke-slate-500'/></button>
-      <button id="verVenta" onClick={()=>window.location.href=`/dashboard/ventas/${venta.idVenta}`} className='bg-primary-bg-componentes relative rounded-full group py-0.5 px-1'> <span className='absolute left-1/2 -translate-x-1/2 bottom-[103%] bg-primary-textoTitle/90 px-1 py-0.5 w-16 text-xs text-white hidden group-hover:flex items-center  justify-center animate-aparecer'>ver oper...</span><SearchCheck className='stroke-green-500 w-5 '/></button></div>
-    }
-  })
+  const newArray = arrayUltimasTransacciones?.map((transaccion) => {
+    return {
+      nId: (
+        <p className="text-xs relative group">
+          ...{transaccion.id.slice(6, -1)}
+        </p>
+      ),
+      fecha: <p className="text-xs">{formatDate(transaccion.fecha)}</p>,
+      cliente: transaccion.cliente
+        ? transaccion.cliente
+        : transaccion.proveedor,
+      tipo: transaccion.cliente ? 'venta' : 'compra',
+      total: formateoMoneda.format(transaccion.total),
+      metodoPago: transaccion.metodoPago,
+      acciones: (
+        <div className="flex items-center justify-center gap-2 w-full">
+          <button
+            id="impresionVenta"
+            className="bg-primary-bg-componentes relative rounded-full group py-0.5 px-1"
+          >
+            {' '}
+            <span className="absolute left-1/2 -translate-x-1/2 bottom-[103%] bg-primary-textoTitle/90 px-1 py-0.5 w-16 text-xs text-white hidden group-hover:flex items-center justify-center animate-aparecer">
+              imprimir
+            </span>
+            <Printer className="w-5 stroke-slate-500" />
+          </button>
+          <button
+            id="verVenta"
+            onClick={() =>
+              (window.location.href = transaccion.cliente
+                ? `/dashboard/ventas/${transaccion.id}`
+                : `/dashboard/compras/${transaccion.id}`)
+            }
+            className="bg-primary-bg-componentes relative rounded-full group py-0.5 px-1"
+          >
+            {' '}
+            <span className="absolute left-1/2 -translate-x-1/2 bottom-[103%] bg-primary-textoTitle/90 px-1 py-0.5 w-16 text-xs text-white hidden group-hover:flex items-center  justify-center animate-aparecer">
+              ver oper...
+            </span>
+            <SearchCheck className="stroke-green-500 w-5 " />
+          </button>
+        </div>
+      ),
+    };
+  });
   const getEstadoClase = (estado: string) => {
     switch (estado) {
       case 'completada':
@@ -52,10 +87,9 @@ let arrayUltimasTransacciones:Transaccion[]=data?.data?.dataDb?.ultimasTransacci
           Ver todas
         </button>
       </div>
-      
+
       <div className="overflow-x-auto">
-        <Table arrayBody={newArray} columnas={columnsUltimasTransacciones}/>
-    
+        <Table arrayBody={newArray} columnas={columnsUltimasTransacciones} />
       </div>
     </div>
   );

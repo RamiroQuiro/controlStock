@@ -1,170 +1,102 @@
 import type { APIRoute } from 'astro';
+import { ventas } from '../../../db/schema';
+import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import db from '../../../db';
-import { ventas, detalleVentas } from '../../../db/schema';
-import { and, eq, sql } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ request }) => {
-  // Obtener userId y filtro de los headers. Si no hay filtro, usar añoActual por defecto
   const userId = request.headers.get('x-user-id');
   const empresaId = request.headers.get('xx-empresa-id');
-  const filtroSelector = request.headers.get('filtro-selector') || 'añoActual';
+  const filtro = request.headers.get('filtro-selector') || 'añoActual';
 
-  console.log('empresaId', empresaId);
-  console.log('userId', userId);
-
-  // Validación de usuario
-  if (!userId || !empresaId) {
-    return new Response(
-      JSON.stringify({
-        msg: 'Usuario o empresa no autorizada',
-        status: 401,
-      }),
-      { status: 401 }
-    );
+  if (!userId || !empresaId || empresaId === 'null' || empresaId === 'undefined') {
+    return new Response(JSON.stringify({ msg: 'Falta empresa o usuario', status: 400 }), { status: 400 });
   }
 
   try {
-    // Configuración inicial de fechas
-    const fechaActual = new Date();
-    const mesActual = fechaActual.getMonth() + 1;
-    const añoActual = fechaActual.getFullYear();
+    const now = new Date();
+    const año = now.getFullYear();
+    const mes = now.getMonth(); // 0-indexed
     let condicionFecha;
-    let meses = [];
+    let etiquetas: string[] = [];
+    let agruparPor;
 
-    // Determinar el rango de fechas según el filtro seleccionado
-    switch (filtroSelector) {
-      case 'mesActual':
-        // Filtrar por el mes actual y agrupar por día
-        condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')} AND strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
-
-        // Generar array con los días del mes actual
-        const diasEnMes = new Date(añoActual, mesActual, 0).getDate();
-        meses = Array.from({ length: diasEnMes }, (_, i) => {
-          const fecha = new Date(añoActual, mesActual - 1, i + 1);
-          return fecha.getDate().toString(); // Retornamos solo el número del día
-        });
-        break;
-      case 'ultimos6Meses':
-        // Calcular la fecha de hace 6 meses
-        const fecha6Meses = new Date();
-        fecha6Meses.setMonth(fecha6Meses.getMonth() - 5); // Cambiamos a -5 para incluir el mes actual
-        const timestamp6Meses = Math.floor(fecha6Meses.getTime() / 1000);
-        condicionFecha = sql`${ventas.fecha} >= ${timestamp6Meses}`;
-        // Generar array con los nombres de los últimos 6 meses en orden correcto
-        meses = Array.from({ length: 6 }, (_, i) => {
-          const fecha = new Date();
-          fecha.setMonth(fechaActual.getMonth() - 5 + i); // Ajustamos el cálculo para mantener el orden correcto
-          return fecha.toLocaleString('es', { month: 'short' });
-        });
-        break;
-      case 'añoActual':
-        // Filtrar todo el año actual
-        condicionFecha = sql`strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
-        // Generar array con todos los meses hasta el actual
-        meses = Array.from({ length: mesActual }, (_, i) => {
-          const fecha = new Date(añoActual, i, 1);
-          return fecha.toLocaleString('es', { month: 'short' });
-        });
-        break;
-      default:
-        condicionFecha = sql`strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
-        meses = Array.from({ length: mesActual }, (_, i) => {
-          const fecha = new Date(añoActual, i, 1);
-          return fecha.toLocaleString('es', { month: 'short' });
-        });
+    if (filtro === 'mesActual') {
+      const inicioMes = new Date(año, mes, 1);
+      const finMes = new Date(año, mes + 1, 0, 23, 59, 59);
+      condicionFecha = and(
+        eq(ventas.empresaId, empresaId),
+        gte(ventas.fecha, Math.floor(inicioMes.getTime())),
+        lte(ventas.fecha, Math.floor(finMes.getTime()))
+      );
+      agruparPor = sql`strftime('%d', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
+      const dias = new Date(año, mes + 1, 0).getDate();
+      etiquetas = Array.from({ length: dias }, (_, i) => `${i + 1}`);
+    } else if (filtro === 'ultimos6Meses') {
+      const inicio = new Date(año, mes - 5, 1);
+      condicionFecha = and(
+        eq(ventas.empresaId, empresaId),
+        gte(ventas.fecha, Math.floor(inicio.getTime()))
+      );
+      agruparPor = sql`strftime('%m', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
+      etiquetas = Array.from({ length: 6 }, (_, i) => {
+        const d = new Date(año, mes - 5 + i, 1);
+        return d.toLocaleString('es', { month: 'short' });
+      });
+    } else {
+      const inicioAño = new Date(año, 0, 1);
+      condicionFecha = and(
+        eq(ventas.empresaId, empresaId),
+        gte(ventas.fecha, Math.floor(inicioAño.getTime() )),
+        lte(ventas.fecha, Math.floor(now.getTime() ))
+      );
+      agruparPor = sql`strftime('%m', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
+      etiquetas = Array.from({ length: mes + 1 }, (_, i) => {
+        const d = new Date(año, i, 1);
+        return d.toLocaleString('es', { month: 'short' });
+      });
     }
 
-    if (
-      !empresaId ||
-      empresaId === 'None' ||
-      empresaId === 'null' ||
-      empresaId === 'undefined'
-    ) {
-      console.error('empresaId inválido:', empresaId);
-      return new Response(
-        JSON.stringify({ msg: 'Falta o es inválido empresaId', status: 400 }),
-        { status: 400 }
-      );
-    }
-    // Consulta principal modificada para manejar días en caso de mesActual
-    const ventasPorPeriodo = await db
-      .select({
-        periodo:
-          filtroSelector === 'mesActual'
-            ? sql`strftime('%d', datetime(${ventas.fecha}, 'unixepoch'))`
-            : sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch'))`,
-        totalPeriodo: sql<number>`sum(${ventas.total})`,
-        cantidadVentas: sql<number>`count(*)`,
-      })
-      .from(ventas)
-      .where(and(eq(ventas.empresaId, empresaId), condicionFecha))
-      .groupBy(
-        filtroSelector === 'mesActual'
-          ? sql`strftime('%d', datetime(${ventas.fecha}, 'unixepoch'))`
-          : sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch'))`
-      )
-      .orderBy(
-        filtroSelector === 'mesActual'
-          ? sql`strftime('%d', datetime(${ventas.fecha}, 'unixepoch'))`
-          : sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch'))`
-      );
+   
+    const resultados = await db.select({
+      periodo: agruparPor.as('periodo'),
+      total: sql<number>`sum(${ventas.total})`.as('total'),
+      cantidad: sql<number>`count(*)`.as('cantidad'),
+    })
+    .from(ventas)
+    .where(condicionFecha)
+    .groupBy(agruparPor)
+    .orderBy(agruparPor);
+  
 
-    console.log('ventasPorPeriodo', ventasPorPeriodo);
-    // Mapear los resultados
-    const montosPorPeriodo = meses.map((_, index) => {
-      let periodoNum;
-      if (filtroSelector === 'mesActual') {
-        // Para mes actual, usamos el día (index + 1)
-        periodoNum = (index + 1).toString().padStart(2, '0');
-      } else if (filtroSelector === 'ultimos6Meses') {
-        // Lógica existente para últimos 6 meses
-        const fecha = new Date();
-        fecha.setMonth(fechaActual.getMonth() - 5 + index);
-        periodoNum = (fecha.getMonth() + 1).toString().padStart(2, '0');
-      } else {
-        // Para otros filtros, usamos el índice + 1
-        periodoNum = (index + 1).toString().padStart(2, '0');
-      }
-      const ventaPeriodo = ventasPorPeriodo.find(
-        (v) => v.periodo === periodoNum
-      );
-      return ventaPeriodo ? ventaPeriodo.totalPeriodo : 0;
+
+
+    const montosPorPeriodo = etiquetas.map((_, i) => {
+      const periodoBuscado = filtro === 'mesActual'
+        ? String(i + 1).padStart(2, '0')
+        : (new Date(año, mes - 5 + i, 1).getMonth() + 1).toString().padStart(2, '0');
+
+      const dato = resultados.find((r) => r.periodo === periodoBuscado);
+      return dato ? dato.total : 0;
     });
 
-    // Calcular totales según el período seleccionado
-    const ventasTotales = montosPorPeriodo.reduce((acc, curr) => acc + curr, 0);
-    const totalTransacciones = ventasPorPeriodo.reduce(
-      (acc, curr) => acc + curr.cantidadVentas,
-      0
-    );
-    const ticketPromedio =
-      totalTransacciones > 0 ? ventasTotales / totalTransacciones : 0;
+    const totalVentas = montosPorPeriodo.reduce((sum, val) => sum + val, 0);
+    const totalTransacciones = resultados.reduce((sum, r) => sum + r.cantidad, 0);
+    const ticketPromedio = totalTransacciones > 0 ? totalVentas / totalTransacciones : 0;
 
     return new Response(
       JSON.stringify({
-        etiquetas: meses, // Cambiamos el nombre para que sea más genérico
-        montosPorPeriodo, // Cambiamos el nombre para que sea más genérico
-        ventasTotales,
+        etiquetas,
+        montosPorPeriodo,
+        ventasTotales: totalVentas,
         ticketPromedio,
         totalTransacciones,
-        periodoActual: filtroSelector === 'mesActual' ? 'días' : 'meses',
-        msg: 'Datos obtenidos correctamente',
+        periodoActual: filtro === 'mesActual' ? 'días' : 'meses',
         status: 200,
       }),
-      {
-        status: 200,
-      }
+      { status: 200 }
     );
-  } catch (error) {
-    console.error('Error al obtener datos:', error);
-    return new Response(
-      JSON.stringify({
-        msg: 'Error al obtener datos',
-        status: 500,
-      }),
-      {
-        status: 500,
-      }
-    );
+  } catch (err) {
+    console.error('Error al obtener estadísticas:', err);
+    return new Response(JSON.stringify({ msg: 'Error en el servidor', status: 500 }), { status: 500 });
   }
 };

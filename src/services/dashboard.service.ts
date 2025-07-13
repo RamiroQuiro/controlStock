@@ -1,5 +1,5 @@
-import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
-import db from '../db';
+import { and, count, eq, gte, lte, sql, sum } from "drizzle-orm";
+import db from "../db";
 import {
   clientes,
   comprasProveedores,
@@ -7,7 +7,7 @@ import {
   productos,
   proveedores,
   ventas,
-} from '../db/schema';
+} from "../db/schema";
 
 const stadisticasDash = async (userId: string, empresaId: string) => {
   const fechaActual = new Date();
@@ -26,7 +26,7 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       ventasAnteriores,
     ] = await Promise.all([
       db
-        .select({ nVentasMes: count() })
+        .select({ nVentasMes: count(), totalVentasMes: sum(ventas.total) })
         .from(ventas)
         .where(
           and(
@@ -34,15 +34,14 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
             gte(ventas.fecha, fechaAnterior),
             lte(ventas.fecha, fechaActual)
           )
-        )
-     ,
+        ),
       db
         .select({ nClientesNuevos: count() })
         .from(clientes)
         .where(
           and(
             eq(clientes.empresaId, empresaId),
-            sql`strftime('%m', datetime(${clientes.fechaAlta}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`
+            sql`strftime('%m', datetime(${clientes.fechaAlta}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
           )
         )
         .then((res) => res.at(0)),
@@ -100,7 +99,7 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         .where(
           and(
             eq(productos.empresaId, empresaId),
-            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`
+            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, "0")}`
           )
         )
         .groupBy(productos.categoria),
@@ -117,7 +116,7 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         .where(
           and(
             eq(productos.empresaId, empresaId),
-            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesAnterior.toString().padStart(2, '0')}`
+            sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesAnterior.toString().padStart(2, "0")}`
           )
         )
         .groupBy(productos.categoria),
@@ -125,9 +124,9 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
     const ultimasTransacciones = [...ultimasVentas, ...ultimasCompras];
     ultimasTransacciones?.map((transaccion) => {
       if (transaccion.cliente) {
-        transaccion.tipo = 'venta';
+        transaccion.tipo = "venta";
       } else {
-        transaccion.tipo = 'compra';
+        transaccion.tipo = "compra";
       }
     });
     const rendimientoCategorias = ventasPorCategoria.map((catActual) => {
@@ -144,11 +143,11 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
           ? Math.round((catActual.cantidadVentas / totalVentasMes) * 100)
           : 0;
 
-      let tendencia: 'subida' | 'bajada' | 'estable' = 'estable';
+      let tendencia: "subida" | "bajada" | "estable" = "estable";
       if (catAnterior) {
         const diferencia = catActual.totalVentas - catAnterior.totalVentas;
         tendencia =
-          diferencia > 0 ? 'subida' : diferencia < 0 ? 'bajada' : 'estable';
+          diferencia > 0 ? "subida" : diferencia < 0 ? "bajada" : "estable";
       }
 
       return {
@@ -169,10 +168,15 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
             ) / rendimientoCategorias.length
           )
         : 0;
-
+    const totalVentasMes = nVentasDelMes.at(0)?.totalVentasMes || 0;
+    const nVentas = nVentasDelMes.at(0)?.nVentasMes || 0;
+    const ticketPromedioMes =
+      nVentas > 0 ? parseFloat(totalVentasMes) / nVentas : 0;
     return {
       dataDb: {
-        nVentasDelMes,
+        nVentasDelMes: nVentas,
+        totalVentasMes: totalVentasMes,
+        ticketPromedioMes,
         categorias: rendimientoCategorias,
         rendimientoPromedio,
         productosBajoStock,
@@ -181,7 +185,7 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       },
     };
   } catch (error) {
-    console.log('Error en stadisticasDash:', error);
+    console.log("Error en stadisticasDash:", error);
     return { dataDb: null };
   }
 };

@@ -62,7 +62,7 @@ export default function ContenedorStats() {
       descripcion: "Promedio de Venta",
     },
   ];
-
+console.log("data", data)
   // console.log("este son los datos", data?.data);
   return (
     <div className="w-full animate-fadeIn">
@@ -70,12 +70,12 @@ export default function ContenedorStats() {
         {statsDataDashboard.map((stat) => {
           let dataInfo =
             stat.id === 1
-              ? data?.data?.dataDb?.nVentasDelMes?.nVentasMes
+              ? data?.data?.dataDb?.nVentasDelMes
               : stat.id === 2
                 ? data?.data?.dataDb?.productosBajoStock?.cantidadBajoStock
                 : stat.id === 3
                   ? data?.data?.dataDb?.clientesNuevosMes?.nClientesNuevos
-                  : data?.data?.dataDb?.ticketPromedio?.promedio;
+                  : data?.data?.dataDb?.ticketPromedioMes;
           stat.dataInfo = dataInfo;
           return (
 

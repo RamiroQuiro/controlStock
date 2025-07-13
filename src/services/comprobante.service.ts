@@ -6,7 +6,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export class ComprobanteService {
-  public async generarComprobanteHTML2(data: ComprobanteDetalle) {
+  public async generarComprobanteHTML(data: ComprobanteDetalle) {
     const logoPath = path.resolve(`./public${data.dataEmpresa?.logo}`);
     let logoBase64 = '';
     try {
@@ -546,7 +546,7 @@ export class ComprobanteService {
     }
   }
 
-  public async generarComprobanteHTML(data: ComprobanteDetalle) {
+  public async generarComprobanteHTML2(data: ComprobanteDetalle) {
     const logoPath = path.resolve(`./public${data.dataEmpresa?.logo}`);
     let logoBase64 = '';
     try {

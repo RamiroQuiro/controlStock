@@ -56,7 +56,7 @@ const ProductosMasVendidos: React.FC<{ userId: string; empresaId: string }> = ({
         <h2 className="text-lg font-semibold">Productos Más Vendidos</h2>
         <select onChange={onSelector} className="text-sm border rounded p-1">
           <option value={'mesActual'}>Este Mes</option>
-          <option value={'mesAnterior'}>Último Mes</option>
+          <option value={'ultimos6Meses'}>Últimos 6 Meses</option>
           <option value={'añoActual'}>Este Año</option>
         </select>
       </div>

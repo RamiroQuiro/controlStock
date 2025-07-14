@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
-import { formateoMoneda } from "../../utils/formateoMoneda";
+import { formateoMoneda } from '../../utils/formateoMoneda';
 
-const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId, empresaId }) => {
+const ResumenVentas: React.FC<{ userId: string; empresaId: string }> = ({
+  userId,
+  empresaId,
+}) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
-  
+
   // Estados para manejar los datos
   const [datosVentas, setDatosVentas] = useState({
     meses: [],
@@ -15,9 +18,9 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
     totalTransacciones: 0,
     etiquetas: [],
     montosPorPeriodo: [],
-    periodoActual: ""
+    periodoActual: '',
   });
-  const [filtroTiempo, setFiltroTiempo] = useState('añoActual');
+  const [filtroTiempo, setFiltroTiempo] = useState('mesActual');
   const [isLoading, setIsLoading] = useState(true);
 
   // Manejador del cambio de filtro
@@ -34,8 +37,8 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
           headers: {
             'x-user-id': userId,
             'xx-empresa-id': empresaId,
-            'filtro-selector': filtroTiempo
-          }
+            'filtro-selector': filtroTiempo,
+          },
         });
 
         if (!response.ok) {
@@ -51,7 +54,7 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
           totalTransacciones: data.totalTransacciones,
           etiquetas: data.etiquetas,
           montosPorPeriodo: data.montosPorPeriodo,
-          periodoActual: data.periodoActual
+          periodoActual: data.periodoActual,
         });
       } catch (error) {
         console.error('Error:', error);
@@ -72,22 +75,27 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
     if (!chartRef.current || isLoading) return;
 
     const ctx = chartRef.current.getContext('2d');
-    
+
     chartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: datosVentas.etiquetas.map(etiqueta => 
-          datosVentas.periodoActual === "días" ? `Día ${etiqueta}` : etiqueta
+        labels: datosVentas.etiquetas.map((etiqueta) =>
+          datosVentas.periodoActual === 'días' ? `Día ${etiqueta}` : etiqueta
         ),
-        datasets: [{
-          label: datosVentas.periodoActual === "días" ? 'Ventas Diarias' : 'Ventas Mensuales',
-          data: datosVentas.montosPorPeriodo,
-          backgroundColor: 'rgba(59, 130, 246, 0.5)',
-          borderColor: 'rgb(59, 130, 246)',
-          borderWidth: 1,
-          borderRadius: 4,
-          maxBarThickness: datosVentas.periodoActual === "días" ? 15 : 35
-        }]
+        datasets: [
+          {
+            label:
+              datosVentas.periodoActual === 'días'
+                ? 'Ventas Diarias'
+                : 'Ventas Mensuales',
+            data: datosVentas.montosPorPeriodo,
+            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+            borderColor: 'rgb(59, 130, 246)',
+            borderWidth: 1,
+            borderRadius: 4,
+            maxBarThickness: datosVentas.periodoActual === 'días' ? 15 : 35,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -98,25 +106,25 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
           },
           title: {
             display: true,
-            text: 'Resumen de Ventas'
+            text: 'Resumen de Ventas',
           },
           tooltip: {
             callbacks: {
               label: (context) => {
                 return `Ventas: ${formateoMoneda.format(context.raw)}`;
-              }
-            }
-          }
+              },
+            },
+          },
         },
         scales: {
           y: {
             beginAtZero: true,
             ticks: {
-              callback: (value) => formateoMoneda.format(value)
-            }
-          }
-        }
-      }
+              callback: (value) => formateoMoneda.format(value),
+            },
+          },
+        },
+      },
     });
 
     return () => {
@@ -130,7 +138,7 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
     <div className="w-full flex flex-col items-center justify-center">
       <div className="flex justify-between items-center mb-4 w-full">
         <h2 className="text-lg font-semibold">Resumen de Ventas</h2>
-        <select 
+        <select
           value={filtroTiempo}
           onChange={handleFiltroChange}
           className="text-sm border rounded p-1"
@@ -140,7 +148,7 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
           <option value="mesActual">Este Mes</option>
         </select>
       </div>
-      
+
       <div className="w-full h-64">
         {isLoading ? (
           <div className="h-full flex items-center justify-center">
@@ -150,7 +158,7 @@ const ResumenVentas: React.FC<{ userId: string, empresaId: string }> = ({ userId
           <canvas ref={chartRef}></canvas>
         )}
       </div>
-      
+
       <div className="mt-4 flex items-stretch md:flex-nowrap flex-wrap justify-evenly md:gap-4 gap-2 w-full">
         <div className="bg-green-50 p-3 rounded-lg w-full ">
           <p className="text-sm text-gray-600">Ventas Totales este Mes</p>

@@ -6,40 +6,46 @@ import {
   ventas,
   detalleVentas,
 } from '../../../db/schema';
-import { and, eq, sql, desc } from 'drizzle-orm';
+import { and, eq, sql, desc, gte, lte } from 'drizzle-orm';
 
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request }) => {
   const userId = request.headers.get('x-user-id');
   const empresaId = request.headers.get('xx-empresa-id');
-  const filtroSelector = request.headers.get('filtro-selector') || 'mesActual';
-
-  const fechaActual = new Date();
-  const mesActual = fechaActual.getMonth() + 1;
-  const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
-  const añoActual = fechaActual.getFullYear();
-
-  let condicionFecha;
-
-  switch (filtroSelector) {
-    case 'mesActual':
-      condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')} AND strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
-      break;
-    case 'ultimos6Meses':
-      // Calculamos la fecha de hace 6 meses
-      const fecha6Meses = new Date();
-      fecha6Meses.setMonth(fecha6Meses.getMonth() - 6);
-      const timestamp6Meses = Math.floor(fecha6Meses.getTime() / 1000);
-      condicionFecha = sql`${ventas.fecha} >= ${timestamp6Meses}`;
-      break;
-    case 'añoActual':
-      condicionFecha = sql`strftime('%Y', datetime(${ventas.fecha}, 'unixepoch')) = ${añoActual.toString()}`;
-      break;
-    default:
-      condicionFecha = sql`strftime('%m', datetime(${ventas.fecha}, 'unixepoch')) = ${mesActual.toString().padStart(2, '0')}`;
-  }
+  const filtro = request.headers.get('filtro-selector') || 'mesActual';
 
   try {
+    const now = new Date();
+    const año = now.getFullYear();
+    const mes = now.getMonth(); // 0-indexed
+    let condicionFecha;
+    let etiquetas: string[] = [];
+
+    if (filtro === 'mesActual') {
+      const inicioMes = new Date(año, mes, 1);
+      const finMes = new Date(año, mes + 1, 0, 23, 59, 59);
+      condicionFecha = and(
+        eq(ventas.empresaId, empresaId),
+        gte(ventas.fecha, Math.floor(inicioMes.getTime())),
+        lte(ventas.fecha, Math.floor(finMes.getTime()))
+      );
+      const dias = new Date(año, mes + 1, 0).getDate();
+      etiquetas = Array.from({ length: dias }, (_, i) => `${i + 1}`);
+    } else if (filtro === 'ultimos6Meses') {
+      const inicio = new Date(año, mes - 5, 1);
+      condicionFecha = and(
+        eq(ventas.empresaId, empresaId),
+        gte(ventas.fecha, Math.floor(inicio.getTime()))
+      );
+    } else {
+      const inicioAño = new Date(año, 0, 1);
+      condicionFecha = and(
+        eq(ventas.empresaId, empresaId),
+        gte(ventas.fecha, Math.floor(inicioAño.getTime())),
+        lte(ventas.fecha, Math.floor(now.getTime()))
+      );
+    }
+
     // Primero obtenemos el total de ventas del período para calcular porcentajes
     const totalVentasPeriodo = await db
       .select({
@@ -89,6 +95,7 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(
       JSON.stringify({
         data: topVentasMensual,
+        estadisticas,
         msg: 'peticion ok',
         status: 200,
       }),

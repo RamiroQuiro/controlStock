@@ -72,10 +72,12 @@ class IaService {
         Eres un asesor de negocios experto para un sistema de gestión de ventas e inventario. Analiza los siguientes datos del mes para el dueño de un negocio y genera un resumen ejecutivo en formato de TEXTO PLANO. Sé conciso, amigable y directo. El objetivo es darle al usuario una visión clara y accionable de su rendimiento.
 
         **Datos de Rendimiento del Mes:**
-        - Número total de ventas realizadas: ${nVentasDelMes?.nVentasMes || 0}
+        - Número total de ventas realizadas: ${nVentasDelMes || 0}
         - Clientes nuevos adquiridos: ${clientesNuevosMes?.nClientesNuevos || 0}
         - Cantidad de productos con bajo stock (necesitan reposición): ${productosBajoStock?.cantidadBajoStock || 0}
         - Rendimiento de las categorías (JSON): ${JSON.stringify(categorias)}
+        - Ticket promedio del mes: ${stats.dataDb.ticketPromedioMes || 0}
+        - Rendimiento promedio del mes: ${stats.dataDb.rendimientoPromedio || 0}
 
         **Instrucciones para tu respuesta (TEXTO PLANO):**
         1.  Comienza con un saludo amigable.

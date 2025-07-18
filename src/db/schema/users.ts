@@ -30,7 +30,7 @@ export const users = sqliteTable(
     empresaId: text('empresaId')
       .references(() => empresas.id)
       .default(null), // <-- Cambia esto, // Referencia a la tabla empresas
-    fechaAlta: integer('created_at') // Timestamp Unix
+    fechaAlta: integer('created_at', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
     activo: integer('activo').default(1), // Account active status (1 = active, 0 = inactive)

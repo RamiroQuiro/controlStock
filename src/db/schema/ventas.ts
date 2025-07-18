@@ -9,7 +9,7 @@ export const ventas = sqliteTable('ventas', {
   id: text('id').primaryKey(),
   userId: text('userId').references(() => users.id),
   empresaId: text('empresaId').references(() => empresas.id),
-  fecha: integer('fecha') // Timestamp Unix
+  fecha: integer('fecha', { mode: 'timestamp' }) // Timestamp Unix
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),
   clienteId: text('clienteId').references(() => clientes.id),
@@ -25,7 +25,7 @@ export const ventas = sqliteTable('ventas', {
   puntoVenta: text('puntoVenta').notNull(), // ej. '0001'
   srcComprobante: text('srcComprobante'),
   nCheque: text('nCheque'),
-  vencimientoCheque: text('vencimientoCheque'),
+  vencimientoCheque: integer('vencimientoCheque', { mode: 'timestamp' }),
   total: integer('total', { mode: 'number' }).notNull(),
   impuesto: integer('impuesto', { mode: 'number' }).notNull().default(0), // Almacena el total del IVA aplicado
   descuento: integer('descuento', { mode: 'number' }).notNull().default(0), // Almacena el descuento total aplicado

@@ -16,7 +16,7 @@ export const empresas = sqliteTable(
     email: text('email'),
     userId: text('userId').notNull(), //id del usuario dueño de la empresa
     creadoPor: text('creadoPor'), //ide del user de la empresa
-    created_at: integer('created_at')
+    created_at: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
     activo: integer('activo').default(1),

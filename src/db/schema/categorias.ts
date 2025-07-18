@@ -14,7 +14,7 @@ export const categorias = sqliteTable(
     empresaId: text('empresaId')
       .notNull()
       .references(() => empresas.id),
-    created_at: integer('created_at')
+    created_at: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
     activo: integer('activo').default(1),

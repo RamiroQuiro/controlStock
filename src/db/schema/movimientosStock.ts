@@ -15,7 +15,7 @@ export const movimientosStock = sqliteTable('movimientosStock', {
   tipo: text('tipo') // 'egreso','ingreso'
     .notNull()
     .default('recarga'),
-  fecha: integer('fecha') // Timestamp Unix
+  fecha: integer('fecha', { mode: 'timestamp' }) // Timestamp Unix
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),
   userId: text('userId')

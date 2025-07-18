@@ -25,8 +25,8 @@ export const GET: APIRoute = async ({ request }) => {
       const finMes = new Date(año, mes + 1, 0, 23, 59, 59);
       condicionFecha = and(
         eq(ventas.empresaId, empresaId),
-        gte(ventas.fecha, Math.floor(inicioMes.getTime())),
-        lte(ventas.fecha, Math.floor(finMes.getTime()))
+        gte(ventas.fecha, inicioMes),
+        lte(ventas.fecha, finMes)
       );
       agruparPor = sql`strftime('%d', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
       const dias = new Date(año, mes + 1, 0).getDate();
@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ request }) => {
       const inicio = new Date(año, mes - 5, 1);
       condicionFecha = and(
         eq(ventas.empresaId, empresaId),
-        gte(ventas.fecha, Math.floor(inicio.getTime()))
+        gte(ventas.fecha, inicio)
       );
       agruparPor = sql`strftime('%m', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
       etiquetas = Array.from({ length: 6 }, (_, i) => {
@@ -46,8 +46,8 @@ export const GET: APIRoute = async ({ request }) => {
       const inicioAño = new Date(año, 0, 1);
       condicionFecha = and(
         eq(ventas.empresaId, empresaId),
-        gte(ventas.fecha, Math.floor(inicioAño.getTime() )),
-        lte(ventas.fecha, Math.floor(now.getTime() ))
+        gte(ventas.fecha, inicioAño),
+        lte(ventas.fecha, now)
       );
       agruparPor = sql`strftime('%m', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
       etiquetas = Array.from({ length: mes + 1 }, (_, i) => {

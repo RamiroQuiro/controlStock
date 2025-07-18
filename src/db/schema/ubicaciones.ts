@@ -11,7 +11,7 @@ export const ubicaciones = sqliteTable(
     descripcion: text('descripcion'),
     empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),
-    fechaCreacion: integer('fechaCreacion') // Timestamp Unix
+    fechaCreacion: integer('fechaCreacion', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
     activo: integer('activo', { mode: 'boolean' }).default(true),

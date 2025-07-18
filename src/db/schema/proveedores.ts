@@ -19,7 +19,7 @@ export const proveedores = sqliteTable(
     observaciones: text('observaciones'),
     empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),
-    created_at: integer('created_at')
+    created_at: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
   },

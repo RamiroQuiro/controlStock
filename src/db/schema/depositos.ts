@@ -15,7 +15,7 @@ export const depositos = sqliteTable(
     prioridad: integer('prioridad').default(1),
     empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),
-    fechaCreacion: integer('fechaCreacion').default(
+    fechaCreacion: integer('fechaCreacion', { mode: 'timestamp' }).default(
       sql`(strftime('%s', 'now'))`
     ),
     activo: integer('activo', { mode: 'boolean' }).default(true),

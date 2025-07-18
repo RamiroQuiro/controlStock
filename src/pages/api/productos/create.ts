@@ -10,6 +10,7 @@ import { cache } from '../../../utils/cache';
 import type { Producto } from '../../../types';
 import { productoCategorias } from '../../../db/schema/productoCategorias';
 import { generateId } from 'lucia';
+import { getFechaUnix } from '../../../utils/timeUtils';
 
 export async function POST({ request }: APIContext): Promise<Response> {
   try {
@@ -123,8 +124,8 @@ export async function POST({ request }: APIContext): Promise<Response> {
     // Crear producto en la base de datos
     const creacionProducto = await db.transaction(async (trx) => {
       const id = nanoid(10);
-      const fechaHoy = new Date();
-      
+      const fechaHoy = getFechaUnix();
+      console.log('fechaHoy ->', fechaHoy);
       // Insertar producto
       const [insertedProduct] = await trx
         .insert(productos)
@@ -168,7 +169,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
         cantidad: productoData.stock,
         alertaStock: productoData.alertaStock,
         localizacion: productoData.localizacion,
-        created_at: fechaHoy,
+        createdAt: fechaHoy,
         deposito: productoData.deposito,
         empresaId: productoData.empresaId,
       });

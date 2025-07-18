@@ -13,7 +13,7 @@ export const productoCategorias = sqliteTable(
     categoriaId: text('categoriaId')
       .notNull()
       .references(() => categorias.id),
-    created_at: integer('created_at') // Timestamp Unix
+    created_at: integer('created_at', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
   },

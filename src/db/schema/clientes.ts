@@ -15,9 +15,11 @@ export const clientes = sqliteTable(
     empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),
     observaciones: text('observaciones'),
-    fechaAlta: integer('fechaAlta').default(sql`(strftime('%s', 'now'))`),
+    fechaAlta: integer('fechaAlta', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
     activo: integer('activo', { mode: 'number' }).default(1),
-    ultimaCompra: text('ultimaCompra'),
+    ultimaCompra: integer('ultimaCompra', { mode: 'timestamp' }),
     categoria: text('categoria').default('regular'),
     estado: text('estado').default('activo'),
     limiteCredito: integer('limiteCredito', { mode: 'number' }).default(0),

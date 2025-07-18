@@ -34,9 +34,11 @@ export const productos = sqliteTable(
     isOferta: integer('isOferta', { mode: 'boolean' }).default(false),
     diasOferta: integer('diasOferta', { mode: 'number' }).default(0),
     precioOferta: integer('precioOferta', { mode: 'number' }).default(0),
-    fechaInicioOferta: integer('fechaInicioOferta',{mode:"timestamp"}), // timestamp
-    fechaFinOferta: integer('fechaFinOferta',{mode:"timestamp"}), // timestamp
-    reservadoOffLine: integer('reservadoOffLine', { mode: 'number' }).default(0),
+    fechaInicioOferta: integer('fechaInicioOferta', { mode: 'timestamp' }).default(0), // timestamp
+    fechaFinOferta: integer('fechaFinOferta', { mode: 'timestamp' }).default(0), // timestamp
+    reservadoOffLine: integer('reservadoOffLine', { mode: 'number' }).default(
+      0
+    ),
     reservadoOnline: integer('reservadoOnline', { mode: 'number' }).default(0),
     alertaStock: integer('alertaStock', { mode: 'number' }).default(10),
     iva: integer('iva', { mode: 'number' }).default(21), // IVA aplicado al producto "21" o "10"o"27"
@@ -48,15 +50,15 @@ export const productos = sqliteTable(
     etiquetas: text('etiquetas', { mode: 'json' }).default('[]'),
     peso: integer('peso', { mode: 'number' }).default(0),
     dimensiones: text('dimensiones', { mode: 'json' }).default('[]'),
-    estadoPublicacion: text('estadoPublicacion').default('desactivado'),//"desactivado", "activado","pausado"
-    descripcionLarga:text('descripcionLarga'),
-    descripcionCorta:text('descripcionCorta'),
-    palabrasSEO:text('palabrasSEO'),
+    estadoPublicacion: text('estadoPublicacion').default('desactivado'), //"desactivado", "activado","pausado"
+    descripcionLarga: text('descripcionLarga'),
+    descripcionCorta: text('descripcionCorta'),
+    palabrasSEO: text('palabrasSEO'),
     userUpdate: text('userUpdate'),
-    ultimaActualizacion: integer('ultimaActualizacion') // Timestamp Unix
+    ultimaActualizacion: integer('ultimaActualizacion', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
-    created_at: integer('created_at') // Timestamp Unix
+    created_at: integer('created_at', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
   },

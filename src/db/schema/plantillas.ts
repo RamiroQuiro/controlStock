@@ -8,7 +8,7 @@ export const plantillas = sqliteTable('plantillas', {
   descripcion: text('descripcion'), // Descripción corta de la plantilla
   empresaId: text('empresaId').notNull(), //id de la empresa dueña de la plantilla
   creadoPor: text('creadoPor').notNull(), //id del usuario que creó la plantilla
-  fechaCreacion: integer('fechaCreacion') // Timestamp Unix
+  fechaCreacion: integer('fechaCreacion', { mode: 'timestamp' }) // Timestamp Unix
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),
   slug: text('slug').notNull().unique(),

@@ -13,7 +13,7 @@ export const roles = sqliteTable(
     permisos: text('permisos', { mode: 'json' }).$type<string[]>(), // Permisos como array JSON
     creadoPor: text('creadoPor').references(() => users.id),
     empresaId: text('empresaId').references(() => empresas.id),
-    fechaCreacion: integer('created_at') // Timestamp Unix
+    fechaCreacion: integer('created_at', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
   },

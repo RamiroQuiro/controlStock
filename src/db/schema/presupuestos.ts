@@ -13,7 +13,7 @@ export const presupuesto = sqliteTable('presupuesto', {
   codigo: text('codigo'),
   userId: text('userId').references(() => users.id),
   empresaId: text('empresaId').references(() => empresas.id),
-  fecha: integer('fecha')
+  fecha: integer('fecha', { mode: 'timestamp' })
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),
   clienteId: text('clienteId').references(() => clientes.id),
@@ -27,5 +27,5 @@ export const presupuesto = sqliteTable('presupuesto', {
   estado: text('estado', { enum: ['activo', 'convertido', 'expirado'] })
     .notNull()
     .default('activo'),
-  expira_at: integer('expira_at').notNull(), // Timestamp de expiración
+  expira_at: integer('expira_at', { mode: 'timestamp' }).notNull(), // Timestamp de expiración
 });

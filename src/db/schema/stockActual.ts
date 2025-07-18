@@ -28,10 +28,10 @@ export const stockActual = sqliteTable('stockActual', {
   costoTotalStock: integer('costoTotalStock', { mode: 'number' }), // Valor total del stock
   updatedBy: text('updatedBy').references(() => users.id), // Usuario que actualizó el stock
   empresaId: text('empresaId').references(() => empresas.id),
-  createdAt: integer('createdAt') // Timestamp Unix para seguimiento de última actualización
+  createdAt: integer('createdAt', { mode: 'timestamp' }) // Timestamp Unix para seguimiento de última actualización
     .notNull()
     .default(sql`(strftime('%s', 'now'))`), // Actualiza al modificar stock
-  updatedAt: integer('updatedAt') // Timestamp Unix para seguimiento de última actualización
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }) // Timestamp Unix para seguimiento de última actualización
     .notNull()
     .default(sql`(strftime('%s', 'now'))`), // Actualiza al modificar stock
 });

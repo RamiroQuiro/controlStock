@@ -19,7 +19,7 @@ export const comprobanteNumeracion = sqliteTable(
     userId: text("userId").references(()=>users.id), // Usuario que creó la numeración
     descripcion: text("descripcion").notNull().default(""), // Descripción opcional
     numeroActual: integer("numero_actual").notNull().default(0),
-    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now'))`),
   },
   (t) => [unique().on(t.empresaId, t.tipo, t.puntoVenta)]
 );

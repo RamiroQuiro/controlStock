@@ -124,7 +124,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
     // Crear producto en la base de datos
     const creacionProducto = await db.transaction(async (trx) => {
       const id = nanoid(10);
-      const fechaHoy = getFechaUnix();
+      const fechaHoy = new Date();
       console.log('fechaHoy ->', fechaHoy);
       // Insertar producto
       const [insertedProduct] = await trx
@@ -191,7 +191,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
       return insertedProduct;
     });
 // Invalida el caché de productos para este usuario
-await cache.invalidate(`stock_data_${productoData.userId}`);
+await cache.invalidate(`stock_data_${productoData.empresaId}`);
 
 // También podríamos invalidar otros cachés relacionados
 if (productoData.empresaId) {

@@ -34,11 +34,9 @@ export const productos = sqliteTable(
     isOferta: integer('isOferta', { mode: 'boolean' }).default(false),
     diasOferta: integer('diasOferta', { mode: 'number' }).default(0),
     precioOferta: integer('precioOferta', { mode: 'number' }).default(0),
-    fechaInicioOferta: integer('fechaInicioOferta', { mode: 'timestamp' }).default(0), // timestamp
-    fechaFinOferta: integer('fechaFinOferta', { mode: 'timestamp' }).default(0), // timestamp
-    reservadoOffLine: integer('reservadoOffLine', { mode: 'number' }).default(
-      0
-    ),
+    fechaInicioOferta: integer('fechaInicioOferta', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`), // timestamp
+    fechaFinOferta: integer('fechaFinOferta', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`), // timestamp
+    reservadoOffLine: integer('reservadoOffLine', { mode: 'number' }).default(0),
     reservadoOnline: integer('reservadoOnline', { mode: 'number' }).default(0),
     alertaStock: integer('alertaStock', { mode: 'number' }).default(10),
     iva: integer('iva', { mode: 'number' }).default(21), // IVA aplicado al producto "21" o "10"o"27"

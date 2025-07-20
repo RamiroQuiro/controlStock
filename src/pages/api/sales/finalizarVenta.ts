@@ -13,6 +13,7 @@ import {
 import { nanoid } from 'nanoid';
 import { and, eq, sql } from 'drizzle-orm';
 import { agregarCeros } from '../../../lib/calculos';
+import { convertirASegundos, getFechaUnix } from '../../../utils/timeUtils';
 
 export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
@@ -62,6 +63,9 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       );
     }
 
+
+    const fechaVenta = new Date();
+console.log('fecha venta ->', fechaVenta);
     const ventaDB = await db
       .transaction(async (trx) => {
         // Obtener y actualizar numeración
@@ -109,8 +113,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             puntoVenta: data.puntoVenta,
             numero: nuevoNumero,
             numeroFormateado,
-            fecha: new Date(),
-            fechaEmision: new Date(),
+            fecha: fechaVenta,
+            fechaEmision: fechaVenta,
             clienteId,
             total: data.total,
             estado: 'emitido',
@@ -130,8 +134,12 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             puntoVenta: data.puntoVenta,
             tipo: data.tipoComprobante || 'FC_B',
             metodoPago: data.metodoPago,
-            fecha: new Date(),
-            ...data,
+            fecha: fechaVenta,
+            total: data.total,
+            impuesto: data.impuesto,
+            descuento: data.descuento,
+            nCheque: data.nCheque,
+            vencimientoCheque: data.vencimientoCheque ? new Date(data.vencimientoCheque) : null,
           })
           .returning();
         // Procesar cada producto vendido
@@ -168,7 +176,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               productoId: prod.id,
               cantidad: prod.cantidad,
               tipo: 'egreso',
-              fecha: new Date(),
+              fecha: fechaVenta,
               userId,
               empresaId,
               proveedorId: null,

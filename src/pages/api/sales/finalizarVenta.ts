@@ -34,7 +34,6 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     }
 
     // Log para debug
-    console.log('data traido por frontend ->', data);
 
     // Validaciones previas
     if (
@@ -63,9 +62,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       );
     }
 
-
-    const fechaVenta = new Date();
-console.log('fecha venta ->', fechaVenta);
+    const fechaVenta = new Date(getFechaUnix() * 1000);
+    console.log('fecha venta ->', fechaVenta);
     const ventaDB = await db
       .transaction(async (trx) => {
         // Obtener y actualizar numeración
@@ -93,7 +91,7 @@ console.log('fecha venta ->', fechaVenta);
           .update(comprobanteNumeracion)
           .set({
             numeroActual: nuevoNumero,
-            updatedAt: new Date(),
+            updatedAt: fechaVenta,
           })
           .where(
             and(
@@ -139,7 +137,9 @@ console.log('fecha venta ->', fechaVenta);
             impuesto: data.impuesto,
             descuento: data.descuento,
             nCheque: data.nCheque,
-            vencimientoCheque: data.vencimientoCheque ? new Date(data.vencimientoCheque) : null,
+            vencimientoCheque: data.vencimientoCheque
+              ? new Date(data.vencimientoCheque)
+              : null,
           })
           .returning();
         // Procesar cada producto vendido

@@ -22,7 +22,10 @@ export function convertirASegundos(fecha: Date | number): number {
 /**
  * Formatea un timestamp Unix (segundos) a fecha legible en español argentino.
  */
-export function formatearFechaArgentina(timestamp: number, incluirHora = true): string {
+export function formatearFechaArgentina(
+  timestamp: number,
+  incluirHora = true
+): string {
   const date = new Date(timestamp * 1000);
   return date.toLocaleString('es-AR', {
     day: '2-digit',
@@ -55,10 +58,14 @@ export function getInicioYFinDeMesActual(): { inicio: number; fin: number } {
 /**
  * Devuelve el inicio y fin del mes anterior como timestamps en segundos.
  */
+
 export function getInicioYFinDeMesAnterior(): { inicio: number; fin: number } {
   const hoy = Temporal.Now.plainDateISO();
   const mesAnterior = hoy.subtract({ months: 1 });
-  const inicio = mesAnterior.with({ day: 1 }).toZonedDateTime('UTC').toInstant();
+  const inicio = mesAnterior
+    .with({ day: 1 })
+    .toZonedDateTime('UTC')
+    .toInstant();
   const fin = mesAnterior
     .with({ day: 1 })
     .add({ months: 1 })
@@ -76,10 +83,16 @@ export function getInicioYFinDeMesAnterior(): { inicio: number; fin: number } {
 /**
  * Devuelve el inicio y fin del mismo mes del año anterior como timestamps en segundos.
  */
-export function getInicioYFinMismoMesAnioAnterior(): { inicio: number; fin: number } {
+export function getInicioYFinMismoMesAnioAnterior(): {
+  inicio: number;
+  fin: number;
+} {
   const hoy = Temporal.Now.plainDateISO();
   const anioAnterior = hoy.subtract({ years: 1 });
-  const inicio = anioAnterior.with({ day: 1 }).toZonedDateTime('UTC').toInstant();
+  const inicio = anioAnterior
+    .with({ day: 1 })
+    .toZonedDateTime('UTC')
+    .toInstant();
   const fin = anioAnterior
     .with({ day: 1 })
     .add({ months: 1 })
@@ -94,13 +107,15 @@ export function getInicioYFinMismoMesAnioAnterior(): { inicio: number; fin: numb
   };
 }
 
-
 /**
  * Devuelve el inicio y fin del año actual como timestamps en segundos.
  */
 export function getInicioYFinDelAnioActual(): { inicio: number; fin: number } {
   const hoy = Temporal.Now.plainDateISO();
-  const inicio = hoy.with({ month: 1, day: 1 }).toZonedDateTime('UTC').toInstant();
+  const inicio = hoy
+    .with({ month: 1, day: 1 })
+    .toZonedDateTime('UTC')
+    .toInstant();
   const fin = hoy
     .with({ month: 12, day: 31 })
     .toZonedDateTime('UTC')

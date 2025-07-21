@@ -1,11 +1,18 @@
-import type { APIContext } from "astro";
-import db from "../../../db";
+import type { APIContext } from 'astro';
+import db from '../../../db';
 
-import { nanoid } from "nanoid";
-import { eq, and } from "drizzle-orm";
-import { comprobanteNumeracion, comprobantes, detallePresupuesto, empresas, presupuesto } from "../../../db/schema";
-import type { Producto } from "../../../types";
-import { agregarCeros } from "../../../lib/calculos";
+import { nanoid } from 'nanoid';
+import { eq, and } from 'drizzle-orm';
+import {
+  comprobanteNumeracion,
+  comprobantes,
+  detallePresupuesto,
+  empresas,
+  presupuesto,
+} from '../../../db/schema';
+import { agregarCeros } from '../../../lib/calculos';
+import { Temporal } from 'temporal-polyfill';
+import { getFechaUnix } from '../../../utils/timeUtils';
 
 export async function POST({ request, params }: APIContext): Promise<Response> {
   try {
@@ -21,7 +28,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       return new Response(
         JSON.stringify({
           status: 400,
-          msg: "Datos inválidos o incompletos",
+          msg: 'Datos inválidos o incompletos',
         }),
         { status: 400 }
       );
@@ -31,7 +38,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
       return new Response(
         JSON.stringify({
           status: 402,
-          msg: "El monto total del presupuesto debe ser mayor a 0",
+          msg: 'El monto total del presupuesto debe ser mayor a 0',
         }),
         { status: 402 }
       );
@@ -39,9 +46,10 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
 
     // Calcular fecha de expiración (5 días)
     const diasExpiracion = 5; // Variable para los días de expiración
-    const fecha = new Date();
-    const expira_at = new Date();
-    expira_at.setDate(fecha.getDate() + diasExpiracion);
+    const fecha = new Date(getFechaUnix() * 1000);
+    const expira_at = new Date(fecha.setDate(fecha.getDate() + diasExpiracion));
+    console.log('fecha ->', fecha);
+    console.log('expira_at ->', expira_at);
 
     const presupuestoDB = await db
       .transaction(async (trx) => {
@@ -54,19 +62,19 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           .where(
             and(
               eq(comprobanteNumeracion.empresaId, empresaId),
-              eq(comprobanteNumeracion.tipo, "PRESUPUESTO"),
+              eq(comprobanteNumeracion.tipo, 'PRESUPUESTO'),
               eq(comprobanteNumeracion.puntoVenta, data.puntoVenta)
             )
-          )
+          );
         const nuevoNumero = numeracion.numeroActual + 1;
-        const numeroFormateado = `${'PRESUPUESTO'}-${agregarCeros(data.puntoVenta,4)}-${agregarCeros(nuevoNumero,8)}`;
+        const numeroFormateado = `${'PRESUPUESTO'}-${agregarCeros(data.puntoVenta, 4)}-${agregarCeros(nuevoNumero, 8)}`;
 
         // Actualizar numeración
         await trx
           .update(comprobanteNumeracion)
-          .set({ 
+          .set({
             numeroActual: nuevoNumero,
-            updatedAt: new Date()
+            updatedAt: fecha,
           })
           .where(
             and(
@@ -75,7 +83,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
               eq(comprobanteNumeracion.puntoVenta, data.puntoVenta)
             )
           );
-  // Crear comprobante
+        // Crear comprobante
         const [comprobanteCreado] = await trx
           .insert(comprobantes)
           .values({
@@ -85,11 +93,11 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
             puntoVenta: data.puntoVenta,
             numero: nuevoNumero,
             numeroFormateado,
-            fecha: new Date(),
-            fechaEmision: new Date(),
-            clienteId:data.clienteId,
+            fecha: fecha,
+            fechaEmision: fecha,
+            clienteId: data.clienteId,
             total: data.total,
-            estado: 'emitido'
+            estado: 'emitido',
           })
           .returning();
 
@@ -100,14 +108,14 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
             codigo,
             userId,
             empresaId,
-            fecha,
-            puntoVenta:data.puntoVenta,
-            tipoComprobante:'PRESUPUESTO',
+            fecha: fecha,
+            puntoVenta: data.puntoVenta,
+            tipoComprobante: 'PRESUPUESTO',
             numeroFormateado,
-            comprobanteId:comprobanteCreado.id,
-            nComprobante:numeroFormateado,
-            expira_at,
-            estado: "activo",
+            comprobanteId: comprobanteCreado.id,
+            nComprobante: numeroFormateado,
+            expira_at: expira_at,
+            estado: 'activo',
             ...data,
           })
           .returning();
@@ -117,7 +125,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
           productosSeleccionados.map(async (prod) => {
             await trx.insert(detallePresupuesto).values({
               id: nanoid(),
-              nComprobante:numeroFormateado,
+              nComprobante: numeroFormateado,
               presupuestoId: presupuestoFinalizado[0].id,
               productoId: prod.id,
               cantidad: prod.cantidad,
@@ -147,24 +155,24 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         };
       })
       .catch((error) => {
-        console.error("Error en transacción:", error);
+        console.error('Error en transacción:', error);
         throw error;
       });
-        console.log('este es el endpoint presupuestar ->',presupuestoDB)
+    console.log('este es el endpoint presupuestar ->', presupuestoDB);
 
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: "Presupuesto generado con éxito",
+        msg: 'Presupuesto generado con éxito',
         data: presupuestoDB,
       })
     );
   } catch (error) {
-    console.error("Error al generar presupuesto:", error);
+    console.error('Error al generar presupuesto:', error);
     return new Response(
       JSON.stringify({
         status: 500,
-        msg: "Error al generar el presupuesto",
+        msg: 'Error al generar el presupuesto',
       }),
       { status: 500 }
     );

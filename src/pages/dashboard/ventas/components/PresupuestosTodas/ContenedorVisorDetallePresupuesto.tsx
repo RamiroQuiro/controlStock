@@ -20,7 +20,7 @@ export default function ContenedorVisorDetallePresupuesto({
           },
         });
         const data = await response.json();
-        console.log('data en el contenedorVisorDetallePresupuesto', data);
+        // console.log('data en el contenedorVisorDetallePresupuesto', data);
         setPresupuesto(data.data);
       } catch (error) {
         console.log(error);

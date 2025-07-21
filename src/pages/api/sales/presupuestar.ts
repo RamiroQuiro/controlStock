@@ -48,8 +48,6 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
     const diasExpiracion = 5; // Variable para los días de expiración
     const fecha = new Date(getFechaUnix() * 1000);
     const expira_at = new Date(fecha.setDate(fecha.getDate() + diasExpiracion));
-    console.log('fecha ->', fecha);
-    console.log('expira_at ->', expira_at);
 
     const presupuestoDB = await db
       .transaction(async (trx) => {
@@ -158,7 +156,7 @@ export async function POST({ request, params }: APIContext): Promise<Response> {
         console.error('Error en transacción:', error);
         throw error;
       });
-    console.log('este es el endpoint presupuestar ->', presupuestoDB);
+    // console.log('este es el endpoint presupuestar ->', presupuestoDB);
 
     return new Response(
       JSON.stringify({

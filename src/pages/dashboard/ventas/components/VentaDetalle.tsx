@@ -23,7 +23,7 @@ const VentaDetalle: React.FC<ComprobanteDetalle> = (data) => {
     (acc, producto) => acc + producto.precioUnitario * producto.cantidad,
     0
   );
-  console.log('esto es la data de venta Detalles ->', data);
+  // console.log('esto es la data de venta Detalles ->', data);
   const sumaSubtotal = items?.reduce(
     (acc, producto) =>
       acc +

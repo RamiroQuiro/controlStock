@@ -10,24 +10,18 @@ import {
   ventas,
   productoCategorias,
 } from '../db/schema';
+import { 
+  getInicioYFinDeMesActual, 
+  getInicioYFinDeMesAnterior 
+} from '../utils/timeUtils';
 
 const stadisticasDash = async (userId: string, empresaId: string) => {
   try {
-    // 🔹 Fecha actual y rangos necesarios
-    const fechaActual = new Date();
-    const mesActual = fechaActual.getMonth() + 1;
-    const añoActual = fechaActual.getFullYear();
-    const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
-    const añoAnterior = mesActual === 1 ? añoActual - 1 : añoActual;
+    // 🔹 Rangos de fechas obtenidos desde timeUtils
+    const { inicio: inicioMesActual, fin: finMesActual } = getInicioYFinDeMesActual();
+    const { inicio: inicioMesAnterior, fin: finMesAnterior } = getInicioYFinDeMesAnterior();
 
-    // 🔹 Rango del mes actual
-    const inicioMesActual = new Date(añoActual, mesActual - 1, 1);
-    const finMesActual = new Date(añoActual, mesActual, 0, 23, 59, 59);
-
-    // 🔹 Rango del mes anterior
-    const inicioMesAnterior = new Date(añoAnterior, mesAnterior - 1, 1);
-    const finMesAnterior = new Date(añoAnterior, mesAnterior, 0, 23, 59, 59);
-
+    console.log('inicio mes actual,',new Date(inicioMesActual * 1000),' fin del mes actual',new Date(finMesActual))
     // 1️⃣ Ventas del mes actual
     const [ventasMes] = await db
       .select({ nVentasMes: count(), totalVentasMes: sum(ventas.total) })
@@ -35,20 +29,20 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       .where(
         and(
           eq(ventas.empresaId, empresaId),
-          gte(ventas.fecha, inicioMesActual),
-          lte(ventas.fecha, finMesActual)
+          gte(ventas.fecha, new Date(inicioMesActual * 1000)),
+          lte(ventas.fecha, new Date(finMesActual * 1000))
         )
       );
 
-    // 2️⃣ Clientes nuevos en el mes actual (nuevo filtro con fechas)
+    // 2️⃣ Clientes nuevos en el mes actual
     const [clientesNuevosMes] = await db
       .select({ nClientesNuevos: count() })
       .from(clientes)
       .where(
         and(
           eq(clientes.empresaId, empresaId),
-          gte(clientes.fechaAlta, inicioMesActual),
-          lte(clientes.fechaAlta, finMesActual)
+          gte(clientes.fechaAlta, new Date(inicioMesActual * 1000)),
+          lte(clientes.fechaAlta, new Date(finMesActual * 1000))
         )
       );
 
@@ -109,8 +103,8 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       .where(
         and(
           eq(productos.empresaId, empresaId),
-          gte(ventas.fecha, inicioMesActual),
-          lte(ventas.fecha, finMesActual)
+          gte(ventas.fecha, new Date(inicioMesActual * 1000)),
+          lte(ventas.fecha, new Date(finMesActual * 1000))
         )
       )
       .groupBy(categorias.nombre);
@@ -130,8 +124,8 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       .where(
         and(
           eq(productos.empresaId, empresaId),
-          gte(ventas.fecha, inicioMesAnterior),
-          lte(ventas.fecha, finMesAnterior)
+          gte(ventas.fecha, new Date(inicioMesActual * 1000)),
+          lte(ventas.fecha, new Date(finMesActual * 1000))
         )
       )
       .groupBy(categorias.nombre);
@@ -201,6 +195,5 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
     return { dataDb: null };
   }
 };
-
 
 export { stadisticasDash };

@@ -2,79 +2,67 @@ import type { APIRoute } from 'astro';
 import { ventas } from '../../../db/schema';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import db from '../../../db';
+import { getInicioYFinDeMesActual, getInicioYFinDelAnioActual, getUltimosNDias } from '../../../utils/timeUtils';
 
 export const GET: APIRoute = async ({ request }) => {
-  const userId = request.headers.get('x-user-id');
   const empresaId = request.headers.get('xx-empresa-id');
-  const filtro = request.headers.get('filtro-selector') || 'añoActual';
+  const filtro = request.headers.get('filtro-selector') || 'anioActual';
 
-  if (!userId || !empresaId || empresaId === 'null' || empresaId === 'undefined') {
+  if (!empresaId || empresaId === 'null' || empresaId === 'undefined') {
     return new Response(JSON.stringify({ msg: 'Falta empresa o usuario', status: 400 }), { status: 400 });
   }
 
   try {
-    const now = new Date();
-    const año = now.getFullYear();
-    const mes = now.getMonth(); // 0-indexed
     let condicionFecha;
     let etiquetas: string[] = [];
     let agruparPor;
+    let formatoEtiqueta;
 
     if (filtro === 'mesActual') {
-      const inicioMes = new Date(año, mes, 1);
-      const finMes = new Date(año, mes + 1, 0, 23, 59, 59);
-      condicionFecha = and(
-        eq(ventas.empresaId, empresaId),
-        gte(ventas.fecha, inicioMes),
-        lte(ventas.fecha, finMes)
-      );
-      agruparPor = sql`strftime('%d', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
-      const dias = new Date(año, mes + 1, 0).getDate();
-      etiquetas = Array.from({ length: dias }, (_, i) => `${i + 1}`);
+      const { inicio, fin } = getInicioYFinDeMesActual();
+      condicionFecha = and(gte(ventas.fecha, new Date(inicio * 1000)), lte(ventas.fecha, new Date(fin * 1000)));
+      agruparPor = sql`strftime('%d', ventas.fecha, 'unixepoch')`;
+      const diasDelMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+      etiquetas = Array.from({ length: diasDelMes }, (_, i) => `${i + 1}`);
+      formatoEtiqueta = (i: number) => String(i + 1).padStart(2, '0');
+
     } else if (filtro === 'ultimos6Meses') {
-      const inicio = new Date(año, mes - 5, 1);
-      condicionFecha = and(
-        eq(ventas.empresaId, empresaId),
-        gte(ventas.fecha, inicio)
-      );
-      agruparPor = sql`strftime('%m', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
+      const { desde, hasta } = getUltimosNDias(180); // Aprox. 6 meses
+      condicionFecha = and(gte(ventas.fecha, new Date(desde * 1000)), lte(ventas.fecha, new Date(hasta * 1000)));
+      agruparPor = sql`strftime('%m', ventas.fecha, 'unixepoch')`;
       etiquetas = Array.from({ length: 6 }, (_, i) => {
-        const d = new Date(año, mes - 5 + i, 1);
+        const d = new Date();
+        d.setMonth(d.getMonth() - 5 + i);
         return d.toLocaleString('es', { month: 'short' });
       });
-    } else {
-      const inicioAño = new Date(año, 0, 1);
-      condicionFecha = and(
-        eq(ventas.empresaId, empresaId),
-        gte(ventas.fecha, inicioAño),
-        lte(ventas.fecha, now)
-      );
-      agruparPor = sql`strftime('%m', datetime(${ventas.fecha} / 1000, 'unixepoch'))`;
-      etiquetas = Array.from({ length: mes + 1 }, (_, i) => {
-        const d = new Date(año, i, 1);
-        return d.toLocaleString('es', { month: 'short' });
-      });
+      formatoEtiqueta = (i: number) => {
+        const d = new Date();
+        d.setMonth(d.getMonth() - 5 + i);
+        return (d.getMonth() + 1).toString().padStart(2, '0');
+      };
+
+    } else { // añoActual
+      const { inicio, fin } = getInicioYFinDelAnioActual();
+      condicionFecha = and(gte(ventas.fecha, new Date(inicio * 1000)), lte(ventas.fecha, new Date(fin * 1000)));
+      agruparPor = sql`strftime('%m', ventas.fecha, 'unixepoch')`;
+      etiquetas = Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleString('es', { month: 'short' }));
+      formatoEtiqueta = (i: number) => String(i + 1).padStart(2, '0');
     }
 
-   
+    const whereClause = and(eq(ventas.empresaId, empresaId), condicionFecha);
+
     const resultados = await db.select({
       periodo: agruparPor.as('periodo'),
-      total: sql<number>`sum(${ventas.total})`.as('total'),
-      cantidad: sql<number>`count(*)`.as('cantidad'),
+      total: sql<number>`sum(${ventas.total})`.mapWith(Number),
+      cantidad: sql<number>`count(*)`.mapWith(Number),
     })
     .from(ventas)
-    .where(condicionFecha)
+    .where(whereClause)
     .groupBy(agruparPor)
     .orderBy(agruparPor);
-  
-
-
 
     const montosPorPeriodo = etiquetas.map((_, i) => {
-      const periodoBuscado = filtro === 'mesActual'
-        ? String(i + 1).padStart(2, '0')
-        : (new Date(año, mes - 5 + i, 1).getMonth() + 1).toString().padStart(2, '0');
-
+      const periodoBuscado = formatoEtiqueta(i);
       const dato = resultados.find((r) => r.periodo === periodoBuscado);
       return dato ? dato.total : 0;
     });

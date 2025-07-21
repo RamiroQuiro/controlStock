@@ -7,7 +7,6 @@ export function getFechaUnix(): number {
   return Temporal.Now.instant().epochSeconds;
 }
 
-
 /**
  * Convierte Date, milisegundos o segundos en timestamp Unix en segundos.
  */
@@ -52,6 +51,49 @@ export function getInicioYFinDeMesActual(): { inicio: number; fin: number } {
     fin: fin.epochSeconds,
   };
 }
+
+/**
+ * Devuelve el inicio y fin del mes anterior como timestamps en segundos.
+ */
+export function getInicioYFinDeMesAnterior(): { inicio: number; fin: number } {
+  const hoy = Temporal.Now.plainDateISO();
+  const mesAnterior = hoy.subtract({ months: 1 });
+  const inicio = mesAnterior.with({ day: 1 }).toZonedDateTime('UTC').toInstant();
+  const fin = mesAnterior
+    .with({ day: 1 })
+    .add({ months: 1 })
+    .subtract({ days: 1 })
+    .toZonedDateTime('UTC')
+    .with({ hour: 23, minute: 59, second: 59 })
+    .toInstant();
+
+  return {
+    inicio: inicio.epochSeconds,
+    fin: fin.epochSeconds,
+  };
+}
+
+/**
+ * Devuelve el inicio y fin del mismo mes del año anterior como timestamps en segundos.
+ */
+export function getInicioYFinMismoMesAnioAnterior(): { inicio: number; fin: number } {
+  const hoy = Temporal.Now.plainDateISO();
+  const anioAnterior = hoy.subtract({ years: 1 });
+  const inicio = anioAnterior.with({ day: 1 }).toZonedDateTime('UTC').toInstant();
+  const fin = anioAnterior
+    .with({ day: 1 })
+    .add({ months: 1 })
+    .subtract({ days: 1 })
+    .toZonedDateTime('UTC')
+    .with({ hour: 23, minute: 59, second: 59 })
+    .toInstant();
+
+  return {
+    inicio: inicio.epochSeconds,
+    fin: fin.epochSeconds,
+  };
+}
+
 
 /**
  * Devuelve el inicio y fin del año actual como timestamps en segundos.

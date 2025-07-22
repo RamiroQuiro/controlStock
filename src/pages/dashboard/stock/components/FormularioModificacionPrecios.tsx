@@ -1,27 +1,24 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { showToast } from "../../../../utils/toast/toastShow";
+import React, { useState, useEffect, useMemo } from 'react';
+import { showToast } from '../../../../utils/toast/toastShow';
 import type {
   DataFiltros,
   ModificacionPreciosProps,
   ProductoPrevisualizado,
-} from "../../../../types";
-import { useStore } from "@nanostores/react";
-import { stockStore } from "../../../../context/store";
-
-
+} from '../../../../types';
+import { useStore } from '@nanostores/react';
+import { stockStore } from '../../../../context/store';
 
 const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   userId,
 }) => {
   const { data, loading, error } = useStore(stockStore);
-  
 
   const dataFiltros = useMemo(() => {
     if (loading) {
       return {
         categorias: [],
         ubicaciones: [],
-        depositos: []
+        depositos: [],
       };
     }
 
@@ -30,26 +27,41 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
       return {
         categorias: [],
         ubicaciones: [],
-        depositos: []
+        depositos: [],
       };
     }
-    
+
     console.log('✅ Datos de filtros obtenidos:', data);
     return {
       categorias: data.obtenerFiltros.categorias || [],
       ubicaciones: data.obtenerFiltros.ubicaciones || [],
-      depositos: data.obtenerFiltros.depositos || []
+      depositos: data.obtenerFiltros.depositos || [],
     };
   }, [data, loading]);
 
-  const [tipoModificacion, setTipoModificacion] = useState<"porcentaje" | "monto">("porcentaje");
-  const [filtroTipo, setFiltroTipo] = useState<"categorias" | "ubicaciones" | "depositos"| "todas">("categorias");
+  const [tipoModificacion, setTipoModificacion] = useState<
+    'porcentaje' | 'monto'
+  >('porcentaje');
+  const [filtroTipo, setFiltroTipo] = useState<
+    'categorias' | 'ubicaciones' | 'depositos' | 'todas'
+  >('categorias');
   const [filtros, setFiltros] = useState<DataFiltros>(dataFiltros);
-  const [valorSeleccionado, setValorSeleccionado] = useState<{nombre:string,id:string}>({nombre:'',id:''});
-  const [errors, setErrors] = useState<{msg:string,code?:number}>({msg:'',code:0});
+  const [valorSeleccionado, setValorSeleccionado] = useState<{
+    nombre: string;
+    id: string;
+  }>({ nombre: '', id: '' });
+  const [errors, setErrors] = useState<{ msg: string; code?: number }>({
+    msg: '',
+    code: 0,
+  });
   const [valor, setValor] = useState<number>(0);
-  const [afectarPrecio, setAfectarPrecio] = useState<"venta" | "compra" | "ambos">("venta");
-  const [productosPreview, setProductosPreview] = useState<ProductoPrevisualizado[]>([]);
+  const [operacion, setOperacion] = useState<'sumar' | 'restar'>('sumar'); // Nuevo estado para la operación
+  const [afectarPrecio, setAfectarPrecio] = useState<
+    'venta' | 'compra' | 'ambos'
+  >('venta');
+  const [productosPreview, setProductosPreview] = useState<
+    ProductoPrevisualizado[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -63,21 +75,19 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
     const nuevoFiltroTipo = e.target.value as typeof filtroTipo;
     setFiltroTipo(nuevoFiltroTipo);
     setShowPreview(false);
-    if (nuevoFiltroTipo === "categorias" && filtros?.categorias?.length) {
+    if (nuevoFiltroTipo === 'categorias' && filtros?.categorias?.length) {
       setValorSeleccionado(filtros.categorias[0]);
     } else if (
-      nuevoFiltroTipo === "ubicaciones" &&
+      nuevoFiltroTipo === 'ubicaciones' &&
       filtros?.ubicaciones?.length
     ) {
       setValorSeleccionado(filtros.ubicaciones[0]);
-    } else if (nuevoFiltroTipo === "depositos" && filtros?.depositos?.length) {
+    } else if (nuevoFiltroTipo === 'depositos' && filtros?.depositos?.length) {
       setValorSeleccionado(filtros.depositos[0]);
-    }
-    else if(nuevoFiltroTipo=="todas"){
-        setValorSeleccionado({nombre:"todos",id:"todos"});
-    }
-    else {
-      setValorSeleccionado({nombre:"",id:""});
+    } else if (nuevoFiltroTipo == 'todas') {
+      setValorSeleccionado({ nombre: 'todos', id: 'todos' });
+    } else {
+      setValorSeleccionado({ nombre: '', id: '' });
     }
   };
 
@@ -86,7 +96,7 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
     try {
       setShowPreview(true);
     } catch (error) {
-      setErrors({msg:"Error al previsualizar cambios"});
+      setErrors({ msg: 'Error al previsualizar cambios' });
     } finally {
       setIsLoading(false);
     }
@@ -95,35 +105,36 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-if(valor===0){
-    setErrors({msg:'El valor es no tiene que ser 0'})
-    return
-}
+    if (valor === 0) {
+      setErrors({ msg: 'El valor es no tiene que ser 0' });
+      return;
+    }
 
     try {
-      const response = await fetch("/api/productos/modificacionLotes", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/productos/modificacionLotes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId,
           filtroTipo,
           valorSeleccionado,
           tipoModificacion,
+          operacion,
           valor,
           afectarPrecio,
         }),
       });
 
       if (!response.ok) {
-          setErrors({msg:"Error en la modificación de precios"})
-          throw new Error("Error en la modificación de precios");
+        setErrors({ msg: 'Error en la modificación de precios' });
+        throw new Error('Error en la modificación de precios');
       }
 
       setShowPreview(false);
       setProductosPreview([]);
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
-        setErrors(error.message);
+      setErrors(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -160,28 +171,31 @@ if(valor===0){
             className="w-full p-2 border rounded"
             value={valorSeleccionado}
             onChange={(e) => {
-              setValorSeleccionado({nombre:e.target.value,id:e.target.value});
+              setValorSeleccionado({
+                nombre: e.target.value,
+                id: e.target.value,
+              });
               setShowPreview(false);
             }}
           >
-            {filtroTipo === "todas" &&
-                <option value={"todos"} disabled>
+            {filtroTipo === 'todas' && (
+              <option value={'todos'} disabled>
                 todos
-                </option>
-                }
-            {filtroTipo === "categorias" &&
+              </option>
+            )}
+            {filtroTipo === 'categorias' &&
               filtros?.categorias.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.nombre}
                 </option>
               ))}
-            {filtroTipo === "ubicaciones" &&
+            {filtroTipo === 'ubicaciones' &&
               filtros?.ubicaciones.map((ubi) => (
                 <option key={ubi.id} value={ubi.id}>
                   {ubi.nombre}
                 </option>
               ))}
-            {filtroTipo === "depositos" &&
+            {filtroTipo === 'depositos' &&
               filtros?.depositos.map((dep) => (
                 <option key={dep.id} value={dep.id}>
                   {dep.nombre}
@@ -192,45 +206,81 @@ if(valor===0){
 
         {/* Resto de campos del formulario */}
         <div className="space-y-4">
-          {/* Tipo de Modificación */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Tipo de modificación:
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  value="porcentaje"
-                  checked={tipoModificacion === "porcentaje"}
-                  onChange={() => {
-                    setTipoModificacion("porcentaje");
-                    setShowPreview(false);
-                  }}
-                  className="mr-2"
-                />
-                Porcentaje
+          <div className="flex w-full justify-start gap-6">
+            {/* Tipo de Modificación */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Tipo de modificación:
               </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  value="monto"
-                  checked={tipoModificacion === "monto"}
-                  onChange={() => {
-                    setTipoModificacion("monto");
-                    setShowPreview(false);
-                  }}
-                  className="mr-2"
-                />
-                Monto Fijo
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="porcentaje"
+                    checked={tipoModificacion === 'porcentaje'}
+                    onChange={() => {
+                      setTipoModificacion('porcentaje');
+                      setShowPreview(false);
+                    }}
+                    className="mr-2"
+                  />
+                  Porcentaje
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="monto"
+                    checked={tipoModificacion === 'monto'}
+                    onChange={() => {
+                      setTipoModificacion('monto');
+                      setShowPreview(false);
+                    }}
+                    className="mr-2"
+                  />
+                  Monto Fijo
+                </label>
+              </div>
+            </div>
+
+            {/* Operación (Sumar/Restar) */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Operación:
               </label>
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="sumar"
+                    checked={operacion === 'sumar'}
+                    onChange={() => {
+                      setOperacion('sumar');
+                      setShowPreview(false);
+                    }}
+                    className="mr-2"
+                  />
+                  Sumar
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="restar"
+                    checked={operacion === 'restar'}
+                    onChange={() => {
+                      setOperacion('restar');
+                      setShowPreview(false);
+                    }}
+                    className="mr-2"
+                  />
+                  Restar
+                </label>
+              </div>
             </div>
           </div>
-
           {/* Valor */}
           <div>
             <label className="block text-sm font-medium mb-2">
-              {tipoModificacion === "porcentaje" ? "Porcentaje" : "Monto"} a
+              {tipoModificacion === 'porcentaje' ? 'Porcentaje' : 'Monto'} a
               modificar:
             </label>
             <div className="flex items-center">
@@ -242,9 +292,9 @@ if(valor===0){
                   setShowPreview(false);
                 }}
                 className="w-full p-2 border rounded"
-                step={tipoModificacion === "porcentaje" ? "0.01" : "1"}
+                step={tipoModificacion === 'porcentaje' ? '0.01' : '1'}
               />
-              {tipoModificacion === "porcentaje" && (
+              {tipoModificacion === 'porcentaje' && (
                 <span className="ml-2">%</span>
               )}
             </div>
@@ -260,7 +310,7 @@ if(valor===0){
               value={afectarPrecio}
               onChange={(e) => {
                 setAfectarPrecio(
-                  e.target.value as "venta" | "compra" | "ambos"
+                  e.target.value as 'venta' | 'compra' | 'ambos'
                 );
                 setShowPreview(false);
               }}
@@ -284,15 +334,14 @@ if(valor===0){
           </button>
           <button
             type="submit"
-            disabled={isLoading }
+            disabled={isLoading}
             className="flex-1 bg-primary-100 text-white py-2 px-4 rounded hover:bg-primary-200 transition-colors disabled:opacity-50"
           >
             Aplicar Cambios
           </button>
         </div>
         <div className="h-10 w-full flex items-center justify-center text-center">
-<span className="text-primary-400 font-semibold">{errors.msg}</span>
-
+          <span className="text-primary-400 font-semibold">{errors.msg}</span>
         </div>
       </form>
 

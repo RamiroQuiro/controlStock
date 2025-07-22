@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { and, eq, inArray, SQL, sql } from 'drizzle-orm';
 import db from '../../../db';
 import { productoCategorias, productos, stockActual } from '../../../db/schema';
+import { cache } from '../../../utils/cache';
 
 // Definimos tipos de errores
 type ErrorResponse = {
@@ -45,157 +46,163 @@ export const PUT: APIRoute = async ({ request, locals }) => {
       filtroTipo,
       valorSeleccionado,
       tipoModificacion,
+      operacion,
       valor,
       afectarPrecio,
     } = await request.json();
     const { rol, empresaId } = locals.user;
-    console.log(
-      '✅ data entrando',
+
+    console.log('✅ data entrando', {
       userId,
       filtroTipo,
       valorSeleccionado,
       tipoModificacion,
+      operacion,
       valor,
-      afectarPrecio
-    );
+      afectarPrecio,
+    });
+
+    // Validaciones básicas
     if (!userId || !filtroTipo || !valorSeleccionado || !tipoModificacion) {
       return createErrorResponse(ERRORS.INVALID_DATA);
     }
-    if (rol != 'admin' && rol != 'repositor') {
-      return createErrorResponse(ERRORS.INVALID_DATA);
+    if (rol !== 'admin' && rol !== 'repositor') {
+      return createErrorResponse(ERRORS.INVALID_ROLE);
     }
-    if (valor === 0) {
+    const valorNumerico = Number(valor);
+    if (!valorNumerico || isNaN(valorNumerico)) {
       return createErrorResponse(ERRORS.INVALID_VALUE);
     }
 
+    // Construcción de filtro según tipo
     let condicionFiltro: SQL<unknown>;
-
-    try {
-      switch (filtroTipo) {
-        case 'categorias':
-          const idsAfectados = await db
-            .select({ productoId: productoCategorias.productoId })
-            .from(productoCategorias)
-            .where(eq(productoCategorias.categoriaId, valorSeleccionado.id));
-          condicionFiltro = inArray(
-            productos.id,
-            idsAfectados.map((p) => p.productoId)
-          );
-          break;
-        case 'ubicaciones':
-          // Primero obtenemos los IDs de los productos que están en esa ubicación
-          const productosEnUbicacion = await db
-            .select({ productoId: stockActual.productoId })
-            .from(stockActual)
-            .where(eq(stockActual.localizacion, valorSeleccionado.nombre));
-
-          condicionFiltro = inArray(
-            productos.id,
-            productosEnUbicacion.map((p) => p.productoId)
-          );
-          break;
-        case 'depositos':
-          // Similar para depósitos
-          const productosEnDeposito = await db
-            .select({ productoId: stockActual.productoId })
-            .from(stockActual)
-            .where(eq(stockActual.deposito, valorSeleccionado.nombre));
-
-          condicionFiltro = inArray(
-            productos.id,
-            productosEnDeposito.map((p) => p.productoId)
-          );
-          break;
-        case 'todas':
-          condicionFiltro = eq(productos.empresaId, empresaId);
-          break;
-        default:
-          return createErrorResponse(ERRORS.INVALID_FILTER);
-      }
-
-      const productosExistentes = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(productos)
-        .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
-
-      if (productosExistentes[0].count === 0) {
-        return createErrorResponse(ERRORS.NO_PRODUCTS);
-      }
-
-      let actualizacionPrecioVenta, actualizacionPrecioCompra;
-      if (tipoModificacion === 'porcentaje') {
-        const multiplicador = 1 + valor / 100;
-        actualizacionPrecioVenta = sql`${productos.pVenta} * ${multiplicador}`;
-        actualizacionPrecioCompra = sql`${productos.pCompra} * ${multiplicador}`;
-      } else {
-        actualizacionPrecioVenta = sql`${productos.pVenta} + ${valor}`;
-        actualizacionPrecioCompra = sql`${productos.pCompra} + ${valor}`;
-      }
-
-      const actualizacion: Record<string, any> = {};
-      switch (afectarPrecio) {
-        case 'venta':
-          actualizacion.pVenta = actualizacionPrecioVenta;
-          break;
-        case 'compra':
-          actualizacion.pCompra = actualizacionPrecioCompra;
-          break;
-        case 'ambos':
-          actualizacion.pVenta = actualizacionPrecioVenta;
-          actualizacion.pCompra = actualizacionPrecioCompra;
-          break;
-        default:
-          return createErrorResponse(ERRORS.INVALID_PRICE_TYPE);
-      }
-
-      if (filtroTipo === 'todas' || filtroTipo === 'categorias') {
-        await db
-          .update(productos)
-          .set(actualizacion)
-          .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
-      } else {
-        await db.transaction(async (trx) => {
-          const prodAfectados = await trx
-            .select({ productoId: productos.id })
-            .from(productos)
-            .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
-
-          console.log('productos afectados ->', prodAfectados);
-
-          const idsAfectados = prodAfectados.map((p) => p.productoId);
-          if (idsAfectados.length > 0) {
-            await trx
-              .update(productos)
-              .set(actualizacion)
-              .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
-          }
-        });
-
-        return new Response(
-          JSON.stringify({
-            msg: 'Precios actualizados correctamente',
-            status: 200,
-          }),
-          { status: 200 }
+    switch (filtroTipo) {
+      case 'categorias':
+        const idsPorCategoria = await db
+          .select({ productoId: productoCategorias.productoId })
+          .from(productoCategorias)
+          .where(eq(productoCategorias.categoriaId, valorSeleccionado.id));
+        condicionFiltro = inArray(
+          productos.id,
+          idsPorCategoria.map((p) => p.productoId)
         );
+        break;
+
+      case 'ubicaciones':
+        const productosUbicacion = await db
+          .select({ productoId: stockActual.productoId })
+          .from(stockActual)
+          .where(eq(stockActual.localizacion, valorSeleccionado.nombre));
+        condicionFiltro = inArray(
+          productos.id,
+          productosUbicacion.map((p) => p.productoId)
+        );
+        break;
+
+      case 'depositos':
+        const productosDeposito = await db
+          .select({ productoId: stockActual.productoId })
+          .from(stockActual)
+          .where(eq(stockActual.deposito, valorSeleccionado.nombre));
+        condicionFiltro = inArray(
+          productos.id,
+          productosDeposito.map((p) => p.productoId)
+        );
+        break;
+
+      case 'todas':
+        condicionFiltro = eq(productos.empresaId, empresaId);
+        break;
+
+      default:
+        return createErrorResponse(ERRORS.INVALID_FILTER);
+    }
+
+    // Verificar existencia de productos
+    const productosExistentes = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(productos)
+      .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
+
+    if (productosExistentes[0].count === 0) {
+      return createErrorResponse(ERRORS.NO_PRODUCTS);
+    }
+
+    // Lógica de modificación
+    let actualizacionPrecioVenta, actualizacionPrecioCompra;
+
+    if (tipoModificacion === 'porcentaje') {
+      const porcentaje = valorNumerico / 100;
+      const multiplicador = 1 + porcentaje;
+
+      if (multiplicador <= 0) {
+        return createErrorResponse({
+          msg: 'El porcentaje haría que el precio sea 0 o negativo',
+          code: 400,
+        });
       }
 
-      return new Response(
-        JSON.stringify({
-          msg: 'Precios actualizados correctamente',
-          status: 200,
-        }),
-        { status: 200 }
-      );
-    } catch (error) {
-      console.error('Error en la operación de base de datos:', error);
-      return createErrorResponse({
-        ...ERRORS.DB_ERROR,
-        details: error instanceof Error ? error.message : 'Error desconocido',
+      actualizacionPrecioVenta = sql`${productos.pVenta} * ${multiplicador}`;
+      actualizacionPrecioCompra = sql`${productos.pCompra} * ${multiplicador}`;
+    } else {
+      const operadorSQL: '+' | '-' = operacion === 'sumar' ? '+' : '-';
+      const valorAbs = Math.abs(valorNumerico);
+
+      actualizacionPrecioVenta = sql`${productos.pVenta} ${sql.raw(operadorSQL)} ${valorAbs}`;
+      actualizacionPrecioCompra = sql`${productos.pCompra} ${sql.raw(operadorSQL)} ${valorAbs}`;
+    }
+
+    const actualizacion: Record<string, any> = {};
+    switch (afectarPrecio) {
+      case 'venta':
+        actualizacion.pVenta = actualizacionPrecioVenta;
+        break;
+      case 'compra':
+        actualizacion.pCompra = actualizacionPrecioCompra;
+        break;
+      case 'ambos':
+        actualizacion.pVenta = actualizacionPrecioVenta;
+        actualizacion.pCompra = actualizacionPrecioCompra;
+        break;
+      default:
+        return createErrorResponse(ERRORS.INVALID_PRICE_TYPE);
+    }
+
+    // Aplicar actualización
+    if (filtroTipo === 'todas' || filtroTipo === 'categorias') {
+      await db
+        .update(productos)
+        .set(actualizacion)
+        .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
+    } else {
+      await db.transaction(async (trx) => {
+        const prodAfectados = await trx
+          .select({ productoId: productos.id })
+          .from(productos)
+          .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
+
+        const ids = prodAfectados.map((p) => p.productoId);
+        if (ids.length > 0) {
+          await trx
+            .update(productos)
+            .set(actualizacion)
+            .where(and(condicionFiltro, eq(productos.empresaId, empresaId)));
+        }
       });
     }
+
+    // Invalidar caché
+    await cache.invalidate('stock');
+
+    return new Response(
+      JSON.stringify({
+        msg: 'Precios actualizados correctamente',
+        status: 200,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
-    console.error('Error en el procesamiento de la solicitud:', error);
+    console.error('Error general en PUT:', error);
     return createErrorResponse({
       msg: 'Error interno del servidor',
       code: 500,

@@ -38,7 +38,7 @@ const ERRORS = {
   },
 } as const;
 
-export const PUT: APIRoute = async ({ request }) => {
+export const PUT: APIRoute = async ({ request ,locals}) => {
     try {
       const {
         userId,
@@ -48,11 +48,14 @@ export const PUT: APIRoute = async ({ request }) => {
         valor,
         afectarPrecio,
       } = await request.json();
-  
+      const{rol,empresaId}=locals.user
+  console.log("calores",filtroTipo,valorSeleccionado,tipoModificacion,valor,afectarPrecio)
       if (!userId || !filtroTipo || !valorSeleccionado || !tipoModificacion) {
         return createErrorResponse(ERRORS.INVALID_DATA);
       }
-  
+      if(rol!=="admin" || rol!="repositor"){
+        return createErrorResponse(ERRORS.INVALID_DATA);
+      }
       if (valor === 0) {
         return createErrorResponse(ERRORS.INVALID_VALUE);
       }

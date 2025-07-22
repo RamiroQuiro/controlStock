@@ -1,14 +1,17 @@
-import { and, asc, desc, eq, sql } from 'drizzle-orm';
-import db from '../db';
+import { and, asc, desc, eq, sql } from "drizzle-orm";
+import db from "../db";
 import {
+  categorias,
   clientes,
+  depositos,
   detalleVentas,
   movimientosStock,
   productos,
   proveedores,
   stockActual,
-} from '../db/schema';
-import { cache } from './cache';
+  ubicaciones,
+} from "../db/schema";
+import { cache } from "./cache";
 
 export const trayendoProductos = async (
   empresaId: string,
@@ -17,7 +20,6 @@ export const trayendoProductos = async (
 ) => {
   const offset = page * limit;
   const cacheKey = `stock_data_${empresaId}_${page}_${limit}`;
-  console.log('esta es la empresa id del stockguncion', empresaId);
   // Check cache first
   const cachedData = await cache.get(cacheKey);
   if (cachedData) return cachedData;
@@ -32,6 +34,9 @@ export const trayendoProductos = async (
     topMenosVendidos,
     stockMovimiento,
     resultado,
+    categoriasData,
+    ubicacionesData,
+    depositosData,
   ] = await Promise.all([
     db
       .select({
@@ -49,7 +54,7 @@ export const trayendoProductos = async (
         localizacion: stockActual.localizacion,
         alertaStock: stockActual.alertaStock,
         ultimaActualizacion: productos.ultimaActualizacion,
-        ventas: sql<number>`sum(${detalleVentas.cantidad})`.as('ventas'),
+        ventas: sql<number>`sum(${detalleVentas.cantidad})`.as("ventas"),
       })
       .from(productos)
       .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
@@ -64,7 +69,7 @@ export const trayendoProductos = async (
 
     db
       .select({
-        count: sql<number>`COUNT(*)`.as('total'),
+        count: sql<number>`COUNT(*)`.as("total"),
       })
       .from(productos)
       .where(eq(productos.empresaId, empresaId))
@@ -78,7 +83,7 @@ export const trayendoProductos = async (
       .select({
         producto: productos,
         totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
-          'totalVendido'
+          "totalVendido"
         ),
       })
       .from(detalleVentas)
@@ -92,7 +97,7 @@ export const trayendoProductos = async (
       .select({
         producto: productos,
         totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
-          'totalVendido'
+          "totalVendido"
         ),
       })
       .from(detalleVentas)
@@ -106,15 +111,15 @@ export const trayendoProductos = async (
       .select({
         producto: productos,
         totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
-          'totalVendido'
+          "totalVendido"
         ),
         totalIngresos:
           sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'ingreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as(
-            'totalIngresos'
+            "totalIngresos"
           ),
         totalEgresos:
           sql<number>`COALESCE(SUM(CASE WHEN ${movimientosStock.tipo} = 'egreso' THEN ${movimientosStock.cantidad} ELSE 0 END), 0)`.as(
-            'totalEgresos'
+            "totalEgresos"
           ),
       })
       .from(productos)
@@ -134,12 +139,16 @@ export const trayendoProductos = async (
       .from(productos)
       .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
       .where(eq(productos.empresaId, empresaId)),
+    db.select().from(categorias).where(eq(categorias.empresaId, empresaId)),
+    db.select().from(ubicaciones).where(eq(ubicaciones.empresaId, empresaId)),
+    db.select().from(depositos).where(eq(depositos.empresaId, empresaId)),
   ]);
-
+// mapeando solo las categorias traidas desde la base de datos de categorias, falta otras
+console.log("categoriasData", categoriasData);
   const obtenerFiltros = {
-    categorias: [...new Set(resultado.map((r) => r.categorias))],
-    ubicaciones: [...new Set(resultado.map((r) => r.ubicaciones))],
-    depositos: [...new Set(resultado.map((r) => r.depositos))],
+    categorias: Array.from(new Set(categoriasData.map((r) => ({nombre:r.nombre, id:r.id})))), 
+    ubicaciones: Array.from(new Set(resultado.map((r,i) => ({nombre:r.ubicaciones, id:i})))), 
+    depositos: Array.from(new Set(resultado.map((r,i) => ({nombre:r.depositos, id:i})))), 
   };
 
   const finalResult = {

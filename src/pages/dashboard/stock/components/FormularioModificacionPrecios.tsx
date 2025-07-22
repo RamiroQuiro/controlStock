@@ -8,6 +8,8 @@ import type {
 import { useStore } from "@nanostores/react";
 import { stockStore } from "../../../../context/store";
 
+
+
 const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   userId,
 }) => {
@@ -32,7 +34,7 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
       };
     }
     
-    console.log('✅ Datos de filtros obtenidos:', data.obtenerFiltros);
+    console.log('✅ Datos de filtros obtenidos:', data);
     return {
       categorias: data.obtenerFiltros.categorias || [],
       ubicaciones: data.obtenerFiltros.ubicaciones || [],
@@ -43,7 +45,7 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   const [tipoModificacion, setTipoModificacion] = useState<"porcentaje" | "monto">("porcentaje");
   const [filtroTipo, setFiltroTipo] = useState<"categorias" | "ubicaciones" | "depositos"| "todas">("categorias");
   const [filtros, setFiltros] = useState<DataFiltros>(dataFiltros);
-  const [valorSeleccionado, setValorSeleccionado] = useState<string>("");
+  const [valorSeleccionado, setValorSeleccionado] = useState<{nombre:string,id:string}>({nombre:'',id:''});
   const [errors, setErrors] = useState<{msg:string,code?:number}>({msg:'',code:0});
   const [valor, setValor] = useState<number>(0);
   const [afectarPrecio, setAfectarPrecio] = useState<"venta" | "compra" | "ambos">("venta");
@@ -72,10 +74,10 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
       setValorSeleccionado(filtros.depositos[0]);
     }
     else if(nuevoFiltroTipo=="todas"){
-        setValorSeleccionado("todos");
+        setValorSeleccionado({nombre:"todos",id:"todos"});
     }
     else {
-      setValorSeleccionado("");
+      setValorSeleccionado({nombre:"",id:""});
     }
   };
 
@@ -158,7 +160,7 @@ if(valor===0){
             className="w-full p-2 border rounded"
             value={valorSeleccionado}
             onChange={(e) => {
-              setValorSeleccionado(e.target.value);
+              setValorSeleccionado({nombre:e.target.value,id:e.target.value});
               setShowPreview(false);
             }}
           >
@@ -169,20 +171,20 @@ if(valor===0){
                 }
             {filtroTipo === "categorias" &&
               filtros?.categorias.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+                <option key={cat.id} value={cat.id}>
+                  {cat.nombre}
                 </option>
               ))}
             {filtroTipo === "ubicaciones" &&
               filtros?.ubicaciones.map((ubi) => (
-                <option key={ubi} value={ubi}>
-                  {ubi}
+                <option key={ubi.id} value={ubi.id}>
+                  {ubi.nombre}
                 </option>
               ))}
             {filtroTipo === "depositos" &&
               filtros?.depositos.map((dep) => (
-                <option key={dep} value={dep}>
-                  {dep}
+                <option key={dep.id} value={dep.id}>
+                  {dep.nombre}
                 </option>
               ))}
           </select>

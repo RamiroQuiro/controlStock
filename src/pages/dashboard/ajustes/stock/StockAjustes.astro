@@ -1,0 +1,82 @@
+---
+import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
+import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import {
+  Building2,
+  MapPin,
+  Package,
+  Ruler,
+  Tag,
+  type LucideIcon,
+} from 'lucide-react';
+import CardAjustesStock from '../components/CardAjustesStock.astro';
+
+interface StockConfigItem {
+  id: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  count: number;
+  color: string;
+  status: 'active' | 'inactive' | 'coming-soon';
+}
+const stockConfigItems: StockConfigItem[] = [
+  {
+    id: 'categorias',
+    title: 'Categorías',
+    description: 'Organiza tus productos por categorías',
+    icon: Tag,
+    count: 12,
+    color: 'bg-blue-500',
+    status: 'active',
+  },
+  {
+    id: 'ubicaciones',
+    title: 'Ubicaciones',
+    description: 'Define las ubicaciones dentro de tus depósitos',
+    icon: MapPin,
+    count: 8,
+    color: 'bg-green-500',
+    status: 'active',
+  },
+  {
+    id: 'depositos',
+    title: 'Depósitos',
+    description: 'Gestiona tus almacenes y centros de distribución',
+    icon: Building2,
+    count: 3,
+    color: 'bg-purple-500',
+    status: 'active',
+  },
+  {
+    id: 'marcas',
+    title: 'Marcas',
+    description: 'Administra las marcas de tus productos',
+    icon: Package,
+    count: 0,
+    color: 'bg-orange-500',
+    status: 'coming-soon',
+  },
+  {
+    id: 'unidades',
+    title: 'Unidades de Medida',
+    description: 'Define las unidades de medida para tus productos',
+    icon: Ruler,
+    count: 0,
+    color: 'bg-indigo-500',
+    status: 'coming-soon',
+  },
+];
+---
+
+<MainDashboard h1="Configuracion Stock">
+  <div class="flex flex-col gap-y-2 items-start w-full justify-between">
+    <p class="text-sm text-gray-600">
+      Gestiona tus configuraciones de stock aquí.
+    </p>
+  </div>
+  <!-- ver si colocamos algunos stats con info rapida -->
+  <div class="grid grid-cols-1 mt-6 w-full md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {stockConfigItems.map((item) => <CardAjustesStock item={item} />)}
+  </div>
+</MainDashboard>

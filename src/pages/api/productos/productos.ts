@@ -13,6 +13,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { productoCategorias } from '../../../db/schema/productoCategorias';
 import { generateId } from 'lucia';
+import { getFechaUnix } from '../../../utils/timeUtils';
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, locals }) => {
   const url = new URL(request.url);
@@ -222,10 +223,13 @@ export const PUT: APIRoute = async ({ request, params }) => {
 
     // Proceder con la actualización
     const dataUpdate = await db.transaction(async (trx) => {
+      const ultimaActualizacion = new Date(getFechaUnix());
+      const dataProductoUpdate = { ...dataProducto, ultimaActualizacion };
+      delete dataProductoUpdate.creado;
       // 1. Actualizar el producto
       const [actualizarProducto] = await trx
         .update(productos)
-        .set(dataProducto)
+        .set(dataProductoUpdate)
         .where(eq(productos.id, query))
         .returning();
 

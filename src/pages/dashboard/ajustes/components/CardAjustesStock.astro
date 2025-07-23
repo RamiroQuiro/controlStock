@@ -1,0 +1,52 @@
+---
+import Button2 from '../../../../components/atomos/Button2.astro';
+import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+
+const { item } = Astro.props;
+const Icon = item.icon;
+---
+
+<DivBox1
+  styleDiv={`hover:shadow-lg duration-300 transition-all space-y-3 cursor-pointer ${
+    item.status === 'coming-soon' ? 'opacity-75' : ''
+  }`}
+>
+  <div class="flex flex-col gap-y-2 items-start w-full justify-between">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class={`p-2 rounded-lg ${item.color} text-white`}>
+          <Icon className="w-7 h-7 group-hover:scale-110  duration-300 " />
+        </div>
+        <div>
+          <h3 class="text-lg">{item.title}</h3>
+        </div>
+      </div>
+      <!-- {getStatusBadge(item.status)} -->
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 items-start w-full justify-between">
+    <span class="text-sm mb-4">
+      {item.description}
+    </span>
+
+    <div class="flex items-center w-full justify-between">
+      <div class="text-lg font-semibold text-gray-700">
+        {item.count}
+        {item.count === 1 ? 'elemento' : 'elementos'}
+      </div>
+      <Button2
+        client:load
+        disabled={item.status === 'coming-soon'}
+        id="btnGestionar"
+      >
+        {item.status === 'coming-soon' ? 'Próximamente' : 'Gestionar'}
+      </Button2>
+    </div>
+  </div>
+</DivBox1>
+<script define:vars={{ item }}>
+  const btnGestionar = document.getElementById('btnGestionar');
+  btnGestionar.addEventListener('click', () => {
+    window.location.href = `/dashboard/ajustes/stock/${item.id}`;
+  });
+</script>

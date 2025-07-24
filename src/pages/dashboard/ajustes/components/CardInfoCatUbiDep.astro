@@ -1,0 +1,94 @@
+---
+import { Tag, Edit, Trash2, CircleX } from 'lucide-react';
+import Button4 from '../../../../components/atomos/Button4.astro';
+import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  productCount: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+const { category } = Astro.props;
+---
+
+<DivBox1
+  styleDiv={`hover:shadow-lg duration-300 transition-all gap-4 cursor-pointer ${
+    category.isActive === false ? 'opacity-75' : ''
+  }`}
+>
+  <div class="flex p-4 flex-col w-full gap-4">
+    <div class="flex flex-col gap-y-2 items-start w-full justify-between">
+      <div class="flex items-center w-full justify-between">
+        <div class="flex items-center gap-x-2 w-full">
+          <div class={`p-2 rounded-lg ${category.color} text-white`}>
+            <Tag className="w-4 h-4 group-hover:scale-110  duration-300 " />
+          </div>
+          <div>
+            <h3 class="text-lg text-primary-textoTitle font-medium">
+              {category.name}
+            </h3>
+          </div>
+        </div>
+        <span
+          class={`text-xs lowercase px-2 rounded-lg py-1 text-primary-textoTitle font-semibold ${category.isActive ? 'bg-green-500/50' : 'bg-red-500'}`}
+        >
+          {category.isActive ? 'activo' : 'inactivo'}
+        </span>
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 items-start w-full justify-between">
+      <span class="text-sm mb-4">{category.description}</span>
+
+      <div class="flex items-center w-full justify-between">
+        <div class="text-lg font-semibold text-gray-700">
+          {category.productCount}
+          {category.productCount === 1 ? 'producto' : 'productos'}
+        </div>
+        <span class="text-sm text-gray-500">
+          Creada: {category.createdAt}
+        </span>
+      </div>
+    </div>
+    <div class="flex space-x-2">
+      <Button4 id={`editarCategoria-${category.id}`}>
+        <Edit className="h-4 w-4" />
+      </Button4>
+      <Button4>
+        {category.isActive ? 'Desactivar' : 'Activar'}
+      </Button4>
+      <Button4>
+        <Trash2 className="h-4 w-4 text-red-600" />
+      </Button4>
+    </div>
+  </div>
+  <dialog
+    id={`dialog-editarCategoria-${category.id}`}
+    class="modal print:hidden relative duration-300 open:fixed open:flex flex-col w-full md:min-w-[50vw] md:open:max-w-[60vw] open:min-h-[70vh] rounded-lg border-l-2 border-primary-100 backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm"
+  >
+    <form method="dialog">
+      <button
+        id="cerrarModal"
+        class="absolute top-2 right-2 cursor-pointer text-primary-texto active:-scale-95 duration-200 hover:text-primary-100"
+      >
+        <CircleX />
+      </button>
+    </form>
+    <slot />
+  </dialog>
+</DivBox1>
+<script define:vars={{ category }}>
+  const btnEditarCategoria = document.getElementById(
+    `editarCategoria-${category.id}`
+  );
+  btnEditarCategoria?.addEventListener('click', () => {
+    const dialog = document.getElementById(
+      `dialog-editarCategoria-${category.id}`
+    );
+    dialog.showModal();
+  });
+</script>

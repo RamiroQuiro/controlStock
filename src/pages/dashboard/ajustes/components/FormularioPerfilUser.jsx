@@ -259,7 +259,7 @@ export default function FormularioPerfilUser({ user }) {
       <div className="mt-8 flex flex-col md:flex-row justify-end gap-4">
         <button
           onClick={handleSubmit}
-          className="bg-primary-100 text-white px-4 py-2 rounded hover:bg-primary-200 transition"
+          className="bg-primary-textoTitle text-white px-4 py-2 rounded hover:bg-primary-textoTitle/80 transition"
         >
           Editar Perfil
         </button>

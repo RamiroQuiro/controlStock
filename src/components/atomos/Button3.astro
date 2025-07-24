@@ -1,0 +1,11 @@
+---
+const { onclick, disabled } = Astro.props;
+---
+
+<button
+  onclick={onclick}
+  disabled={disabled}
+  class="bg-primary-textoTitle text-white px-4 text-xs py-2 rounded hover:bg-primary-textoTitle/80 transition"
+>
+  <slot />
+</button>

@@ -1,5 +1,6 @@
 ---
 import Button2 from '../../../../components/atomos/Button2.astro';
+import Button3 from '../../../../components/atomos/Button3.astro';
 import DivBox1 from '../../../../components/atomos/DivBox1.astro';
 
 const { item } = Astro.props;
@@ -18,7 +19,9 @@ const Icon = item.icon;
           <Icon className="w-7 h-7 group-hover:scale-110  duration-300 " />
         </div>
         <div>
-          <h3 class="text-lg">{item.title}</h3>
+          <h3 class="text-lg text-primary-textoTitle font-medium">
+            {item.title}
+          </h3>
         </div>
       </div>
       <!-- {getStatusBadge(item.status)} -->
@@ -34,19 +37,11 @@ const Icon = item.icon;
         {item.count}
         {item.count === 1 ? 'elemento' : 'elementos'}
       </div>
-      <Button2
-        client:load
-        disabled={item.status === 'coming-soon'}
-        id="btnGestionar"
-      >
-        {item.status === 'coming-soon' ? 'Próximamente' : 'Gestionar'}
-      </Button2>
+      <Button3 disabled={item.status === 'coming-soon'}>
+        <a href={`/dashboard/ajustes/stock/${item.id}`}>
+          {item.status === 'coming-soon' ? 'Próximamente' : 'Gestionar'}
+        </a>
+      </Button3>
     </div>
   </div>
 </DivBox1>
-<script define:vars={{ item }}>
-  const btnGestionar = document.getElementById('btnGestionar');
-  btnGestionar.addEventListener('click', () => {
-    window.location.href = `/dashboard/ajustes/stock/${item.id}`;
-  });
-</script>

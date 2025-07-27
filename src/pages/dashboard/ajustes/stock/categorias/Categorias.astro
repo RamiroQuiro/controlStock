@@ -1,0 +1,104 @@
+---
+import Button1 from "../../../../../components/atomos/Button1.astro";
+import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
+import Modal from "../../../../../components/moleculas/Modal.astro";
+import CardInfoCatUbiDep from "../../components/CardInfoCatUbiDep.astro";
+import FormularioNuevaCat from "../../components/FormularioNuevaCat";
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  productCount: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+/**
+ * Componente principal para gestionar categorías
+ */
+const categories: Category[] = [
+  {
+    id: '1',
+    name: 'Electrónicos',
+    description: 'Productos electrónicos y dispositivos tecnológicos',
+    color: 'bg-blue-500',
+    productCount: 45,
+    isActive: true,
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    name: 'Ropa y Textiles',
+    description: 'Prendas de vestir y productos textiles',
+    color: 'bg-green-500',
+    productCount: 32,
+    isActive: true,
+    createdAt: '2024-01-20',
+  },
+  {
+    id: '3',
+    name: 'Hogar y Decoración',
+    description: 'Artículos para el hogar y decoración',
+    color: 'bg-purple-500',
+    productCount: 28,
+    isActive: true,
+    createdAt: '2024-02-01',
+  },
+];
+
+---
+
+<MainDashboard h1="Gestión de Categorías">
+    <div
+    slot={'menu'}
+    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+  >
+    <div class="flex gap-3">
+      <Modal label="Crear" id="crearCliente">
+        <FormularioNuevaCat client:load />
+      </Modal>
+      <Button1
+        id="btnExportarPDF"
+        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
+      >
+        Exportar PDF
+      </Button1>
+      <Button1
+        id="btnExportar"
+        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
+      >
+        Exportar CSV
+      </Button1>
+    </div>
+  </div>
+    <div class="flex flex-col gap-y-2 items-start w-full justify-between">
+      <p class="text-sm text-gray-600">Gestiona de Categorías.</p>
+    </div>
+    <!-- ver si colocamos algunos stats con info rapida -->
+    <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
+        <DivBox1>
+          <div class="text-2xl font-bold text-blue-600">{categories.length}</div>
+          <div class="text-sm font-semibold text-gray-600">Total Categorías</div>
+        </DivBox1>
+        <DivBox1>
+          <div class="text-2xl font-bold text-green-600">{categories.filter((category) => category.isActive).length}</div>
+          <div class="text-sm font-semibold text-gray-600">Activas</div>
+        </DivBox1>
+        <DivBox1>
+          <div class="text-2xl font-bold text-neutral-600">105</div>
+          <div class="text-sm font-semibold text-gray-600">Total Productos</div>
+        </DivBox1>
+        <DivBox1>
+          <div class="text-2xl font-bold text-purple-600">35</div>
+          <div class="text-sm font-semibold text-gray-600">Promedio por Categoría</div>
+        </DivBox1>
+    </div>
+    <div
+      class="grid grid-cols-1 mt-6 w-full md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      {categories.map((category) => <CardInfoCatUbiDep category={category} />)}
+    </div>
+  </MainDashboard>

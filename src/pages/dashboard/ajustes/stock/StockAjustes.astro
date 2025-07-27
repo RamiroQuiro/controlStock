@@ -1,6 +1,6 @@
 ---
-import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
-import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 import {
   Building2,
   MapPin,
@@ -8,8 +8,8 @@ import {
   Ruler,
   Tag,
   type LucideIcon,
-} from 'lucide-react';
-import CardAjustesStock from '../components/CardAjustesStock.astro';
+} from "lucide-react";
+import CardAjustesStock from "../components/CardAjustesStock.astro";
 
 interface StockConfigItem {
   id: string;
@@ -18,53 +18,53 @@ interface StockConfigItem {
   icon: LucideIcon;
   count: number;
   color: string;
-  status: 'active' | 'inactive' | 'coming-soon';
+  status: "active" | "inactive" | "coming-soon";
 }
 const stockConfigItems: StockConfigItem[] = [
   {
-    id: 'categorias',
-    title: 'Categorías',
-    description: 'Organiza tus productos por categorías',
+    id: "categorias",
+    title: "Categorías",
+    description: "Organiza tus productos por categorías",
     icon: Tag,
     count: 12,
-    color: 'bg-blue-500',
-    status: 'active',
+    color: "bg-blue-500",
+    status: "active",
   },
   {
-    id: 'ubicaciones',
-    title: 'Ubicaciones',
-    description: 'Define las ubicaciones dentro de tus depósitos',
+    id: "ubicaciones",
+    title: "Ubicaciones",
+    description: "Define las ubicaciones dentro de tus depósitos",
     icon: MapPin,
     count: 8,
-    color: 'bg-green-500',
-    status: 'active',
+    color: "bg-green-500",
+    status: "active",
   },
   {
-    id: 'depositos',
-    title: 'Depósitos',
-    description: 'Gestiona tus almacenes y centros de distribución',
+    id: "depositos",
+    title: "Depósitos",
+    description: "Gestiona tus almacenes y centros de distribución",
     icon: Building2,
     count: 3,
-    color: 'bg-purple-500',
-    status: 'active',
+    color: "bg-purple-500",
+    status: "active",
   },
   {
-    id: 'marcas',
-    title: 'Marcas',
-    description: 'Administra las marcas de tus productos',
+    id: "marcas",
+    title: "Marcas",
+    description: "Administra las marcas de tus productos",
     icon: Package,
     count: 0,
-    color: 'bg-orange-500',
-    status: 'coming-soon',
+    color: "bg-orange-500",
+    status: "coming-soon",
   },
   {
-    id: 'unidades',
-    title: 'Unidades de Medida',
-    description: 'Define las unidades de medida para tus productos',
+    id: "unidades",
+    title: "Unidades de Medida",
+    description: "Define las unidades de medida para tus productos",
     icon: Ruler,
     count: 0,
-    color: 'bg-indigo-500',
-    status: 'coming-soon',
+    color: "bg-indigo-500",
+    status: "coming-soon",
   },
 ];
 ---
@@ -72,11 +72,29 @@ const stockConfigItems: StockConfigItem[] = [
 <MainDashboard h1="Configuracion Stock">
   <div class="flex flex-col gap-y-2 items-start w-full justify-between">
     <p class="text-sm text-gray-600">
-      Gestiona tus configuraciones de stock aquí.
+      Gestiona todos los aspectos relacionados con tu inventario y depositos
     </p>
   </div>
+  <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
+    <DivBox1>
+      <div class="text-2xl font-bold text-blue-600">12</div>
+      <div class="text-sm font-semibold text-gray-600">Categorías Activas</div>
+    </DivBox1>
+    <DivBox1>
+      <div class="text-2xl font-bold text-green-600">8</div>
+      <div class="text-sm font-semibold text-gray-600">Ubicaciones</div>
+    </DivBox1>
+    <DivBox1>
+      <div class="text-2xl font-bold text-purple-600">3</div>
+      <div class="text-sm font-semibold text-gray-600">Depósitos</div>
+    </DivBox1>
+    <DivBox1>
+      <div class="text-2xl font-bold text-gray-600">156</div>
+      <div class="text-sm font-semibold text-gray-600">Productos Total</div>
+    </DivBox1>
+  </div>
   <!-- ver si colocamos algunos stats con info rapida -->
-  <div class="grid grid-cols-1 mt-6 w-full md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-3 gap-6">
     {stockConfigItems.map((item) => <CardAjustesStock item={item} />)}
   </div>
 </MainDashboard>

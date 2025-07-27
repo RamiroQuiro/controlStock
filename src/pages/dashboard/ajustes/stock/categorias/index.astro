@@ -1,62 +1,11 @@
 ---
 import MainDashboard from '../../../../../components/atomos/MainDashboard.astro';
 import LayoutDash from '../../../../../components/layouts/LayoutDash.astro';
-import CardInfoCatUbiDep from '../../components/CardInfoCatUbiDep.astro';
+import Categorias from './Categorias.astro';
 
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  productCount: number;
-  isActive: boolean;
-  createdAt: string;
-}
 
-/**
- * Componente principal para gestionar categorías
- */
-const categories: Category[] = [
-  {
-    id: '1',
-    name: 'Electrónicos',
-    description: 'Productos electrónicos y dispositivos tecnológicos',
-    color: 'bg-blue-500',
-    productCount: 45,
-    isActive: true,
-    createdAt: '2024-01-15',
-  },
-  {
-    id: '2',
-    name: 'Ropa y Textiles',
-    description: 'Prendas de vestir y productos textiles',
-    color: 'bg-green-500',
-    productCount: 32,
-    isActive: true,
-    createdAt: '2024-01-20',
-  },
-  {
-    id: '3',
-    name: 'Hogar y Decoración',
-    description: 'Artículos para el hogar y decoración',
-    color: 'bg-purple-500',
-    productCount: 28,
-    isActive: true,
-    createdAt: '2024-02-01',
-  },
-];
 ---
 
 <LayoutDash title="Gestión de Categorías">
-  <MainDashboard h1="Gestión de Categorías">
-    <div class="flex flex-col gap-y-2 items-start w-full justify-between">
-      <p class="text-sm text-gray-600">Gestiona de Categorías.</p>
-    </div>
-    <!-- ver si colocamos algunos stats con info rapida -->
-    <div
-      class="grid grid-cols-1 mt-6 w-full md:grid-cols-2 lg:grid-cols-3 gap-6"
-    >
-      {categories.map((category) => <CardInfoCatUbiDep category={category} />)}
-    </div>
-  </MainDashboard>
+  <Categorias/>
 </LayoutDash>

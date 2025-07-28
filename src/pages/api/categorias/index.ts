@@ -12,8 +12,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return createResponse(401, "No autenticado");
     }
 
-    const { nombre, descripcion, empresaId } = await request.json();
+    const { nombre, descripcion, color } = await request.json();
+    const empresaId = locals.user.empresaId;
+    console.log("color", color);
+    console.log("nombre", nombre);
+    console.log("descripcion", descripcion);
+    console.log("empresaId", empresaId);
 
+const nombreLowerCase = nombre.toLowerCase();
+
+    const isCategoriaExistente = await db
+      .select()
+      .from(categorias)
+      .where(and(eq(categorias.nombre, nombreLowerCase), eq(categorias.empresaId, empresaId)))
+      .limit(1);
+      console.log("isCategoriaExistente", isCategoriaExistente);
+      console.log('nombreLowerCase', nombreLowerCase);
+    if(isCategoriaExistente.length>0){
+      return createResponse(400, "Categoria ya existe");
+    }
     // Validar datos requeridos
     if (!nombre || !empresaId) {
       return createResponse(400, "Nombre y empresaId son requeridos");
@@ -23,8 +40,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .insert(categorias)
       .values({
         id: generateId(10),
-        nombre,
+        nombre: nombreLowerCase,
         descripcion,
+        color: color,
         creadoPor: locals.user.id,
         empresaId,
       })
@@ -80,5 +98,39 @@ export const GET: APIRoute = async ({ request }) => {
   } catch (error) {
     console.error("Error al buscar categorias:", error);
     return createResponse(500, "Error al buscar categorias");
+  }
+};
+
+export const PUT: APIRoute = async ({ request, locals }) => {
+  try {
+    const { id, nombre, descripcion, color } = await request.json();
+    const empresaId = locals.user?.empresaId;
+// console.log('esto son los datos de entrada',id,nombre,descripcion,color)
+    if (!locals.user) {
+      return createResponse(401, "No autenticado");
+    }
+    const isCategoriaExistente = await db
+      .select()
+      .from(categorias)
+      .where(eq(categorias.id, id))
+      .limit(1);
+    if (!isCategoriaExistente) {
+      return createResponse(404, "Categoria no encontrada");
+    }
+
+    const categoria = await db
+      .update(categorias)
+      .set({
+        nombre: nombreLowerCase,
+        descripcion,
+        color,
+        empresaId,
+      })
+      .where(eq(categorias.id, id))
+      .returning();
+    return createResponse(200, "Categoria actualizada", id);
+  } catch (error) {
+    console.error("Error al actualizar categoria:", error);
+    return createResponse(500, "Error al actualizar categoria");
   }
 };

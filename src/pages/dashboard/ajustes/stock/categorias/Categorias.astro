@@ -1,53 +1,50 @@
 ---
+import { eq, sql } from "drizzle-orm";
 import Button1 from "../../../../../components/atomos/Button1.astro";
 import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
 import Modal from "../../../../../components/moleculas/Modal.astro";
+import db from "../../../../../db";
+import { categorias, productoCategorias } from "../../../../../db/schema";
 import CardInfoCatUbiDep from "../../components/CardInfoCatUbiDep.astro";
 import FormularioNuevaCat from "../../components/FormularioNuevaCat";
 
 interface Category {
   id: string;
-  name: string;
-  description: string;
+  nombre: string;
+  descripcion: string;
   color: string;
-  productCount: number;
-  isActive: boolean;
-  createdAt: string;
+  activo: boolean;
+  creadoPor: string;
+  created_at: string;
+  cantidadProductos: number;
 }
 
-/**
- * Componente principal para gestionar categorías
- */
-const categories: Category[] = [
-  {
-    id: '1',
-    name: 'Electrónicos',
-    description: 'Productos electrónicos y dispositivos tecnológicos',
-    color: 'bg-blue-500',
-    productCount: 45,
-    isActive: true,
-    createdAt: '2024-01-15',
-  },
-  {
-    id: '2',
-    name: 'Ropa y Textiles',
-    description: 'Prendas de vestir y productos textiles',
-    color: 'bg-green-500',
-    productCount: 32,
-    isActive: true,
-    createdAt: '2024-01-20',
-  },
-  {
-    id: '3',
-    name: 'Hogar y Decoración',
-    description: 'Artículos para el hogar y decoración',
-    color: 'bg-purple-500',
-    productCount: 28,
-    isActive: true,
-    createdAt: '2024-02-01',
-  },
-];
+let categories: Category[] = [];
+
+const {user}=Astro.locals   
+
+try {
+  const categoriasConConteo = await db
+    .select({
+      id: categorias.id,
+      nombre: categorias.nombre,
+      descripcion: categorias.descripcion,
+      color: categorias.color,
+      activo: categorias.activo,
+      creadoPor: categorias.creadoPor,
+      created_at: categorias.created_at,
+      cantidadProductos: sql`COUNT(${productoCategorias.productoId})`
+    })
+    .from(categorias)
+    .leftJoin(productoCategorias, eq(productoCategorias.categoriaId, categorias.id))
+    .where(eq(categorias.empresaId, user?.empresaId))
+    .groupBy(categorias.id);
+
+  categories = categoriasConConteo;
+} catch (error) {
+  console.error("Error al obtener categorias:", error);
+}
 
 ---
 
@@ -84,7 +81,7 @@ const categories: Category[] = [
           <div class="text-sm font-semibold text-gray-600">Total Categorías</div>
         </DivBox1>
         <DivBox1>
-          <div class="text-2xl font-bold text-green-600">{categories.filter((category) => category.isActive).length}</div>
+          <div class="text-2xl font-bold text-green-600">{categories.filter((category) => category.activo).length}</div>
           <div class="text-sm font-semibold text-gray-600">Activas</div>
         </DivBox1>
         <DivBox1>
@@ -99,6 +96,6 @@ const categories: Category[] = [
     <div
       class="grid grid-cols-1 mt-6 w-full md:grid-cols-2 lg:grid-cols-3 gap-6"
     >
-      {categories.map((category) => <CardInfoCatUbiDep category={category} />)}
+      {categories.map((category) => <CardInfoCatUbiDep categoria={category} />)}
     </div>
   </MainDashboard>

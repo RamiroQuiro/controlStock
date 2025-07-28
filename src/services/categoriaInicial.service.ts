@@ -9,6 +9,7 @@ export const inciarCategoria = async (empresaId:string, userId:string) => {
             nombre: "general",
             descripcion: "categoria general defecto",
             creadoPor: userId,
+            color:'bg-primary-100',
             empresaId,
             activo: 1,
         })

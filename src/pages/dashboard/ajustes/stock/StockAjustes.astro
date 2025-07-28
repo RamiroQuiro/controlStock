@@ -10,9 +10,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import CardAjustesStock from "../components/CardAjustesStock.astro";
+import db from "../../../../db";
+import { and, count, eq,  sql } from "drizzle-orm";
+import { categorias, ubicaciones, depositos, productos } from "../../../../db/schema";
 
 interface StockConfigItem {
-  id: string;
   title: string;
   description: string;
   icon: LucideIcon;
@@ -20,13 +22,14 @@ interface StockConfigItem {
   color: string;
   status: "active" | "inactive" | "coming-soon";
 }
+
 const stockConfigItems: StockConfigItem[] = [
   {
     id: "categorias",
     title: "Categorías",
     description: "Organiza tus productos por categorías",
     icon: Tag,
-    count: 12,
+    count: 0,
     color: "bg-blue-500",
     status: "active",
   },
@@ -35,7 +38,7 @@ const stockConfigItems: StockConfigItem[] = [
     title: "Ubicaciones",
     description: "Define las ubicaciones dentro de tus depósitos",
     icon: MapPin,
-    count: 8,
+    count: 0,
     color: "bg-green-500",
     status: "active",
   },
@@ -44,7 +47,7 @@ const stockConfigItems: StockConfigItem[] = [
     title: "Depósitos",
     description: "Gestiona tus almacenes y centros de distribución",
     icon: Building2,
-    count: 3,
+    count: 0,
     color: "bg-purple-500",
     status: "active",
   },
@@ -67,6 +70,25 @@ const stockConfigItems: StockConfigItem[] = [
     status: "coming-soon",
   },
 ];
+let stockConfigItemsConDatos: StockConfigItem[] = [];
+let dataDB:any;
+const {user}=Astro.locals
+try {
+const traerDataDB=async()=>{
+  const productosData=(await db.select({cantidad:count(productos.id)}).from(productos).where(and(eq(productos.empresaId,user?.empresaId),eq(productos.activo,true)))).at(0)
+const categoriasData=(await db.select({cantidad:count(categorias.id)}).from(categorias).where(and(eq(categorias.empresaId,user?.empresaId),eq(categorias.activo,true)))).at(0)
+const ubicacionesData=(await db.select({cantidad:count(ubicaciones.id)}).from(ubicaciones).where(and(eq(ubicaciones.empresaId,user?.empresaId),eq(ubicaciones.activo,true)))).at(0)
+const depositosData=(await db.select({cantidad:count(depositos.id)}).from(depositos).where(and(eq(depositos.empresaId,user?.empresaId),eq(depositos.activo,true)))).at(0)
+return {categorias:categoriasData.cantidad,ubicaciones:ubicacionesData.cantidad,depositos:depositosData.cantidad,productos:productosData.cantidad}
+}
+ dataDB=await traerDataDB()
+stockConfigItemsConDatos = stockConfigItems.map(item => ({
+  ...item,
+  count: dataDB[item.id]
+}));
+} catch (error) {
+  console.log(error);
+}
 ---
 
 <MainDashboard h1="Configuracion Stock">
@@ -77,24 +99,24 @@ const stockConfigItems: StockConfigItem[] = [
   </div>
   <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
     <DivBox1>
-      <div class="text-2xl font-bold text-blue-600">12</div>
+      <div class="text-2xl font-bold text-blue-600">{stockConfigItemsConDatos.find(item => item.id === 'categorias')?.count}</div>
       <div class="text-sm font-semibold text-gray-600">Categorías Activas</div>
     </DivBox1>
     <DivBox1>
-      <div class="text-2xl font-bold text-green-600">8</div>
+      <div class="text-2xl font-bold text-green-600">{stockConfigItemsConDatos.find(item => item.id === 'ubicaciones')?.count}</div>
       <div class="text-sm font-semibold text-gray-600">Ubicaciones</div>
     </DivBox1>
     <DivBox1>
-      <div class="text-2xl font-bold text-purple-600">3</div>
+      <div class="text-2xl font-bold text-purple-600">{stockConfigItemsConDatos.find(item => item.id === 'depositos')?.count}</div>
       <div class="text-sm font-semibold text-gray-600">Depósitos</div>
     </DivBox1>
     <DivBox1>
-      <div class="text-2xl font-bold text-gray-600">156</div>
+      <div class="text-2xl font-bold text-gray-600">{dataDB.productos}</div>
       <div class="text-sm font-semibold text-gray-600">Productos Total</div>
     </DivBox1>
   </div>
   <!-- ver si colocamos algunos stats con info rapida -->
   <div class="grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {stockConfigItems.map((item) => <CardAjustesStock item={item} />)}
+    {stockConfigItemsConDatos.map((item) => <CardAjustesStock item={item} />)}
   </div>
 </MainDashboard>

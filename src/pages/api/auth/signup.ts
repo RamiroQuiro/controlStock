@@ -11,6 +11,7 @@ import { getTemplate } from "../../../lib/templatesEmail/templates";
 export async function POST({
   request,
   cookies,
+  url
 }: APIContext): Promise<Response> {
   const formData = await request.json();
   const { email, password, razonSocial, nombre, apellido, rol } =
@@ -107,13 +108,15 @@ export async function POST({
   ).at(0);
 
   // generando el token de confirmacion de email
+const hostUrl = url.host;
 
   const code = generateId(6);
   const tokenConfirmacionEmail = getToken({
     email,
     code,
+    hostUrl,
   });
-  const template = getTemplate(`${nombre} ${apellido}`, tokenConfirmacionEmail);
+  const template = getTemplate(`${nombre} ${apellido}`, tokenConfirmacionEmail, hostUrl);
 
   try {
     await sendMailer(email, "Confirmacion de Cuenta controlStock", template);

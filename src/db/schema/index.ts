@@ -23,3 +23,4 @@ export { empresaConfigTienda } from './empresaConfigTienda';
 export { comprobanteNumeracion } from './comprobanteNumeracion';
 export { comprobantes } from './compobantes';
 export { puntosDeVenta } from './puntosDeVentas';
+export { usuariosDepositos } from './usuariosDepositos';

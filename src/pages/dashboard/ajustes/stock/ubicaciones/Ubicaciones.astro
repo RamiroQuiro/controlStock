@@ -5,59 +5,57 @@ import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
 import Modal from "../../../../../components/moleculas/Modal.astro";
 import db from "../../../../../db";
-import { categorias, productoCategorias } from "../../../../../db/schema";
+import { ubicaciones, localizaciones } from "../../../../../db/schema";
 import CardInfoCatUbiDep from "../../components/CardInfoCatUbiDep.astro";
-import FormularioNuevaCat from "../../components/FormularioNuevaCat";
+import FormularioNuevaUbicacion from "../../components/FormularioNuevaUbicacion.tsx";
 
-interface Category {
+interface Ubicacion {
   id: string;
   nombre: string;
   descripcion: string;
-  color: string;
   activo: boolean;
   creadoPor: string;
   created_at: string;
   cantidadProductos: number;
 }
 
-let categories: Category[] = [];
+let ubicacionesData: Ubicacion[] = [];
 let cantidadProductos: number = 0;
 
 const {user}=Astro.locals   
 
 try {
-  const categoriasConConteo = await db
+  const ubicacionesConConteo = await db
     .select({
-      id: categorias.id,
-      nombre: categorias.nombre,
-      descripcion: categorias.descripcion,
-      color: categorias.color,
-      activo: categorias.activo,
-      creadoPor: categorias.creadoPor,
-      created_at: categorias.created_at,
-      cantidadProductos: sql`COUNT(${productoCategorias.productoId})`
+      id: ubicaciones.id,
+      nombre: ubicaciones.nombre,
+      descripcion: ubicaciones.descripcion,
+      activo: ubicaciones.activo,
+      creadoPor: ubicaciones.creadoPor,
+      created_at: ubicaciones.created_at,
+      cantidadProductos: sql`COUNT(${localizaciones.productoId})`
     })
-    .from(categorias)
-    .leftJoin(productoCategorias, eq(productoCategorias.categoriaId, categorias.id))
-    .where(eq(categorias.empresaId, user?.empresaId))
-    .groupBy(categorias.id);
+    .from(ubicaciones)
+    .leftJoin(localizaciones, eq(localizaciones.ubicacionId, ubicaciones.id))
+    .where(eq(ubicaciones.empresaId, user?.empresaId))
+    .groupBy(ubicaciones.id);
 
-  categories = categoriasConConteo;
-   cantidadProductos= categoriasConConteo.reduce((total, categoria) => total + categoria.cantidadProductos, 0);
+  ubicacionesData = ubicacionesConConteo;
+   cantidadProductos= ubicacionesConConteo.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0);
 } catch (error) {
-  console.error("Error al obtener categorias:", error);
+  console.error("Error al obtener ubicaciones:", error);
 }
 
 ---
 
-<MainDashboard h1="Gestión de Categorías">
+<MainDashboard h1="Gestión de Ubicaciones">
     <div
     slot={'menu'}
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
     <div class="flex gap-3">
-      <Modal label="Crear" id="crearCliente">
-        <FormularioNuevaCat client:load />
+      <Modal label="Crear" id="crearUbicacion">
+        <FormularioNuevaUbicacion client:load />
       </Modal>
       <Button1
         id="btnExportarPDF"
@@ -74,16 +72,16 @@ try {
     </div>
   </div>
     <div class="flex flex-col gap-y-2 items-start w-full justify-between">
-      <p class="text-sm text-gray-600">Gestiona de Categorías.</p>
+      <p class="text-sm text-gray-600">Gestiona de Ubicaciones.</p>
     </div>
     <!-- ver si colocamos algunos stats con info rapida -->
     <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
         <DivBox1>
-          <div class="text-2xl font-bold text-blue-600">{categories.length}</div>
-          <div class="text-sm font-semibold text-gray-600">Total Categorías</div>
+          <div class="text-2xl font-bold text-blue-600">{ubicacionesData.length}</div>
+          <div class="text-sm font-semibold text-gray-600">Total Ubicaciones</div>
         </DivBox1>
         <DivBox1>
-          <div class="text-2xl font-bold text-green-600">{categories.filter((category) => category.activo).length}</div>
+          <div class="text-2xl font-bold text-green-600">{ubicacionesData.filter((ubicacion) => ubicacion.activo).length}</div>
           <div class="text-sm font-semibold text-gray-600">Activas</div>
         </DivBox1>
         <DivBox1>
@@ -91,13 +89,13 @@ try {
           <div class="text-sm font-semibold text-gray-600">Total Productos</div>
         </DivBox1>
         <DivBox1>
-          <div class="text-2xl font-bold text-purple-600">{cantidadProductos/categories.length}</div>
-          <div class="text-sm font-semibold text-gray-600">Promedio por Categoría</div>
+          <div class="text-2xl font-bold text-purple-600">{cantidadProductos/ubicacionesData.length}</div>
+          <div class="text-sm font-semibold text-gray-600">Promedio por Ubicación</div>
         </DivBox1>
     </div>
     <div
       class="grid grid-cols-1  w-full md:grid-cols-2 lg:grid-cols-3 gap-4"
     >
-      {categories.map((category) => <CardInfoCatUbiDep item={category} type='categoria' />)}
+      {ubicacionesData.map((ubicacion) => <CardInfoCatUbiDep item={ubicacion} type='ubicacion' />)}
     </div>
   </MainDashboard>

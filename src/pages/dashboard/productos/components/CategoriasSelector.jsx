@@ -10,7 +10,7 @@ import BotonAgregarCat from "../../../../components/moleculas/BotonAgregarCat";
 
 // Componente para la lista de sugerencias
 
-export default function CategoriasSelector({ empresaId }) {
+export default function CategoriasSelector({ empresaId, onCategoriasChange }) {
   const [categoria, setCategoria] = useState("");
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
 
@@ -18,28 +18,16 @@ export default function CategoriasSelector({ empresaId }) {
     useCategorias(empresaId);
 
   useEffect(() => {
-    // Crear un campo oculto o actualizar uno existente con los IDs como JSON
-    const hiddenInput =
-      document.getElementById("categoriasIds") ||
-      document.createElement("input");
-    hiddenInput.type = "hidden";
-    hiddenInput.value = JSON.stringify(
-      categoriasSeleccionadas.map((cat) => cat.id)
-    );
-
-    // Si es un campo nuevo, añadirlo al formulario
-    if (!document.getElementById("categoriasIds")) {
-      document
-        .getElementById("formularioCargaProducto")
-        .appendChild(hiddenInput);
+    if (onCategoriasChange) {
+      onCategoriasChange(categoriasSeleccionadas.map(cat => cat.id));
     }
-  }, [categoriasSeleccionadas]);
+  }, [categoriasSeleccionadas, onCategoriasChange]);
 
-  useEffect(() => {
-    return () => {
-      searchCategorias.cancel();
-    };
-  }, [searchCategorias]);
+  // useEffect(() => {
+  //   return () => {
+  //     searchCategorias.cancel();
+  //   };
+  // }, [searchCategorias]);
 
   const onChangeCategoria = (e) => {
     const value = e.target.value;

@@ -11,7 +11,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return createResponse(401, "No autenticado");
     }
 
-    const { nombre, descripcion } = await request.json();
+    const { nombre, descripcion, depositoId, zona, capacidad,pasillo,estante,rack,nivel} = await request.json();
     const empresaId = locals.user.empresaId;
 
     const nombreLowerCase = nombre.toLowerCase();
@@ -38,6 +38,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
         descripcion,
         creadoPor: locals.user.id,
         empresaId,
+        depositoId,
+        zona,
+        capacidad,
+        pasillo,
+        estante,
+        rack,
+        nivel,
       })
       .returning();
 
@@ -95,7 +102,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const PUT: APIRoute = async ({ request, locals }) => {
   try {
-    const { id, nombre, descripcion } = await request.json();
+    const { id, nombre, descripcion, depositoId, zona, capacidad,pasillo,estante,rack,nivel } = await request.json();
     const empresaId = locals.user?.empresaId;
 
     if (!locals.user) {
@@ -116,6 +123,13 @@ export const PUT: APIRoute = async ({ request, locals }) => {
         nombre: nombre.toLowerCase(),
         descripcion,
         empresaId,
+        depositoId,
+        zona,
+        capacidad,
+        pasillo,
+        estante,
+        rack,
+        nivel,
       })
       .where(eq(ubicaciones.id, id))
       .returning();

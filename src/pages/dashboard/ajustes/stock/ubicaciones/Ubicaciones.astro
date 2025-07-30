@@ -5,9 +5,10 @@ import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
 import Modal from "../../../../../components/moleculas/Modal.astro";
 import db from "../../../../../db";
-import { ubicaciones, localizaciones } from "../../../../../db/schema";
+import { ubicaciones, localizaciones, depositos } from "../../../../../db/schema";
 import CardInfoCatUbiDep from "../../components/CardInfoCatUbiDep.astro";
 import FormularioNuevaUbicacion from "../../components/FormularioNuevaUbicacion.tsx";
+import UbicacionCard from "../../components/UbicacionCard.astro";
 
 interface Ubicacion {
   id: string;
@@ -15,12 +16,15 @@ interface Ubicacion {
   descripcion: string;
   activo: boolean;
   creadoPor: string;
-  created_at: string;
+  created_at: number;
+  depositoId: string;
+  zona: string;
+  capacidad: number;
   cantidadProductos: number;
 }
 
 let ubicacionesData: Ubicacion[] = [];
-let cantidadProductos: number = 0;
+let depositosData: any[] = [];
 
 const {user}=Astro.locals   
 
@@ -32,20 +36,28 @@ try {
       descripcion: ubicaciones.descripcion,
       activo: ubicaciones.activo,
       creadoPor: ubicaciones.creadoPor,
-      created_at: ubicaciones.created_at,
-      cantidadProductos: sql`COUNT(${localizaciones.productoId})`
+      depositoId: ubicaciones.depositoId,
+      zona: ubicaciones.zona,
+      capacidad: ubicaciones.capacidad,
+      created_at: ubicaciones.fechaCreacion,
     })
     .from(ubicaciones)
-    .leftJoin(localizaciones, eq(localizaciones.ubicacionId, ubicaciones.id))
     .where(eq(ubicaciones.empresaId, user?.empresaId))
     .groupBy(ubicaciones.id);
-
+let depositosDB = await db
+    .select({
+      id: depositos.id,
+      nombre: depositos.nombre,
+    })
+    .from(depositos)
+    .where(eq(depositos.empresaId, user?.empresaId))
+    .groupBy(depositos.id);
+    depositosData = depositosDB;
   ubicacionesData = ubicacionesConConteo;
-   cantidadProductos= ubicacionesConConteo.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0);
 } catch (error) {
   console.error("Error al obtener ubicaciones:", error);
 }
-
+console.log(ubicacionesData)
 ---
 
 <MainDashboard h1="Gestión de Ubicaciones">
@@ -55,7 +67,7 @@ try {
   >
     <div class="flex gap-3">
       <Modal label="Crear" id="crearUbicacion">
-        <FormularioNuevaUbicacion client:load />
+        <FormularioNuevaUbicacion depositos={depositosData} client:load />
       </Modal>
       <Button1
         id="btnExportarPDF"
@@ -85,17 +97,17 @@ try {
           <div class="text-sm font-semibold text-gray-600">Activas</div>
         </DivBox1>
         <DivBox1>
-          <div class="text-2xl font-bold text-neutral-600">{cantidadProductos}</div>
+          <div class="text-2xl font-bold text-neutral-600">{ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0)}</div>
           <div class="text-sm font-semibold text-gray-600">Total Productos</div>
         </DivBox1>
         <DivBox1>
-          <div class="text-2xl font-bold text-purple-600">{cantidadProductos/ubicacionesData.length}</div>
+          <div class="text-2xl font-bold text-purple-600">{ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0)/ubicacionesData.length}</div>
           <div class="text-sm font-semibold text-gray-600">Promedio por Ubicación</div>
         </DivBox1>
     </div>
     <div
       class="grid grid-cols-1  w-full md:grid-cols-2 lg:grid-cols-3 gap-4"
     >
-      {ubicacionesData.map((ubicacion) => <CardInfoCatUbiDep item={ubicacion} type='ubicacion' />)}
+      {ubicacionesData.map((ubicacion) => <UbicacionCard item={ubicacion} type='ubicacion' />)}
     </div>
   </MainDashboard>

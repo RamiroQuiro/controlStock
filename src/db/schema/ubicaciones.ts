@@ -13,6 +13,8 @@ export const ubicaciones = sqliteTable(
     creadoPor: text('creadoPor').references(() => users.id),
     depositoId: text('depositoId').references(() => depositos.id),
     color:text('color').default('bg-blue-500'),
+    capacidad:integer('capacidad',{mode:'number'}).default(0),
+    zona:text('zona'),
     prioridad:integer('prioridad').default(1),
     pasillo:integer('pasillo'),
     estante:integer('estante'),

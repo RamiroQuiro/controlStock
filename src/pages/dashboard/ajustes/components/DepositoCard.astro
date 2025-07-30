@@ -1,8 +1,8 @@
 ---
 import { Badge, Building2, CircleX, Edit, Trash2 } from "lucide-react";
-import DepositoCardActions from "./DepositoCardActions.tsx";
 import FormularioNuevoDeposito from "./FormularioNuevoDeposito";
 import Button4 from "../../../../components/atomos/Button4.astro";
+import ConfirmDialog from "../../../../components/atomos/ConfirmDialog.astro";
 import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 
 interface Depot {
@@ -55,11 +55,11 @@ const occupancyBarClass = getOccupancyBarClass(occupancyPercentage);
         <Building2 className="h-5 w-5" />
       </div>
       <div>
-        <h2 class="text-xl">{depot.nombre}</h2>
+        <h2 class="text-xl text-primary-textoTitle font-semibold">{depot.nombre}</h2>
         <p class="text-sm text-gray-500">{depot.direccion}</p>
       </div>
     </div>
-    <Badge variant={depot.activo ? "secondary" : "outline"}>
+    <Badge className={depot.activo ? "secondary" : "outline"}>
       {depot.activo ? "Activo" : "Inactivo"}
     </Badge>
   </div>
@@ -120,7 +120,7 @@ const occupancyBarClass = getOccupancyBarClass(occupancyPercentage);
       <Button4>
         {depot.activo ? 'Desactivar' : 'Activar'}
       </Button4>
-      <Button4>
+      <Button4 id={`delete-${depot.id}`}>
         <Trash2 className="h-4 w-4 text-red-600" />
       </Button4>
     </div>
@@ -140,16 +140,51 @@ const occupancyBarClass = getOccupancyBarClass(occupancyPercentage);
     <FormularioNuevoDeposito deposito={depot}  client:load/>
   
   </dialog>
+  <ConfirmDialog 
+    dialogId={`confirm-delete-${depot.id}`}
+    title="Confirmar Eliminación"
+    message={`¿Estás seguro de que quieres eliminar el depósito "${depot.nombre}"? Esta acción no se puede deshacer. Nota: El depósito debe estar vacío para ser eliminado.`}
+  />
 </DivBox1>
 <script define:vars={{ depot }}>
-  const btnEditar = document.getElementById(
-    `editar-${depot.id}`
-  );
+  const btnEditar = document.getElementById(`editar-${depot.id}`);
+  const dialogEditar = document.getElementById(`dialog-editar-${depot.id}`);
+  
   btnEditar?.addEventListener('click', () => {
-    const dialog = document.getElementById(
-      `dialog-editar-${depot.id}`
-    );
-    dialog.showModal();
+    dialogEditar?.showModal();
+  });
+
+  const btnEliminar = document.getElementById(`delete-${depot.id}`);
+  const confirmDialog = document.getElementById(`confirm-delete-${depot.id}`);
+  const confirmDeleteButton = document.getElementById(`confirm-confirm-delete-${depot.id}`);
+
+  btnEliminar?.addEventListener('click', () => {
+    confirmDialog?.showModal();
+  });
+
+  confirmDeleteButton?.addEventListener('click', async () => {
+    try {
+      const response = await fetch(`/api/depositos?id=${depot.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Usar un evento custom para notificar a la página que debe refrescar o quitar el elemento
+        const event = new CustomEvent('depositoDeleted', { detail: { id: depot.id } });
+        window.dispatchEvent(event);
+        // Opcional: recargar la página si no quieres manejar eventos
+        window.location.reload();
+      } else {
+        alert(`Error: ${data.message}`); // Reemplazar con un sistema de notificaciones más elegante si lo tienes
+      }
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      alert('No se pudo conectar con el servidor.');
+    } finally {
+      confirmDialog?.close();
+    }
   });
 </script>
 

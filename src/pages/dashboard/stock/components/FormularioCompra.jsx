@@ -95,7 +95,6 @@ const FormularioCompra = ({ userId,empresaId }) => {
 
   return (
     <form className="text-primary-texto gap-4 p-4 flex flex-col ">
-      <h2 className="text-xl font-semibold">Registro de Compra</h2>
       {/* Sección proveedor */}
       <div className="flex w-full items-start justify-normal  flex-col">
         <h3 className="text-lg ">Proveedor</h3>

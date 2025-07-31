@@ -20,9 +20,10 @@ interface Props {
   deposito?: Deposito; // Opcional, para modo edición
   onSave: () => void; // Callback para cuando se guarda exitosamente
   onCancel: () => void; // Callback para el botón de cancelar
+  handleDepositoAgregado: (deposito: any) => void;
 }
 
-export default function FormularioNuevoDeposito({ deposito, onSave, onCancel }: Props) {
+export default function FormularioNuevoDeposito({ deposito, onSave, onCancel, handleDepositoAgregado }: Props) {
   const [formData, setFormData] = useState<Deposito>({
     id: "",
     nombre: "",
@@ -66,6 +67,7 @@ export default function FormularioNuevoDeposito({ deposito, onSave, onCancel }: 
       if (response.ok) {
         showToast("success", data.msg || (deposito ? "Depósito actualizado" : "Depósito creado"));
         onSave(); // Ejecutamos el callback para cerrar el modal y refrescar
+        handleDepositoAgregado(data);
       } else {
         setErrorMessage(data.msg || "Ocurrió un error");
         showToast("error", data.msg || "Ocurrió un error");

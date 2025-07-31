@@ -30,9 +30,10 @@ interface Props {
   depositos: DepositoInfo[]; // Lista de depósitos para el selector
   onSave: () => void; // Callback para cuando se guarda exitosamente
   onCancel: () => void; // Callback para el botón de cancelar
+  handleUbicacionAgregada: (ubicacion: any) => void;
 }
 
-export default function FormularioNuevaUbicacion({ ubicacion, depositos, onSave, onCancel }: Props) {
+export default function FormularioNuevaUbicacion({ ubicacion, depositos, onSave, onCancel ,handleUbicacionAgregada}: Props) {
   const [formData, setFormData] = useState<Ubicacion>({
     id: "",
     nombre: "",
@@ -80,7 +81,7 @@ export default function FormularioNuevaUbicacion({ ubicacion, depositos, onSave,
       if (response.ok) {
         showToast("success", data.msg || (ubicacion ? "Ubicación actualizada" : "Ubicación creada"));
         setErrorMessage(""); // Limpiar errores anteriores si los hubo
-        window.location.reload();
+        handleUbicacionAgregada(data.data);
       } else {
         setErrorMessage(data.msg || "Ocurrió un error inesperado.");
         showToast("error", data.msg || "Ocurrió un error inesperado.");
@@ -93,6 +94,7 @@ export default function FormularioNuevaUbicacion({ ubicacion, depositos, onSave,
     
     loader(false);
   };
+
 
   return (
     <form onSubmit={handleGuardarUbicacion} className="flex flex-col gap-4 p-6 bg-white rounded-lg w-full max-w-2xl mx-auto">

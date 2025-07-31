@@ -13,9 +13,10 @@ interface Category {
 type Props = {
   setIsDialogOpen: (isOpen: boolean) => void;
   category: Category;
+  onClose: () => void;
 };
 
-export default function FormularioNuevaCategoria({ category }: Props) {
+export default function FormularioNuevaCategoria({ category, onClose }: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState({
     id: category?.id || "",
@@ -47,6 +48,7 @@ export default function FormularioNuevaCategoria({ category }: Props) {
       const data = await fecthNewCat.json();
       if (data.status === 200) {
         showToast("success", data.msg);
+        if (onClose) onClose();
       } else {
         setErrorMessage(data.msg);
         showToast("error", data.msg);
@@ -58,7 +60,7 @@ export default function FormularioNuevaCategoria({ category }: Props) {
   };
 
   const handleCancel = () => {
-    setIsDialogOpen(false);
+    onClose();
   };
 
   return (

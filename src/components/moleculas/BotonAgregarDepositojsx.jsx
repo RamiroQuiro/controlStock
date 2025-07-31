@@ -1,8 +1,8 @@
 import React from "react";
 import { CircleX, PlusCircle } from "lucide-react";
-import FormularioNuevaCategoria from "../../pages/dashboard/ajustes/components/FormularioNuevaCat";
+import FormularioNuevoDeposito from "../../pages/dashboard/ajustes/components/FormularioNuevoDeposito";
 
-export default function BotonAgregarCat({ empresaId }) {
+export default function BotonAgregarDeposito({ empresaId ,handleDepositoAgregado}) {
   const [mostrarModalAgregar, setMostrarModalAgregar] = React.useState(false);
 
   const handleCerrar = () => setMostrarModalAgregar(false);
@@ -18,7 +18,7 @@ export default function BotonAgregarCat({ empresaId }) {
             >
               <CircleX />
             </button>
-            <FormularioNuevaCategoria empresaId={empresaId} onClose={() => setMostrarModalAgregar(false)} />
+            <FormularioNuevoDeposito empresaId={empresaId} onClose={() => setMostrarModalAgregar(false)} handleDepositoAgregado={handleDepositoAgregado} />
           </div>
         </div>
       )}

@@ -9,22 +9,22 @@ export default function ContenedorTablaTopEgreso({label}) {
   const productosFormateados = useMemo(() => {
     
     if(label=="topMasVendidos"){
-      if (!data?.topMasVendidos) return [];
-      return data.topMasVendidos.map((prod, i) => ({
+      if (!data?.stats.topMasVendidos) return [];
+      return data.stats.topMasVendidos.map((prod, i) => ({
         "N°": i + 1,
-        descripcion: prod?.producto?.descripcion || 'Sin descripción',
-        categoria: prod?.producto?.categoria || 'Sin categoría',
+        descripcion: prod?.descripcion || 'Sin descripción',
+        categoria: prod?.categoria || 'Sin categoría',
         vendida: prod?.totalVendido || 0,
-      stock: prod?.producto?.stock || 0,
+      stock: prod?.stock || 0,
     }));}
     else if(label=="topMenosVendidos"){
-      if (!data?.topMenosVendidos) return [];
-      return data.topMenosVendidos.map((prod, i) => ({
+      if (!data?.stats.topMenosVendidos) return [];
+      return data.stats.topMenosVendidos.map((prod, i) => ({
         "N°": i + 1,
-        descripcion: prod?.producto?.descripcion || 'Sin descripción',
-        categoria: prod?.producto?.categoria || 'Sin categoría',
+        descripcion: prod?.descripcion || 'Sin descripción',
+        categoria: prod?.categoria || 'Sin categoría',
         vendida: prod?.totalVendido || 0,
-        stock: prod?.producto?.stock || 0,
+        stock: prod?.stock || 0,
       }));
     }
   }, [data]);

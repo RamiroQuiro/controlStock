@@ -24,8 +24,8 @@ export default function DetalleFotoDetalleProducto({
   }, [loading]);
 
   useEffect(() => {
-    if (infoProducto?.productData?.isOferta !== undefined) {
-      setStateOferta(infoProducto.productData.isOferta);
+    if (infoProducto?.isOferta !== undefined) {
+      setStateOferta(infoProducto.isOferta);
     }
   }, [infoProducto]);
 
@@ -40,16 +40,13 @@ export default function DetalleFotoDetalleProducto({
 
   const handleRemoveCategoria = (categoriaId) => {
     // Actualizar el store
-    const categoriasFiltradas = infoProducto.productData.categorias.filter(
+    const categoriasFiltradas = infoProducto.categorias.filter(
       (cat) => cat.id !== categoriaId
     );
     perfilProducto.set({
       data: {
         ...infoProducto,
-        productData: {
-          ...infoProducto.productData,
-          categorias: categoriasFiltradas,
-        },
+        categorias: categoriasFiltradas,
       },
     });
 
@@ -76,23 +73,20 @@ export default function DetalleFotoDetalleProducto({
   // Función para agregar una categoría existente
   const handleAgregarCategoria = (categoria) => {
     // Verificar si la categoría ya existe en el producto
-    const categoriaExistente = infoProducto.productData.categorias.find(
+    const categoriaExistente = infoProducto.categorias.find(
       (cat) => cat.id === categoria.id
     );
     if (categoriaExistente) return; // Evitar duplicados
 
     // Actualizar el store con la nueva categoría
     const nuevasCategorias = [
-      ...infoProducto.productData.categorias,
+      ...infoProducto.categorias,
       categoria,
     ];
     perfilProducto.set({
       data: {
         ...infoProducto,
-        productData: {
-          ...infoProducto.productData,
-          categorias: nuevasCategorias,
-        },
+        categorias: nuevasCategorias,
       },
     });
     // Actualizar el formulario
@@ -137,8 +131,8 @@ export default function DetalleFotoDetalleProducto({
           <div className="w-full flex flex-col md:w-[50%] items-center justify-start relative rounded-lg overflow-hidden ">
             <div className="h-[80%] flex w-full rounded-lg  items-center ">
               <img
-                src={infoProducto?.productData?.srcPhoto}
-                alt={infoProducto?.productData?.descripcion}
+                src={infoProducto?.srcPhoto}
+                alt={infoProducto?.descripcion}
                 className=" object-scale-down w-full h-60 rounded-lg overflow-hidden hover:scale-105 duration-500"
               />
             </div>
@@ -152,7 +146,7 @@ export default function DetalleFotoDetalleProducto({
                   <span className="">Codigo/ID:</span>
                   <p className="font-medium text-primary-textoTitle">
                     {' '}
-                    {infoProducto.productData?.id}
+                    {infoProducto?.id}
                   </p>
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
@@ -161,7 +155,7 @@ export default function DetalleFotoDetalleProducto({
                     className={
                       'text-primary-textoTitle w-full font-semibold animate-aparecer '
                     }
-                    value={infoProducto.productData?.codigoBarra}
+                    value={infoProducto?.codigoBarra}
                     name={'codigoBarra'}
                     type={'text'}
                     onchange={handleChangeForm}
@@ -178,7 +172,7 @@ export default function DetalleFotoDetalleProducto({
                   }
                   value={
                     disableEdit
-                      ? infoProducto.productData?.descripcion
+                      ? infoProducto?.descripcion
                       : formulario?.descripcion
                   }
                   name={'descripcion'}
@@ -191,21 +185,21 @@ export default function DetalleFotoDetalleProducto({
                   {!disableEdit && (
                     <div className="flex items-center gap-2">
                       <BotonAgregarCat
-                        empresaId={infoProducto.productData.empresaId}
+                        empresaId={infoProducto.empresaId}
                       />
                       <div className="w-40">
                         <SelectorCategoriasExistentes
-                          empresaId={infoProducto.productData.empresaId}
+                          empresaId={infoProducto.empresaId}
                           onAgregarCategoria={handleAgregarCategoria}
                           categoriasActuales={
-                            infoProducto.productData?.categorias || []
+                            infoProducto?.categorias || []
                           }
                         />
                       </div>
                     </div>
                   )}
                   <div className="flex gap-1 flex-wrap items-start justify-normal">
-                    {infoProducto.productData?.categorias?.map(
+                    {infoProducto?.categorias?.map(
                       (categoria, idx) => (
                         <span
                           title="Eliminar categoria"
@@ -236,7 +230,7 @@ export default function DetalleFotoDetalleProducto({
                     }
                     value={
                       disableEdit
-                        ? infoProducto.productData?.marca
+                        ? infoProducto?.marca
                         : formulario?.marca
                     }
                     name={'marca'}
@@ -253,7 +247,7 @@ export default function DetalleFotoDetalleProducto({
                     }
                     value={
                       disableEdit
-                        ? infoProducto.productData?.modelo
+                        ? infoProducto?.modelo
                         : formulario?.modelo
                     }
                     name={'modelo'}
@@ -274,7 +268,7 @@ export default function DetalleFotoDetalleProducto({
                     }
                     value={
                       disableEdit
-                        ? infoProducto.productData?.deposito
+                        ? infoProducto?.deposito
                         : formulario?.deposito
                     }
                     name={'deposito'}
@@ -291,7 +285,7 @@ export default function DetalleFotoDetalleProducto({
                     }
                     value={
                       disableEdit
-                        ? infoProducto.productData?.localizacion
+                        ? infoProducto?.localizacion
                         : formulario?.localizacion
                     }
                     name={'localizacion'}
@@ -304,7 +298,7 @@ export default function DetalleFotoDetalleProducto({
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">Stock:</span>
                   <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto.productData?.stock}
+                    {infoProducto?.stock}
                   </p>
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
@@ -318,7 +312,7 @@ export default function DetalleFotoDetalleProducto({
                     }
                     value={
                       disableEdit
-                        ? infoProducto.productData?.alertaStock
+                        ? infoProducto?.alertaStock
                         : formulario?.alertaStock
                     }
                     name={'alertaStock'}
@@ -334,7 +328,7 @@ export default function DetalleFotoDetalleProducto({
                     }
                     value={
                       disableEdit
-                        ? infoProducto.productData?.reservado
+                        ? infoProducto?.reservado
                         : formulario?.reservado
                     }
                     name={'reservado'}
@@ -351,7 +345,7 @@ export default function DetalleFotoDetalleProducto({
                   </span>
                   {disableEdit ? (
                     <p className="capitalize font-medium text-primary-textoTitle">
-                      {infoProducto.productData?.unidadMedida}
+                      {infoProducto?.unidadMedida}
                     </p>
                   ) : (
                     <select
@@ -379,7 +373,7 @@ export default function DetalleFotoDetalleProducto({
                   <span className="">IVA:</span>
                   {disableEdit ? (
                     <p className="capitalize font-medium text-primary-textoTitle">
-                      {infoProducto.productData?.iva}
+                      {infoProducto?.iva}
                     </p>
                   ) : (
                     <select
@@ -437,8 +431,8 @@ export default function DetalleFotoDetalleProducto({
                   <span className="w- whitespace-nowrap">Descuento:</span>
                   {disableEdit ? (
                     <p className="capitalize font-medium text-primary-textoTitle">
-                      {infoProducto.productData?.signoDescuento}
-                      {infoProducto.productData?.descuento}
+                      {infoProducto?.signoDescuento}
+                      {infoProducto?.descuento}
                     </p>
                   ) : (
                     <div className="flex w-full items-center justify-normal gap-2">

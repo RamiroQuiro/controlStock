@@ -7,11 +7,12 @@ const ConfeccionListadoProductos = () => {
   // Obtenemos el estado del store
   const { data, loading } = useStore(stockStore);
 
+  console.log('estamos en ConfeccionListadoProductos ->',data)
   return (
     <div className="flex w-full flex-col gap-1">
       {!loading ? (
-        data?.listaProductos?.length > 0 ? (
-          data?.listaProductos.map((producto) => (
+        data?.productos?.length > 0 ? (
+          data?.productos.map((producto) => (
             <CardProductosStock key={producto.id} prod={producto} />
           ))
         ) : (

@@ -46,6 +46,7 @@ export const stockStore = atom({
   error: null,
 });
 
+
 export const fetchStockData = async (userId, empresaId) => {
   stockStore.set({ loading: true, data: null, error: null });
   try {
@@ -56,7 +57,7 @@ export const fetchStockData = async (userId, empresaId) => {
       },
     });
     const data = await response.json();
-    stockStore.set({ loading: false, data, error: null });
+    stockStore.set({ loading: false, data: data.data, error: null });
   } catch (error) {
     console.error('Error fetching stock data:', error);
     stockStore.set({

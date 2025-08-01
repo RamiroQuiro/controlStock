@@ -1,28 +1,22 @@
 import type { APIRoute } from 'astro';
-import { trayendoProductos } from '../../../utils/stockFunctions';
+import { obtenerDatosStock } from '../../../utils/stockFuncional2';
+import { createResponse } from '../../../types';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
     const userId = request.headers.get('x-user-id');
     const empresaId = request.headers.get('xx-empresa-id');
-   
+   console.log('datos del encabezado ->',userId,empresaId)
     if (!userId) {
       return new Response(JSON.stringify({ error: 'Usuario no autorizado' }), { 
         status: 401 
       });
     }
 
-    const data = await trayendoProductos(empresaId);
-    
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    const data = await obtenerDatosStock(empresaId);
+    console.log('datos obtenidos ->',data)
+    return createResponse(200, "datos obtenidos exitosamente",data);
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { 
-      status: 500 
-    });
+    return createResponse(500, "Error interno del servidor",error);
   }
 };

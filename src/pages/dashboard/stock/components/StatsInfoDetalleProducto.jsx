@@ -13,11 +13,9 @@ export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,f
 
 
   const calculos = useMemo(() => {
-    if (!infoProducto?.stockMovimiento) return null;
-    
     return {
-      totalStockProducto :calcularPrecioStock(infoProducto?.productData),
-      margenGanancia : calcularMargenGanancia(infoProducto?.productData)
+      totalStockProducto :calcularPrecioStock(infoProducto),
+      margenGanancia : calcularMargenGanancia(infoProducto)
     }
     
   }, [loading]);
@@ -38,7 +36,7 @@ export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,f
           </div>
           {disableEdit ? (
             <p className="font-bold text-2xl trakin text-primary-textoTitle">
-              {formateoMoneda.format(infoProducto.productData?.pCompra)}
+              {formateoMoneda.format(infoProducto?.pCompra)}
             </p>
           ) : (
             <div>
@@ -61,7 +59,7 @@ export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,f
             <p className="text-primary-textoTitle">Monto Iva</p>
           </div>
           <p className="font-bold text-2xl trakin text-primary-textoTitle">
-            {obtenerIvaMonto(infoProducto.productData)}
+            {obtenerIvaMonto(infoProducto)}
           </p>
         </div>
   
@@ -72,7 +70,7 @@ export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,f
           </div>
           {disableEdit ? (
             <p className="font-bold text-2xl trakin text-primary-textoTitle">
-              {formateoMoneda.format(infoProducto.productData?.pVenta)}
+              {formateoMoneda.format(infoProducto?.pVenta)}
             </p>
           ) : (
             <div>

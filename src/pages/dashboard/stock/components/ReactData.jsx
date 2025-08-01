@@ -6,20 +6,21 @@ import { formateoMoneda } from '../../../../utils/formateoMoneda';
 export default function ReactData({ idData }) {
   const { data, loading } = useStore(stockStore);
   // Memoizamos los cálculos para evitar recálculos innecesarios
+  console.log('estamos en reacCData ->',data)
   const calculatedData = useMemo(() => {
-    if (!data?.listaProductos) return null;
+    if (!data?.productos) return null;
 
-    const totalStockPrecio = data.listaProductos.reduce(
+    const totalStockPrecio = data.productos.reduce(
       (acc, producto) => acc + producto.pVenta * producto.stock,
       0
     );
 
-    const totalStockCosto = data.listaProductos.reduce(
+    const totalStockCosto = data.productos.reduce(
       (acc, producto) => acc + producto.pCompra * producto.stock,
       0
     );
 
-    const productosStockBajos = data.listaProductos.filter(
+    const productosStockBajos = data.productos.filter(
       (prod) => prod.stock <= prod.alertaStock
     );
 
@@ -31,7 +32,7 @@ export default function ReactData({ idData }) {
       ) || 0;
 
     return {
-      totalProductos: data.listaProductos.length,
+      totalProductos: data.productos.length,
       stockBajos: productosStockBajos.length,
       totalVendidos: totalMasVendidos,
       valorStock: totalStockPrecio,

@@ -316,10 +316,7 @@ export default function DetalleFotoDetalleProducto({
                       <option value="" selected>
                         seleccionar{" "}
                       </option>
-                      {ubicacionesDB?.filter(
-                        (ubicacion) =>
-                          ubicacion.depositoId === infoProducto?.productData?.depositosId
-                      ).map((ubicacion) => (
+                      {ubicacionesDB?.map((ubicacion) => (
                         <option key={ubicacion.id} value={ubicacion.id}>
                           {ubicacion.nombre}
                         </option>

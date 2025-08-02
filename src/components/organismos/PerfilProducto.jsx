@@ -23,10 +23,20 @@ export default function PerfilProducto({ onClose }) {
     if (data?.productData) {
       setFormulario(data.productData);
       setDepositosDB(data.depositosDB);
-      setUbicacionesDB(data.ubicacionesDB);
     }
   }, [data?.productData]);
-
+  
+  // Nuevo useEffect SOLO para filtrar ubicaciones según el depósito seleccionado
+  useEffect(() => {
+    if (data?.ubicacionesDB && formulario?.depositosId) {
+      setUbicacionesDB(
+        data.ubicacionesDB.filter(
+          (ubicacion) => ubicacion.depositoId === formulario.depositosId
+        )
+      );
+    }
+  }, [data?.ubicacionesDB, formulario?.depositosId]);
+console.log('este es el formulario, vamo aver si va cmabiando',formulario)
   const confirmarConModal = () => {
     setModalConfirmacion(true);
   };

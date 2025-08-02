@@ -37,7 +37,8 @@ const Icon = item.icon;
         {item.count}
         {item.count === 1 ? 'elemento' : 'elementos'}
       </div>
-      <Button3 disabled={item.status === 'coming-soon'}>
+      <Button3
+      disabled={item.status === 'coming-soon'}>
         <a href={`/dashboard/ajustes/stock/${item.id}`}>
           {item.status === 'coming-soon' ? 'Próximamente' : 'Gestionar'}
         </a>

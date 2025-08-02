@@ -5,7 +5,7 @@ import Button4 from "../../../../components/atomos/Button4.astro";
 import ConfirmDialog from "../../../../components/atomos/ConfirmDialog.astro";
 import FormularioNuevaUbicacion from "./FormularioNuevaUbicacion";
 import formatDate from "../../../../utils/formatDate";
-import FormularioNuevoDeposito from "./FormularioNuevoDeposito";
+
 interface Ubicacion {
   id: string;
   nombre: string;
@@ -19,7 +19,7 @@ interface Ubicacion {
   cantidadProductos: number;
 }
 
-const { item } = Astro.props as Ubicacion;
+const { item,depositos } = Astro.props as Ubicacion;
 
 // calculando el oprcentaje de ocupación
 const getOccupancyPercentage = (currentStock: number, capacity: number) => {
@@ -59,7 +59,8 @@ const occupancyPercentage = getOccupancyPercentage(
     <div class="space-y-2 mb-4 w-full">
       <div class="flex items-center text-sm">
         <Building2 className="h-4 w-4 mr-2 text-gray-400" />
-        <span>{item.depositoId}</span>
+        <span class="font-medium">Depósito:</span>
+        <span class="ml-2">{depositos.find(depot => depot.id === item.depositoId)?.nombre}</span>
       </div>
       <div class="flex items-center text-sm">
         <span class="font-medium">Zona:</span>
@@ -116,12 +117,12 @@ const occupancyPercentage = getOccupancyPercentage(
   <form method="dialog">
     <button
       id={`cerrarModal-editar-${item.id}`}
-      class="absolute top-2 right-2 cursor-pointer text-primary-texto active:-scale-95 duration-200 hover:text-primary-100"
+      class="absolute top-2 right-2 cursor-pointer text-primary-texto  duration-200 hover:text-primary-100"
     >
       <CircleX />
     </button>
   </form>
-  <FormularioNuevaUbicacion ubicacion={item}  client:load/>
+  <FormularioNuevaUbicacion depositos={depositos} ubicacion={item}  client:load/>
 
 </dialog>
   <ConfirmDialog

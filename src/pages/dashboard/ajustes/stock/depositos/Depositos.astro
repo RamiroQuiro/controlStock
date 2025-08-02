@@ -23,6 +23,7 @@ interface EnrichedDepot {
   capacidadTotal: number;
   totalLocations: number;
   activeLocations: number;
+  ubicaciones: number;
   currentStock: number;
 }
 
@@ -35,14 +36,17 @@ try {
 
     enrichedDepositos = await Promise.all(
       allDepositos.map(async (depot) => {
-      const depositosData=await db.select({total:count()}).from(depositos).where(eq(depositos.empresaId, user.empresaId));
       const locationsData=await db.select({total:count()}).from(ubicaciones).where(eq(ubicaciones.empresaId, user.empresaId));
-      const activeLocationsData=await db.select({total:count()}).from(ubicaciones).where(and(eq(ubicaciones.empresaId, user.empresaId),eq(ubicaciones.activo,true)));
-      const stockData=await db.select({total:sum(stockActual.cantidad)}).from(stockActual).where(eq(stockActual.empresaId, user.empresaId));
+      const ubicacionesDB=await db.select({total:count()}).from(ubicaciones).where(and(eq(ubicaciones.empresaId, user.empresaId),eq(ubicaciones.depositoId, depot.id)));
+      const stockData=await db.select({total:sum(stockActual.cantidad)}).from(stockActual).where(and(eq(stockActual.empresaId, user.empresaId),eq(stockActual.depositosId, depot.id)));
+      console.log('locationsData ->',locationsData)
+      console.log('ubicacionesDB ->',ubicacionesDB)
+      console.log('stockData ->',stockData)
         return {
           ...depot,
           totalLocations: locationsData[0]?.total || 0,
-          activeLocations: activeLocationsData[0]?.total || 0,
+          activeLocations: ubicacionesDB[0]?.total || 0,
+          ubicaciones: ubicacionesDB[0]?.total || 0,
           currentStock: parseInt(stockData[0]?.total, 10) || 0,
         };
       })
@@ -51,7 +55,7 @@ try {
 } catch (error) {
   console.error("Error al obtener la información de depósitos:", error);
 }
-
+console.log('enrichedDepositos ->',enrichedDepositos)
 const totalDepositos = enrichedDepositos.length;
 const depositosActivos = enrichedDepositos.filter(d => d.activo).length;
 const totalStockGeneral = enrichedDepositos.reduce((acc, d) => acc + d.currentStock, 0);

@@ -1,19 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import formatDate from '../../../../utils/formatDate';
-import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud';
-import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
-import DivReact from '../../../../components/atomos/DivReact';
-import { useStore } from '@nanostores/react';
-import { perfilProducto } from '../../../../context/store';
-import { obtenerUltimaReposicion } from '../../../../utils/detallesProducto';
-import { CircleCheck, CircleX, Plus } from 'lucide-react';
-import BotonAgregarCat from '../../../../components/moleculas/BotonAgregarCat';
-import SelectorCategoriasExistentes from './SelectorCategoriasExistentes';
+import React, { useEffect, useMemo, useState } from "react";
+import formatDate from "../../../../utils/formatDate";
+import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
+import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
+import DivReact from "../../../../components/atomos/DivReact";
+import { useStore } from "@nanostores/react";
+import { perfilProducto } from "../../../../context/store";
+import { obtenerUltimaReposicion } from "../../../../utils/detallesProducto";
+import { CircleCheck, CircleX, Plus } from "lucide-react";
+import BotonAgregarCat from "../../../../components/moleculas/BotonAgregarCat";
+import SelectorCategoriasExistentes from "./SelectorCategoriasExistentes";
 
 export default function DetalleFotoDetalleProducto({
   disableEdit,
   handleChangeForm,
   formulario,
+  depositosDB,
+  ubicacionesDB,
 }) {
   const { data: infoProducto, loading } = useStore(perfilProducto);
   const [stateOferta, setStateOferta] = useState(false);
@@ -24,15 +26,15 @@ export default function DetalleFotoDetalleProducto({
   }, [loading]);
 
   useEffect(() => {
-    if (infoProducto?.isOferta !== undefined) {
-      setStateOferta(infoProducto.isOferta);
+    if (infoProducto?.productData?.isOferta !== undefined) {
+      setStateOferta(infoProducto.productData.isOferta);
     }
   }, [infoProducto]);
 
   useEffect(() => {
     handleChangeForm({
       target: {
-        name: 'isOferta',
+        name: "isOferta",
         value: stateOferta,
       },
     });
@@ -40,20 +42,23 @@ export default function DetalleFotoDetalleProducto({
 
   const handleRemoveCategoria = (categoriaId) => {
     // Actualizar el store
-    const categoriasFiltradas = infoProducto.categorias.filter(
+    const categoriasFiltradas = infoProducto.productData.categorias.filter(
       (cat) => cat.id !== categoriaId
     );
     perfilProducto.set({
       data: {
         ...infoProducto,
-        categorias: categoriasFiltradas,
+        productData: {
+          ...infoProducto?.productData,
+          categorias: categoriasFiltradas,
+        },
       },
     });
 
     // Actualizar el formulario
     handleChangeForm({
       target: {
-        name: 'categorias',
+        name: "categorias",
         value: categoriasFiltradas,
       },
     });
@@ -62,10 +67,10 @@ export default function DetalleFotoDetalleProducto({
   const handleChangeIsOferta = (e) => {
     const { checked } = e.target;
     setStateOferta(checked);
-    console.log('checked', checked);
+    console.log("checked", checked);
     handleChangeForm({
       target: {
-        name: 'isOferta',
+        name: "isOferta",
         value: checked,
       },
     });
@@ -73,26 +78,29 @@ export default function DetalleFotoDetalleProducto({
   // Función para agregar una categoría existente
   const handleAgregarCategoria = (categoria) => {
     // Verificar si la categoría ya existe en el producto
-    const categoriaExistente = infoProducto.categorias.find(
+    const categoriaExistente = infoProducto.productData.categorias.find(
       (cat) => cat.id === categoria.id
     );
     if (categoriaExistente) return; // Evitar duplicados
 
     // Actualizar el store con la nueva categoría
     const nuevasCategorias = [
-      ...infoProducto.categorias,
+      ...infoProducto?.productData?.categorias,
       categoria,
     ];
     perfilProducto.set({
       data: {
         ...infoProducto,
-        categorias: nuevasCategorias,
+        productData: {
+          ...infoProducto?.productData,
+          categorias: nuevasCategorias,
+        },
       },
     });
     // Actualizar el formulario
     handleChangeForm({
       target: {
-        name: 'categorias',
+        name: "categorias",
         value: nuevasCategorias,
       },
     });
@@ -131,8 +139,8 @@ export default function DetalleFotoDetalleProducto({
           <div className="w-full flex flex-col md:w-[50%] items-center justify-start relative rounded-lg overflow-hidden ">
             <div className="h-[80%] flex w-full rounded-lg  items-center ">
               <img
-                src={infoProducto?.srcPhoto}
-                alt={infoProducto?.descripcion}
+                src={infoProducto?.productData?.srcPhoto}
+                alt={infoProducto?.productData?.descripcion}
                 className=" object-scale-down w-full h-60 rounded-lg overflow-hidden hover:scale-105 duration-500"
               />
             </div>
@@ -145,19 +153,19 @@ export default function DetalleFotoDetalleProducto({
                 <div className="flex w- items-center justify-start gap-3 ">
                   <span className="">Codigo/ID:</span>
                   <p className="font-medium text-primary-textoTitle">
-                    {' '}
-                    {infoProducto?.id}
+                    {" "}
+                    {infoProducto?.productData.id}
                   </p>
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="whitespace-nowrap">Codigo de Barra:</span>
                   <InputFormularioSolicitud
                     className={
-                      'text-primary-textoTitle w-full font-semibold animate-aparecer '
+                      "text-primary-textoTitle w-full font-semibold animate-aparecer "
                     }
-                    value={infoProducto?.codigoBarra}
-                    name={'codigoBarra'}
-                    type={'text'}
+                    value={infoProducto?.productData.codigoBarra}
+                    name={"codigoBarra"}
+                    type={"text"}
                     onchange={handleChangeForm}
                   />
                 </div>
@@ -168,15 +176,15 @@ export default function DetalleFotoDetalleProducto({
                   disabled={disableEdit}
                   onchange={handleChangeForm}
                   className={
-                    'text-primary-textoTitle font-semibold animate-aparecer'
+                    "text-primary-textoTitle font-semibold animate-aparecer"
                   }
                   value={
                     disableEdit
-                      ? infoProducto?.descripcion
-                      : formulario?.descripcion
+                      ? infoProducto?.productData?.descripcion
+                      : formulario?.productData?.descripcion
                   }
-                  name={'descripcion'}
-                  type={'text'}
+                  name={"descripcion"}
+                  type={"text"}
                 />
               </div>
               <div className="flex w-full items-center justify-start gap-3 ">
@@ -184,22 +192,20 @@ export default function DetalleFotoDetalleProducto({
                   <span className="">Categorias:</span>
                   {!disableEdit && (
                     <div className="flex items-center gap-2">
-                      <BotonAgregarCat
-                        empresaId={infoProducto.empresaId}
-                      />
+                      <BotonAgregarCat empresaId={infoProducto.empresaId} />
                       <div className="w-40">
                         <SelectorCategoriasExistentes
                           empresaId={infoProducto.empresaId}
                           onAgregarCategoria={handleAgregarCategoria}
                           categoriasActuales={
-                            infoProducto?.categorias || []
+                            infoProducto?.productData.categorias || []
                           }
                         />
                       </div>
                     </div>
                   )}
                   <div className="flex gap-1 flex-wrap items-start justify-normal">
-                    {infoProducto?.categorias?.map(
+                    {infoProducto?.productData.categorias?.map(
                       (categoria, idx) => (
                         <span
                           title="Eliminar categoria"
@@ -226,15 +232,15 @@ export default function DetalleFotoDetalleProducto({
                   <span className="">Marca:</span>
                   <InputFormularioSolicitud
                     className={
-                      'text-primary-textoTitle font-semibold animate-aparecer'
+                      "text-primary-textoTitle font-semibold animate-aparecer"
                     }
                     value={
                       disableEdit
-                        ? infoProducto?.marca
-                        : formulario?.marca
+                        ? infoProducto?.productData?.marca
+                        : formulario?.productData?.marca
                     }
-                    name={'marca'}
-                    type={'text'}
+                    name={"marca"}
+                    type={"text"}
                     onchange={handleChangeForm}
                     disabled={disableEdit}
                   />
@@ -243,15 +249,15 @@ export default function DetalleFotoDetalleProducto({
                   <span className="">Modelo:</span>
                   <InputFormularioSolicitud
                     className={
-                      'text-primary-textoTitle font-semibold animate-aparecer'
+                      "text-primary-textoTitle font-semibold animate-aparecer"
                     }
                     value={
                       disableEdit
-                        ? infoProducto?.modelo
-                        : formulario?.modelo
+                        ? infoProducto?.productData?.modelo
+                        : formulario?.productData?.modelo
                     }
-                    name={'modelo'}
-                    type={'text'}
+                    name={"modelo"}
+                    type={"text"}
                     onchange={handleChangeForm}
                     disabled={disableEdit}
                   />
@@ -260,37 +266,66 @@ export default function DetalleFotoDetalleProducto({
               <div className="flex w-full items-center justify-start gap-3 ">
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">Deposito:</span>
-                  <InputFormularioSolicitud
-                    disabled={disableEdit}
-                    onchange={handleChangeForm}
-                    className={
-                      'text-primary-textoTitle font-semibold capitalize animate-aparecer'
-                    }
-                    value={
-                      disableEdit
-                        ? infoProducto?.deposito
-                        : formulario?.deposito
-                    }
-                    name={'deposito'}
-                    type={'text'}
-                  />
+                  {disableEdit ? (
+                    <p className="capitalize font-medium text-primary-textoTitle">
+                      {
+                        depositosDB?.find(
+                          (deposito) =>
+                            deposito.id ===
+                            infoProducto?.productData?.depositosId
+                        )?.nombre
+                      }
+                    </p>
+                  ) : (
+                    <select
+                      onChange={handleChangeForm}
+                      name="depositosId"
+                      id="depositosId"
+                      className="w-1/2 text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
+                    >
+                      <option value="" selected>
+                        seleccionar{" "}
+                      </option>
+                      {depositosDB?.map((deposito) => (
+                        <option key={deposito.id} value={deposito.id}>
+                          {deposito.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
-                  <span className="">Localización:</span>
-                  <InputFormularioSolicitud
-                    disabled={disableEdit}
-                    onchange={handleChangeForm}
-                    className={
-                      'text-primary-textoTitle font-semibold animate-aparecer'
-                    }
-                    value={
-                      disableEdit
-                        ? infoProducto?.localizacion
-                        : formulario?.localizacion
-                    }
-                    name={'localizacion'}
-                    type={'text'}
-                  />
+                  <span className="">Ubicación:</span>
+                  {disableEdit ? (
+                    <p className="capitalize font-medium text-primary-textoTitle">
+                      {
+                        ubicacionesDB?.find(
+                          (ubicacion) =>
+                            ubicacion.id ===
+                            infoProducto?.productData?.ubicacionesId
+                        )?.nombre
+                      }
+                    </p>
+                  ) : (
+                    <select
+                      onChange={handleChangeForm}
+                      name="ubicacionesId"
+                      id="ubicacionesId"
+                      className="w-1/2 text-end capitalize py-1 px-1 text-sm text-primary-texto rounded-lg bg-white border-primary-150 border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-100/50 font-semibold"
+                    >
+                      <option value="" selected>
+                        seleccionar{" "}
+                      </option>
+                      {ubicacionesDB?.filter(
+                        (ubicacion) =>
+                          ubicacion.depositoId === infoProducto?.productData?.depositosId
+                      ).map((ubicacion) => (
+                        <option key={ubicacion.id} value={ubicacion.id}>
+                          {ubicacion.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
 
@@ -298,7 +333,7 @@ export default function DetalleFotoDetalleProducto({
                 <div className="flex w-full items-center justify-start gap-3 ">
                   <span className="">Stock:</span>
                   <p className="capitalize font-medium text-primary-textoTitle">
-                    {infoProducto?.stock}
+                    {infoProducto?.productData.stock}
                   </p>
                 </div>
                 <div className="flex w-full items-center justify-start gap-3 ">
@@ -308,15 +343,15 @@ export default function DetalleFotoDetalleProducto({
                   <InputFormularioSolicitud
                     disabled={disableEdit}
                     className={
-                      'text-primary-textoTitle font-semibold animate-aparecer'
+                      "text-primary-textoTitle font-semibold animate-aparecer"
                     }
                     value={
                       disableEdit
-                        ? infoProducto?.alertaStock
-                        : formulario?.alertaStock
+                        ? infoProducto?.productData?.alertaStock
+                        : formulario?.productData?.alertaStock
                     }
-                    name={'alertaStock'}
-                    type={'text'}
+                    name={"alertaStock"}
+                    type={"text"}
                     onchange={handleChangeForm}
                   />
                 </div>
@@ -324,15 +359,15 @@ export default function DetalleFotoDetalleProducto({
                   <span className="">Reservado:</span>
                   <InputFormularioSolicitud
                     className={
-                      'text-primary-textoTitle font-semibold animate-aparecer'
+                      "text-primary-textoTitle font-semibold animate-aparecer"
                     }
                     value={
                       disableEdit
-                        ? infoProducto?.reservado
-                        : formulario?.reservado
+                        ? infoProducto?.productData?.reservado
+                        : formulario?.productData?.reservado
                     }
-                    name={'reservado'}
-                    type={'text'}
+                    name={"reservado"}
+                    type={"text"}
                     onchange={handleChangeForm}
                     disabled={disableEdit}
                   />
@@ -345,7 +380,7 @@ export default function DetalleFotoDetalleProducto({
                   </span>
                   {disableEdit ? (
                     <p className="capitalize font-medium text-primary-textoTitle">
-                      {infoProducto?.unidadMedida}
+                      {infoProducto?.productData.unidadMedida}
                     </p>
                   ) : (
                     <select
@@ -373,7 +408,7 @@ export default function DetalleFotoDetalleProducto({
                   <span className="">IVA:</span>
                   {disableEdit ? (
                     <p className="capitalize font-medium text-primary-textoTitle">
-                      {infoProducto?.iva}
+                      {infoProducto?.productData?.iva}
                     </p>
                   ) : (
                     <select
@@ -431,8 +466,8 @@ export default function DetalleFotoDetalleProducto({
                   <span className="w- whitespace-nowrap">Descuento:</span>
                   {disableEdit ? (
                     <p className="capitalize font-medium text-primary-textoTitle">
-                      {infoProducto?.signoDescuento}
-                      {infoProducto?.descuento}
+                      {infoProducto?.productData?.signoDescuento}
+                      {infoProducto?.productData?.descuento}
                     </p>
                   ) : (
                     <div className="flex w-full items-center justify-normal gap-2">
@@ -447,12 +482,12 @@ export default function DetalleFotoDetalleProducto({
                         <option value="$">$</option>
                       </select>
                       <InputComponenteJsx
-                        placeholder={'ingrese el descuento'}
-                        className={'text-sm py-1 px-1'}
-                        name={'descuento'}
+                        placeholder={"ingrese el descuento"}
+                        className={"text-sm py-1 px-1"}
+                        name={"descuento"}
                         value={formulario?.descuento}
                         handleChange={handleChangeForm}
-                        type={'number'}
+                        type={"number"}
                       />
                     </div>
                   )}

@@ -204,9 +204,9 @@ const FormularioCargaProducto: React.FC<Props> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-4">
+          <div className="">
+            <label className="block text-sm font-medium text-gray-700">
               Categorías
             </label>
             <CategoriasSelector
@@ -265,7 +265,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 <option value="" disabled>
                   Selecciona un depósito
                 </option>
-                {localDepositos.map((d) => (
+                {localDepositos?.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.nombre}
                   </option>
@@ -293,7 +293,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 <option value="" disabled>
                   Selecciona una ubicación
                 </option>
-                {filteredUbicaciones.map((u) => (
+                {filteredUbicaciones?.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.nombre}
                   </option>

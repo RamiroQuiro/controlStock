@@ -50,10 +50,9 @@ export default function CategoriasSelector({ empresaId, onCategoriasChange }) {
   };
 
   return (
-    <div className="w-full flex items-center justify-between gap-2 relative">
-      <div className="flex flex-col gap-1 items-start w-full">
+    <div className="w-full flex items-center   justify-start   gap-2 relative">
         {/* Tags de categorías seleccionadas */}
-        <div className="flex gap-2 flex-wrap mt-2">
+        <div className="flex -2 flex-wrap gap-2">
           {categoriasSeleccionadas.map((cat) => (
             <CategoriaTag
               key={cat.id}
@@ -77,7 +76,6 @@ export default function CategoriasSelector({ empresaId, onCategoriasChange }) {
         {isLoading && (
           <span className="text-xs text-gray-500">Buscando...</span>
         )}
-      </div>
 
       {/* Lista de sugerencias */}
       {categorias.length > 0 && categoria.length > 2 && (

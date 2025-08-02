@@ -7,7 +7,7 @@ const ConfeccionListadoProductos = () => {
   // Obtenemos el estado del store
   const { data, loading } = useStore(stockStore);
 
-  console.log('estamos en ConfeccionListadoProductos ->',data)
+  // console.log('estamos en ConfeccionListadoProductos ->',data)
   return (
     <div className="flex w-full flex-col gap-1">
       {!loading ? (

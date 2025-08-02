@@ -1,14 +1,11 @@
 ---
 import FormularioCargaProducto from './FormularioCargaProducto.tsx';
-import db from '../../../../db';
-import { depositos as depositosTable, ubicaciones as ubicacionesTable } from '../../../../db/schema';
-import { eq } from 'drizzle-orm';
 
-const { user } = Astro.locals;
+const { user} = Astro.locals;
+const{depositos,ubicaciones}= Astro.props;
+console.log('depositos',depositos)
+console.log('ubicaciones',ubicaciones)
 
-// 1. Obtener los datos necesarios en el servidor
-const depositos = await db.select({ id: depositosTable.id, nombre: depositosTable.nombre }).from(depositosTable).where(eq(depositosTable.empresaId, user.empresaId));
-const ubicaciones = await db.select({ id: ubicacionesTable.id, nombre: ubicacionesTable.nombre, depositoId: ubicacionesTable.depositoId }).from(ubicacionesTable).where(eq(ubicacionesTable.empresaId, user.empresaId));
 ---
 
 <!-- 2. Renderizar la isla de React, pasándole los datos como props -->

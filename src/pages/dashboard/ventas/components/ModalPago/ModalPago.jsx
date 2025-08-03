@@ -89,22 +89,56 @@ export default function ModalPago({
     }));
   }, [cliente]);
 
+  // --- LÓGICA DE IMPRESIÓN ---
+
+  // Función para imprimir el ticket de venta
+  const imprimirTicket = async (ventaId) => {
+    try {
+      // 1. Solicitar el HTML del ticket a la API
+      const response = await fetch('/api/comprobantes/generar-ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ventaId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al generar el HTML del ticket');
+      }
+
+      const htmlTicket = await response.text();
+
+      // 2. Crear un iframe oculto para la impresión
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
+      // 3. Escribir el HTML en el iframe y llamar a la impresión
+      iframe.contentDocument.write(htmlTicket);
+      iframe.contentDocument.close();
+      iframe.contentWindow.print();
+
+      // 4. Limpiar el iframe después de un tiempo
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error al imprimir el ticket:', error);
+      showToast('Error al imprimir ticket', { background: 'bg-red-500' });
+    }
+  };
+
   const finalizarCompra = async () => {
     loader(true);
     setEsPresupuesto('comprobante');
-    console.log('quiero ver el cliente', formularioVenta);
     if (totalVenta == 0) {
-      showToast('monto total 0', {
-        background: 'bg-primary-400',
-      });
+      showToast('monto total 0', { background: 'bg-primary-400' });
       return;
     }
     try {
       const responseFetch = await fetch('/api/sales/finalizarVenta', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productos: $productos,
           totalVenta,
@@ -116,10 +150,13 @@ export default function ModalPago({
       const data = await responseFetch.json();
       if (data.status == 200) {
         showToast(data.msg, { background: 'bg-green-600' });
+        
+        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET ---
+        await imprimirTicket(data.data.id);
+
         loader(false);
-        setMostrarComprobante(true);
         setVentaFinalizada(data.data);
-        // setTimeout(()=>window.location.reload(),1000)
+        setMostrarComprobante(true);
       }
     } catch (error) {
       console.log(error);
@@ -153,10 +190,13 @@ export default function ModalPago({
       const data = await responseFetch.json();
       if (data.status == 200) {
         showToast(data.msg, { background: 'bg-green-600' });
+        
+        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET ---
+        await imprimirTicket(data.data.id);
+
         loader(false);
-        setMostrarComprobante(true);
         setVentaFinalizada(data.data);
-        // setTimeout(()=>window.location.reload(),1000)
+        setMostrarComprobante(true);
       }
     } catch (error) {
       console.log(error);

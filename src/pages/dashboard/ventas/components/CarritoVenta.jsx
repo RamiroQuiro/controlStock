@@ -29,6 +29,23 @@ export default function CarritoVenta({ user }) {
     setSubtotal(sumaSubtotal);
     setIvaMonto(sumaTotal - sumaSubtotal);
   }, [$productos]);
+
+  // Atajo F10 para abrir el modal de pago
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'F10' && !modalConfirmacion && $productos.length > 0) {
+        event.preventDefault();
+        pagar();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [modalConfirmacion, $productos]); // Se re-evalúa si cambia el modal o los productos
+
   const pagar = () => setModalConfirmacion(true);
   // console.log('este es le $produc',$productos)
 
@@ -44,11 +61,11 @@ export default function CarritoVenta({ user }) {
                 className="flex justify-between py-0.5 boder-b items-center bg-primary-bg-componentes px-0.5  text-sm gap-3 font-IndieFlower  w-full capitalize "
               >
                 <span>
-                  {producto.descripcion} ({producto.cantidad} x $
-                  {producto.pVenta})
+                  {producto.descripcion} ({producto.cantidad} x 
+                  {formateoMoneda.format(producto.pVenta)})
                 </span>
                 <span className="text text-primary-textoTitle">
-                  ${producto.cantidad * producto.pVenta}
+                  {formateoMoneda.format(producto.cantidad * producto.pVenta)}
                 </span>
               </li>
             ))}

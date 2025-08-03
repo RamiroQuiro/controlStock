@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { showToast } from '../../../../../utils/toast/toastShow';
 import ClientesSelect from '../ClientesSelect';
 import MetodoDePago from './MetodoDePago';
@@ -41,6 +41,9 @@ export default function ModalPago({
   const [mostrarComprobante, setMostrarComprobante] = useState(false);
   const [ventaFinalizada, setVentaFinalizada] = useState({});
   const [esPresupuesto, setEsPresupuesto] = useState('comprobante');
+  
+  const montoRecibidoRef = useRef(null);
+
   const handlePagaCon = (e) => {
     const montoIngresado = Number(e.target.value);
     const total = montoIngresado - totalVenta;
@@ -48,7 +51,37 @@ export default function ModalPago({
     setFormularioVenta({ ...formularioVenta, total: total });
   };
 
-  // Actualizar clienteId cuando cambie el cliente
+  // --- EFECTOS SECUNDARIOS ---
+
+  // Efecto para el autofoco en el campo de monto recibido
+  useEffect(() => {
+    if (metodoPago === 'efectivo' && montoRecibidoRef.current) {
+      montoRecibidoRef.current.focus();
+    }
+  }, [metodoPago]);
+
+  // Efecto para manejar los atajos de teclado F10 (Confirmar) y F7 (Presupuesto)
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'F10') {
+        event.preventDefault();
+        finalizarCompra();
+      }
+      if (event.key === 'F7') {
+        event.preventDefault();
+        guardarPresupuesto();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Limpieza: remover el event listener cuando el modal se cierra
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []); // El array vacío asegura que se ejecute solo una vez
+
+  // Efecto para actualizar el clienteId en el formulario cuando el cliente cambia
   useEffect(() => {
     setFormularioVenta((prev) => ({
       ...prev,
@@ -217,6 +250,7 @@ export default function ModalPago({
                   <div className="flex-1 w-full">
                     <label className="text-sm">Monto recibido</label>
                     <input
+                      ref={montoRecibidoRef} // Asignar la referencia al input
                       type="number"
                       className="w-full border rounded-lg p-2"
                       onChange={handlePagaCon}

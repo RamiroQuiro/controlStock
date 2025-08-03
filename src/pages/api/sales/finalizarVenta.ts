@@ -62,6 +62,29 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       );
     }
 
+    // Verificación de stock antes de la transacción
+    for (const prod of productosSeleccionados) {
+      const [productoDB] = await db
+        .select({
+          stock: productos.stock,
+          nombre: productos.nombre,
+        })
+        .from(productos)
+        .where(eq(productos.id, prod.id));
+
+      if (!productoDB || productoDB.stock < prod.cantidad) {
+        return new Response(
+          JSON.stringify({
+            status: 409, // Conflict
+            msg: `Stock insuficiente para el producto: ${
+              productoDB?.nombre || prod.nombre
+            }. Stock actual: ${productoDB?.stock || 0}`,
+          }),
+          { status: 409 }
+        );
+      }
+    }
+
     const fechaVenta = new Date(getFechaUnix() * 1000);
     console.log('fecha venta ->', fechaVenta);
     const ventaDB = await db
@@ -206,6 +229,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       })
       .catch((error) => {
         console.log(error);
+        throw error; // Propagar el error para que la transacción falle
       });
 
     return new Response(

@@ -14,6 +14,8 @@ export const empresas = sqliteTable(
     nameStyles: text('nameStyles'),
     direccion: text('direccion'),
     email: text('email'),
+    colorAsset:text('colorAsset'),
+    colorSecundario:text('colorSecundario'),
     userId: text('userId').notNull(), //id del usuario dueño de la empresa
     creadoPor: text('creadoPor'), //ide del user de la empresa
     created_at: integer('created_at', { mode: 'timestamp' })

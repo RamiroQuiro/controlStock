@@ -91,12 +91,7 @@ stockConfigItemsConDatos = stockConfigItems.map(item => ({
 }
 ---
 
-<MainDashboard h1="Configuracion Stock">
-  <div class="flex flex-col gap-y-2 items-start w-full justify-between">
-    <p class="text-sm text-gray-600">
-      Gestiona todos los aspectos relacionados con tu inventario y depositos
-    </p>
-  </div>
+<MainDashboard h1="Configuracion Stock" subtitle="Gestiona todos los aspectos relacionados con tu inventario y depositos">
   <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
     <DivBox1>
       <div class="text-2xl font-bold text-blue-600">{stockConfigItemsConDatos.find(item => item.id === 'categorias')?.count}</div>

@@ -1,4 +1,5 @@
 ---
+import { Badge, Building2 } from 'lucide-react';
 import DivBox1 from '../../../../components/atomos/DivBox1.astro';
 import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
 import FormularioConfiguracionSistema from '../components/FormularioConfiguracionSistema';
@@ -6,12 +7,14 @@ import FormularioConfiguracionSistema from '../components/FormularioConfiguracio
 const { user } = Astro.locals;
 ---
 
-<MainDashboard h1="Perfil de Usuario">
+<MainDashboard h1="Configuracion de la Empresa" subtitle="Actualiza los datos y la imagen de tu empresa." icon={Building2}>
   <div
     class="flex w-full md:flex-row flex-col items-stretch gap-2 justify-between"
   >
-    <DivBox1 styleDiv="w-full">
-      <FormularioConfiguracionSistema client:load user={user} />
+    <DivBox1 styleDiv="w-fit">
+      
+
+      <!-- <FormularioConfiguracionSistema client:load user={user} /> -->
     </DivBox1>
   </div>
 </MainDashboard>

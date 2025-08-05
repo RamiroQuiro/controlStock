@@ -7,10 +7,12 @@ import {
   MapPin,
   CalendarDays,
   UserCheck,
+  UploadIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 import LoaderReact from '../../../../utils/loader/LoaderReact';
+
 const initialUserData = {
   razonSocial: '',
   apellido: '',
@@ -23,8 +25,10 @@ const initialUserData = {
   tipoUsuario: '',
   srcPhoto: '',
 };
+
 export default function FormularioPerfilUser({ user }) {
   const [userData, setUserData] = useState({ ...initialUserData, ...user });
+  const [originalUserData, setOriginalUserData] = useState(null);
   const [disable, setDisable] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +45,7 @@ export default function FormularioPerfilUser({ user }) {
         if (dataUserFetch.ok) {
           const data = await dataUserFetch.json();
           setUserData(data.data);
+          setOriginalUserData(data.data); // Guardar el estado original
         }
       } catch (error) {
         console.error(error);
@@ -55,12 +60,9 @@ export default function FormularioPerfilUser({ user }) {
       [e.target.name]: e.target.value,
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!disable) {
-      setDisable(true);
-      return;
-    }
     setDisable(true);
     try {
       setLoading(true);
@@ -70,18 +72,23 @@ export default function FormularioPerfilUser({ user }) {
         body: JSON.stringify(userData),
       });
       if (res.ok) {
-        setLoading(false);
-        setDisable(false);
         const updated = await res.json();
         setUserData(updated.data);
+        setOriginalUserData(updated.data); // Actualizar el estado original con los datos guardados
+        setDisable(false);
       }
     } catch (error) {
-      setLoading(false);
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const subirAvatar = () => {};
+  const handleCancel = () => {
+    setUserData(originalUserData); // Restaurar los datos originales
+    setDisable(false); // Salir del modo de edición
+  };
+
   const handleChangeImage = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -95,23 +102,24 @@ export default function FormularioPerfilUser({ user }) {
       reader.readAsDataURL(file);
     }
   };
+
   return (
-    <form className="w-full p-2">
+    <form onSubmit={handleSubmit} className="w-full p-2">
       <div className="flex flex-col md:flex-row items-center gap-4  w-full">
         <div className="w-1/4 gap-2 flex flex-col items-center justify-center group ">
           <div className="w-full flex flex-col items-center justify-center group relative">
             <img
               src={userData?.srcPhoto || '/default-avatar.png'}
               alt="Avatar"
-              className="w-28 h-28 rounded-full border-4 border-primary-100 object-cover shadow"
+              className="w-36 h-36 rounded-full border-4 border-primary-100 object-cover shadow"
             />
             {disable && (
               <div className="flex flex-col items-center gap-2">
                 <label
                   htmlFor="srcPhoto"
-                  className="text-white absolute top-1/2 -translate-y-1/2  bg-gray-500 text-xs rounded-lg py-1 opacity-30 hover:opacity-100 px-2 cursor-pointer duration-300 scale-90 hover:scale-100"
+                  className=" absolute bg--texto border-primary-100 border  bottom-0 right-0 -translate-y-1/2 text-xs rounded-lg  p-2 cursor-pointer duration-300 scale-90 hover:scale-100"
                 >
-                  Cambiar Avatar
+                  <UploadIcon className="w-5 h-5 stroke-primary-textoTitle"/>
                 </label>
                 <input
                   type="file"
@@ -125,26 +133,12 @@ export default function FormularioPerfilUser({ user }) {
           </div>
         </div>
         <div className="flex-1">
-          <h2 className="text-3xl font-bold text-primary-textoTitle flex items-center gap-2">
-            <User className="w-7 h-7 text-primary-100" />
+          <div className="flex text-2xl items-center gap-2 mt-2 text-gray-600">
+            <UserCheck className="w-10 h-10 stroke-primary-100  " />
             {!disable ? (
-              userData.razonSocial
-            ) : (
-              <div className="w-full ">
-                <InputComponenteJsx
-                  type="text"
-                  name="razonSocial"
-                  className=""
-                  value={userData.razonSocial}
-                  handleChange={handleChange}
-                />
-              </div>
-            )}
-          </h2>
-          <div className="flex items-center gap-2 mt-2 text-gray-600">
-            <UserCheck className="w-5 h-5" />
-            {!disable ? (
-              `${userData?.nombre} ${userData?.apellido}`
+              <p className="font-semibold capitalize">{`${userData?.nombre || ''} ${
+                userData?.apellido || ''
+              }`}</p>
             ) : (
               <div className="flex w-full justify-between items-center gap-2">
                 <div className="md:w-1/2">
@@ -257,14 +251,34 @@ export default function FormularioPerfilUser({ user }) {
         </div>
       </div>
       <div className="mt-8 flex flex-col md:flex-row justify-end gap-4">
-        <button
-          onClick={handleSubmit}
-          className="bg-primary-textoTitle text-white px-4 py-2 rounded hover:bg-primary-textoTitle/80 transition"
-        >
-          Editar Perfil
-        </button>
+        {!disable ? (
+          <button
+            type="button"
+            onClick={() => setDisable(true)}
+            className="bg-primary-textoTitle text-white px-4 py-2 rounded hover:bg-primary-textoTitle/80 transition"
+          >
+            Editar Perfil
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            >
+              Guardar Cambios
+            </button>
+          </>
+        )}
       </div>
       {loading && <LoaderReact />}
     </form>
   );
 }
+

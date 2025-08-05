@@ -62,7 +62,7 @@ const totalStockGeneral = enrichedDepositos.reduce((acc, d) => acc + d.currentSt
 const promedioUbicaciones = totalDepositos > 0 ? (enrichedDepositos.reduce((acc, d) => acc + d.totalLocations, 0) / totalDepositos).toFixed(1) : 0;
 ---
 
-<MainDashboard h1="Gestión de Depósitos">
+<MainDashboard h1="Gestión de Depósitos" subtitle="Administra tus depósitos, su capacidad y ubicaciones.">
   <div slot={'menu'} class="flex items-center justify-end pb-2 gap-2 pr-6 w-full">
     <Modal label="Crear" id="crearCliente">
       <FormularioNuevoDeposito client:load />
@@ -71,9 +71,6 @@ const promedioUbicaciones = totalDepositos > 0 ? (enrichedDepositos.reduce((acc,
     </div>
   </div>
 
-  <div class="flex flex-col gap-y-2 items-start w-full justify-between mb-5">
-    <p class="text-sm text-gray-600">Administra tus depósitos, su capacidad y ubicaciones.</p>
-  </div>
 
   <div class="grid grid-cols-1 w-full my-5 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <DivBox1><div class="text-2xl font-bold text-blue-600">{totalDepositos}</div><div class="text-sm font-semibold text-gray-600">Total Depósitos</div></DivBox1>

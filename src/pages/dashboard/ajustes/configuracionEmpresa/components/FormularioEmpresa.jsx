@@ -20,6 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import LoaderReact from "../../../../../utils/loader/LoaderReact";
 import InputComponenteJsx from "../../../dashboard/componente/InputComponenteJsx";
+import InputSkeleton from "../../../dashboard/componente/InputSkeleton";
 import {
   formatearFechaArgentina,
   getFechaUnix,
@@ -38,16 +39,19 @@ const inicialEmpresaData = {
 export default function FormularioEmpresa({ user }) {
   const [empresaData, setEmpresaData] = useState(inicialEmpresaData);
   const [originalEmpresaData, setOriginalEmpresaData] = useState(null);
-  const [disable, setDisable] = useState(false);
+  const [logoFile, setLogoFile] = useState(null);
+  const [disable, setDisable] = useState(true); // Iniciar deshabilitado
   const [loading, setLoading] = useState(false);
+  const [trayendoData, setTrayendoData] = useState(true);
 
   const fechaHoy = getFechaUnix();
 
   useEffect(() => {
     const fetchEmpresa = async () => {
       try {
+        setTrayendoData(true);
         const response = await fetch(
-          `/api/empresa/getEmpresa?userId=${user.id}`
+          `/api/ajustes/empresa?empresaId=${user.empresaId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -57,7 +61,7 @@ export default function FormularioEmpresa({ user }) {
       } catch (error) {
         console.error("Error fetching empresa data:", error);
       } finally {
-        setLoading(false);
+        setTrayendoData(false);
       }
     };
     fetchEmpresa();
@@ -73,17 +77,33 @@ export default function FormularioEmpresa({ user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    const formData = new FormData();
+
+    // Adjuntar todos los datos de texto
+    Object.entries(empresaData).forEach(([key, value]) => {
+      if (key !== 'srcLogo' && value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
+    });
+
+    // Adjuntar el archivo del logo si existe
+    if (logoFile) {
+      formData.append('logo', logoFile);
+    }
+
     try {
-      const res = await fetch("/api/empresa/updateEmpresa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...empresaData, userId: user.id }),
+      const res = await fetch('/api/ajustes/empresa', { // URL correcta para PUT
+        method: "PUT",
+        body: formData,
       });
+
       if (res.ok) {
         const updated = await res.json();
         setEmpresaData(updated.data);
         setOriginalEmpresaData(updated.data);
-        setDisable(false);
+        setDisable(true); // Deshabilitar edición después de guardar
+        setLogoFile(null);
       }
     } catch (error) {
       console.error("Error updating empresa:", error);
@@ -94,12 +114,14 @@ export default function FormularioEmpresa({ user }) {
 
   const handleCancel = () => {
     setEmpresaData(originalEmpresaData);
-    setDisable(false);
+    setDisable(true); // Deshabilitar edición al cancelar
+    setLogoFile(null);
   };
 
   const handleChangeImage = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setLogoFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setEmpresaData((prev) => ({
@@ -118,7 +140,7 @@ export default function FormularioEmpresa({ user }) {
       type: "text",
       placeholder: "Ingrese la razon social",
       required: true,
-      value: empresaData.razonSocial,
+      value: empresaData?.razonSocial,
       handleChange: handleChange,
       icon: Building2Icon,
     },
@@ -128,7 +150,7 @@ export default function FormularioEmpresa({ user }) {
       type: "text",
       placeholder: "Ingrese el cuit/cuil",
       required: true,
-      value: empresaData.cuit,
+      value: empresaData?.cuit,
       handleChange: handleChange,
       icon: IdCardIcon,
     },
@@ -138,7 +160,7 @@ export default function FormularioEmpresa({ user }) {
       type: "email",
       placeholder: "Ingrese el email",
       required: true,
-      value: empresaData.email,
+      value: empresaData?.email,
       handleChange: handleChange,
       icon: MailIcon,
     },
@@ -148,7 +170,7 @@ export default function FormularioEmpresa({ user }) {
       type: "text",
       placeholder: "Ingrese el telefono",
       required: true,
-      value: empresaData.telefono,
+      value: empresaData?.telefono,
       handleChange: handleChange,
       icon: PhoneIcon,
     },
@@ -158,7 +180,7 @@ export default function FormularioEmpresa({ user }) {
       type: "text",
       placeholder: "Ingrese la direccion",
       required: true,
-      value: empresaData.direccion,
+      value: empresaData?.direccion,
       handleChange: handleChange,
       icon: MapPinIcon,
     },
@@ -168,7 +190,7 @@ export default function FormularioEmpresa({ user }) {
       type: "date",
       placeholder: "Ingrese la fecha de alta",
       required: true,
-      value: empresaData.fechaAlta,
+      value: empresaData?.fechaAlta,
       handleChange: handleChange,
       icon: CalendarDaysIcon,
     },
@@ -178,7 +200,7 @@ export default function FormularioEmpresa({ user }) {
       type: "file",
       placeholder: "Ingrese el logo",
       required: true,
-      value: empresaData.srcLogo,
+      value: empresaData?.srcLogo,
       handleChange: handleChangeImage,
       icon: UploadIcon,
     },
@@ -188,7 +210,7 @@ export default function FormularioEmpresa({ user }) {
       type: "color",
       placeholder: "Ingrese el color principal",
       required: true,
-      value: empresaData.colorAsset,
+      value: empresaData?.colorAsset,
       handleChange: handleChange,
       icon: PaintRollerIcon,
     },
@@ -198,7 +220,7 @@ export default function FormularioEmpresa({ user }) {
       type: "color",
       placeholder: "Ingrese el color secundario",
       required: true,
-      value: empresaData.colorSecundario,
+      value: empresaData?.colorSecundario,
       handleChange: handleChange,
       icon: PaintRollerIcon,
     },
@@ -208,20 +230,25 @@ export default function FormularioEmpresa({ user }) {
       <div className="flex flex-col  items-start space-y-10 w-full">
         <div className="w-full flex items-center justify-between">
           <div className="w-fit flex flex-col items-center justify-center group relative">
-            <img
-              src={empresaData?.srcLogo || "/default-avatar.png"}
-              alt="Logo"
-              className="w-36 h-36 rounded-full border-4 border-primary-100 object-cover shadow"
-            />
-            {disable && (
+            {trayendoData ? (
+              <div className="w-36 h-36 rounded-full bg-gray-200 animate-pulse"></div>
+            ) : (
+              <img
+                src={empresaData?.srcLogo || "/default-avatar.png"}
+                alt="Logo"
+                className="w-36 h-36  rounded-full border-4 border-primary-100 object-cover shadow"
+              />
+            )}
+            {!disable && (
               <div className="flex flex-col items-center gap-2">
                 <label
                   htmlFor="srcLogo"
-                  className=" absolute bg--texto border-primary-100 border  bottom-0 right-0 -translate-y-1/2 text-xs rounded-lg  p-2 cursor-pointer duration-300 scale-90 hover:scale-100"
+                  className=" absolute bg-white -texto border-primary-100 border  bottom-0 right-0 -translate-y-1/2 text-xs rounded-lg  p-2 cursor-pointer duration-300 scale-90 hover:scale-100"
                 >
                   <UploadIcon className="w-5 h-5 stroke-primary-textoTitle" />
                 </label>
                 <input
+                  disabled={disable}
                   type="file"
                   id="srcLogo"
                   name="srcLogo"
@@ -239,15 +266,20 @@ export default function FormularioEmpresa({ user }) {
               <Building2Icon className="w-10 h-10 stroke-primary-100" /> Razon
               Social
             </label>
-            <InputComponenteJsx
-              name="razonSocial"
-              label="Razon Social"
-              type="text"
-              placeholder="Ingrese la razon social"
-              required
-              value={empresaData.razonSocial}
-              handleChange={handleChange}
-            />
+            {trayendoData ? (
+              <InputSkeleton />
+            ) : (
+              <InputComponenteJsx
+                name="razonSocial"
+                label="Razon Social"
+                disable={disable}
+                type="text"
+                placeholder="Ingrese la razon social"
+                required
+                value={empresaData?.razonSocial}
+                handleChange={handleChange}
+              />
+            )}
           </div>
         </div>
 
@@ -263,6 +295,7 @@ export default function FormularioEmpresa({ user }) {
             )
             .map((input) => {
               const Icon = input.icon;
+
               return (
                 <div key={input.name} className="w-[48%]">
                   <label
@@ -272,15 +305,20 @@ export default function FormularioEmpresa({ user }) {
                     <Icon className="w-7 h-7 stroke-primary-100" />{" "}
                     {input.label}
                   </label>
-                  <InputComponenteJsx
-                    name={input.name}
-                    label={input.label}
-                    type={input.type}
-                    placeholder={input.placeholder}
-                    required={input.required}
-                    value={input.value}
-                    handleChange={input.handleChange}
-                  />
+                  {trayendoData ? (
+                    <InputSkeleton />
+                  ) : (
+                    <InputComponenteJsx
+                      disabled={disable}
+                      name={input.name}
+                      label={input.label}
+                      type={input.type}
+                      placeholder={input.placeholder}
+                      required={input.required}
+                      value={input.value}
+                      handleChange={input.handleChange}
+                    />
+                  )}
                 </div>
               );
             })}
@@ -294,7 +332,7 @@ export default function FormularioEmpresa({ user }) {
               <div className="flex items-center gap-2 w-full">
                 <label
                   htmlFor="colorAsset"
-                  style={{ backgroundColor: empresaData.colorAsset }}
+                  style={{ backgroundColor: empresaData?.colorAsset }}
                   className="rounded-2xl p-2 border w-10 h-10 cursor-pointer"
                 >
                   <input
@@ -303,22 +341,27 @@ export default function FormularioEmpresa({ user }) {
                     type="color"
                     name="colorAsset"
                     id="colorAsset"
-                    value={empresaData.colorAsset}
+                    value={empresaData?.colorAsset}
                   />
                 </label>
-                <InputComponenteJsx
-                  type="text"
-                  value={empresaData.colorAsset}
-                  handleChange={handleChange}
-                  name="colorAsset"
-                  id="colorAsset"
-                  className="w-10/12 rounded-2xl p-2 border"
-                />
+                {trayendoData ? (
+                  <InputSkeleton />
+                ) : (
+                  <InputComponenteJsx
+                    disabled={disable}
+                    type="text"
+                    value={empresaData?.colorAsset}
+                    handleChange={handleChange}
+                    name="colorAsset"
+                    id="colorAsset"
+                    className="w-10/12 rounded-2xl p-2 border"
+                  />
+                )}
               </div>
               <div className="flex items-center gap-2 w-full">
                 <label
                   htmlFor="colorSecundario"
-                  style={{ backgroundColor: empresaData.colorSecundario }}
+                  style={{ backgroundColor: empresaData?.colorSecundario }}
                   className="rounded-2xl p-2  w-10 h-10 cursor-pointer"
                 >
                   <input
@@ -327,17 +370,22 @@ export default function FormularioEmpresa({ user }) {
                     type="color"
                     name="colorSecundario"
                     id="colorSecundario"
-                    value={empresaData.colorSecundario}
+                    value={empresaData?.colorSecundario}
                   />
                 </label>
-                <InputComponenteJsx
-                  type="text"
-                  value={empresaData.colorSecundario}
-                  handleChange={handleChange}
-                  name="colorSecundario"
-                  id="colorSecundario"
-                  className="w-10/12 rounded-2xl p-2 border"
-                />
+                {trayendoData ? (
+                  <InputSkeleton />
+                ) : (
+                  <InputComponenteJsx
+                    disabled={disable}
+                    type="text"
+                    value={empresaData?.colorSecundario}
+                    handleChange={handleChange}
+                    name="colorSecundario"
+                    id="colorSecundario"
+                    className="w-10/12 rounded-2xl p-2 border"
+                  />
+                )}
               </div>
             </div>
             <h2 className="text-primary-textoTitle text-xs font-semibold">
@@ -353,89 +401,14 @@ export default function FormularioEmpresa({ user }) {
             <p>{formatearFechaArgentina(fechaHoy)}</p>
           </div>
         </div>
-        {/* <div className="w-1/4 gap-2 flex flex-col items-center justify-center group ">
-        <div className="w-full flex flex-col items-center justify-center group relative">
-          <img
-            src={inicialEmpresaData?.srcLogo || '/default-avatar.png'}
-            alt="Avatar"
-            className="w-36 h-36 rounded-full border-4 border-primary-100 object-cover shadow"
-          />
-          {disable && (
-            <div className="flex flex-col items-center gap-2">
-              <label
-                htmlFor="srcPhoto"
-                className=" absolute bg--texto border-primary-100 border  bottom-0 right-0 -translate-y-1/2 text-xs rounded-lg  p-2 cursor-pointer duration-300 scale-90 hover:scale-100"
-              >
-                <UploadIcon className="w-5 h-5 stroke-primary-textoTitle"/>
-              </label>
-              <input
-                type="file"
-                id="srcPhoto"
-                name="srcPhoto"
-                className="hidden"
-                onChange={handleChangeImage}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="flex-1">
-        <div className="flex text-2xl items-center gap-2 mt-2 text-gray-600">
-          <UserCheck className="w-10 h-10 stroke-primary-100  " />
-          {!disable ? (
-            <p className="font-semibold capitalize">{`${inicialEmpresaData?.nombre || ''} ${
-              inicialEmpresaData?.apellido || ''
-            }`}</p>
-          ) : (
-            <div className="flex w-full justify-between items-center gap-2">
-              <div className="md:w-1/2">
-                <InputComponenteJsx
-                  type="text"
-                  name="nombre"
-                  className=""
-                  value={inicialEmpresaData.nombre}
-                  handleChange={handleChange}
-                />
-              </div>
-              <div className="md:w-1/2">
-                <InputComponenteJsx
-                  type="text"
-                  name="apellido"
-                  value={inicialEmpresaData.apellido}
-                  handleChange={handleChange}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-2 text-gray-600">
-          <Mail className="w-5 h-5" />
-          {!disable ? (
-            inicialEmpresaData?.email
-          ) : (
-            <div className="w-ful lowercase">
-              <InputComponenteJsx
-                type="text"
-                name="email"
-                className="lowercase"
-                value={inicialEmpresaData.email}
-                handleChange={handleChange}
-              />
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-1 text-gray-600">
-          <Shield className="w-5 h-5" />
-          <span className="capitalize font-semibold">{inicialEmpresaData?.rol}</span>
-        </div>
-      </div> */}
+        {/* ... (resto del código comentado) ... */}
       </div>
 
       <div className="mt-8 flex flex-col md:flex-row justify-end gap-4">
-        {!disable ? (
+        {disable ? (
           <button
             type="button"
-            onClick={() => setDisable(true)}
+            onClick={() => setDisable(false)}
             className="bg-primary-textoTitle text-white px-4 py-2 rounded hover:bg-primary-textoTitle/80 transition"
           >
             Editar Perfil

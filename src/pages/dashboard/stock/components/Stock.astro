@@ -10,7 +10,6 @@ import FormularioModificacionPrecios from './FormularioModificacionPrecios';
 import ContenedorStock from './ContenedorStock.astro';
 import ContenedorTablaTopEgreso from './ContenedorTablaTopEgreso';
 import ContenedorTablaMovimientos from './ContenedorTablaMovimientos';
-import BotonCrearProducto from '../../../../components/BotonCrearProducto';
 import { depositos as depositosTable, ubicaciones as ubicacionesTable } from '../../../../db/schema';
 import db from '../../../../db';
 import { eq } from 'drizzle-orm';
@@ -37,17 +36,11 @@ try {
     <Modal label="Crear Producto" id="agregarProducto" title="Crear Nuevo Producto">
       <FormularioCargaProducto depositos={depositos} ubicaciones={ubicaciones}  />
     </Modal>
-    <!-- <BotonCrearProducto client:load userId={user.id} empresaId={user.empresaId} onProductCreated={() => window.location.reload()}/> -->
+    
     <Modal label="Comprar" id="compraProveedir" title="Registrar Compra">
       <FormularioCompra user={user} client:visible />
     </Modal>
 
-    <!-- <Modal id="modalIngreso" label="Movimiento">
-      <FormularioIngresoEgreso
-        userId={user.id}
-        client:visible
-      />
-    </Modal> -->
 
     <Modal label="Modificar Precios" id="modificarPrecios" title="Modificar Precios">
       <FormularioModificacionPrecios userId={user.id} client:visible />

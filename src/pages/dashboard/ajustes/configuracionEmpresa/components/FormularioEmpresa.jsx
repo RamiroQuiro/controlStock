@@ -25,6 +25,7 @@ import {
   formatearFechaArgentina,
   getFechaUnix,
 } from "../../../../../utils/timeUtils";
+import formatDate from "../../../../../utils/formatDate";
 
 const inicialEmpresaData = {
   razonSocial: "",
@@ -44,7 +45,7 @@ export default function FormularioEmpresa({ user }) {
   const [loading, setLoading] = useState(false);
   const [trayendoData, setTrayendoData] = useState(true);
 
-  const fechaHoy = getFechaUnix();
+  
 
   useEffect(() => {
     const fetchEmpresa = async () => {
@@ -145,22 +146,22 @@ export default function FormularioEmpresa({ user }) {
       icon: Building2Icon,
     },
     {
-      name: "cuit",
+      name: "documento",
       label: "Cuit/Cuil",
       type: "text",
       placeholder: "Ingrese el cuit/cuil",
       required: true,
-      value: empresaData?.cuit,
+      value: empresaData?.documento,
       handleChange: handleChange,
       icon: IdCardIcon,
     },
     {
-      name: "email",
-      label: "Email",
+      name: "emailEmpresa",
+      label: "Email Empresa",
       type: "email",
       placeholder: "Ingrese el email",
       required: true,
-      value: empresaData?.email,
+      value: empresaData?.emailEmpresa,
       handleChange: handleChange,
       icon: MailIcon,
     },
@@ -190,7 +191,7 @@ export default function FormularioEmpresa({ user }) {
       type: "date",
       placeholder: "Ingrese la fecha de alta",
       required: true,
-      value: empresaData?.fechaAlta,
+      value: empresaData?.created_at,
       handleChange: handleChange,
       icon: CalendarDaysIcon,
     },
@@ -272,6 +273,7 @@ export default function FormularioEmpresa({ user }) {
               <InputComponenteJsx
                 name="razonSocial"
                 label="Razon Social"
+                className="text-primary-textoTitle text-2xl"
                 disable={disable}
                 type="text"
                 placeholder="Ingrese la razon social"
@@ -393,12 +395,12 @@ export default function FormularioEmpresa({ user }) {
             </h2>
           </div>
 
-          <div className="flex-1 flex items-center gap-2">
+          <div className="flex-1 flex items-center justify-end gap-2">
             <div className="flex items-center gap-2">
               <CalendarDaysIcon className="w-7 h-7 stroke-primary-100" />
               <p> Fecha de alta</p>
             </div>
-            <p>{formatearFechaArgentina(fechaHoy)}</p>
+            <p>{formatDate(empresaData?.created_at)}</p>
           </div>
         </div>
         {/* ... (resto del código comentado) ... */}

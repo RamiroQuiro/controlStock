@@ -1,0 +1,111 @@
+---
+import { eq, sql } from "drizzle-orm";
+import Button1 from "../../../../../components/atomos/Button1.astro";
+import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
+import Modal from "../../../../../components/moleculas/Modal.astro";
+import db from "../../../../../db";
+import { ubicaciones, localizaciones, depositos } from "../../../../../db/schema";
+import CardInfoCatUbiDep from "../../components/CardInfoCatUbiDep.astro";
+import FormularioNuevaUbicacion from "../../components/FormularioNuevaUbicacion.tsx";
+import UbicacionCard from "../../components/UbicacionCard.astro";
+
+interface Ubicacion {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  activo: boolean;
+  creadoPor: string;
+  created_at: number;
+  depositoId: string;
+  zona: string;
+  capacidad: number;
+  cantidadProductos: number;
+}
+
+let ubicacionesData: Ubicacion[] = [];
+let depositosData: any[] = [];
+
+const {user}=Astro.locals   
+
+try {
+  const ubicacionesConConteo = await db
+    .select({
+      id: ubicaciones.id,
+      nombre: ubicaciones.nombre,
+      descripcion: ubicaciones.descripcion,
+      activo: ubicaciones.activo,
+      creadoPor: ubicaciones.creadoPor,
+      depositoId: ubicaciones.depositoId,
+      zona: ubicaciones.zona,
+      capacidad: ubicaciones.capacidad,
+      created_at: ubicaciones.fechaCreacion,
+    })
+    .from(ubicaciones)
+    .where(eq(ubicaciones.empresaId, user?.empresaId))
+    .groupBy(ubicaciones.id);
+let depositosDB = await db
+    .select({
+      id: depositos.id,
+      nombre: depositos.nombre,
+    })
+    .from(depositos)
+    .where(eq(depositos.empresaId, user?.empresaId))
+    .groupBy(depositos.id);
+    depositosData = depositosDB;
+  ubicacionesData = ubicacionesConConteo;
+} catch (error) {
+  console.error("Error al obtener ubicaciones:", error);
+}
+---
+
+<MainDashboard h1="Gestión de Ubicaciones" subtitle="Gestiona de Ubicaciones.">
+    <div
+    slot={'menu'}
+    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+  >
+    <div class="flex gap-3">
+      <Modal label="Crear" id="crearUbicacion">
+        <FormularioNuevaUbicacion depositos={depositosData} client:load />
+      </Modal>
+      <Button1
+        id="btnExportarPDF"
+        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
+      >
+        Exportar PDF
+      </Button1>
+      <Button1
+        id="btnExportar"
+        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
+      >
+        Exportar CSV
+      </Button1>
+    </div>
+  </div>
+    <div class="flex flex-col gap-y-2 items-start w-full justify-between">
+
+    <!-- ver si colocamos algunos stats con info rapida -->
+    <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
+        <DivBox1>
+          <div class="text-2xl font-bold text-blue-600">{ubicacionesData.length}</div>
+          <div class="text-sm font-semibold text-gray-600">Total Ubicaciones</div>
+        </DivBox1>
+        <DivBox1>
+          <div class="text-2xl font-bold text-green-600">{ubicacionesData.filter((ubicacion) => ubicacion.activo).length}</div>
+          <div class="text-sm font-semibold text-gray-600">Activas</div>
+        </DivBox1>
+        <DivBox1>
+          <div class="text-2xl font-bold text-neutral-600">{ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0)}</div>
+          <div class="text-sm font-semibold text-gray-600">Total Productos</div>
+        </DivBox1>
+        <DivBox1>
+          <div class="text-2xl font-bold text-purple-600">{ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0)/ubicacionesData.length}</div>
+          <div class="text-sm font-semibold text-gray-600">Promedio por Ubicación</div>
+        </DivBox1>
+    </div>
+    <div
+      class="grid grid-cols-1  w-full md:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      {ubicacionesData.map((ubicacion) => <UbicacionCard depositos={depositosData} item={ubicacion} type='ubicacion' />)}
+    </div>
+  </MainDashboard>

@@ -12,6 +12,11 @@ export const depositos = sqliteTable(
     direccion: text('direccion'),
     telefono: text('telefono'),
     email: text('email'),
+    color:text('color').default('bg-blue-500'),
+    principal:integer('principal',{mode:'boolean'}).default(false),
+    capacidadTotal: integer('capacidadTotal',{mode:'number'}),
+    encargado: text('encargado'),
+
     prioridad: integer('prioridad').default(1),
     empresaId: text('empresaId').references(() => empresas.id),
     creadoPor: text('creadoPor').references(() => users.id),

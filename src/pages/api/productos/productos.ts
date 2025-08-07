@@ -257,9 +257,9 @@ export const PUT: APIRoute = async ({ request, params }) => {
         .update(stockActual)
         .set({
           reservado: dataProducto.reservado,
-          deposito: dataProducto.deposito,
+          depositosId: dataProducto.depositosId,
           alertaStock: dataProducto.alertaStock,
-          localizacion: dataProducto.localizacion,
+          ubicacionesId: dataProducto.ubicacionesId,
         })
         .where(eq(stockActual.productoId, query));
 

@@ -12,7 +12,7 @@ const Icon = item.icon;
     item.status === 'coming-soon' ? 'opacity-75' : ''
   }`}
 >
-  <div class="flex flex-col gap-y-2 items-start w-full justify-between">
+  <div class="flex flex-col gap-y2 items-start w-full justify-between">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class={`p-2 rounded-lg ${item.color} text-white`}>
@@ -37,7 +37,8 @@ const Icon = item.icon;
         {item.count}
         {item.count === 1 ? 'elemento' : 'elementos'}
       </div>
-      <Button3 disabled={item.status === 'coming-soon'}>
+      <Button3
+      disabled={item.status === 'coming-soon'}>
         <a href={`/dashboard/ajustes/stock/${item.id}`}>
           {item.status === 'coming-soon' ? 'Próximamente' : 'Gestionar'}
         </a>

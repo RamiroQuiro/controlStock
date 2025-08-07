@@ -3,12 +3,13 @@ import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import ContenedorFormulario from "./ContenedorFormulario.astro";
 import FormularioCambiarPassword from "../components/FormularioCambiarPassword";
+import { User2 } from "lucide-react";
 
 const {user}=Astro.locals
 
 ---
 
-<MainDashboard h1="Perfil de Usuario">
+<MainDashboard h1="Perfil de Usuario" subtitle="Administra tu información personal y preferencias de cuenta." icon={User2}>
   <div class="flex w-full md:flex-row flex-col  items-stretch gap-2 justify-between">
 
     <DivBox1 styleDiv="md:w-2/3 w-full">

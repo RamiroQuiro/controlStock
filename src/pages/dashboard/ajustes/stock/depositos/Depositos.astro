@@ -1,0 +1,170 @@
+---
+import { eq, and, count, sum } from "drizzle-orm";
+import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
+import Modal from "../../../../../components/moleculas/Modal.astro";
+import db from "../../../../../db";
+import { depositos, ubicaciones, stockActual } from "../../../../../db/schema";
+import FormularioNuevoDeposito from "../../components/FormularioNuevoDeposito.tsx";
+import DepositoCard from "../../components/DepositoCard.astro";
+import Button1 from "../../../../../components/atomos/Button1.astro";
+import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
+
+// Definimos la interfaz para los datos enriquecidos del depósito
+interface EnrichedDepot {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  direccion: string;
+  telefono: string;
+  email: string;
+  encargado: string;
+  activo: boolean;
+  fechaCreacion: string;
+  capacidadTotal: number;
+  totalLocations: number;
+  activeLocations: number;
+  ubicaciones: number;
+  currentStock: number;
+}
+
+let enrichedDepositos: EnrichedDepot[] = [];
+const { user } = Astro.locals;
+
+try {
+  if (user?.empresaId) {
+    const allDepositos = await db.select().from(depositos).where(eq(depositos.empresaId, user.empresaId));
+
+    enrichedDepositos = await Promise.all(
+      allDepositos.map(async (depot) => {
+      const locationsData=await db.select({total:count()}).from(ubicaciones).where(eq(ubicaciones.empresaId, user.empresaId));
+      const ubicacionesDB=await db.select({total:count()}).from(ubicaciones).where(and(eq(ubicaciones.empresaId, user.empresaId),eq(ubicaciones.depositoId, depot.id)));
+      const stockData=await db.select({total:sum(stockActual.cantidad)}).from(stockActual).where(and(eq(stockActual.empresaId, user.empresaId),eq(stockActual.depositosId, depot.id)));
+      console.log('locationsData ->',locationsData)
+      console.log('ubicacionesDB ->',ubicacionesDB)
+      console.log('stockData ->',stockData)
+        return {
+          ...depot,
+          totalLocations: locationsData[0]?.total || 0,
+          activeLocations: ubicacionesDB[0]?.total || 0,
+          ubicaciones: ubicacionesDB[0]?.total || 0,
+          currentStock: parseInt(stockData[0]?.total, 10) || 0,
+        };
+      })
+    );
+  }
+} catch (error) {
+  console.error("Error al obtener la información de depósitos:", error);
+}
+console.log('enrichedDepositos ->',enrichedDepositos)
+const totalDepositos = enrichedDepositos.length;
+const depositosActivos = enrichedDepositos.filter(d => d.activo).length;
+const totalStockGeneral = enrichedDepositos.reduce((acc, d) => acc + d.currentStock, 0);
+const promedioUbicaciones = totalDepositos > 0 ? (enrichedDepositos.reduce((acc, d) => acc + d.totalLocations, 0) / totalDepositos).toFixed(1) : 0;
+---
+
+<MainDashboard h1="Gestión de Depósitos" subtitle="Administra tus depósitos, su capacidad y ubicaciones.">
+  <div slot={'menu'} class="flex items-center justify-end pb-2 gap-2 pr-6 w-full">
+    <Modal label="Crear" id="crearCliente">
+      <FormularioNuevoDeposito client:load />
+    </Modal>
+      <Button1 id="btnExportarPDF">Exportar PDF</Button1>
+    </div>
+  </div>
+
+
+  <div class="grid grid-cols-1 w-full my-5 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <DivBox1><div class="text-2xl font-bold text-blue-600">{totalDepositos}</div><div class="text-sm font-semibold text-gray-600">Total Depósitos</div></DivBox1>
+      <DivBox1><div class="text-2xl font-bold text-green-600">{depositosActivos}</div><div class="text-sm font-semibold text-gray-600">Depósitos Activos</div></DivBox1>
+      <DivBox1><div class="text-2xl font-bold text-neutral-600">{totalStockGeneral}</div><div class="text-sm font-semibold text-gray-600">Unidades Totales</div></DivBox1>
+      <DivBox1><div class="text-2xl font-bold text-purple-600">{promedioUbicaciones}</div><div class="text-sm font-semibold text-gray-600">Prom. Ubicaciones</div></DivBox1>
+  </div>
+
+  <div id="depositos-grid" class="grid grid-cols-1 w-full lg:grid-cols-2 xl:grid-cols-3 gap-4">
+    {enrichedDepositos.map((depot) => (
+      <DepositoCard 
+        depot={depot} 
+      />
+    ))}
+  </div>
+
+  
+
+  <dialog id="modal-editar-deposito" class="modal">
+    <div class="modal-box w-11/12 max-w-2xl">
+      <FormularioNuevoDeposito id="form-editar" client:visible onSave={() => location.reload()} onCancel={() => document.getElementById('modal-editar-deposito').close()} />
+    </div>
+  </dialog>
+
+</MainDashboard>
+
+<script define:vars={{ enrichedDepositos }}>
+
+  
+  // Estado para manejar el depósito que se está editando
+  let depositoSeleccionado = null;
+
+  // Función para abrir el modal de edición
+  const handleEdit = (depot) => {
+    const form = document.querySelector('#form-editar');
+    form.dispatchEvent(new CustomEvent('setDepot', { detail: depot }));
+    document.getElementById('modal-editar-deposito').showModal();
+  };
+
+  // Función para cambiar el estado de activación
+  const handleToggleStatus = async (id) => {
+    const depot = enrichedDepositos.find(d => d.id === id);
+    if (!confirm(`¿Estás seguro de que quieres ${depot.activo ? 'desactivar' : 'activar'} este depósito?`)) return;
+
+    const response = await fetch('/api/depositos', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, activo: !depot.activo }),
+    });
+
+    if (response.ok) {
+      location.reload(); // Recargamos para ver los cambios
+    } else {
+      alert('Error al cambiar el estado del depósito.');
+    }
+  };
+
+  // Función para eliminar un depósito
+  const handleDelete = async (depot) => {
+    if (!confirm(`¿Estás seguro de eliminar el depósito "${depot.nombre}"? Esta acción es permanente.`)) return;
+
+    const response = await fetch(`/api/depositos?id=${depot.id}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      location.reload();
+    } else {
+      const data = await response.json();
+      alert(data.msg || 'Error al eliminar el depósito.');
+    }
+  };
+
+  // Añadimos los listeners a los botones de las tarjetas
+  document.getElementById('depositos-grid').addEventListener('click', (e) => {
+    const button = e.target.closest('button[data-action]');
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.action;
+    const depot = enrichedDepositos.find(d => d.id === id);
+
+    if (action === 'edit') handleEdit(depot);
+    if (action === 'toggle') handleToggleStatus(id);
+    if (action === 'delete') handleDelete(depot);
+  });
+
+  // Escuchamos el evento para setear datos en el formulario de edición
+  const formEditar = document.querySelector('#form-editar');
+  formEditar.addEventListener('setDepot', (e) => {
+      const formEditarComponent = document.querySelector('#form-editar');
+      if(formEditarComponent){
+          formEditarComponent.dispatchEvent(new CustomEvent('setDepot', { detail: e.detail }));
+      }
+  });
+
+</script>

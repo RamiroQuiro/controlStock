@@ -33,6 +33,7 @@ export const users = sqliteTable(
     fechaAlta: integer('created_at', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
+    updated_at: integer('updated_at', { mode: 'timestamp' }).$onUpdate(() => new Date()),
     activo: integer('activo').default(1), // Account active status (1 = active, 0 = inactive)
     emailVerificado: integer('emailVerificado', { mode: 'boolean' }).default(
       false

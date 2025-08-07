@@ -15,9 +15,10 @@ function obtenerMovimientosOrdenados(stockMovimientos) {
 }
 
 const calcularMargenGanancia = (productData:Producto) => {
-  const pCompra=productData.pCompra || 0;
-  const pVenta=productData.pVenta || 0;
-  const impuesto=productData.impuesto || "no aplica";
+  console.log('producto data de detalleProducto',productData)
+  const pCompra=productData?.pCompra || 0;
+  const pVenta=productData?.pVenta || 0;
+  const impuesto=productData?.impuesto || "no aplica";
 
   const ivaDecimal = impuesto === "no aplica" ? 0 : parseFloat(impuesto) / 100;
   const costoConIVA = pCompra * (1 + ivaDecimal);

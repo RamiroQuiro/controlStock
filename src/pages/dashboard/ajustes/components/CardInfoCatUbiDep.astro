@@ -2,64 +2,80 @@
 import { Tag, Edit, Trash2, CircleX } from 'lucide-react';
 import Button4 from '../../../../components/atomos/Button4.astro';
 import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import FormularioNuevaCategoria from './FormularioNuevaCat';
+import formatDate from '../../../../utils/formatDate';
 
-interface Category {
+interface Item {
   id: string;
-  name: string;
-  description: string;
-  color: string;
-  productCount: number;
-  isActive: boolean;
-  createdAt: string;
+  nombre: string;
+  descripcion: string;
+  color?: string;
+  activo: boolean;
+  creadoPor: string;
+  created_at: string;
+  cantidadProductos: number;
 }
 
-const { category } = Astro.props;
+const { item, type } = Astro.props as {
+  item: Item;
+  type: 'categoria' | 'ubicacion' | 'deposito';
+};
+
+const formProps = {
+  [type]: item,
+};
 ---
 
 <DivBox1
   styleDiv={`hover:shadow-lg duration-300 transition-all gap-4 cursor-pointer ${
-    category.isActive === false ? 'opacity-75' : ''
+    item.activo ? '' : 'opacity-75'
   }`}
 >
   <div class="flex p-4 flex-col w-full gap-4">
     <div class="flex flex-col gap-y-2 items-start w-full justify-between">
       <div class="flex items-center w-full justify-between">
         <div class="flex items-center gap-x-2 w-full">
-          <div class={`p-2 rounded-lg ${category.color} text-white`}>
-            <Tag className="w-4 h-4 group-hover:scale-110  duration-300 " />
-          </div>
+          {
+            type === 'categoria' && (
+              <div
+                class={`p-2 rounded-lg ${item.color || 'bg-blue-500'} text-white`}
+              >
+                <Tag className="w-4 h-4 group-hover:scale-110 duration-300" />
+              </div>
+            )
+          }
           <div>
-            <h3 class="text-lg text-primary-textoTitle font-medium">
-              {category.name}
+            <h3 class="text-lg text-primary-textoTitle capitalize font-medium">
+              {item.nombre}
             </h3>
           </div>
         </div>
         <span
-          class={`text-xs lowercase px-2 rounded-lg py-1 text-primary-textoTitle font-semibold ${category.isActive ? 'bg-green-500/50' : 'bg-red-500'}`}
+          class={`text-xs lowercase px-2 rounded-lg py-1 text-primary-textoTitle font-semibold ${item.activo ? 'bg-green-500/50' : 'bg-red-600/40'}`}
         >
-          {category.isActive ? 'activo' : 'inactivo'}
+          {item.activo ? 'activo' : 'inactivo'}
         </span>
       </div>
     </div>
     <div class="flex flex-col gap-2 items-start w-full justify-between">
-      <span class="text-sm mb-4">{category.description}</span>
+      <span class="text-sm mb-4">{item.descripcion}</span>
 
       <div class="flex items-center w-full justify-between">
         <div class="text-lg font-semibold text-gray-700">
-          {category.productCount}
-          {category.productCount === 1 ? 'producto' : 'productos'}
+          {item.cantidadProductos}
+          {item.cantidadProductos === 1 ? 'producto' : 'productos'}
         </div>
         <span class="text-sm text-gray-500">
-          Creada: {category.createdAt}
+          Creada: {formatDate(item.created_at)}
         </span>
       </div>
     </div>
     <div class="flex space-x-2">
-      <Button4 id={`editarCategoria-${category.id}`}>
+      <Button4 id={`editar-${type}-${item.id}`}>
         <Edit className="h-4 w-4" />
       </Button4>
       <Button4>
-        {category.isActive ? 'Desactivar' : 'Activar'}
+        {item.activo ? 'Desactivar' : 'Activar'}
       </Button4>
       <Button4>
         <Trash2 className="h-4 w-4 text-red-600" />
@@ -67,28 +83,24 @@ const { category } = Astro.props;
     </div>
   </div>
   <dialog
-    id={`dialog-editarCategoria-${category.id}`}
-    class="modal print:hidden relative duration-300 open:fixed open:flex flex-col w-full md:min-w-[50vw] md:open:max-w-[60vw] open:min-h-[70vh] rounded-lg border-l-2 border-primary-100 backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm"
+    id={`dialog-editar-${type}-${item.id}`}
+    class="modal print:hidden relative duration-300 open:fixed open:flex flex-col rounded-lg border-l-2 border-primary-100 backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm"
   >
     <form method="dialog">
       <button
-        id="cerrarModal"
+        id={`cerrarModal-editar-${type}-${item.id}`}
         class="absolute top-2 right-2 cursor-pointer text-primary-texto active:-scale-95 duration-200 hover:text-primary-100"
       >
         <CircleX />
       </button>
     </form>
-    {category.name}
+    <FormularioNuevaCategoria category={item} client:load />
   </dialog>
 </DivBox1>
-<script define:vars={{ category }}>
-  const btnEditarCategoria = document.getElementById(
-    `editarCategoria-${category.id}`
-  );
-  btnEditarCategoria?.addEventListener('click', () => {
-    const dialog = document.getElementById(
-      `dialog-editarCategoria-${category.id}`
-    );
+<script define:vars={{ item, type }}>
+  const btnEditar = document.getElementById(`editar-${type}-${item.id}`);
+  btnEditar?.addEventListener('click', () => {
+    const dialog = document.getElementById(`dialog-editar-${type}-${item.id}`);
     dialog.showModal();
   });
 </script>

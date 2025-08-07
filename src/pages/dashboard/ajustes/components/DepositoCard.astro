@@ -1,0 +1,190 @@
+---
+import { Badge, Building2, CircleX, Edit, Trash2 } from "lucide-react";
+import FormularioNuevoDeposito from "./FormularioNuevoDeposito";
+import Button4 from "../../../../components/atomos/Button4.astro";
+import ConfirmDialog from "../../../../components/atomos/ConfirmDialog.astro";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+
+interface Depot {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  direccion: string;
+  telefono: string;
+  email: string;
+  encargado: string;
+  activo: boolean;
+  ubicaciones: number;
+  fechaCreacion: string;
+  capacidadTotal: number;
+  totalLocations: number;
+  activeLocations: number;
+  currentStock: number;
+}
+
+interface Props {
+  depot: Depot;
+}
+
+const { depot } = Astro.props;
+const occupancyPercentage =
+  depot.capacidadTotal > 0
+    ? Math.round((depot.currentStock / depot.capacidadTotal) * 100)
+    : 0;
+
+const getOccupancyBadgeClass = (percentage: number) => {
+  if (percentage >= 90) return "bg-red-100 text-red-800";
+  if (percentage >= 70) return "bg-yellow-100 text-yellow-800";
+  return "bg-green-100 text-green-800";
+};
+
+const getOccupancyBarClass = (percentage: number) => {
+  if (percentage >= 90) return "bg-red-500";
+  if (percentage >= 70) return "bg-yellow-500";
+  return "bg-green-500";
+};
+
+const occupancyBadgeClass = getOccupancyBadgeClass(occupancyPercentage);
+const occupancyBarClass = getOccupancyBarClass(occupancyPercentage);
+---
+
+<DivBox1>
+  <div class="flex items-center justify-between w-full">
+    <div class="flex items-center space-x-3">
+      <div class="p-2 rounded-lg bg-blue-500 text-white">
+        <Building2 className="h-5 w-5" />
+      </div>
+      <div>
+        <h2 class="text-xl text-primary-textoTitle font-semibold">{depot.nombre}</h2>
+        <p class="text-sm text-gray-500">{depot.direccion}</p>
+      </div>
+    </div>
+    <Badge className={depot.activo ? "secondary" : "outline"}>
+      {depot.activo ? "Activo" : "Inactivo"}
+    </Badge>
+  </div>
+  <div class="flex-grow flex flex-col w-full mt-4">
+    <p class="text-sm text-gray-600 mb-4">{depot.descripcion}</p>
+    <!-- Contact Info -->
+    <div class="space-y-2 mb-4 text-sm">
+      <p>
+        <strong>Tel:</strong> {depot.telefono || "N/A"}
+      </p>
+      <p>
+        <strong>Email:</strong> {depot.email || "N/A"}
+      </p>
+      <p>
+        <strong>Encargado:</strong> {depot.encargado || "N/A"}
+      </p>
+    </div>
+    <!-- Metrics -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="bg-gray-50 rounded-lg p-3">
+        <div class="text-lg font-bold text-blue-600">
+          {depot.ubicaciones}
+        </div>
+        <div class="text-xs text-gray-600">Ubicaciones</div>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3">
+        <div class="text-lg font-bold text-purple-600">
+          {depot.capacidadTotal || 0}
+        </div>
+        <div class="text-xs text-gray-600">Capacidad</div>
+      </div>
+    </div>
+    <!-- Occupancy Bar -->
+    {
+      depot.capacidadTotal > 0 && (
+        <div class="mb-4">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm font-medium">
+              Ocupación ({depot.currentStock} un.)
+            </span>
+            <Badge className={occupancyBadgeClass}>
+              {occupancyPercentage}%
+            </Badge>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div
+              class:list={["h-2 rounded-full", occupancyBarClass]}
+              style={`width: ${Math.min(occupancyPercentage, 100)}%`}
+            />
+          </div>
+        </div>
+      )
+    }
+    <div class="flex space-x-2">
+      <Button4 id={`editar-${depot.id}`}>
+        <Edit className="h-4 w-4" />
+      </Button4>
+      <Button4>
+        {depot.activo ? 'Desactivar' : 'Activar'}
+      </Button4>
+      <Button4 id={`delete-${depot.id}`}>
+        <Trash2 className="h-4 w-4 text-red-600" />
+      </Button4>
+    </div>
+  </div>
+  <dialog
+    id={`dialog-editar-${depot.id}`}
+    class="modal print:hidden relative duration-300 open:fixed open:flex flex-col  rounded-lg border-l-2 border-primary-100 backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm"
+  >
+    <form method="dialog">
+      <button
+        id={`cerrarModal-editar-${depot.id}`}
+        class="absolute top-2 right-2 cursor-pointer text-primary-texto active:-scale-95 duration-200 hover:text-primary-100"
+      >
+        <CircleX />
+      </button>
+    </form>
+    <FormularioNuevoDeposito deposito={depot}  client:load/>
+  
+  </dialog>
+  <ConfirmDialog 
+    dialogId={`confirm-delete-${depot.id}`}
+    title="Confirmar Eliminación"
+    message={`¿Estás seguro de que quieres eliminar el depósito "${depot.nombre}"? Esta acción no se puede deshacer. Nota: El depósito debe estar vacío para ser eliminado.`}
+  />
+</DivBox1>
+<script define:vars={{ depot }}>
+  const btnEditar = document.getElementById(`editar-${depot.id}`);
+  const dialogEditar = document.getElementById(`dialog-editar-${depot.id}`);
+  
+  btnEditar?.addEventListener('click', () => {
+    dialogEditar?.showModal();
+  });
+
+  const btnEliminar = document.getElementById(`delete-${depot.id}`);
+  const confirmDialog = document.getElementById(`confirm-delete-${depot.id}`);
+  const confirmDeleteButton = document.getElementById(`confirm-confirm-delete-${depot.id}`);
+
+  btnEliminar?.addEventListener('click', () => {
+    confirmDialog?.showModal();
+  });
+
+  confirmDeleteButton?.addEventListener('click', async () => {
+    try {
+      const response = await fetch(`/api/depositos?id=${depot.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Usar un evento custom para notificar a la página que debe refrescar o quitar el elemento
+        const event = new CustomEvent('depositoDeleted', { detail: { id: depot.id } });
+        window.dispatchEvent(event);
+        // Opcional: recargar la página si no quieres manejar eventos
+        window.location.reload();
+      } else {
+        alert(`Error: ${data.message}`); // Reemplazar con un sistema de notificaciones más elegante si lo tienes
+      }
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      alert('No se pudo conectar con el servidor.');
+    } finally {
+      confirmDialog?.close();
+    }
+  });
+</script>
+

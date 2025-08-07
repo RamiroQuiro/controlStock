@@ -17,7 +17,8 @@ export const categorias = sqliteTable(
     created_at: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
-    activo: integer('activo').default(1),
+    activo: integer('activo', { mode: 'boolean' }).default(true),
+    color: text('color').default('bg-blue-500'),
   },
   (t) => [
     unique().on(t.nombre, t.empresaId), // una categoria por nombre y empresa

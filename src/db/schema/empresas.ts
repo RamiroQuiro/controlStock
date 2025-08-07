@@ -14,11 +14,15 @@ export const empresas = sqliteTable(
     nameStyles: text('nameStyles'),
     direccion: text('direccion'),
     email: text('email'),
+    colorAsset:text('colorAsset'),
+    colorSecundario:text('colorSecundario'),
     userId: text('userId').notNull(), //id del usuario dueño de la empresa
     creadoPor: text('creadoPor'), //ide del user de la empresa
     created_at: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
+    updated_at: integer('updated_at', { mode: 'timestamp' }).$onUpdate(() => new Date()),
+    updated_by: text('updated_by'), // Guardará el ID del usuario que actualiza
     activo: integer('activo').default(1),
     emailVerificado: integer('emailVerificado', { mode: 'boolean' }).default(
       false

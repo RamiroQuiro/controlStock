@@ -13,10 +13,7 @@ export const stockActual = sqliteTable('stockActual', {
     .notNull()
     .references(() => productos.id), // Relación con productos
   cantidad: integer('cantidad').notNull().default(0), // Cantidad actual en stock
-
   alertaStock: integer('alertaStock').notNull().default(5), // Mínimo antes de alertar
-  localizacion: text('localizacion'), // Ubicación en el almacén
-  deposito: text('deposito').default('deposito 1'),
   ubicacionesId: text('ubicacionesId').references(() => ubicaciones.id),
   depositosId: text('depositosId').references(() => depositos.id),
   localizacionesId: text('localizacionesId').references(

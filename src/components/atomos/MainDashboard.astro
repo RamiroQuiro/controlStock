@@ -1,6 +1,7 @@
 ---
-const { title, h1 } = Astro.props;
+const { title, h1, subtitle, icon } = Astro.props;
 
+const Icon = icon;
 const { user } = Astro.locals;
 // console.log('mainDahs->',user)
 ---
@@ -11,10 +12,13 @@ const { user } = Astro.locals;
   data-emprsisi={user?.empresaId}
   class="top-12 md:right-0 z-0 w-full mt-5 md:16 print:hidden flex flex-col items-center justify-center"
 >
-  <div class="w-full flex items-center justify-start sha gap-4">
+  <div class="w-full flex items-center justify-start sha gap-">
     {
       h1 && (
-        <div class="md:w-1/3 w-full gap-3 mb-3 md:ml-6 ml-2 justify-normal flex items-center ">
+        <div class="md:w-fit w-full gap-2 mb-2 md:ml-6 ml-2 justify-normal flex items-center ">
+          {icon && (
+            <Icon className="w-6 text-primary-100  stroke-primary-100" />
+          )}
           {/* <ArrowLeftCircle/> */}
           <h1 class="text-xl  font-semibold text-primary-textoTitle  capitalize">
             {h1}
@@ -23,6 +27,11 @@ const { user } = Astro.locals;
       )
     }
     <slot name="menu" />
+  </div>
+  <div class="flex flex-col gap-y-2 items-start md:ml-14 mb-2 ml-2 w-full justify-between">
+    <p class="text-sm text-gray-600">
+      {subtitle}
+    </p>
   </div>
   <div
     class="w-full py flex flex-col md:px-6 px-2 gap-2 overflow-y-auto items-center justify- rounded-lg h-[85vh] pb-20 md:pb-10"

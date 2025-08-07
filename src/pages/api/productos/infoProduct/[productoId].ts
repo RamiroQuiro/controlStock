@@ -1,25 +1,27 @@
-import type { APIRoute } from 'astro';
-import db from '../../../../db';
+import type { APIRoute } from "astro";
+import db from "../../../../db";
 import {
   categorias,
   clientes,
+  depositos,
   movimientosStock,
   productos,
   proveedores,
   stockActual,
-} from '../../../../db/schema';
-import { desc, eq, sql } from 'drizzle-orm';
-import { productoCategorias } from '../../../../db/schema/productoCategorias';
+  ubicaciones,
+} from "../../../../db/schema";
+import { desc, eq, sql } from "drizzle-orm";
+import { productoCategorias } from "../../../../db/schema/productoCategorias";
 
 export const GET: APIRoute = async ({ params }) => {
   const { productoId } = params;
 
   if (!productoId) {
     return new Response(
-      JSON.stringify({ error: 'ID del producto no proporcionado' }),
+      JSON.stringify({ error: "ID del producto no proporcionado" }),
       {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
@@ -54,8 +56,9 @@ export const GET: APIRoute = async ({ params }) => {
           modelo: productos.modelo,
           alertaStock: stockActual.alertaStock,
           cantidadReservada: stockActual.reservado,
-          localizacion: stockActual.localizacion,
-          deposito: stockActual.deposito,
+          localizacionesId: stockActual.localizacionesId,
+          ubicacionesId: stockActual.ubicacionesId,
+          depositosId: stockActual.depositosId,
         })
         .from(productos)
         .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
@@ -91,6 +94,24 @@ export const GET: APIRoute = async ({ params }) => {
       .innerJoin(categorias, eq(productoCategorias.categoriaId, categorias.id))
       .where(eq(productoCategorias.productoId, productoId));
 
+    const depositosDB = await db
+      .select({
+        id: depositos.id,
+        nombre: depositos.nombre,
+
+      })
+      .from(depositos)
+      .where(eq(depositos.empresaId, productDataRaw[0]?.empresaId));
+
+    const ubicacionesDB = await db
+      .select({
+        id: ubicaciones.id,
+        nombre: ubicaciones.nombre,
+        depositoId:ubicaciones.depositoId
+      })
+      .from(ubicaciones)
+      .where(eq(ubicaciones.empresaId, productDataRaw[0]?.empresaId));
+
     const productData = productDataRaw?.[0] ?? null;
     const stockMovimiento = stockMovimientoRaw.map((mov) => ({
       id: mov.id,
@@ -98,12 +119,12 @@ export const GET: APIRoute = async ({ params }) => {
       cantidad: mov.cantidad,
       motivo: mov.motivo,
       fecha: mov.fecha,
-      nombreResponsable: mov.proveedorNombre || mov.clienteNombre || 'Sistema',
+      nombreResponsable: mov.proveedorNombre || mov.clienteNombre || "Sistema",
       tipoResponsable: mov.proveedorNombre
-        ? 'Proveedor'
+        ? "Proveedor"
         : mov.clienteNombre
-          ? 'Cliente'
-          : 'Sistema',
+          ? "Cliente"
+          : "Sistema",
     }));
 
     return new Response(
@@ -115,23 +136,25 @@ export const GET: APIRoute = async ({ params }) => {
             categorias: categoriasDelProducto,
           },
           stockMovimiento,
+          depositosDB,
+          ubicacionesDB,
         },
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   } catch (error) {
-    console.error('Error al obtener los datos del producto:', error);
+    console.error("Error al obtener los datos del producto:", error);
     return new Response(
       JSON.stringify({
         status: 400,
-        msg: 'Error al buscar los datos del producto',
+        msg: "Error al buscar los datos del producto",
       }),
       {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }

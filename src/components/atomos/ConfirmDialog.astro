@@ -1,0 +1,22 @@
+---
+interface Props {
+  dialogId: string;
+  title: string;
+  message: string;
+}
+
+const { dialogId, title, message } = Astro.props;
+---
+
+<dialog id={dialogId} class="modal print:hidden relative duration-300 open:fixed open:flex flex-col w-full max-w-md rounded-lg border-l-2 border-red-500 backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm">
+  <div class="modal-box p-6 bg-white">
+    <h3 class="font-bold text-lg text-red-700">{title}</h3>
+    <p class="py-4">{message}</p>
+    <div class="modal-action flex justify-end space-x-3">
+      <button id={`confirm-${dialogId}`} class="btn bg-red-600 text-white px-2 py-1 rounded-md hover:bg-red-700">Confirmar</button>
+      <form method="dialog">
+        <button class="btn px-2 py-1 rounded-md border border-red-600 text-red-600 hover:bg-red-600 hover:text-white">Cancelar</button>
+      </form>
+    </div>
+  </div>
+</dialog>

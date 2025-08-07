@@ -12,18 +12,31 @@ import { loader } from '../../utils/loader/showLoader';
 
 export default function PerfilProducto({ onClose }) {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
+  const [depositosDB, setDepositosDB] = useState([]);
+  const [ubicacionesDB, setUbicacionesDB] = useState([]);
   const [disableEdit, setDisableEdit] = useState(true);
   const { data, loading } = useStore(perfilProducto);
   // Inicializar formulario con un objeto vacío para evitar errores
   const [formulario, setFormulario] = useState({});
-
   // Actualizar el formulario cuando data.productData cambie o cuando loading pase a false
   useEffect(() => {
     if (data?.productData) {
       setFormulario(data.productData);
+      setDepositosDB(data.depositosDB);
     }
   }, [data?.productData]);
-
+  
+  // Nuevo useEffect SOLO para filtrar ubicaciones según el depósito seleccionado
+  useEffect(() => {
+    if (data?.ubicacionesDB && formulario?.depositosId) {
+      setUbicacionesDB(
+        data.ubicacionesDB.filter(
+          (ubicacion) => ubicacion.depositoId === formulario.depositosId
+        )
+      );
+    }
+  }, [data?.ubicacionesDB, formulario?.depositosId]);
+console.log('este es el formulario, vamo aver si va cmabiando',formulario)
   const confirmarConModal = () => {
     setModalConfirmacion(true);
   };
@@ -152,6 +165,8 @@ export default function PerfilProducto({ onClose }) {
           handleChangeForm={handleChangeForm}
           disableEdit={disableEdit}
           formulario={formulario}
+          depositosDB={depositosDB}
+          ubicacionesDB={ubicacionesDB}
         />
         {/* info stats */}
         <StatsInfoDetalleProducto

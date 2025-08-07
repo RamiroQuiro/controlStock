@@ -8,7 +8,7 @@ import ProveedorSelect from "./ProveedorSelect";
 import { showToast } from "../../../../utils/toast/toastShow";
 import { useStore } from "@nanostores/react";
 import { productosSeleccionadosVenta } from "../../../../context/store";
-const FormularioCompra = ({ userId,empresaId }) => {
+const FormularioCompra = ({ user,empresaId }) => {
   const [totalVenta, setTotalVenta] = useState(0);
   const [error, setError] = useState({ msg: "", status: 0 });
   const $productos = useStore(productosSeleccionadosVenta);
@@ -21,7 +21,7 @@ const FormularioCompra = ({ userId,empresaId }) => {
     nombre: "",
     dni: "00000000",
     celular: "0000000000",
-    id: "1",
+    id:user.proveedorDefault,
   });
   const [formulario, setFormulario] = useState({
     proveedorId: proveedor.id,
@@ -71,12 +71,12 @@ const FormularioCompra = ({ userId,empresaId }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId,
+          "x-user-id": user.id,
         },
         body: JSON.stringify({
           data: formulario,
           productos: $productos,
-          userId: "1",
+          userId: user.id,
         }),
       });
       const data = await response.json();
@@ -95,7 +95,6 @@ const FormularioCompra = ({ userId,empresaId }) => {
 
   return (
     <form className="text-primary-texto gap-4 p-4 flex flex-col ">
-      <h2 className="text-xl font-semibold">Registro de Compra</h2>
       {/* Sección proveedor */}
       <div className="flex w-full items-start justify-normal  flex-col">
         <h3 className="text-lg ">Proveedor</h3>

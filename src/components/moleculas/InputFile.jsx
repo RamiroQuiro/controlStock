@@ -21,7 +21,7 @@ export default function InputFile({ name }) {
 
   return (
     <div>
-      <div className=" h-[300px] w-[300px] flex mx-auto items-center justify-center overflow-hidden rounded-lg shadow ">
+      <div className=" h-[250px] w-[250px] flex mx-auto items-center justify-center overflow-hidden rounded-lg shadow ">
         {previewUrlFrente ? (
           <div className="relative w-full h-full group">
             <label

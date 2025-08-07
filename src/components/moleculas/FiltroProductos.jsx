@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { busqueda, filtroBusqueda } from "../../context/store";
 import { CheckCircle, CheckCircle2, LoaderCircle, Search } from "lucide-react";
 import { cache } from "../../utils/cache";
+import { formateoMoneda } from "../../utils/formateoMoneda";
 
-export default function FiltroProductos({ mostrarProductos, userId,empresaId }) {
+export default function FiltroProductos({ mostrarProductos, userId, empresaId }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(null);
   const [encontrados, setEncontrados] = useState(0);
-  const [agregarAutomatico, setAgregarAutomatico] = useState(false);
+  const [agregarAutomatico, setAgregarAutomatico] = useState(true);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   const handleSearch = (e) => {
     setSearch(e.target.value.toLowerCase());
 
@@ -108,6 +117,7 @@ export default function FiltroProductos({ mostrarProductos, userId,empresaId }) 
         <div className="relative">
           <input
             type="checkbox"
+
             id="agregarAutomatico"
             checked={agregarAutomatico}
             onChange={(e) => setAgregarAutomatico(e.target.checked)}
@@ -129,6 +139,7 @@ export default function FiltroProductos({ mostrarProductos, userId,empresaId }) 
 
       {/* Input de búsqueda */}
       <input
+        ref={inputRef}
         onChange={handleSearch}
         id="busquedaProducto"
         placeholder="Ingrese código de barra, descripción, etc."
@@ -187,7 +198,7 @@ export default function FiltroProductos({ mostrarProductos, userId,empresaId }) 
                     }`}>
                       {producto.stock}
                     </td>
-                    <td className="px-3 py-2 border-b">${producto.pVenta}</td>
+                    <td className="px-3 py-2 border-b">{formateoMoneda.format(producto.pVenta)}</td>
                   </tr>
                 ))}
               </tbody>

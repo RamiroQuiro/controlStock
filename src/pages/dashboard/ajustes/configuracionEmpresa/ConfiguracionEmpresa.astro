@@ -1,17 +1,15 @@
 ---
-import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import { Building2 } from 'lucide-react';
 import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
-import FormularioConfiguracionSistema from '../components/FormularioConfiguracionSistema';
+import FormularioEmpresa from './components/FormularioEmpresa.jsx';
+import DivBox1 from '../../../../components/atomos/DivBox1.astro';
 
 const { user } = Astro.locals;
 ---
 
-<MainDashboard h1="Perfil de Usuario">
-  <div
-    class="flex w-full md:flex-row flex-col items-stretch gap-2 justify-between"
-  >
-    <DivBox1 styleDiv="w-full">
-      <FormularioConfiguracionSistema client:load user={user} />
-    </DivBox1>
-  </div>
+<MainDashboard h1="Configuración de la Empresa" subtitle="Actualiza los datos y el logo de tu empresa." icon={Building2}>
+  <DivBox1 styleDiv="w-fit">
+    <FormularioEmpresa client:load user={user} />
+  </DivBox1>
 </MainDashboard>
+

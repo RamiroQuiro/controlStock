@@ -75,3 +75,15 @@ const url = Astro.url;
     -moz-appearance: textfield;
   }
 </style>
+<script>
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'F10') {
+      event.preventDefault();
+      // Compara solo la ruta, no el dominio
+      if (window.location.pathname === '/dashboard/ventas') {
+        return;
+      }
+      window.location.href = '/dashboard/ventas';
+    }
+  });
+</script>

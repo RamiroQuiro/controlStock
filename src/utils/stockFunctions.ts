@@ -24,6 +24,7 @@ export const trayendoProductos = async (
   const cachedData = await cache.get(cacheKey);
   if (cachedData) return cachedData;
 
+  console.log('datos de ingresos ->',empresaId,page,limit,'offset',offset,'cacheKey',cacheKey)
   // Parallel query execution
   const [
     listaProductos,
@@ -51,7 +52,9 @@ export const trayendoProductos = async (
         reservado: productos.reservado,
         reservadoOffLine: productos.reservadoOffLine,
         reservadoOnline: productos.reservadoOnline,
-        localizacion: stockActual.localizacion,
+        localizacion: stockActual.localizacionesId,
+        ubicaciones: stockActual.ubicacionesId,
+        depositos: stockActual.depositosId,
         alertaStock: stockActual.alertaStock,
         ultimaActualizacion: productos.ultimaActualizacion,
         ventas: sql<number>`sum(${detalleVentas.cantidad})`.as("ventas"),
@@ -133,8 +136,8 @@ export const trayendoProductos = async (
     db
       .select({
         categorias: productos.categoria,
-        ubicaciones: stockActual.localizacion,
-        depositos: stockActual.deposito,
+        ubicaciones: stockActual.ubicacionesId  ,
+        depositos: stockActual.depositosId,
       })
       .from(productos)
       .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
@@ -143,12 +146,13 @@ export const trayendoProductos = async (
     db.select().from(ubicaciones).where(eq(ubicaciones.empresaId, empresaId)),
     db.select().from(depositos).where(eq(depositos.empresaId, empresaId)),
   ]);
+  console.log('ubicaciones y depositos ->', resultado)
 // mapeando solo las categorias traidas desde la base de datos de categorias, falta otras
-console.log("categoriasData", categoriasData);
+console.log("categoriasData", ubicacionesData,depositosData);
   const obtenerFiltros = {
     categorias: Array.from(new Set(categoriasData.map((r) => ({nombre:r.nombre, id:r.id})))), 
-    ubicaciones: Array.from(new Set(resultado.map((r,i) => ({nombre:r.ubicaciones, id:i})))), 
-    depositos: Array.from(new Set(resultado.map((r,i) => ({nombre:r.depositos, id:i})))), 
+    ubicaciones: Array.from(new Set(ubicacionesData.map((r,i) => ({nombre:r.nombre, id:i})))), 
+    depositos: Array.from(new Set(depositosData.map((r,i) => ({nombre:r.nombre, id:i})))), 
   };
 
   const finalResult = {

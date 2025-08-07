@@ -3,11 +3,12 @@ import { productos,movimientosStock as movimientos } from '../../../db/schema';
 
 import { eq, sql, desc, asc } from 'drizzle-orm';
 import db from '../../../db';
+import { createResponse } from '../../../types';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
     console.log('🔍 Iniciando petición GET a statistStock');
-    
+    const empresaId = request.headers.get('xx-empresa-id');
     const userId = request.headers.get('x-user-id');
     console.log('👤 UserId recibido:', userId);
     
@@ -34,7 +35,7 @@ export const GET: APIRoute = async ({ request }) => {
       })
       .from(productos)
       .leftJoin(movimientos, eq(productos.id, movimientos.productoId))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId,empresaId))
       .groupBy(productos.id);
     
     console.log('✅ ListaProductos obtenida:', listaProductos.length, 'productos');
@@ -43,12 +44,13 @@ export const GET: APIRoute = async ({ request }) => {
     const topMasVendidos = await db
       .select({
         id: productos.id,
+        nombre:productos.nombre,
         descripcion: productos.descripcion,
         totalVendido: sql<number>`sum(case when ${movimientos.tipo} = 'egreso' then ${movimientos.cantidad} else 0 end)`
       })
       .from(productos)
       .leftJoin(movimientos, eq(productos.id, movimientos.productoId))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId,empresaId))
       .groupBy(productos.id)
       .orderBy(desc(sql`totalVendido`))
       .limit(5);
@@ -59,12 +61,13 @@ export const GET: APIRoute = async ({ request }) => {
     const topMenosVendidos = await db
       .select({
         id: productos.id,
+        nombre:productos.nombre,
         descripcion: productos.descripcion,
         totalVendido: sql<number>`sum(case when ${movimientos.tipo} = 'egreso' then ${movimientos.cantidad} else 0 end)`
       })
       .from(productos)
       .leftJoin(movimientos, eq(productos.id, movimientos.productoId))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId,empresaId))
       .groupBy(productos.id)
       .orderBy(asc(sql`totalVendido`))
       .limit(5);
@@ -75,12 +78,13 @@ export const GET: APIRoute = async ({ request }) => {
     const stockMovimiento = await db
       .select({
         id: productos.id,
+        nombre:productos.nombre,
         descripcion: productos.descripcion,
         totalMovimientos: sql<number>`count(${movimientos.id})`
       })
       .from(productos)
       .leftJoin(movimientos, eq(productos.id, movimientos.productoId))
-      .where(eq(productos.userId, userId))
+      .where(eq(productos.empresaId,empresaId))
       .groupBy(productos.id)
       .orderBy(asc(sql`totalMovimientos`))
       .limit(5);
@@ -101,17 +105,9 @@ export const GET: APIRoute = async ({ request }) => {
       totalStockMovimiento: stockMovimiento.length
     });
 
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300'
-      }
-    });
+    return createResponse(200,response,'datos obtenidos exitosamente')
   } catch (error) {
     console.error('❌ Error en statistStock:', error);
-    return new Response(JSON.stringify({ error: 'Error interno del servidor' }), { 
-      status: 500 
-    });
+    return createResponse(500,{error: 'Error interno del servidor'},'Error interno del servidor')
   }
 };

@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Generar HTML usando el servicio
     const comprobanteService = new ComprobanteService();
-    const html = await comprobanteService.generarComprobanteHTML(data);
+    const html = await comprobanteService.generarComprobanteHTML2(data);
     // const html = await comprobanteService.generarTicketHTML(data);
 
     // Cargar HTML

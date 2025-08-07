@@ -39,7 +39,7 @@ export default function StatsDashboard({
 
     return () => clearInterval(timer);
   }, [dataInfo]);
-
+console.log('dataInfo ->',dataInfo)
   return (
     <DivReact className="md:w-1/4 w-1/2 ">
       <h2 className="text-base text-gray-600">{h2}</h2>

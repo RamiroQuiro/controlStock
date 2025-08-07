@@ -78,7 +78,7 @@ const { category } = Astro.props;
         <CircleX />
       </button>
     </form>
-    <slot />
+    {category.name}
   </dialog>
 </DivBox1>
 <script define:vars={{ category }}>

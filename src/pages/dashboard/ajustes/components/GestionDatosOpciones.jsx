@@ -1,10 +1,44 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Button3 from '../../../../components/atomos/Button3';
 
 export default function GestionDatosOpciones() {
   const fileInputRef = useRef(null);
   const [mensaje, setMensaje] = useState('');
   const [loading, setLoading] = useState(false);
+  const [progressMessages, setProgressMessages] = useState([]);
+
+  useEffect(() => {
+    if (loading) {
+      const eventSource = new EventSource('/api/ajustes/restauracion-stream');
+
+      eventSource.addEventListener('restore-progress', (event) => {
+        const data = JSON.parse(event.data);
+        setProgressMessages((prev) => [...prev, data.message]);
+      });
+
+      eventSource.addEventListener('restore-complete', (event) => {
+        const data = JSON.parse(event.data);
+        setMensaje(data.message);
+        setLoading(false);
+        eventSource.close();
+      });
+
+      eventSource.addEventListener('restore-error', (event) => {
+        const data = JSON.parse(event.data);
+        setMensaje(data.message);
+        setLoading(false);
+        eventSource.close();
+      });
+
+      eventSource.onerror = () => {
+        eventSource.close();
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, [loading]);
 
   const handleBackup = () => {
     window.open('/api/ajustes/respaldoDatos', '_blank');
@@ -16,17 +50,16 @@ export default function GestionDatosOpciones() {
     const formData = new FormData();
     formData.append('backup', file);
     setLoading(true);
+    setProgressMessages([]);
+    setMensaje('');
 
     try {
       const res = await fetch('/api/ajustes/restaurarDatos', {
         method: 'POST',
         body: formData,
       });
-      if (res.ok) {
-        setMensaje('¡Backup restaurado correctamente!');
-        setLoading(false);
-      } else {
-        setMensaje('Error al restaurar el backup.');
+      if (!res.ok) {
+        setMensaje('Error al iniciar la restauración.');
         setLoading(false);
       }
     } catch (err) {
@@ -84,19 +117,26 @@ export default function GestionDatosOpciones() {
         </label>
       </div>
       {loading && (
-        <div className="flex items-center gap-2 animate-pulse text-primary-100 font-semibold mt-2">
-          <span
-            style={{
-              border: '3px solid #f3f3f3',
-              borderTop: '3px solid #3498db',
-              borderRadius: '50%',
-              width: '18px',
-              height: '18px',
-              animation: 'spin 1s linear infinite',
-            }}
-            className="loader"
-          ></span>
-          <span>Restaurando datos...</span>
+        <div className="flex flex-col gap-2 animate-pulse text-primary-100 font-semibold mt-2">
+          <div className="flex items-center gap-2">
+            <span
+              style={{
+                border: '3px solid #f3f3f3',
+                borderTop: '3px solid #3498db',
+                borderRadius: '50%',
+                width: '18px',
+                height: '18px',
+                animation: 'spin 1s linear infinite',
+              }}
+              className="loader"
+            ></span>
+            <span>Restaurando datos...</span>
+          </div>
+          <div className="flex flex-col gap-1 text-xs overflow-auto">
+            {progressMessages.map((msg, index) => (
+              <div key={index}>{msg}</div>
+            ))}
+          </div>
         </div>
       )}
       {mensaje && <div className="mt-4 text-green-600">{mensaje}</div>}

@@ -1,0 +1,16 @@
+nombre,codigoBarra,stock,pCompra,pVenta,categoria,marca,descripcion,alertaStock,iva,unidadMedida
+Coca-Cola 2.25L,779000100101,150,1800,2500,Gaseosas,Coca-Cola,Bebida sin alcohol gasificada,Distribuidora Andina,20,21,unidad
+Pepsi Black 1.5L,779000200202,120,1500,2100,Gaseosas,Pepsi,Bebida sin alcohol gasificada sin azucar,Distribuidora Andina,20,21,unidad
+Manaos Uva 2.25L,779000300303,200,900,1300,Gaseosas,Manaos,Bebida gasificada sabor uva,Refrescos del Litoral,30,21,unidad
+Pritty Limon 1.5L,779000400404,180,1100,1600,Gaseosas,Pritty,Bebida gasificada sabor limon,Refrescos del Litoral,30,21,unidad
+Doble Cola 2L,779000500505,250,850,1200,Gaseosas,Doble Cola,Bebida cola gasificada,Refrescos del Litoral,30,21,unidad
+Cerveza Quilmes Clasica 1L,779000600606,100,1500,2200,Bebidas Alcoholicas,Quilmes,Cerveza rubia lager,Cerveceria Quilmes,15,21,unidad
+Cerveza Brahma Chopp 1L,779000700707,110,1450,2100,Bebidas Alcoholicas,Brahma,Cerveza rubia pilsener,Cerveceria Quilmes,15,21,unidad
+Cerveza Patagonia Amber Lager 710ml,779000800808,80,1900,2800,Bebidas Alcoholicas,Patagonia,Cerveza ambar,Cerveceria Quilmes,10,21,unidad
+Alfajor Jorgito Triple Negro,779000900909,300,500,850,Golosinas,Jorgito,Alfajor con triple relleno de dulce de leche,Golosinas Mayorista,40,21,unidad
+Alfajor Havanna Chocolate,779001001010,150,800,1300,Golosinas,Havanna,Alfajor premium con cobertura de chocolate,Golosinas Mayorista,20,21,unidad
+Caramelos Arcor Masticables 150g,779001101111,400,600,950,Golosinas,Arcor,Bolsa de caramelos surtidos,Golosinas Mayorista,50,21,unidad
+Galletitas Oreo 118g,779001201212,200,700,1100,Galletitas,Oreo,Galletitas de chocolate con relleno,Distribuidora Andina,25,21,unidad
+Galletitas Criollitas 100g,779001301313,500,400,650,Galletitas,Terrabusi,Galletitas de agua clasicas,Distribuidora Andina,50,21,unidad
+Bizcochos 9 de Oro Clasicos 200g,779001401414,250,550,800,Galletitas,9 de Oro,Bizcochos salados ideales para mate,Golosinas Mayorista,30,21,unidad
+Galletitas Express 108g,779001501515,450,450,700,Galletitas,Terrabusi,Galletitas de agua finitas,Distribuidora Andina,50,21,unidad

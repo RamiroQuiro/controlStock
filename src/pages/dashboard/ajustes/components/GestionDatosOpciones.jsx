@@ -102,7 +102,7 @@ export default function GestionDatosOpciones() {
           description="Carga masiva de productos, clientes o proveedores usando plantillas CSV."
         >
           <a
-            href="/dashboard/ajustes/importar" // Apuntamos a la página que crearemos
+            href="/dashboard/ajustes/datos/importar" // Apuntamos a la página que crearemos
             className="bg-primary-textoTitle text-white px-4 text-xs py-2 rounded hover:bg-primary-textoTitle/80 transition"
           >
             Ir a Importación

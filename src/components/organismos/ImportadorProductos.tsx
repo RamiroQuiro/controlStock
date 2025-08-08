@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import BotonChildresIcono from '@/components/atomos/BotonChildresIcono';
+import BotonChildresIcono from '../atomos/BotonChildresIcono';
+import { Upload } from 'lucide-react';
 
 export default function ImportadorProductos() {
   const [file, setFile] = useState<File | null>(null);
@@ -40,7 +41,6 @@ export default function ImportadorProductos() {
       }
 
       setResponse(data);
-
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -51,8 +51,11 @@ export default function ImportadorProductos() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div class="mb-4">
-          <label htmlFor="file-productos" class="block mb-2 text-sm font-medium">
+        <div className="mb-4">
+          <label
+            htmlFor="file-productos"
+            className="block mb-2 text-sm font-medium"
+          >
             Seleccionar archivo CSV
           </label>
           <input
@@ -61,22 +64,25 @@ export default function ImportadorProductos() {
             name="file-productos"
             accept=".csv"
             onChange={handleFileChange}
-            class="block w-full text-sm text-gray-400 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2"
+            className="block w-full text-sm text-gray-400 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2"
           />
         </div>
         <BotonChildresIcono
-          nombre={loading ? 'Importando...' : 'Importar Productos'}
           type="submit"
           disabled={loading}
+          icono={Upload}
+          children="Importar Productos"
         />
       </form>
 
-      {error && <p class="text-red-500 mt-4">{error}</p>}
+      {error && <p className="text-red-500 mt-4">{error}</p>}
 
       {response && (
-        <div class="mt-6 bg-black/20 p-4 rounded-lg">
-          <h3 class="font-bold mb-2">Respuesta del Servidor (Datos Parseados):</h3>
-          <pre class="text-xs text-white bg-gray-800 p-2 rounded overflow-auto">
+        <div className="mt-6 bg-black/20 p-4 rounded-lg">
+          <h3 className="font-bold mb-2">
+            Respuesta del Servidor (Datos Parseados):
+          </h3>
+          <pre className="text-xs text-white bg-gray-800 p-2 rounded overflow-auto">
             {JSON.stringify(response, null, 2)}
           </pre>
         </div>

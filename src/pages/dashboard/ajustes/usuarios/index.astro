@@ -25,19 +25,19 @@ interface NuevoUsuario {
 ---
 
 <LayoutDash title="Gestión de Usuarios y Roles">
-  <MainDashboard h1="Gestión de Usuarios y Roles">
-    <div
-      slot={'menu'}
-      class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
-    >
+  <MainDashboard
+    h1="Gestión de Usuarios y Roles"
+    subtitle="Creacion y gestion de usuarios y roles"
+  >
+    <div slot={'menu'} class="flex items-center justify-end pb-2 gap-2 pr-6 w-">
       <div class="flex gap-3">
-        <Modal  id="modificarUser">
+        <Modal id="modificarUser">
           <FormularioNuevoUserEdit userId={user?.id} client:visible />
         </Modal>
         <Modal label="+ Nuevo Usuario" id="crearUser">
           <FormularioNuevoUser userId={user?.id} client:visible />
         </Modal>
-        
+
         <Modal label="+ Nuevo Rol" id="crearRole">
           <FormularioNuevoRol userId={user?.id} client:visible />
         </Modal>

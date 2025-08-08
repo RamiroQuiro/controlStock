@@ -1,0 +1,111 @@
+---
+import LayoutDash from '../../../components/layouts/LayoutDash.astro';
+import { eq } from 'drizzle-orm';
+import { categorias } from '../../../db/schema';
+import db from '../../../db';
+import BotonChildresIcono from '@/components/atomos/BotonChildresIcono.tsx';
+import ImportadorProductos from '@/components/organismos/ImportadorProductos.tsx';
+import MainDashboard from '../../../components/atomos/MainDashboard.astro';
+import DivBox1 from '../../../components/atomos/DivBox1.astro';
+
+const { user } = Astro.locals;
+const empresaId = user?.empresaId;
+
+// Obtenemos las categorías de la base de datos para la empresa actual
+const categoriasExistentes = await db
+  .select()
+  .from(categorias)
+  .where(eq(categorias.empresaId, empresaId));
+---
+
+<LayoutDash title="Importar Datos">
+  <MainDashboard
+    h1="Importar Datos"
+    subtitle="Manejo de importacion de datos masivos"
+  >
+    <DivBox1>
+      <h1 class="text-2xl font-bold mb-2">Importación de Productos</h1>
+      <p class="mb-8 text-gray-400">
+        Sigue los pasos para realizar una carga masiva de productos a tu
+        inventario.
+      </p>
+
+      <div class="bg-white/5 border border-white/10 rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Paso 1: Prepara tu archivo</h2>
+        <p class="mb-4 text-gray-300">
+          Descarga nuestra plantilla CSV. Es importante que uses los nombres de
+          las categorías exactamente como aparecen en la siguiente lista para
+          asegurar una correcta importación.
+        </p>
+
+        <div class="flex flex-col md:flex-row gap-8">
+          <!-- Columna de descarga -->
+          <div class="flex-1">
+            <a
+              href="/plantillas/productos.csv"
+              download
+              class="inline-block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition-colors"
+            >
+              Descargar Plantilla de Productos
+            </a>
+          </div>
+
+          <!-- Columna de categorías -->
+          <div class="flex-1 border border-gray-700 rounded-lg p-4 bg-black/20">
+            <h3 class="font-semibold mb-2 text-primary-textoTitle">
+              Categorías Disponibles:
+            </h3>
+            {
+              categoriasExistentes.length > 0 ? (
+                <ul class="list-disc list-inside text-sm text-gray-300 grid grid-cols-2 gap-1">
+                  {categoriasExistentes.map((cat) => (
+                    <li>{cat.nombre}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="text-sm text-amber-400">
+                  No has creado ninguna categoría todavía. Ve a la sección de
+                  Stock para añadirlas.
+                </p>
+              )
+            }
+          </div>
+        </div>
+
+        <hr class="my-8 border-gray-700" />
+
+        <h2 class="text-xl font-semibold mb-4">Paso 2: Sube tu archivo</h2>
+        <p class="mb-4 text-gray-300">
+          Una vez que hayas llenado la plantilla con tus productos, guárdala en
+          formato CSV y súbela aquí.
+        </p>
+
+        <!-- Aquí irá el componente de subida de React -->
+        <div id="upload-form-container">
+          <form>
+            <div class="mb-4">
+              <label
+                for="file-productos"
+                class="block mb-2 text-sm font-medium"
+              >
+                Seleccionar archivo CSV
+              </label>
+              <input
+                type="file"
+                id="file-productos"
+                name="file-productos"
+                accept=".csv"
+                class="block w-full text-sm text-gray-400 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2"
+              />
+            </div>
+            <BotonChildresIcono
+              client:load
+              nombre="Importar Productos"
+              type="submit"
+            />
+          </form>
+        </div>
+      </div>
+    </DivBox1>
+  </MainDashboard>
+</LayoutDash>

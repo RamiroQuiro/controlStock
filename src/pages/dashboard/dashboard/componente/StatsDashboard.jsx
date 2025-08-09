@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import DivReact from '../../../../components/atomos/DivReact';
+import { formateoMoneda } from '../../../../utils/formateoMoneda';
 
 export default function StatsDashboard({
   textColor,
@@ -39,20 +40,24 @@ export default function StatsDashboard({
 
     return () => clearInterval(timer);
   }, [dataInfo]);
-console.log('dataInfo ->',dataInfo)
+  console.log('dataInfo ->', descripcion);
   return (
     <DivReact className="md:w-1/4 w-1/2 ">
-      <h2 className="text-base text-gray-600">{h2}</h2>
+      <div className=" flex w-ful items-center gap-2">
+        <Icon className={`${textColor} w-8 h-8`} />
+        <h2 className="text-base text-gray-600">{h2}</h2>
+      </div>
       <div className="flex items-end gap-2 h-1/2 w-full">
         <div className={`text-xs flex gap-2 justify-center mt-2 items-center`}>
-          <Icon className={`${textColor} w-8 h-8`} />
           <p
             className={`${textColor} text-2xl font-bold transition-all duration-200`}
           >
-            {count}
+            {descripcion === 'Promedio de Venta' &&
+              formateoMoneda.format(count)}
+            {descripcion != 'Promedio de Venta' && count}
           </p>
         </div>
-        <span className="text-sm font-semibold text-gray-500 ml-1">
+        <span className="text-sm font-semibold capitalize text-gray-500 ml-1">
           {descripcion}
         </span>
       </div>

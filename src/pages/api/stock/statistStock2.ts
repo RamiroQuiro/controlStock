@@ -8,6 +8,11 @@ import { createResponse } from '../../../types';
 export const GET: APIRoute = async ({ request }) => {
   try {
     console.log('🔍 Iniciando petición GET a statistStock');
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+    const offset = page * limit;
+
     const empresaId = request.headers.get('xx-empresa-id');
     const userId = request.headers.get('x-user-id');
     console.log('👤 UserId recibido:', userId);
@@ -20,23 +25,32 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     console.log('📊 Iniciando consulta de listaProductos...');
-    const listaProductos = await db
-      .select({
-        id: productos.id,
-        codigoBarra: productos.codigoBarra,
-        descripcion: productos.descripcion,
-        categoria: productos.categoria,
-        pCompra: productos.pCompra,
-        pVenta: productos.pVenta,
-        stock: productos.stock,
-        ultimaActualizacion: productos.ultimaActualizacion,
-        totalMovimientos: sql<number>`count(${movimientos.id})`,
-        totalVendido: sql<number>`sum(case when ${movimientos.tipo} = 'egreso' then ${movimientos.cantidad} else 0 end)`
-      })
-      .from(productos)
-      .leftJoin(movimientos, eq(productos.id, movimientos.productoId))
-      .where(eq(productos.empresaId,empresaId))
-      .groupBy(productos.id);
+    const [listaProductos, totalProductos] = await Promise.all([
+      db
+        .select({
+          id: productos.id,
+          codigoBarra: productos.codigoBarra,
+          descripcion: productos.descripcion,
+          categoria: productos.categoria,
+          pCompra: productos.pCompra,
+          pVenta: productos.pVenta,
+          stock: productos.stock,
+          ultimaActualizacion: productos.ultimaActualizacion,
+          totalMovimientos: sql<number>`count(${movimientos.id})`,
+          totalVendido: sql<number>`sum(case when ${movimientos.tipo} = 'egreso' then ${movimientos.cantidad} else 0 end)`
+        })
+        .from(productos)
+        .leftJoin(movimientos, eq(productos.id, movimientos.productoId))
+        .where(eq(productos.empresaId,empresaId))
+        .groupBy(productos.id)
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(productos)
+        .where(eq(productos.empresaId, empresaId))
+        .then((res) => res[0]?.count ?? 0),
+    ]);
     
     console.log('✅ ListaProductos obtenida:', listaProductos.length, 'productos');
 
@@ -93,6 +107,7 @@ export const GET: APIRoute = async ({ request }) => {
 
     const response = {
       listaProductos,
+      totalProductos,
       topMasVendidos,
       topMenosVendidos,
       stockMovimiento

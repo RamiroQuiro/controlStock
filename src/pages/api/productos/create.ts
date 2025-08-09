@@ -168,9 +168,10 @@ export async function POST({ request }: APIContext): Promise<Response> {
         productoId: id,
         cantidad: productoData.stock,
         alertaStock: productoData.alertaStock,
-        localizacion: productoData.localizacion,
+        localizacionesId: productoData.localizacion,  
+        ubicacionesId: productoData.ubicacion,  
         createdAt: fechaHoy,
-        deposito: productoData.deposito,
+        depositosId: productoData.deposito,
         empresaId: productoData.empresaId,
       });
 

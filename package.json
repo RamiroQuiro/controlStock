@@ -34,6 +34,7 @@
     "nanoid": "^5.0.9",
     "nanostore": "^1.2.1",
     "nodemailer": "^7.0.3",
+    "papaparse": "^5.5.3",
     "puppeteer": "^24.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -43,6 +44,7 @@
     "temporal-polyfill": "^0.2.5"
   },
   "devDependencies": {
+    "@types/papaparse": "^5.3.16",
     "drizzle-kit": "^0.30.4",
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",

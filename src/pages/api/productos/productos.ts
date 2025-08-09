@@ -21,6 +21,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const tipo = url.searchParams.get('tipo'); // Nuevo parámetro para distinguir el tipo de búsqueda
   const { user } = locals;
   const empresaId = user?.empresaId;
+
+  console.log('empresaId', empresaId);
   if (!query) {
     return new Response(
       JSON.stringify({ error: 'falta el parametro de busqueda' }),

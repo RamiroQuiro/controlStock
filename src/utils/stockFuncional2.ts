@@ -28,6 +28,7 @@ export const obtenerDatosStock = async (
 ) => {
   const offset = page * limit;
 
+
   // Ejecutamos todas las consultas en paralelo para máxima eficiencia.
   const [
     listaProductos,
@@ -53,13 +54,13 @@ export const obtenerDatosStock = async (
         stock: productos.stock,
         srcPhoto: productos.srcPhoto,
         // CORREGIDO: Se obtiene el nombre de la ubicación a través del JOIN
-        nombreUbicacion: ubicaciones.nombre,
+        
         alertaStock: stockActual.alertaStock,
         ultimaActualizacion: productos.ultimaActualizacion,
-        totalVentas: sql<number>`cast(sum(${detalleVentas.cantidad}) as int)`.as("totalVentas"),
+        totalVentas: sql<number>`cast(coalesce(sum(${detalleVentas.cantidad}), 0) as int)`.as("totalVentas"),
       })
       .from(productos)
-      .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
+      .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
       // CORREGIDO: Hacemos LEFT JOIN para no excluir productos sin ubicación definida
       .leftJoin(ubicaciones, eq(stockActual.ubicacionesId, ubicaciones.id))
       .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))

@@ -1,0 +1,6 @@
+nombre,codigoBarra,stock,pVenta,pCompra,categoria,marca,descripcion,alertaStock,iva,unidadMedida
+Coca Cola 500ml,7790895001234,50,350,250,Bebidas,Coca Cola,Gaseosa regular,10,21,unidad
+Galletitas Oreo,7622300445744,20,500,,Galletitas,Oreo,Galletas rellenas,5,21,unidad
+Agua Mineral 2L,7798035000057,30,300,200,Aguas,Villavicencio,Agua sin gas,5,21,unidad
+Coca Cola Zero 500ml,7790895001234,40,350,250,Bebidas,Coca Cola,Gaseosa sin azúcar,10,21,unidad
+Pepsi 500ml,7791813421234,40,,200,Bebidas,Pepsi,Gaseosa regular,10,21,unidad

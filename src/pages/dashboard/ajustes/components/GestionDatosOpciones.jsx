@@ -4,6 +4,7 @@ import Button3 from '../../../../components/atomos/Button3';
 export default function GestionDatosOpciones() {
   const fileInputRef = useRef(null);
   const [mensaje, setMensaje] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [progressMessages, setProgressMessages] = useState([]);
 
@@ -47,6 +48,7 @@ export default function GestionDatosOpciones() {
   const handleRestore = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     const formData = new FormData();
     formData.append('backup', file);
     setLoading(true);
@@ -63,58 +65,84 @@ export default function GestionDatosOpciones() {
         setLoading(false);
       }
     } catch (err) {
-      setMensaje('Error al conectar con el servidor.');
+      setError('Error de conexión con el servidor.');
+    } finally {
       setLoading(false);
+      // Reset el input para poder subir el mismo archivo de nuevo si es necesario
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
-  const handleExport = () => {
-    // Lógica para exportar datos
-    setMensaje('Datos exportados correctamente.');
-    setLoading(true);
-  };
-
-  const handleImport = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    // Lógica para importar datos desde archivo
-    setMensaje(`Archivo ${file.name} cargado para importar.`);
-  };
-
   return (
-    <div className="w-1/3  mx-auto bg-primary-bg-componentes p-6 rounded shadow flex flex-col gap-5">
-      <h2 className="text-lg font-bold mb-2">Acciones</h2>
-      <div className="flex flex-col gap-3 w-">
-        <Button3 onClick={handleBackup}>
-          Descargar Backup (todo el sistema)
-        </Button3>
-        <Button3 onClick={() => fileInputRef.current.click()}>
-          Restaurar Backup
-        </Button3>
-        <input
-          type="file"
-          accept=".json,.zip"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={handleRestore}
-        />
-        <Button3 onClick={handleExport} disabled={true}>
-          Exportar Datos
-        </Button3>
-        <label
-          htmlFor="importFile"
-          className=" bg-transparent hover:bg-primary-100/80 hover:text-white  border-primary-100 text-center px-3 py-1 rounded-lg font-semibold capitalize duration-300 text-xs  border disabled:bg-gray-300 disabled:text-red-300"
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Card para Respaldar Datos */}
+        <ActionCard
+          icon={Download}
+          title="Crear Respaldo"
+          description="Descarga un archivo de respaldo con todos los datos de la empresa (excepto usuarios)."
         >
-          Importar Datos
+          <button
+            onClick={handleBackup}
+            className="bg-primary-textoTitle text-white px-4 text-xs py-2 rounded hover:bg-primary-textoTitle/80 transition"
+          >
+            Descargar
+          </button>
+        </ActionCard>
+
+        {/* Card para Restaurar Datos */}
+        <ActionCard
+          icon={Upload}
+          title="Restaurar Respaldo"
+          description="Sube un archivo de respaldo para restaurar los datos del sistema a un punto anterior."
+        >
+          <button
+            onClick={() => fileInputRef.current.click()}
+            disabled={loading}
+            className="bg-primary-textoTitle text-white px-4 text-xs py-2 rounded hover:bg-primary-textoTitle/80 transition disabled:bg-gray-500"
+          >
+            {loading ? 'Restaurando...' : 'Seleccionar Archivo'}
+          </button>
           <input
             type="file"
-            accept=".csv,.json"
-            id="importFile"
-            disabled
+            accept=".json,.zip"
+            ref={fileInputRef}
             style={{ display: 'none' }}
-            onChange={handleImport}
+            onChange={handleRestore}
           />
-        </label>
+        </ActionCard>
+
+        {/* Card para Importar Datos */}
+        <ActionCard
+          icon={FileText}
+          title="Importar Datos"
+          description="Carga masiva de productos, clientes o proveedores usando plantillas CSV."
+        >
+          <a
+            href="/dashboard/ajustes/datos/importar" // Apuntamos a la página que crearemos
+            className="bg-primary-textoTitle text-white px-4 text-xs py-2 rounded hover:bg-primary-textoTitle/80 transition"
+          >
+            Ir a Importación
+          </a>
+        </ActionCard>
+      </div>
+
+      {/* Mensajes de estado */}
+      <div className="mt-6 text-center">
+        {loading && (
+          <div className="flex items-center justify-center gap-2 animate-pulse text-primary-100 font-semibold">
+            <div className="loader border-3 border-t-3 border-t-blue-500 rounded-full w-5 h-5 animate-spin"></div>
+            <span>Procesando...</span>
+          </div>
+        )}
+        {mensaje && (
+          <div className="mt-4 text-green-500 font-semibold">{mensaje}</div>
+        )}
+        {error && (
+          <div className="mt-4 text-red-500 font-semibold">{error}</div>
+        )}
       </div>
       {loading && (
         <div className="flex flex-col gap-2 animate-pulse text-primary-100 font-semibold mt-2">

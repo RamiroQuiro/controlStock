@@ -15,7 +15,7 @@ import { productoCategorias } from "../../../../db/schema/productoCategorias";
 
 export const GET: APIRoute = async ({ params }) => {
   const { productoId } = params;
-
+console.log('productoId', productoId);
   if (!productoId) {
     return new Response(
       JSON.stringify({ error: "ID del producto no proporcionado" }),
@@ -61,7 +61,7 @@ export const GET: APIRoute = async ({ params }) => {
           depositosId: stockActual.depositosId,
         })
         .from(productos)
-        .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
+        .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
         .where(eq(productos.id, productoId))
         .limit(1),
 

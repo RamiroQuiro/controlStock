@@ -1,45 +1,24 @@
-import { useRef, useState, useEffect } from 'react';
-import Button3 from '../../../../components/atomos/Button3';
+import { useRef, useState } from 'react';
+import { Download, Upload, FileText, FileDown } from 'lucide-react';
+import DivReact from '../../../../components/atomos/DivReact';
+
+// Pequeño componente para las tarjetas para no repetir código
+const ActionCard = ({ icon: Icon, title, description, children }) => (
+  <DivReact className="rounded-lg p-6 flex flex-col text-center items-center shadow-md hover:bg-primary-bg-componentes hover:shadow  duration-300">
+    <Icon className="w-12 h-12 text-primary-100 mb-4" />
+    <h3 className="text-lg font-semibold text-primary-textoTitle mb-2">
+      {title}
+    </h3>
+    <p className="text-gray-400 text-sm mb-6 flex-grow">{description}</p>
+    {children}
+  </DivReact>
+);
 
 export default function GestionDatosOpciones() {
   const fileInputRef = useRef(null);
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [progressMessages, setProgressMessages] = useState([]);
-
-  useEffect(() => {
-    if (loading) {
-      const eventSource = new EventSource('/api/ajustes/restauracion-stream');
-
-      eventSource.addEventListener('restore-progress', (event) => {
-        const data = JSON.parse(event.data);
-        setProgressMessages((prev) => [...prev, data.message]);
-      });
-
-      eventSource.addEventListener('restore-complete', (event) => {
-        const data = JSON.parse(event.data);
-        setMensaje(data.message);
-        setLoading(false);
-        eventSource.close();
-      });
-
-      eventSource.addEventListener('restore-error', (event) => {
-        const data = JSON.parse(event.data);
-        setMensaje(data.message);
-        setLoading(false);
-        eventSource.close();
-      });
-
-      eventSource.onerror = () => {
-        eventSource.close();
-      };
-
-      return () => {
-        eventSource.close();
-      };
-    }
-  }, [loading]);
 
   const handleBackup = () => {
     window.open('/api/ajustes/respaldoDatos', '_blank');
@@ -52,17 +31,19 @@ export default function GestionDatosOpciones() {
     const formData = new FormData();
     formData.append('backup', file);
     setLoading(true);
-    setProgressMessages([]);
     setMensaje('');
+    setError('');
 
     try {
       const res = await fetch('/api/ajustes/restaurarDatos', {
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) {
-        setMensaje('Error al iniciar la restauración.');
-        setLoading(false);
+      if (res.ok) {
+        setMensaje('¡Respaldo restaurado con éxito!');
+      } else {
+        const errorData = await res.json();
+        setError(errorData.message || 'Error al restaurar el respaldo.');
       }
     } catch (err) {
       setError('Error de conexión con el servidor.');
@@ -144,30 +125,6 @@ export default function GestionDatosOpciones() {
           <div className="mt-4 text-red-500 font-semibold">{error}</div>
         )}
       </div>
-      {loading && (
-        <div className="flex flex-col gap-2 animate-pulse text-primary-100 font-semibold mt-2">
-          <div className="flex items-center gap-2">
-            <span
-              style={{
-                border: '3px solid #f3f3f3',
-                borderTop: '3px solid #3498db',
-                borderRadius: '50%',
-                width: '18px',
-                height: '18px',
-                animation: 'spin 1s linear infinite',
-              }}
-              className="loader"
-            ></span>
-            <span>Restaurando datos...</span>
-          </div>
-          <div className="flex flex-col gap-1 text-xs overflow-auto">
-            {progressMessages.map((msg, index) => (
-              <div key={index}>{msg}</div>
-            ))}
-          </div>
-        </div>
-      )}
-      {mensaje && <div className="mt-4 text-green-600">{mensaje}</div>}
     </div>
   );
 }

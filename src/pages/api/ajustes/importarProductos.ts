@@ -1,10 +1,17 @@
-import type { APIRoute } from 'astro';
-import Papa from 'papaparse';
-import { eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
-import db from '../../../db';
-import { categorias, productoCategorias, productos } from '../../../db/schema';
-import { cache } from '../../../utils/cache';
+import type { APIRoute } from "astro";
+import Papa from "papaparse";
+import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import db from "../../../db";
+import {
+  categorias,
+  productoCategorias,
+  productos,
+  stockActual,
+  movimientosStock,
+} from "../../../db/schema";
+import { cache } from "../../../utils/cache";
+import { getFechaUnix } from "../../../utils/timeUtils";
 
 // Tipos para mayor claridad
 interface ProductoCSV {
@@ -26,279 +33,173 @@ interface ResultadoImportacion {
   errores: { fila: number; mensaje: string }[];
   productosCreados: { nombre: string; id: string }[];
 }
-// Endpoint: Importación de productos con debug detallado
 export const POST: APIRoute = async ({ request, locals }) => {
   const { user } = locals;
   const empresaId = user?.empresaId;
+  const userId = user?.id;
 
   if (!empresaId) {
+    console.warn("No se pudo identificar la empresa");
     return new Response(
-      JSON.stringify({ message: 'No se pudo identificar la empresa.' }),
+      JSON.stringify({ message: "No se pudo identificar la empresa." }),
       { status: 401 }
     );
   }
 
   try {
     const formData = await request.formData();
-    const file = formData.get('file-productos') as File;
+    const file = formData.get("file-productos") as File;
 
     if (!file) {
+      console.warn("Archivo no encontrado en formData");
       return new Response(
-        JSON.stringify({ message: 'No se ha subido ningún archivo.' }),
+        JSON.stringify({ message: "No se ha subido ningún archivo." }),
         { status: 400 }
       );
     }
 
     const fileContent = await file.text();
+    console.log("Contenido del CSV recibido:\n", fileContent);
 
-    // Requeridos en el CSV (los nombres deben coincidir con los encabezados)
-    const requiredHeaders = ['nombre', 'codigoBarra', 'stock', 'pVenta'];
-
-    // Traer categorías existentes (map en minúsculas)
+    // Categorías existentes
     const categoriasExistentes = await db
       .select()
       .from(categorias)
       .where(eq(categorias.empresaId, empresaId));
+
     const mapaCategorias = new Map(
-      categoriasExistentes.map((c) => [
-        String(c.nombre).trim().toLowerCase(),
-        c.id,
-      ])
+      categoriasExistentes.map((c) => [c.nombre.toLowerCase(), c.id])
     );
 
-    // Traer códigos existentes para evitar duplicados
-    const productosExistentes = await db
-      .select({ codigoBarra: productos.codigoBarra })
-      .from(productos)
-      .where(eq(productos.empresaId, empresaId));
-    const codigosExistentes = new Set(
-      productosExistentes.map((p) =>
-        p.codigoBarra ? String(p.codigoBarra).trim() : ''
-      )
-    );
-
-    // Resultado y debug
-    const resultado: ResultadoImportacion = {
+    const resultado = {
+      errores: [] as { fila: number; mensaje: string }[],
       exitosos: 0,
-      errores: [],
-      productosCreados: [],
     };
-    const debugLogs: any[] = [];
 
-    // Usamos PapaParse en modo callback/Promise
     return new Promise((resolve) => {
-      Papa.parse<Record<string, string>>(fileContent, {
+      Papa.parse<ProductoCSV>(fileContent, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: (h) => (h ? h.trim() : h),
         complete: async (results) => {
-          // Headers detectados
-          const headers =
-            results.meta && results.meta.fields
-              ? results.meta.fields.map((h) => (h || '').trim())
-              : [];
-          console.log('[IMPORT] Headers detectados:', headers);
+          console.log("Resultados parseados:", results.data);
 
-          // Validar que existan los encabezados requeridos
-          const faltantes = requiredHeaders.filter(
-            (h) =>
-              !headers.map((x) => x.toLowerCase()).includes(h.toLowerCase())
-          );
-          if (faltantes.length > 0) {
-            const msg = `Faltan columnas obligatorias en el CSV: ${faltantes.join(', ')}`;
-            console.error('[IMPORT] ' + msg);
-            return resolve(
-              new Response(
-                JSON.stringify({ message: msg, headersDetected: headers }),
-                { status: 400 }
-              )
-            );
-          }
+          for (const [index, row] of results.data.entries()) {
+            const fila = index + 2; // +2 por encabezado y base 0
+            console.log(`Procesando fila ${fila}:`, row);
 
-          debugLogs.push({ totalRowsParsed: results.data.length, headers });
-
-          const productosAInsertar: any[] = [];
-          const productoCategoriasAInsertar: any[] = [];
-          const codigosEnArchivo = new Set<string>();
-
-          for (const [idx, rawRow] of results.data.entries()) {
-            const fila = idx + 2; // +1 por cabecera y +1 por base 1
-            const row: Record<string, string> = {};
-            // Normalizar keys a minúsculas trimmed
-            for (const k of Object.keys(rawRow)) {
-              if (k == null) continue;
-              row[k.trim()] =
-                rawRow[k] !== undefined && rawRow[k] !== null
-                  ? String(rawRow[k]).trim()
-                  : '';
-            }
-
-            const rowDebug: any = { fila, raw: row, errores: [] };
-
-            // Validaciones básicas
-            const nombre = (row['nombre'] || '').trim();
-            const codigoBarra = (row['codigoBarra'] || '').trim();
-            const stockRaw = (row['stock'] || '').trim();
-            const pVentaRaw = (row['pVenta'] || '').trim();
-            const categoriaRaw = (row['categoria'] || '').trim();
-
-            // Campos obligatorios
-            if (!nombre) rowDebug.errores.push('nombre vacío');
-            if (!codigoBarra) rowDebug.errores.push('codigoBarra vacío');
-            if (!stockRaw) rowDebug.errores.push('stock vacío');
-            if (!pVentaRaw) rowDebug.errores.push('pVenta vacío');
-
-            // Números válidos
-            const stockNum = Number(stockRaw);
-            const pVentaNum = Number(pVentaRaw);
-            const pCompraNum = row['pCompra'] ? Number(row['pCompra']) : null;
-            if (stockRaw && Number.isNaN(stockNum))
-              rowDebug.errores.push(`stock no es numérico ('${stockRaw}')`);
-            if (pVentaRaw && Number.isNaN(pVentaNum))
-              rowDebug.errores.push(`pVenta no es numérico ('${pVentaRaw}')`);
-            if (row['pCompra'] && Number.isNaN(pCompraNum))
-              rowDebug.errores.push(
-                `pCompra no es numérico ('${row['pCompra']}')`
-              );
-
-            // Duplicado en BD
-            if (codigoBarra && codigosExistentes.has(codigoBarra)) {
-              rowDebug.errores.push(
-                `codigoBarra '${codigoBarra}' ya existe en la base`
-              );
-            }
-            // Duplicado dentro del mismo archivo
-            if (codigoBarra && codigosEnArchivo.has(codigoBarra)) {
-              rowDebug.errores.push(
-                `codigoBarra '${codigoBarra}' duplicado en el archivo`
-              );
-            }
-
-            // Validar categoría si viene
-            let categoriaId: string | null = null;
-            if (categoriaRaw) {
-              const catId = mapaCategorias.get(categoriaRaw.toLowerCase());
-              if (!catId) {
-                rowDebug.errores.push(
-                  `Categoría '${categoriaRaw}' no existe. (asegure cargar categorías antes)`
-                );
-              } else {
-                categoriaId = catId;
-              }
-            }
-
-            // Si hay errores, los volvemos parte del resultado y pasamos a la siguiente
-            if (rowDebug.errores.length > 0) {
+            // Validación de campos obligatorios
+            if (!row.nombre || !row.codigoBarra || !row.stock || !row.pVenta) {
+              console.warn(`Fila ${fila} inválida, faltan campos:`, row);
               resultado.errores.push({
                 fila,
-                errores: rowDebug.errores,
-                datos: row,
+                mensaje:
+                  "Faltan campos obligatorios (nombre, codigoBarra, stock, pVenta).",
               });
-              debugLogs.push(rowDebug);
               continue;
             }
 
-            // Preparar objeto a insertar
-            const nuevoProductoId = nanoid();
-            const pObj: any = {
-              id: nuevoProductoId,
-              nombre,
-              codigoBarra,
-              stock: Number.isNaN(stockNum) ? 0 : Math.floor(stockNum),
-              pVenta: Number.isNaN(pVentaNum) ? 0 : pVentaNum,
-              pCompra: Number.isNaN(pCompraNum) ? null : pCompraNum,
-              marca: row['marca'] || null,
-              descripcion: row['descripcion'] || null,
-              alertaStock: row['alertaStock']
-                ? parseInt(row['alertaStock'], 10)
-                : 10,
-              iva: row['iva'] ? parseInt(row['iva'], 10) : 21,
-              unidadMedida: row['unidadMedida'] || 'unidad',
-              empresaId,
-              creadoPor: user.id,
-            };
-
-            productosAInsertar.push(pObj);
-            if (categoriaId) {
-              productoCategoriasAInsertar.push({
-                id: nanoid(),
-                productoId: nuevoProductoId,
-                categoriaId,
+            // Categoría
+            const categoriaId = row.categoria
+              ? mapaCategorias.get(row.categoria.toLowerCase())
+              : null;
+            if (row.categoria && !categoriaId) {
+              console.warn(
+                `Fila ${fila}: categoría no encontrada ->`,
+                row.categoria
+              );
+              resultado.errores.push({
+                fila,
+                mensaje: `La categoría '${row.categoria}' no existe.`,
               });
+              continue;
             }
 
-            // Marcar codigo usado (para evitar duplicados dentro del archivo)
-            if (codigoBarra) codigosEnArchivo.add(codigoBarra);
-
-            // Push debug ok
-            debugLogs.push({
-              fila,
-              ok: true,
-              productoId: nuevoProductoId,
-              nombre,
-              codigoBarra,
-            });
-          } // fin for filas
-
-          console.log(
-            `[IMPORT] Filas válidas: ${productosAInsertar.length}, errores: ${resultado.errores.length}`
-          );
-
-          // Insertar en BD (en transacción si querés atomicidad parcial)
-          try {
-            if (productosAInsertar.length > 0) {
+            try {
               await db.transaction(async (tx) => {
-                await tx.insert(productos).values(productosAInsertar);
-                if (productoCategoriasAInsertar.length > 0) {
-                  await tx
-                    .insert(productoCategorias)
-                    .values(productoCategoriasAInsertar);
+                const nuevoProductoId = nanoid();
+                const stockInicial = parseInt(row.stock, 10) || 0;
+                const fechaHoyDate = new Date(getFechaUnix()*1000);
+console.log('fechaHoyDate -->',fechaHoyDate)
+                // 1. Insertar producto
+                await tx.insert(productos).values({
+                  id: nuevoProductoId,
+                  nombre: row.nombre,
+                  codigoBarra: row.codigoBarra,
+                  stock: stockInicial,
+                  pVenta: parseFloat(row.pVenta) || 0,
+                  pCompra: row.pCompra ? parseFloat(row.pCompra) : undefined,
+                  marca: row.marca,
+                  descripcion: row.descripcion,
+                  alertaStock: row.alertaStock
+                    ? parseInt(row.alertaStock, 10)
+                    : 10,
+                  iva: row.iva ? parseInt(row.iva, 10) : 21,
+                  unidadMedida: row.unidadMedida || "unidad",
+                  empresaId: empresaId,
+                  creadoPor:userId,
+                });
+
+                // 2. Insertar categoría si existe
+                if (categoriaId) {
+                  await tx.insert(productoCategorias).values({
+                    id: nanoid(),
+                    productoId: nuevoProductoId,
+                    categoriaId,
+                  });
                 }
+
+                // 3. Insertar stock inicial
+                await tx.insert(stockActual).values({
+                  id: nanoid(),
+                  productoId: nuevoProductoId,
+                  cantidad: stockInicial,
+                  empresaId: empresaId,
+                  fecha: fechaHoyDate,
+                });
+
+                // 4. Insertar movimiento de stock
+                await tx.insert(movimientosStock).values({
+                  id: nanoid(),
+                  productoId: nuevoProductoId,
+                  tipo: "entrada",
+                  cantidad: stockInicial,
+                  motivo: "Carga inicial por importación CSV",
+                  fecha: fechaHoyDate,
+                  empresaId: empresaId,
+                  creadoPor: userId,
+                  userId: userId,
+                });
               });
 
-              resultado.exitosos = productosAInsertar.length;
-              resultado.productosCreados = productosAInsertar.map((p) => ({
-                id: p.id,
-                nombre: p.nombre,
-                codigoBarra: p.codigoBarra,
-              }));
-              console.log('[IMPORT] Inserción realizada con éxito.');
+              // Si la transacción fue exitosa, incrementamos el contador
+              resultado.exitosos++;
 
-              // Invalidar la caché de stock para esta empresa
-              const cacheKey = `stock_data_${empresaId}`;
-              await cache.invalidate(cacheKey);
-              console.log(`[IMPORT] Caché invalidada para la clave: ${cacheKey}`);
+            } catch (error) {
+                console.error(`Error en transacción para fila ${fila}:`, error);
+                resultado.errores.push({
+                    fila,
+                    mensaje: error instanceof Error ? error.message : "Error desconocido en la base de datos.",
+                });
+                // El continue no es estrictamente necesario aquí porque ya estamos al final del bucle,
+                // pero es una buena práctica para claridad.
+                continue;
             }
-          } catch (insertErr) {
-            console.error('[IMPORT] Error en inserción:', insertErr);
-            // Si la inserción falla, volcamos el error en la respuesta para debug
-            return resolve(
-              new Response(
-                JSON.stringify({
-                  message: 'Error al insertar en BD',
-                  error: String(insertErr),
-                  debug: debugLogs.slice(0, 100),
-                }),
-                { status: 500 }
-              )
-            );
           }
 
-          // Responder con detalle
-          return resolve(
-            new Response(JSON.stringify({ resultado, debug: debugLogs }), {
-              status: 200,
-            })
-          );
+          console.log("Proceso de importación finalizado.", resultado);
+
+          // Invalidar la caché de stock para esta empresa
+          const cacheKey = `stock_data_${empresaId}`;
+          await cache.invalidate(cacheKey);
+          console.log(`[IMPORT] Caché invalidada para la clave: ${cacheKey}`);
+
+          resolve(new Response(JSON.stringify(resultado), { status: 200 }));
         },
-        error: (err) => {
-          console.error('[IMPORT] Error parseando CSV:', err);
-          return resolve(
+        error: (error) => {
+          console.error("Error parsing CSV:", error);
+          resolve(
             new Response(
-              JSON.stringify({
-                message: 'Error al procesar archivo CSV',
-                error: String(err),
-              }),
+              JSON.stringify({ message: "Error al procesar el archivo CSV." }),
               { status: 500 }
             )
           );
@@ -306,9 +207,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     });
   } catch (error) {
-    console.error('Error en el endpoint de importación:', error);
+    console.error("Error en el endpoint de importación:", error);
     return new Response(
-      JSON.stringify({ message: 'Error interno del servidor.' }),
+      JSON.stringify({ message: "Error interno del servidor." }),
       { status: 500 }
     );
   }

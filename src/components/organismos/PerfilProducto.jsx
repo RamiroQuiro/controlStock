@@ -146,7 +146,7 @@ console.log('este es el formulario, vamo aver si va cmabiando',formulario)
       )}
       <div className="flex justify-between flex-col md:flex-row  md:items-center mb-4">
         <h2 className="text-lg font-semibold text-primary-textoTitle">
-          Detalle del Producto
+          Detalle del Producto {data?.productData?.nombre}
         </h2>
         {/* botonera */}
         <ContenedorBotonera

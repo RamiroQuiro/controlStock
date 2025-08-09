@@ -118,6 +118,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
       return createResponse(404, "Categoria no encontrada");
     }
 
+    const nombreLowerCase = nombre.toLowerCase();
     const categoria = await db
       .update(categorias)
       .set({
@@ -128,7 +129,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
       })
       .where(eq(categorias.id, id))
       .returning();
-    return createResponse(200, "Categoria actualizada", id);
+    return createResponse(200, "Categoria actualizada", categoria[0]);
   } catch (error) {
     console.error("Error al actualizar categoria:", error);
     return createResponse(500, "Error al actualizar categoria");

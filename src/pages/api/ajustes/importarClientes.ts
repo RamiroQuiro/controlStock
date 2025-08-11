@@ -1,16 +1,18 @@
-import type { APIRoute } from "astro";
-import { db } from "@/db";
-import { clientes } from "@/db/schema";
-import Papa from "papaparse";
-import { nanoid } from "nanoid";
+import type { APIRoute } from 'astro';
+import Papa from 'papaparse';
+import { nanoid } from 'nanoid';
+import db from '../../../db';
+import { clientes } from '../../../db/schema';
 
 // Definimos el tipo para las filas del CSV de clientes
 interface ClienteCSV {
   nombre: string;
   email?: string;
+  dni?: string;
   telefono?: string;
   direccion?: string;
   cuit?: string;
+  observaciones?: string;
   condicionIva?: string;
 }
 
@@ -20,19 +22,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const userId = user?.id;
 
   if (!empresaId || !userId) {
-    return new Response("No autorizado", { status: 401 });
+    return new Response('No autorizado', { status: 401 });
   }
 
   const formData = await request.formData();
-  const file = formData.get("file-clientes") as File;
+  const file = formData.get('file-clientes') as File;
 
   if (!file) {
-    return new Response("No se encontró el archivo", { status: 400 });
+    return new Response('No se encontró el archivo', { status: 400 });
   }
 
   const fileContent = await file.text();
 
-  const resultadosDetallados: { fila: number; nombre: string; estado: string; mensaje: string }[] = [];
+  const resultadosDetallados: {
+    fila: number;
+    nombre: string;
+    estado: string;
+    mensaje: string;
+  }[] = [];
 
   return new Promise((resolve) => {
     Papa.parse<ClienteCSV>(fileContent, {
@@ -54,17 +61,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
           }
 
           try {
-            await db.insert(clientes).values({
+            const clienteParaInsertar = {
               id: nanoid(),
               nombre: row.nombre,
               email: row.email,
               telefono: row.telefono,
               direccion: row.direccion,
-              cuit: row.cuit,
-              condicionIva: row.condicionIva,
+              dni: row.dni || null,
+              cuit: row.cuit || null,
+              observaciones: row.observaciones || '',
+              condicionIva: row.condicionIva || '',
               empresaId: empresaId,
               creadoPor: userId,
-            });
+            };
+
+            // DEBUG: Mostrar el objeto que se va a insertar
+            console.log('Objeto a Insertar en BD:', clienteParaInsertar);
+
+            await db.insert(clientes).values(clienteParaInsertar);
 
             resultadosDetallados.push({
               fila,
@@ -72,21 +86,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
               estado: 'Éxito',
               mensaje: 'Cliente importado correctamente.',
             });
-
           } catch (error) {
             resultadosDetallados.push({
               fila,
               nombre: nombreCliente,
               estado: 'Error',
-              mensaje: error instanceof Error ? error.message : "Error en base de datos.",
+              mensaje:
+                error instanceof Error
+                  ? error.message
+                  : 'Error en base de datos.',
             });
           }
         }
 
-        resolve(new Response(JSON.stringify(resultadosDetallados), { status: 200 }));
+        resolve(
+          new Response(JSON.stringify(resultadosDetallados), { status: 200 })
+        );
       },
       error: (error) => {
-        resolve(new Response(JSON.stringify({ message: error.message }), { status: 400 }));
+        resolve(
+          new Response(JSON.stringify({ message: error.message }), {
+            status: 400,
+          })
+        );
       },
     });
   });

@@ -52,7 +52,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           }
 
           try {
-            await db.insert(proveedores).values({
+            const proveedorParaInsertar = {
               id: nanoid(),
               nombre: row.nombre,
               email: row.email,
@@ -61,7 +61,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
               cuit: row.cuit,
               empresaId: empresaId,
               creadoPor: userId,
-            });
+            };
+
+            // DEBUG: Mostrar el objeto que se va a insertar
+            console.log('Objeto a Insertar en BD:', proveedorParaInsertar);
+
+            await db.insert(proveedores).values(proveedorParaInsertar);
 
             resultadosDetallados.push({
               fila,

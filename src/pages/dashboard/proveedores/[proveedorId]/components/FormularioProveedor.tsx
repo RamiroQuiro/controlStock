@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import InputComponenteJsx from '../../../dashboard/componente/InputComponenteJsx';
 import InputFormularioSolicitud from '../../../../../components/moleculas/InputFormularioSolicitud';
 import LoaderReact from '../../../../../utils/loader/LoaderReact';
@@ -39,6 +39,13 @@ export default function FormularioProveedor({
     observaciones: '',
   });
 
+  useEffect(() => {
+    if (modo === 'editar' && proveedor) {
+      setFormData(proveedor);
+    }
+  }, [modo, proveedor]);
+
+  console.log('trae datos para editar? ->', proveedor);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nombre || !formData.dni || !formData.direccion) {
@@ -97,9 +104,6 @@ export default function FormularioProveedor({
 
   return (
     <form className=" flex flex-col gap-4 w-full text-primary-texto p-6">
-      <h2 className="text-xl text-primary-textoTitle font-semibold ">
-        {modo == 'crear' ? 'Crear' : 'Modificar'} Proveedor
-      </h2>
       <div className="flex flex-col gap-4 items-center w-full justify-normal">
         {/* Datos básicos */}
         <div className="w-full flex items-center justify-normal gap-2 ">

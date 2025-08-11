@@ -1,41 +1,64 @@
 ---
-import { eq } from "drizzle-orm";
-import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
-import db from "../../../../db";
-import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
-import Button1 from "../../../../components/atomos/Button1.astro";
-import { proveedores } from "../../../../db/schema";
-import PerfilProveedor from './components/PerfilProveedor'
-import Modal from "../../../../components/moleculas/Modal.astro";
-import FormularioProveedor from "./components/FormularioProveedor";
+import { eq } from 'drizzle-orm';
+import LayoutDash from '../../../../components/layouts/LayoutDash.astro';
+import db from '../../../../db';
+import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
+import Button1 from '../../../../components/atomos/Button1.astro';
+import { proveedores } from '../../../../db/schema';
+import PerfilProveedor from './components/PerfilProveedor';
+import Modal from '../../../../components/moleculas/Modal.astro';
+import FormularioProveedor from './components/FormularioProveedor';
+import formatDate from '../../../../utils/formatDate';
 const { proveedorId } = Astro.params;
 const { user } = Astro.locals;
 // Obtener datos del cliente
-const [proveedor] = (await db.select().from(proveedores).where(eq(proveedores.id,proveedorId)))
+const [proveedor] = await db
+  .select()
+  .from(proveedores)
+  .where(eq(proveedores.id, proveedorId));
 
 if (!proveedor) {
   return Astro.redirect('/dashboard/proveedores');
 }
-console.log(proveedor)
+console.log('proveedor seccion proveedor->', proveedor);
 ---
+
 <LayoutDash title={`Proveedor - ${proveedor?.nombre}`}>
-  <MainDashboard h1=`${proveedor?.nombre}`>
-    <div
-    slot={"menu"}
-    class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+  <MainDashboard
+    h1=`${proveedor?.nombre}`
+    subtitle="Visualizacion y edicion de proveedor"
   >
-        <p>
-          Cliente desde: {new Date(proveedor?.created_at).toLocaleDateString()}
-        </p>
-        <Modal id="editarProveedor"label="Editar Proveedor">
-          <FormularioProveedor client:visible userId={user?.id} modo="editar" proveedor={proveedor}/>
-        </Modal>
-      </div>
+    <div
+      slot={'menu'}
+      class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
+    >
+      <p class="text-sm">
+        Cliente desde: {formatDate(new Date(proveedor?.created_at))}
+      </p>
+      <Modal
+        id="editarProveedor"
+        label="Editar Proveedor"
+        title="Editar Proveedor"
+      >
+        <FormularioProveedor
+          client:visible
+          userId={user?.id}
+          modo="editar"
+          proveedor={proveedor}
+        />
+      </Modal>
+    </div>
 
     <PerfilProveedor client:load proveedor={proveedor} />
   </MainDashboard>
-</LayoutDash> 
+</LayoutDash>
 
-<script define:vars={{proveedorId}}>
-document.getElementById('btnEdit').addEventListener('click',()=>window.location.href=`/dashboard/proveedores/${proveedorId}/editar`)
+<script define:vars={{ proveedorId }}>
+  document
+    .getElementById('btnEdit')
+    .addEventListener(
+      'click',
+      () =>
+        (window.location.href = `/dashboard/proveedores/${proveedorId}/editar`)
+    );
 </script>

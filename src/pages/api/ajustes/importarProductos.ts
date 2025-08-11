@@ -71,10 +71,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       categoriasExistentes.map((c) => [c.nombre.toLowerCase(), c.id])
     );
 
-    const resultado = {
-      errores: [] as { fila: number; mensaje: string }[],
-      exitosos: 0,
-    };
+    const resultadosDetallados: { fila: number; nombreProducto: string; estado: string; mensaje: string }[] = [];
 
     return new Promise((resolve) => {
       Papa.parse<ProductoCSV>(fileContent, {
@@ -85,13 +82,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
           for (const [index, row] of results.data.entries()) {
             const fila = index + 2; // +2 por encabezado y base 0
+            const nombreProducto = row.nombre || 'Producto Desconocido';
             console.log(`Procesando fila ${fila}:`, row);
 
             // Validación de campos obligatorios
             if (!row.nombre || !row.codigoBarra || !row.stock || !row.pVenta) {
               console.warn(`Fila ${fila} inválida, faltan campos:`, row);
-              resultado.errores.push({
+              resultadosDetallados.push({
                 fila,
+                nombreProducto,
+                estado: 'Error',
                 mensaje:
                   "Faltan campos obligatorios (nombre, codigoBarra, stock, pVenta).",
               });
@@ -107,8 +107,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 `Fila ${fila}: categoría no encontrada ->`,
                 row.categoria
               );
-              resultado.errores.push({
+              resultadosDetallados.push({
                 fila,
+                nombreProducto,
+                estado: 'Error',
                 mensaje: `La categoría '${row.categoria}' no existe.`,
               });
               continue;
@@ -171,29 +173,34 @@ console.log('fechaHoyDate -->',fechaHoyDate)
                 });
               });
 
-              // Si la transacción fue exitosa, incrementamos el contador
-              resultado.exitosos++;
+              // Si la transacción fue exitosa, agregamos al resultado detallado
+              resultadosDetallados.push({
+                fila,
+                nombreProducto,
+                estado: 'Éxito',
+                mensaje: 'Producto importado correctamente.',
+              });
 
             } catch (error) {
                 console.error(`Error en transacción para fila ${fila}:`, error);
-                resultado.errores.push({
+                resultadosDetallados.push({
                     fila,
+                    nombreProducto,
+                    estado: 'Error',
                     mensaje: error instanceof Error ? error.message : "Error desconocido en la base de datos.",
                 });
-                // El continue no es estrictamente necesario aquí porque ya estamos al final del bucle,
-                // pero es una buena práctica para claridad.
                 continue;
             }
           }
 
-          console.log("Proceso de importación finalizado.", resultado);
+          console.log("Proceso de importación finalizado.", resultadosDetallados);
 
           // Invalidar la caché de stock para esta empresa
           const cacheKey = `stock_data_${empresaId}`;
           await cache.invalidate(cacheKey);
           console.log(`[IMPORT] Caché invalidada para la clave: ${cacheKey}`);
 
-          resolve(new Response(JSON.stringify(resultado), { status: 200 }));
+          resolve(new Response(JSON.stringify(resultadosDetallados), { status: 200 }));
         },
         error: (error) => {
           console.error("Error parsing CSV:", error);

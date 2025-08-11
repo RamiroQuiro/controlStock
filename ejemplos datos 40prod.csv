@@ -1,38 +1,6 @@
 nombre,codigoBarra,stock,pCompra,pVenta,categoria,marca,descripcion,alertaStock,iva,unidadMedida
-Coca Cola 500ml,7790895000010,50,350.0,500.0,Gaseosas,,Coca Cola 500ml,10,21,unidad
-Coca Cola 1.5L,7790895000027,40,650.0,900.0,Gaseosas,,Coca Cola 1.5L,10,21,unidad
-Pepsi 500ml,7791813420003,30,320.0,480.0,Gaseosas,,Pepsi 500ml,10,21,unidad
-Pepsi 1.5L,7791813420010,25,600.0,850.0,Gaseosas,,Pepsi 1.5L,10,21,unidad
-Sprite 500ml,7790895640001,35,330.0,490.0,Gaseosas,,Sprite 500ml,10,21,unidad
-Sprite 1.5L,7790895640018,28,620.0,870.0,Gaseosas,,Sprite 1.5L,10,21,unidad
-Quilmes Cristal 1L,7792798000015,20,900.0,1300.0,Cervezas,,Quilmes Cristal 1L,10,21,unidad
-Quilmes Stout 1L,7792798000022,15,950.0,1350.0,Cervezas,,Quilmes Stout 1L,10,21,unidad
-Stella Artois 1L,7792798000039,10,1100.0,1600.0,Cervezas,,Stella Artois 1L,10,21,unidad
-Brahma 1L,7792798000046,12,850.0,1250.0,Cervezas,,Brahma 1L,10,21,unidad
-Cepita Naranja 1L,7791813040015,18,450.0,650.0,Jugos,,Cepita Naranja 1L,10,21,unidad
-Cepita Manzana 1L,7791813040022,16,450.0,650.0,Jugos,,Cepita Manzana 1L,10,21,unidad
-Tang Naranja 25g,7790036000012,60,80.0,150.0,Jugos,,Tang Naranja 25g,10,21,unidad
-Tang Manzana 25g,7790036000029,50,80.0,150.0,Jugos,,Tang Manzana 25g,10,21,unidad
-Toro Tinto 1L,7791234000017,25,600.0,900.0,Vinos,,Toro Tinto 1L,10,21,unidad
-Toro Blanco 1L,7791234000024,22,600.0,900.0,Vinos,,Toro Blanco 1L,10,21,unidad
-Termidor Tinto 1L,7791234000031,20,580.0,880.0,Vinos,,Termidor Tinto 1L,10,21,unidad
-Termidor Blanco 1L,7791234000048,18,580.0,880.0,Vinos,,Termidor Blanco 1L,10,21,unidad
-Sugus Bolsa 500g,7791234560014,30,700.0,1100.0,Caramelos,,Sugus Bolsa 500g,10,21,unidad
-Mentos Frutal 37g,7791234560021,40,150.0,300.0,Caramelos,,Mentos Frutal 37g,10,21,unidad
-Mogul Ositos 90g,7791234560038,35,350.0,600.0,Caramelos,,Mogul Ositos 90g,10,21,unidad
-Oreo 117g,7790040117006,25,300.0,500.0,Galletitas,,Oreo 117g,10,21,unidad
-Pepitos 118g,7790040118003,20,320.0,520.0,Galletitas,,Pepitos 118g,10,21,unidad
-Chocolinas 150g,7790040119000,15,400.0,650.0,Galletitas,,Chocolinas 150g,10,21,unidad
-Alfajor Jorgito Negro,7790040120007,40,200.0,350.0,Alfajores,,Alfajor Jorgito Negro,10,21,unidad
-Alfajor Jorgito Blanco,7790040120014,38,200.0,350.0,Alfajores,,Alfajor Jorgito Blanco,10,21,unidad
-Alfajor Havanna Negro,7790040120021,20,450.0,700.0,Alfajores,,Alfajor Havanna Negro,10,21,unidad
-Alfajor Havanna Blanco,7790040120038,18,450.0,700.0,Alfajores,,Alfajor Havanna Blanco,10,21,unidad
-Harina Pureza 000 1kg,7790040130006,25,350.0,500.0,Harinas,,Harina Pureza 000 1kg,10,21,unidad
-Harina Pureza Leudante 1kg,7790040130013,22,370.0,520.0,Harinas,,Harina Pureza Leudante 1kg,10,21,unidad
-Azúcar Ledesma 1kg,7790040140009,30,400.0,550.0,Azucar,,Azúcar Ledesma 1kg,10,21,unidad
-Azúcar Chango 1kg,7790040140016,28,390.0,540.0,Azucar,,Azúcar Chango 1kg,10,21,unidad
-Yerba Playadito 1kg,7790040150002,20,1500.0,2200.0,Otros,,Yerba Playadito 1kg,10,21,unidad
-Yerba Taragüi 1kg,7790040150019,18,1550.0,2300.0,Otros,,Yerba Taragüi 1kg,10,21,unidad
-Aceite Natura 900ml,7790040160005,15,1600.0,2300.0,Otros,,Aceite Natura 900ml,10,21,unidad
-Aceite Cocinero 900ml,7790040160012,14,1500.0,2200.0,Otros,,Aceite Cocinero 900ml,10,21,unidad
-,,,,,,,,10,21,unidad
+Producto A,COD001,100,15.50,10.00,utiles,MarcaX,Descripción A,10,21,unidad
+Producto B,COD002,50,25.00,18.00,gaseosas,MarcaY,Descripción B,5,21,unidad
+Producto C,,20,12.00,8.00,Hogar,MarcaZ,Descripción C,2,21,unidad
+Producto D,COD004,80,30.00,20.00,CategoriaInexistente,MarcaW,Descripción D,15,21,unidad
+Producto E,COD005,10,5.00,3.00,Electronica,MarcaX,Descripción E,1,21,unidad

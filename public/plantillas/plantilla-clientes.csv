@@ -1,0 +1,6 @@
+nombre,email,telefono,direccion,cuit
+Cliente Ejemplo 1,cliente1@email.com,1122334455,Calle Falsa 123,20-12345678-9
+Cliente Ejemplo 2,cliente2@email.com,2233445566,Avenida Siempreviva 742,20-23456789-0
+Cliente Ejemplo 3,cliente3@email.com,3344556677,Boulevard de los Sueños Rotos 456,27-34567890-1
+Cliente Ejemplo 4,,4455667788,Plaza Central 1,20-45678901-2
+Cliente Ejemplo 5,cliente5@email.com,,,27-56789012-3

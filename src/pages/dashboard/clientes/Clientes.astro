@@ -11,13 +11,13 @@ if (!user) {
 }
 ---
 
-<MainDashboard class="p-6" h1="Clientes">
+<MainDashboard class="p-6" h1="Clientes" subtitle="Gestion de Clientes">
   <div
     slot={'menu'}
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
     <div class="flex gap-3">
-      <Modal label="Crear" id="crearCliente">
+      <Modal label="Crear" id="crearCliente" title="Crear Cliente">
         <FormularioCliente
           client:visible
           modo="crear"
@@ -86,7 +86,9 @@ if (!user) {
     ?.addEventListener('click', async () => {
       downloadLoader(true);
       try {
-        const response = await fetch('/api/ajustes/exportarDatos?tipo=clientes');
+        const response = await fetch(
+          '/api/ajustes/exportarDatos?tipo=clientes'
+        );
 
         if (!response.ok) {
           throw new Error('Error al exportar');

@@ -18,11 +18,32 @@ export default function PerfilProducto({ onClose }) {
   const { data, loading } = useStore(perfilProducto);
   // Inicializar formulario con un objeto vacío para evitar errores
   const [formulario, setFormulario] = useState({});
+  // Estado para almacenar el pronóstico de demanda
+  const [pronosticoDemanda, setPronosticoDemanda] = useState(null);
+
   // Actualizar el formulario cuando data.productData cambie o cuando loading pase a false
   useEffect(() => {
     if (data?.productData) {
       setFormulario(data.productData);
       setDepositosDB(data.depositosDB);
+
+      // Fetch the demand forecast
+      const fetchPronostico = async () => {
+        try {
+          const response = await fetch(`/api/productos/${data.productData.id}/pronostico`);
+          if (response.ok) {
+            const result = await response.json();
+            setPronosticoDemanda(result.pronostico);
+          } else {
+            console.error('Error al obtener el pronóstico:', response.statusText);
+            setPronosticoDemanda(null);
+          }
+        } catch (error) {
+          console.error('Error al obtener el pronóstico:', error);
+          setPronosticoDemanda(null);
+        }
+      };
+      fetchPronostico();
     }
   }, [data?.productData]);
   
@@ -176,6 +197,17 @@ console.log('este es el formulario, vamo aver si va cmabiando',formulario)
         />
         {/* historial Movimientos */}
         <HistorialMovimientosDetalleProducto />
+
+        {/* Sección de Pronóstico de Demanda */}
+        {pronosticoDemanda !== null && ( // Solo mostrar si hay un pronóstico
+          <div className="w-full p-4 bg-gray-100 rounded-lg mt-4">
+            <h3 className="text-md font-semibold mb-2">Pronóstico de Demanda</h3>
+            <p>Demanda pronosticada para los próximos días: **{pronosticoDemanda.toFixed(2)}** unidades.</p>
+            <p className="text-xs text-gray-500">
+              (Basado en la media móvil de los últimos 3 días de ventas)
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

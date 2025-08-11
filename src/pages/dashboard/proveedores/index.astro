@@ -1,18 +1,10 @@
 ---
-import LayoutDash from "../../../components/layouts/LayoutDash.astro";
-import Table from "../../../components/tablaComponentes/Table";
-import { clientes } from "../../../db/schema";
-import { desc, eq } from "drizzle-orm";
-import ConfeccionTabla from "./ConfeccionTabla";
-import db from "../../../db";
-import MainDashboard from "../../../components/atomos/MainDashboard.astro";
-import Proveedores from "./Proveedores.astro";
-
-
-
+import LayoutDash from '../../../components/layouts/LayoutDash.astro';
+import Proveedores from './Proveedores.astro';
 ---
+
 <LayoutDash title="Proveedores">
- <Proveedores />
+  <Proveedores />
 </LayoutDash>
 
 <script>
@@ -20,6 +12,4 @@ import Proveedores from "./Proveedores.astro";
   document.getElementById('btnNuevoCliente')?.addEventListener('click', () => {
     window.location.href = '/dashboard/proveedores/nuevo';
   });
-
- 
 </script>

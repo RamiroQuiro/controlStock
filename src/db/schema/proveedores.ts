@@ -9,12 +9,18 @@ export const proveedores = sqliteTable(
   {
     id: text('id').primaryKey(),
     nombre: text('nombre').notNull(),
-    activo: integer('activo', { mode: 'number' }).default(1),
+    activo: integer('activo', { mode: 'boolean' }).default(true),
     contacto: text('contacto'),
     dni: integer('dni', { mode: 'number' }),
+    condicionIva: text('condicionIva'),
     celular: text('celular'),
+    domicilio: text('domicilio'),
+    web: text('web'),
+    telefono: text('telefono'),
+    categoria: text('categorias', { mode: 'json' }),
     email: text('email'),
     direccion: text('direccion'),
+    cuit: integer('cuit', { mode: 'number' }),
     estado: text('estado', { enum: ['activo', 'inactivo'] }).default('activo'),
     observaciones: text('observaciones'),
     empresaId: text('empresaId').references(() => empresas.id),
@@ -24,7 +30,11 @@ export const proveedores = sqliteTable(
       .default(sql`(strftime('%s', 'now'))`),
   },
   (t) => [
-    // Índice único compuesto para evitar duplicados de dni por usuario
+    // Único para DNI y empresa
     unique().on(t.dni, t.empresaId),
+    // Este índice parcial lo hacemos vía SQL crudo
+    sql`CREATE UNIQUE INDEX IF NOT EXISTS cuit_empresa_unique_not_null 
+        ON proveedores (cuit, empresaId) 
+        WHERE cuit IS NOT NULL`,
   ]
 );

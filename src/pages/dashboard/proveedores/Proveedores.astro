@@ -8,13 +8,13 @@ import FormularioProveedor from './[proveedorId]/components/FormularioProveedor'
 const { user } = Astro.locals;
 ---
 
-<MainDashboard class="p-6" h1="Proveedores">
+<MainDashboard class="p-6" h1="Proveedores" subtitle="Gestion de Proveedores">
   <div
     slot={'menu'}
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
     <div class="flex gap-3">
-      <Modal id="crearProveedor" label="Crear">
+      <Modal id="crearProveedor" label="Crear" title="Crear Proveedor">
         <FormularioProveedor
           client:visible
           userId={user?.id}
@@ -71,7 +71,9 @@ const { user } = Astro.locals;
     ?.addEventListener('click', async () => {
       downloadLoader(true);
       try {
-        const response = await fetch('/api/ajustes/exportarDatos?tipo=proveedores');
+        const response = await fetch(
+          '/api/ajustes/exportarDatos?tipo=proveedores'
+        );
 
         if (!response.ok) {
           throw new Error('Error al exportar');
@@ -100,7 +102,9 @@ const { user } = Astro.locals;
         console.error('Error al exportar:', error);
         // Aquí podrías mostrar un toast de error si lo deseas
         downloadLoader(false);
-        showToast('Error al exportar proveedores', { background: 'bg-red-600' });
+        showToast('Error al exportar proveedores', {
+          background: 'bg-red-600',
+        });
       }
     });
 

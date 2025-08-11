@@ -115,11 +115,8 @@ export default function FormularioCliente({
   return (
     <form
       onSubmit={handleSubmit}
-      className=" flex flex-col gap-4 w-full text-primary-texto p-6"
+      className=" flex flex-col gap-4 w-full text-primary-texto pb-6"
     >
-      <h2 className="text-xl text-primary-textoTitle font-semibold ">
-        {modo == 'crear' ? 'Crear' : 'Modificar'} Cliente
-      </h2>
       <div className="flex flex-col gap-4 items-center w-full justify-normal">
         {/* Datos básicos */}
         <div className="w-full flex items-center justify-normal gap-2 ">

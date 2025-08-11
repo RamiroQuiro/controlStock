@@ -10,6 +10,8 @@ export const clientes = sqliteTable(
     nombre: text('nombre').notNull(),
     telefono: text('telefono'),
     dni: integer('dni', { mode: 'number' }).unique(),
+    cuit: integer('cuit', { mode: 'number' }),
+    condicionIva: text('condicionIva'),
     email: text('email'),
     direccion: text('direccion'),
     empresaId: text('empresaId').references(() => empresas.id),
@@ -18,7 +20,7 @@ export const clientes = sqliteTable(
     fechaAlta: integer('fechaAlta', { mode: 'timestamp' }).default(
       sql`(strftime('%s', 'now'))`
     ),
-    activo: integer('activo', { mode: 'number' }).default(1),
+    activo: integer('activo', { mode: 'boolean' }).default(true),
     ultimaCompra: integer('ultimaCompra', { mode: 'timestamp' }),
     categoria: text('categoria').default('regular'),
     estado: text('estado').default('activo'),
@@ -29,9 +31,13 @@ export const clientes = sqliteTable(
       mode: 'number',
     }).default(0),
   },
-
   (t) => [
-    // Índice único compuesto para evitar duplicados de dni por usuario
+    // Único para DNI y empresa
     unique().on(t.dni, t.empresaId),
+
+    // Este índice parcial lo hacemos vía SQL crudo porque Drizzle aún no soporta .where() bien con SQLite
+    sql`CREATE UNIQUE INDEX IF NOT EXISTS cuit_empresa_unique_not_null 
+        ON clientes (cuit, empresaId) 
+        WHERE cuit IS NOT NULL`,
   ]
 );

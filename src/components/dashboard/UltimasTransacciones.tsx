@@ -83,9 +83,12 @@ const UltimasTransacciones: React.FC = () => {
     <div className=" w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Últimas Transacciones</h2>
-        <button className="text-primary-100 text-sm font-medium hover:underline">
+        <a
+          href="/dashboard/transaccionesTodas"
+          className="text-primary-100 text-sm font-medium hover:underline"
+        >
           Ver todas
-        </button>
+        </a>
       </div>
 
       <div className="overflow-x-auto">

@@ -1,13 +1,13 @@
 ---
-import PerfilCliente from "../components/PerfilCliente";
-import { clientes } from "../../../../db/schema/clientes";
-import { and, eq } from "drizzle-orm";
-import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
-import db from "../../../../db";
-import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
-import Button1 from "../../../../components/atomos/Button1.astro";
-import FormularioCliente from "../components/FormularioCliente";
-import Modal from "../../../../components/moleculas/Modal.astro";
+import PerfilCliente from '../components/PerfilCliente';
+import { clientes } from '../../../../db/schema/clientes';
+import { and, eq } from 'drizzle-orm';
+import LayoutDash from '../../../../components/layouts/LayoutDash.astro';
+import db from '../../../../db';
+import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
+import FormularioCliente from '../components/FormularioCliente';
+import Modal from '../../../../components/moleculas/Modal.astro';
+import formatDate from '../../../../utils/formatDate';
 
 const { clienteId } = Astro.params;
 const { user } = Astro.locals;
@@ -18,22 +18,22 @@ const [cliente] = await db
   .where(
     and(eq(clientes.id, clienteId), eq(clientes.empresaId, user?.empresaId))
   );
-console.log("cliente ->", cliente);
+console.log('cliente ->', cliente);
 if (!cliente) {
-  return Astro.redirect("/dashboard/clientes");
+  return Astro.redirect('/dashboard/clientes');
 }
 ---
 
 <LayoutDash title={`Cliente - ${cliente.nombre}`}>
-  <MainDashboard h1=`${cliente.nombre}`>
+  <MainDashboard h1={`Cliente - ${cliente.nombre}`}>
     <div
-      slot={"menu"}
+      slot={'menu'}
       class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
     >
-      <p>
-        Cliente desde: {new Date(cliente.fechaAlta).toLocaleDateString()}
+      <p class="text-sm">
+        Cliente desde: {formatDate(cliente.fechaAlta)}
       </p>
-      <Modal label="Editar Cliente" id="editarCliente">
+      <Modal label="Editar Cliente" id="editarCliente" title="Editar Cliente">
         <FormularioCliente
           client:visible
           modo="editar"
@@ -49,9 +49,9 @@ if (!cliente) {
 
 <script define:vars={{ clienteId }}>
   document
-    .getElementById("btnEdit")
+    .getElementById('btnEdit')
     .addEventListener(
-      "click",
+      'click',
       () => (window.location.href = `/dashboard/clientes/${clienteId}/editar`)
     );
 </script>

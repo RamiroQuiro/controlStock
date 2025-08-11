@@ -45,7 +45,6 @@ export default function FormularioProveedor({
     }
   }, [modo, proveedor]);
 
-  console.log('trae datos para editar? ->', proveedor);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nombre || !formData.dni || !formData.direccion) {
@@ -103,7 +102,7 @@ export default function FormularioProveedor({
   };
 
   return (
-    <form className=" flex flex-col gap-4 w-full text-primary-texto p-6">
+    <form className=" flex flex-col gap-4 w-full text-primary-texto pb-6">
       <div className="flex flex-col gap-4 items-center w-full justify-normal">
         {/* Datos básicos */}
         <div className="w-full flex items-center justify-normal gap-2 ">

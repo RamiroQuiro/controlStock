@@ -5,9 +5,10 @@ import { categorias } from '../../../../db/schema';
 import LayoutDash from '../../../../components/layouts/LayoutDash.astro';
 import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
 import DivBox1 from '../../../../components/atomos/DivBox1.astro';
-import BotonChildresIcono from '../../../../components/atomos/BotonChildresIcono';
-import { Upload } from 'lucide-react';
-import ImportadorProductos from '../../../../components/organismos/ImportadorProductos';
+import { BoxIcon, Truck, UserSquare } from 'lucide-react';
+import ImportadorGenerico from '../../../../components/organismos/ImportadorGenerico';
+import { columnasResultados, columnasResultadosClientes, columnasResultadosProveedores } from '../../../../utils/columnasTables';
+import Button4 from '../../../../components/atomos/Button4.astro';
 
 const { user } = Astro.locals;
 const empresaId = user?.empresaId;
@@ -36,21 +37,42 @@ const categoriasExistentes = await db
           asegurar una correcta importación.
         </p>
 
-        <div class="flex flex-col md:flex-row gap-8">
+        <div class="flex flex-col items-center justify-between md:flex-row gap-8">
           <!-- Columna de descarga -->
-          <div class="flex-1">
-            <a
-              href="/plantillas/productos.csv"
-              download
-              class="inline-block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition-colors"
-            >
-              Descargar Plantilla de Productos
-            </a>
+          <div class="flex flex-col gap-2 w-/3">
+            <Button4>
+              <a
+                class="w-fit flex items-center justify-center text-primary-100 font-semibold"
+                href="/plantillas/productos.csv"
+                download
+              >
+                <BoxIcon className="mr-2" /> Descargar Plantilla de Productos
+              </a>
+            </Button4>
+            <!-- planilla de clientes -->
+            <Button4>
+              <a
+                href="/plantillas/clientes.csv"
+                download
+                class="w-fit flex items-center justify-center text-primary-100 font-semibold"
+              >
+                <UserSquare className="mr-2"/> Descargar Plantilla de Clientes
+              </a>
+            </Button4>
+            <!-- planilla de proveedores -->
+            <Button4>
+              <a
+                href="/plantillas/proveedores.csv"
+                download
+                class="w-fit flex items-center justify-center text-primary-100 font-semibold"
+              >
+                <Truck className="mr-2" /> Descargar Plantilla de Proveedores
+              </a>
+            </Button4>
           </div>
-
           <!-- Columna de categorías -->
           <div
-            class="flex-1 border border-gray-700 rounded-lg p-4 bg-primary-bg-componentes"
+            class="flex- w-2/3 border border-gray-700 rounded-lg p-4 bg-primary-bg-componentes"
           >
             <h3 class="font-semibold mb-2 text-primary-textoTitle">
               Categorías Disponibles:
@@ -81,31 +103,30 @@ const categoriasExistentes = await db
         </p>
 
         <div id="upload-form-container">
-          <ImportadorProductos client:load />
+          <ImportadorGenerico 
+            client:load
+            titulo="Importar Productos"
+            endpoint="/api/ajustes/importarProductos"
+            inputName="file-productos"
+            columnasResultado={columnasResultados}
+          />
+
+          <ImportadorGenerico 
+            client:load
+            titulo="Importar Clientes"
+            endpoint="/api/ajustes/importarClientes"
+            inputName="file-clientes"
+            columnasResultado={columnasResultadosClientes}
+          />
+
+          <ImportadorGenerico 
+            client:load
+            titulo="Importar Proveedores"
+            endpoint="/api/ajustes/importarProveedores"
+            inputName="file-proveedores"
+            columnasResultado={columnasResultadosProveedores}
+          />
         </div>
-        <!-- Aquí irá el componente de subida de React
-        <div id="upload-form-container">
-          <form>
-            <div class="mb-4">
-              <label
-                for="file-productos"
-                class="block mb-2 text-sm font-medium"
-              >
-                Seleccionar archivo CSV
-              </label>
-              <input
-                type="file"
-                id="file-productos"
-                name="file-productos"
-                accept=".csv"
-                class="block w-full text-sm text-gray-400 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 file:bg-gray-800 file:border-0 file:text-white file:px-4 file:py-2"
-              />
-            </div>
-            <BotonChildresIcono client:load type="submit">
-              <Upload />
-            </BotonChildresIcono>
-          </form>
-        </div> -->
       </div>
     </DivBox1>
   </MainDashboard>

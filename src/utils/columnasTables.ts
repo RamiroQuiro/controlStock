@@ -22,6 +22,55 @@ export const clienteColumns: ColumnaType[] = [
   { label: 'acciones', id: 6, selector: () => {} },
 ];
 
+export const exportacionProductosClomuns=[
+  {
+    label:"N°",
+    id:1,
+    selector:(row,index)=>index+1
+  },
+  {
+    label:"Producto",
+    id:2,
+    selector:(row)=>row.nombreProducto
+  },
+  {
+    label:"Estado",
+    id:3,
+    selector:(row)=>row.estado
+  },
+  {
+    label:"Mensaje",
+    id:4,
+    selector:(row)=>row.mensaje
+  }  
+]
+
+const columnasResultadosImportacion = [
+  {
+    label: "Fila",
+    id: 1,
+    selector: (row: any) => row.fila,
+  },
+  {
+    label: "Nombre",
+    id: 2,
+    selector: (row: any) => row.nombre || row.nombreProducto,
+  },
+  {
+    label: "Estado",
+    id: 3,
+    selector: (row: any) => row.estado,
+  },
+  {
+    label: "Mensaje",
+    id: 4,
+    selector: (row: any) => row.mensaje,
+  },
+];
+
+export const columnasResultadosClientes = columnasResultadosImportacion;
+export const columnasResultadosProveedores = columnasResultadosImportacion;
+
 export const detallesProductosColumns = [
   { label: 'N°', id: 1, selector: (row, index) => index + 1 },
   { label: 'Tipo', id: 2, selector: (row) => row.tipo },

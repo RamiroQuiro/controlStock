@@ -71,7 +71,7 @@ const { user } = Astro.locals;
     ?.addEventListener('click', async () => {
       downloadLoader(true);
       try {
-        const response = await fetch('/api/clientes/exportar-csv');
+        const response = await fetch('/api/ajustes/exportarDatos?tipo=proveedores');
 
         if (!response.ok) {
           throw new Error('Error al exportar');
@@ -86,7 +86,7 @@ const { user } = Astro.locals;
         // Crear elemento <a> temporal
         const a = document.createElement('a');
         a.href = url;
-        a.download = `clientes-${new Date().toISOString().split('T')[0]}.csv`;
+        a.download = `proveedores-${new Date().toISOString().split('T')[0]}.csv`;
 
         // Agregar al DOM y simular click
         document.body.appendChild(a);
@@ -100,7 +100,7 @@ const { user } = Astro.locals;
         console.error('Error al exportar:', error);
         // Aquí podrías mostrar un toast de error si lo deseas
         downloadLoader(false);
-        showToast('Error al exportar clientes', { background: 'bg-red-600' });
+        showToast('Error al exportar proveedores', { background: 'bg-red-600' });
       }
     });
 

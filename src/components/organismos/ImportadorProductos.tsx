@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import BotonChildresIcono from '../atomos/BotonChildresIcono';
 import { Upload } from 'lucide-react';
+import Table from '../tablaComponentes/Table';
+import { exportacionProductosClomuns } from '../../utils/columnasTables';
+import LoaderReact from '../../utils/loader/LoaderReact';
 
 export default function ImportadorProductos() {
   const [file, setFile] = useState<File | null>(null);
@@ -70,7 +73,8 @@ export default function ImportadorProductos() {
           />
         <BotonChildresIcono
           type="submit"
-          disabled={loading}
+          
+          disabled={file === null}
           icono={Upload}
           className=" bg-gray-700 text-sm px-2 py-1  hover:bg-gray-700/70 text-white"
           children="Importar Productos"
@@ -93,29 +97,18 @@ export default function ImportadorProductos() {
       {
          importResults?.length > 0 && (
           <div>
-     <h3>Resultados de la Importación:</h3>
-     <table className="min-w-full bg-white">
-       <thead>
-         <tr>
-           <th className="py-2 px-4 border-b">Fila CSV</th>
-           <th className="py-2 px-4 border-b">Producto</th>
-           <th className="py-2 px-4 border-b">Estado</th>
-           <th className="py-2 px-4 border-b">Mensaje</th>
-         </tr>
-       </thead>
-       <tbody>
-          {importResults.map((item, index) => (
-           <tr key={index} className={item.estado === 'Error' ? 'bg-red-100' : 'bg-green-100'}>
-             <td className="py-2 px-4 border-b">{item.fila}</td>
-             <td className="py-2 px-4 border-b">{item.nombreProducto}</td>
-             <td className="py-2 px-4 border-b">{item.estado}</td>
-             <td className="py-2 px-4 border-b">{item.mensaje}</td>
-           </tr>
-         ))}
-       </tbody>
-     </table>
+            <h3>Resultados de la Importación:</h3>
+            <Table 
+            columnas={exportacionProductosClomuns}
+            arrayBody={importResults}
+            styleTable="min-w-full bg-white"
+            renderBotonActions={false}
+            onClickRegistro={false}
+            />
+     
    </div>
      )}
+     {loading && <LoaderReact />}
     </div>
   );
 }

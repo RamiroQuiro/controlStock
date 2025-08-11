@@ -1,8 +1,9 @@
-import type { APIRoute } from "astro";
-import { db } from "@/db";
-import { proveedores } from "@/db/schema";
-import Papa from "papaparse";
-import { nanoid } from "nanoid";
+import type { APIRoute } from 'astro';
+
+import Papa from 'papaparse';
+import { nanoid } from 'nanoid';
+import db from '../../../db';
+import { proveedores } from '../../../db/schema';
 
 interface ProveedorCSV {
   nombre: string;
@@ -10,6 +11,12 @@ interface ProveedorCSV {
   telefono?: string;
   direccion?: string;
   cuit?: string;
+  celular?: string;
+  dni?: string;
+  observaciones?: string;
+  condicionIva?: string;
+  contacto?: string;
+  domicilio?: string;
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -18,19 +25,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const userId = user?.id;
 
   if (!empresaId || !userId) {
-    return new Response("No autorizado", { status: 401 });
+    return new Response('No autorizado', { status: 401 });
   }
 
   const formData = await request.formData();
-  const file = formData.get("file-proveedores") as File;
+  const file = formData.get('file-proveedores') as File;
 
   if (!file) {
-    return new Response("No se encontró el archivo", { status: 400 });
+    return new Response('No se encontró el archivo', { status: 400 });
   }
 
   const fileContent = await file.text();
 
-  const resultadosDetallados: { fila: number; nombre: string; estado: string; mensaje: string }[] = [];
+  const resultadosDetallados: {
+    fila: number;
+    nombre: string;
+    estado: string;
+    mensaje: string;
+  }[] = [];
 
   return new Promise((resolve) => {
     Papa.parse<ProveedorCSV>(fileContent, {
@@ -41,12 +53,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
           const fila = index + 2;
           const nombreProveedor = row.nombre || 'Proveedor Desconocido';
 
-          if (!row.nombre) {
+          if (!row || !row.nombre) {
             resultadosDetallados.push({
               fila,
               nombre: nombreProveedor,
               estado: 'Error',
-              mensaje: 'El campo nombre es obligatorio.',
+              mensaje: 'La fila está vacía o el campo nombre es obligatorio.',
             });
             continue;
           }
@@ -55,10 +67,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
             const proveedorParaInsertar = {
               id: nanoid(),
               nombre: row.nombre,
-              email: row.email,
-              telefono: row.telefono,
-              direccion: row.direccion,
-              cuit: row.cuit,
+              email: row.email || null,
+              telefono: row.telefono || null,
+              celular: row.celular || null,
+              direccion: row.direccion || null,
+              contacto: row.contacto || null,
+              observaciones: row.observaciones || null,
+              condicionIva: row.condicionIva || null,
+              domicilio: row.domicilio || null,
+              cuit: row.cuit ? Number(row.cuit) : null,
+              dni: row.dni ? Number(row.dni) : null,
               empresaId: empresaId,
               creadoPor: userId,
             };
@@ -74,21 +92,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
               estado: 'Éxito',
               mensaje: 'Proveedor importado correctamente.',
             });
-
           } catch (error) {
             resultadosDetallados.push({
               fila,
               nombre: nombreProveedor,
               estado: 'Error',
-              mensaje: error instanceof Error ? error.message : "Error en base de datos.",
+              mensaje:
+                error instanceof Error
+                  ? error.message
+                  : 'Error en base de datos.',
             });
           }
         }
 
-        resolve(new Response(JSON.stringify(resultadosDetallados), { status: 200 }));
+        resolve(
+          new Response(JSON.stringify(resultadosDetallados), { status: 200 })
+        );
       },
       error: (error) => {
-        resolve(new Response(JSON.stringify({ message: error.message }), { status: 400 }));
+        resolve(
+          new Response(JSON.stringify({ message: error.message }), {
+            status: 400,
+          })
+        );
       },
     });
   });

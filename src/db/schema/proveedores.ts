@@ -14,6 +14,10 @@ export const proveedores = sqliteTable(
     dni: integer('dni', { mode: 'number' }),
     condicionIva: text('condicionIva'),
     celular: text('celular'),
+    domicilio: text('domicilio'),
+    web: text('web'),
+    telefono: text('telefono'),
+    categoria: text('categorias', { mode: 'json' }),
     email: text('email'),
     direccion: text('direccion'),
     cuit: integer('cuit', { mode: 'number' }),
@@ -28,8 +32,7 @@ export const proveedores = sqliteTable(
   (t) => [
     // Único para DNI y empresa
     unique().on(t.dni, t.empresaId),
-
-    // Este índice parcial lo hacemos vía SQL crudo porque Drizzle aún no soporta .where() bien con SQLite
+    // Este índice parcial lo hacemos vía SQL crudo
     sql`CREATE UNIQUE INDEX IF NOT EXISTS cuit_empresa_unique_not_null 
         ON proveedores (cuit, empresaId) 
         WHERE cuit IS NOT NULL`,

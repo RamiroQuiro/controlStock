@@ -1,39 +1,44 @@
-import type { APIRoute } from "astro";
-import { and, eq, like, or, sql } from "drizzle-orm";
-import db from "../../../db";
-import { categorias } from "../../../db/schema";
-import { generateId } from "lucia";
-import { createResponse } from "../../../types";
+import type { APIRoute } from 'astro';
+import { and, eq, like, or, sql } from 'drizzle-orm';
+import db from '../../../db';
+import { categorias } from '../../../db/schema';
+import { generateId } from 'lucia';
+import { createResponse } from '../../../types';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Verificar autenticación primero
     if (!locals.user) {
-      return createResponse(401, "No autenticado");
+      return createResponse(401, 'No autenticado');
     }
 
     const { nombre, descripcion, color } = await request.json();
     const empresaId = locals.user.empresaId;
-    console.log("color", color);
-    console.log("nombre", nombre);
-    console.log("descripcion", descripcion);
-    console.log("empresaId", empresaId);
+    console.log('color', color);
+    console.log('nombre', nombre);
+    console.log('descripcion', descripcion);
+    console.log('empresaId', empresaId);
 
-const nombreLowerCase = nombre.toLowerCase();
+    const nombreLowerCase = nombre.toLowerCase();
 
     const isCategoriaExistente = await db
       .select()
       .from(categorias)
-      .where(and(eq(categorias.nombre, nombreLowerCase), eq(categorias.empresaId, empresaId)))
+      .where(
+        and(
+          eq(categorias.nombre, nombreLowerCase),
+          eq(categorias.empresaId, empresaId)
+        )
+      )
       .limit(1);
-      console.log("isCategoriaExistente", isCategoriaExistente);
-      console.log('nombreLowerCase', nombreLowerCase);
-    if(isCategoriaExistente.length>0){
-      return createResponse(400, "Categoria ya existe");
+    console.log('isCategoriaExistente', isCategoriaExistente);
+    console.log('nombreLowerCase', nombreLowerCase);
+    if (isCategoriaExistente.length > 0) {
+      return createResponse(400, 'Categoria ya existe');
     }
     // Validar datos requeridos
     if (!nombre || !empresaId) {
-      return createResponse(400, "Nombre y empresaId son requeridos");
+      return createResponse(400, 'Nombre y empresaId son requeridos');
     }
 
     const categoria = await db
@@ -48,22 +53,22 @@ const nombreLowerCase = nombre.toLowerCase();
       })
       .returning();
 
-    return createResponse(200, "Categoria agregada", categoria);
+    return createResponse(200, 'Categoria agregada', categoria);
   } catch (error) {
-    console.error("Error al agregar categoria:", error);
-    return createResponse(500, "Error al agregar categoria");
+    console.error('Error al agregar categoria:', error);
+    return createResponse(500, 'Error al agregar categoria');
   }
 };
 
 export const GET: APIRoute = async ({ request }) => {
   try {
     const url = new URL(request.url);
-    const query = url.searchParams.get("search")?.toLowerCase();
-    const empresaId = request.headers.get("xx-empresa-id");
-    const isAll = url.searchParams.get("all");
-    console.log("enpoint .>", isAll);
+    const query = url.searchParams.get('search')?.toLowerCase();
+    const empresaId = request.headers.get('xx-empresa-id');
+    const isAll = url.searchParams.get('all');
+    console.log('enpoint .>', isAll);
     if (!empresaId) {
-      return createResponse(400, "ID de empresa requerido");
+      return createResponse(400, 'ID de empresa requerido');
     }
 
     let whereCondition = eq(categorias.empresaId, empresaId);
@@ -74,7 +79,7 @@ export const GET: APIRoute = async ({ request }) => {
         .from(categorias)
         .where(whereCondition);
 
-      return createResponse(200, "Categorias encontradas", categoriasDB);
+      return createResponse(200, 'Categorias encontradas', categoriasDB);
     }
 
     // Agregar condición de búsqueda solo si hay query
@@ -91,13 +96,13 @@ export const GET: APIRoute = async ({ request }) => {
       .where(whereCondition);
 
     if (categoriasDB.length === 0) {
-      return createResponse(205, "No se encontraron categorias", []);
+      return createResponse(205, 'No se encontraron categorias', []);
     }
 
-    return createResponse(200, "Categorias encontradas", categoriasDB);
+    return createResponse(200, 'Categorias encontradas', categoriasDB);
   } catch (error) {
-    console.error("Error al buscar categorias:", error);
-    return createResponse(500, "Error al buscar categorias");
+    console.error('Error al buscar categorias:', error);
+    return createResponse(500, 'Error al buscar categorias');
   }
 };
 
@@ -105,9 +110,9 @@ export const PUT: APIRoute = async ({ request, locals }) => {
   try {
     const { id, nombre, descripcion, color } = await request.json();
     const empresaId = locals.user?.empresaId;
-// console.log('esto son los datos de entrada',id,nombre,descripcion,color)
+    // console.log('esto son los datos de entrada',id,nombre,descripcion,color)
     if (!locals.user) {
-      return createResponse(401, "No autenticado");
+      return createResponse(401, 'No autenticado');
     }
     const isCategoriaExistente = await db
       .select()
@@ -115,7 +120,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
       .where(eq(categorias.id, id))
       .limit(1);
     if (!isCategoriaExistente) {
-      return createResponse(404, "Categoria no encontrada");
+      return createResponse(404, 'Categoria no encontrada');
     }
 
     const nombreLowerCase = nombre.toLowerCase();
@@ -129,9 +134,40 @@ export const PUT: APIRoute = async ({ request, locals }) => {
       })
       .where(eq(categorias.id, id))
       .returning();
-    return createResponse(200, "Categoria actualizada", categoria[0]);
+    return createResponse(200, 'Categoria actualizada', categoria[0]);
   } catch (error) {
-    console.error("Error al actualizar categoria:", error);
-    return createResponse(500, "Error al actualizar categoria");
+    console.error('Error al actualizar categoria:', error);
+    return createResponse(500, 'Error al actualizar categoria');
+  }
+};
+
+export const DELETE: APIRoute = async ({ request, locals }) => {
+  const newUrl = new URL(request.url);
+  const id = newUrl.searchParams.get('id');
+  try {
+    const empresaId = locals.user?.empresaId;
+    if (!locals.user) {
+      return createResponse(401, 'No autenticado');
+    }
+    if (locals.user.rol !== 'admin') {
+      return createResponse(402, 'No Autorizado');
+    }
+    const isCategoriaExistente = (
+      await db.select().from(categorias).where(eq(categorias.id, id))
+    ).at(0);
+
+    if (!isCategoriaExistente) {
+      return createResponse(404, 'Categoria no encontrada');
+    }
+    const [categoria] = await db
+      .delete(categorias)
+      .where(eq(categorias.id, id))
+      .returning();
+
+    console.log('categoria eliminada ->', categoria);
+    return createResponse(200, 'Categoria eliminada', categoria);
+  } catch (error) {
+    console.error('Error al eliminar categoria:', error);
+    return createResponse(500, 'Error al eliminar categoria');
   }
 };

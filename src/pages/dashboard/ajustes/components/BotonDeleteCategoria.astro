@@ -1,0 +1,13 @@
+---
+import { Trash2 } from 'lucide-react';
+import Button4 from '../../../../components/atomos/Button4.astro';
+import EliminarCatergoria from './EliminarCatergoria';
+
+interface Props {
+  item: any;
+}
+
+const { item } = Astro.props as Props;
+---
+
+<EliminarCatergoria client:load item={item} />

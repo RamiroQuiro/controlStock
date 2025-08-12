@@ -4,6 +4,7 @@ import Button4 from '../../../../components/atomos/Button4.astro';
 import DivBox1 from '../../../../components/atomos/DivBox1.astro';
 import FormularioNuevaCategoria from './FormularioNuevaCat';
 import formatDate from '../../../../utils/formatDate';
+import BotonDeleteCategoria from './BotonDeleteCategoria.astro';
 
 interface Item {
   id: string;
@@ -70,18 +71,17 @@ const formProps = {
         </span>
       </div>
     </div>
-    <div class="flex space-x-2">
+    <div class="flex space- gap-2">
       <Button4 id={`editar-${type}-${item.id}`}>
         <Edit className="h-4 w-4" />
       </Button4>
       <Button4>
         {item.activo ? 'Desactivar' : 'Activar'}
       </Button4>
-      <Button4>
-        <Trash2 className="h-4 w-4 text-red-600" />
-      </Button4>
+      <BotonDeleteCategoria item={item} type={type} />
     </div>
   </div>
+
   <dialog
     id={`dialog-editar-${type}-${item.id}`}
     class="modal print:hidden relative duration-300 open:fixed open:flex flex-col rounded-lg border-l-2 border-primary-100 backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm"

@@ -1,5 +1,6 @@
 ---
 import { ArrowLeft, ArrowLeftSquare, LogOut } from "lucide-react";
+import ButtonBackHistory from "../atomos/ButtonBackHistory.astro";
 
 
 const {user} = Astro.locals
@@ -9,9 +10,8 @@ const {user} = Astro.locals
 <div
   class="w-full flex items-center py-2 justify-between gap-4 px-5 shadow-md bg-white"
 >
-  <button onclick="window.history.back()" class="flex items-center gap-2">
-    <ArrowLeftSquare />
-  </button>
+  <ButtonBackHistory />
+  <!-- <ArrowLeftSquare /> -->
   <div class="flex items-center gap-2 font-semibold text-primary-textoTitle">
     <div class="flex border border-primary-100 items-center gap-2 rounded-full bg-gray-200">
       <img src={user?.srcPhoto} alt="" class="w-8 h-8 rounded-full object-cover" />

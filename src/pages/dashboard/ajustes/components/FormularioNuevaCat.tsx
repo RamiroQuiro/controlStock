@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
-import Button3 from '../../../../components/atomos/Button3.jsx';
-import { showToast } from '../../../../utils/toast/toastShow.js';
-import { categoriasStore } from '../../../../context/store.js';
-import type { Categoria } from '../../../../types/index.js';
-import LoaderReact from '../../../../utils/loader/LoaderReact.jsx';
+import React, { useState } from "react";
+import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
+import Button3 from "../../../../components/atomos/Button3.jsx";
+import { showToast } from "../../../../utils/toast/toastShow.js";
+import { categoriasStore } from "../../../../context/store.js";
+import type { Categoria } from "../../../../types/index.js";
+import LoaderReact from "../../../../utils/loader/LoaderReact.jsx";
 
 interface Category {
   id: string;
@@ -20,22 +20,22 @@ type Props = {
 };
 
 export default function FormularioNuevaCategoria({ category, onClose }: Props) {
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    id: category?.id || '',
-    nombre: category?.nombre || '',
-    descripcion: category?.descripcion || '',
-    color: category?.color || 'bg-blue-500',
+    id: category?.id || "",
+    nombre: category?.nombre || "",
+    descripcion: category?.descripcion || "",
+    color: category?.color || "bg-blue-500",
   });
 
   const colorOptions = [
-    { value: 'bg-blue-500', label: 'Azul', class: 'bg-blue-500' },
-    { value: 'bg-green-500', label: 'Verde', class: 'bg-green-500' },
-    { value: 'bg-purple-500', label: 'Morado', class: 'bg-purple-500' },
-    { value: 'bg-red-500', label: 'Rojo', class: 'bg-red-500' },
-    { value: 'bg-yellow-500', label: 'Amarillo', class: 'bg-yellow-500' },
-    { value: 'bg-orange-500', label: 'Naranja', class: 'bg-orange-500' },
+    { value: "bg-blue-500", label: "Azul", class: "bg-blue-500" },
+    { value: "bg-green-500", label: "Verde", class: "bg-green-500" },
+    { value: "bg-purple-500", label: "Morado", class: "bg-purple-500" },
+    { value: "bg-red-500", label: "Rojo", class: "bg-red-500" },
+    { value: "bg-yellow-500", label: "Amarillo", class: "bg-yellow-500" },
+    { value: "bg-orange-500", label: "Naranja", class: "bg-orange-500" },
   ];
 
   const handleGuardarCategoria = async (e: React.FormEvent) => {
@@ -43,28 +43,28 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
     if (!formData.nombre.trim()) return;
     try {
       setLoading(true);
-      const fecthNewCat = await fetch('/api/categorias', {
-        method: category ? 'PUT' : 'POST',
+      const fecthNewCat = await fetch("/api/categorias", {
+        method: category ? "PUT" : "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
       const data = await fecthNewCat.json();
       if (data.status === 200) {
-        showToast('categoria actualizada',{backgorund:'bg-green-500'});
-        const newCategorias=categoriasStore.get().data
-        const newCategoria=newCategorias.map((categoria:Categoria)=>{
-          if(categoria.id===formData.id){
+        showToast("categoria actualizada", { background: "bg-green-500" });
+        const newCategorias = categoriasStore.get().data;
+        const newCategoria = newCategorias.map((categoria: Categoria) => {
+          if (categoria.id === formData.id) {
             return formData;
           }
           return categoria;
-        })
-        categoriasStore.set({...categoriasStore.get(),data:newCategoria});
+        });
+        categoriasStore.set({ ...categoriasStore.get(), data: newCategoria });
         if (onClose) onClose();
-      } else {  
+      } else {
         setErrorMessage(data.msg);
-        showToast('error al actualizar', {backgorund:'bg-primary-400'});
+        showToast("error al actualizar", {background: "bg-primary-400" });
       }
     } catch (error) {
       console.log(error);
@@ -74,15 +74,14 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = (e:Event) => {
+    e.preventDefault()
     onClose();
   };
 
   return (
     <form className="flex flex-col gap-4 items justify-center w-full pb-6">
-      {
-        loading && <LoaderReact/>
-      }
+      {loading && <LoaderReact />}
       <div>
         <label
           htmlFor="nombre"
@@ -126,8 +125,8 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
               type="button"
               className={`w-8 h-8 rounded-full ${color.class} border-2 transition-transform transform hover:scale-110 ${
                 formData.color === color.value
-                  ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-500'
-                  : 'border-gray-200'
+                  ? "border-gray-800 ring-2 ring-offset-2 ring-gray-500"
+                  : "border-gray-200"
               }`}
               onClick={() => setFormData({ ...formData, color: color.value })}
               title={color.label}
@@ -141,9 +140,11 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
         </div>
       )}
       <div className="flex justify-end space-x-3 pt-4">
-        <Button3 onClick={handleCancel}>Cancelar</Button3>
-        <Button3 onClick={handleGuardarCategoria}>
-          {category ? 'Actualizar' : 'Guardar'}
+        <Button3 className="hover:bg-primary-400/80 bg-primary-400 py-1 text-white" onClick={handleCancel}>
+          Cancelar
+        </Button3>
+        <Button3 className="hover:bg-primary-100/80 bg-primary-100 py-1 text-white" onClick={handleGuardarCategoria}>
+          {category ? "Actualizar" : "Guardar"}
         </Button3>
       </div>
     </form>

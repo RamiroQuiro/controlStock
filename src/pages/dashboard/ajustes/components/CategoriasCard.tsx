@@ -73,7 +73,7 @@ export default function CategoriasCard({ item, type }: Props) {
           onClose={() => setModalOpen(false)}
           className="modal print:hidden relative duration-300 open:fixed open:flex flex-col rounded-lg border-l-2 border-primary-100 backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm"
         >
-          <FormularioNuevaCategoria category={item} />
+          <FormularioNuevaCategoria onClose={()=>setModalOpen(false)} category={item} />
         </ModalReact>
       )}
     </DivReact>

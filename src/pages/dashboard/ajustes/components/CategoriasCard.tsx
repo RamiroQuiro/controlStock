@@ -7,19 +7,18 @@ import EliminarCatergoria from './EliminarCatergoria';
 import ModalReact from '../../../../components/moleculas/ModalReact';
 import FormularioNuevaCategoria from './FormularioNuevaCat';
 import { useState } from 'react';
+import type { Categoria } from '../../../../types';
 
 type Props = {
-  item: any;
+  item: Categoria;
   type: string;
-};
+  };
 
 export default function CategoriasCard({ item, type }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   return (
     <DivReact
-      className={`hover:shadow-lg duration-300 transition-all gap-4 cursor-pointer ${
-        item.activo ? '' : 'opacity-75'
-      }`}
+      className={`hover:shadow-lg duration-300 transition-all gap-4 cursor-pointer`}
     >
       <div className="flex p-4 flex-col w-full gap-4">
         <div className="flex flex-col gap-y-2 items-start w-full justify-between">
@@ -50,7 +49,7 @@ export default function CategoriasCard({ item, type }: Props) {
 
           <div className="flex items-center gap-2 w-full justify-between">
             <div className="text-lg font-semibold text-gray-700">
-              {item.cantidadProductos}
+              {item.cantidadProductos}{' '}
               {item.cantidadProductos === 1 ? 'producto' : 'productos'}
             </div>
             <span className="text-sm text-gray-500">

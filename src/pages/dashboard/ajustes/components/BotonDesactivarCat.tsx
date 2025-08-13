@@ -10,7 +10,7 @@ type Props = {
 
 export default function BotonDesactivarCat({ item }: Props) {
   const [loading, setLoading] = React.useState(false);
-  const { categorias } = useStore(categoriasStore);
+  const { data } = useStore(categoriasStore);
   const handleDesactivar = async () => {
     try {
       setLoading(true);
@@ -25,25 +25,42 @@ export default function BotonDesactivarCat({ item }: Props) {
         },
       });
       if (response.ok) {
-        console.log(response);
-        categoriasStore.set((state: any) => {
-          const categoriaEdit = state.data.find(
-            (cat: any) => cat.id === item.id
-          );
-          categoriaEdit.activo = !categoriaEdit.activo;
-          console.log('dentro del map', categoriaEdit);
-          return {
-            ...state,
-            data: state.data.map((cat: any) =>
-              cat.id === item.id ? categoriaEdit : cat
-            ),
-          };
+        console.log('Respuesta exitosa:', response);
+        
+        // Obtener el estado actual del store
+        const currentState = categoriasStore.get();
+        
+        // Verificar que data existe
+        if (!currentState.data) {
+          console.error('No hay datos en el store');
+          setLoading(false);
+          return;
+        }
+        
+        // Crear el array actualizado con la categoría modificada
+        const categoriasActualizadas = (currentState.data as any[]).map((cat: any) => {
+          if (cat.id === item.id) {
+            return { ...cat, activo: !cat.activo };
+          }
+          return cat;
         });
-
+        
+        // Crear el nuevo estado completo
+        const nuevoEstado = {
+          ...currentState,
+          data: categoriasActualizadas,
+        };
+        
+        console.log('Categoría actualizada:', item.nombre, 'Nuevo estado activo:', !item.activo);
+        
+        // Actualizar el store con el nuevo estado
+        categoriasStore.set(nuevoEstado as any);
+        
         setLoading(false);
       }
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
   return (

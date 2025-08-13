@@ -411,3 +411,14 @@ export interface ModificacionPreciosProps {
   userId: string;
   dataFiltros: DataFiltros;
 }
+
+export interface Categoria {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  color: string;
+  activo: boolean;
+  creadoPor: string;
+  created_at: string;
+  cantidadProductos: number;
+}

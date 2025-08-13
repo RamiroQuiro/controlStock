@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 import Button3 from '../../../../components/atomos/Button3.jsx';
 import { showToast } from '../../../../utils/toast/toastShow.js';
+import { categoriasStore } from '../../../../context/store.js';
+import type { Categoria } from '../../../../types/index.js';
+import LoaderReact from '../../../../utils/loader/LoaderReact.jsx';
 
 interface Category {
   id: string;
@@ -18,6 +21,7 @@ type Props = {
 
 export default function FormularioNuevaCategoria({ category, onClose }: Props) {
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     id: category?.id || '',
     nombre: category?.nombre || '',
@@ -38,6 +42,7 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
     e.preventDefault();
     if (!formData.nombre.trim()) return;
     try {
+      setLoading(true);
       const fecthNewCat = await fetch('/api/categorias', {
         method: category ? 'PUT' : 'POST',
         headers: {
@@ -47,15 +52,25 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
       });
       const data = await fecthNewCat.json();
       if (data.status === 200) {
-        showToast('success', data.msg);
+        showToast('categoria actualizada',{backgorund:'bg-green-500'});
+        const newCategorias=categoriasStore.get().data
+        const newCategoria=newCategorias.map((categoria:Categoria)=>{
+          if(categoria.id===formData.id){
+            return formData;
+          }
+          return categoria;
+        })
+        categoriasStore.set({...categoriasStore.get(),data:newCategoria});
         if (onClose) onClose();
-      } else {
+      } else {  
         setErrorMessage(data.msg);
-        showToast('error', data.msg);
+        showToast('error al actualizar', {backgorund:'bg-primary-400'});
       }
     } catch (error) {
       console.log(error);
       setErrorMessage(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,6 +80,9 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
 
   return (
     <form className="flex flex-col gap-4 items justify-center w-full pb-6">
+      {
+        loading && <LoaderReact/>
+      }
       <div>
         <label
           htmlFor="nombre"

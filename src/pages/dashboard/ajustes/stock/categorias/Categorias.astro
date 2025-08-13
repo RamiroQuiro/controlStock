@@ -1,5 +1,5 @@
 ---
-import { eq, sql } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import Button1 from '../../../../../components/atomos/Button1.astro';
 import DivBox1 from '../../../../../components/atomos/DivBox1.astro';
 import MainDashboard from '../../../../../components/atomos/MainDashboard.astro';
@@ -8,23 +8,20 @@ import db from '../../../../../db';
 import { categorias, productoCategorias } from '../../../../../db/schema';
 import CardInfoCatUbiDep from '../../components/CardInfoCatUbiDep.astro';
 import FormularioNuevaCat from '../../components/FormularioNuevaCat';
-import ListarCardCategorias from './ListarCardCategorias';
+import CategoriasWrapper from './components/CategoriasWrapper';
+import StatsCategorias from './components/StatsCategorias';
 
-interface Category {
-  id: string;
-  nombre: string;
-  descripcion: string;
-  color: string;
-  activo: boolean;
-  creadoPor: string;
-  created_at: string;
-  cantidadProductos: number;
-}
-
-let categories: Category[] = [];
-let cantidadProductos: number = 0;
 
 const { user } = Astro.locals;
+let countCatSkeletor = 0;
+if (user?.empresaId) {
+  try {
+    const result = await db.select({count:count()}).from(categorias).where(eq(categorias.empresaId, user.empresaId));
+    countCatSkeletor = result[0]?.count || 0;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+  }
+}
 ---
 
 <MainDashboard h1="Gestión de Categorías" subtitle="Gestiona de Categorías.">
@@ -51,32 +48,11 @@ const { user } = Astro.locals;
     </div>
   </div>
 
-  <!-- ver si colocamos algunos stats con info rapida -->
-  <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
-    <DivBox1>
-      <div class="text-2xl font-bold text-blue-600">{categories.length}</div>
-      <div class="text-sm font-semibold text-gray-600">Total Categorías</div>
-    </DivBox1>
-    <DivBox1>
-      <div class="text-2xl font-bold text-green-600">
-        {categories.filter((category) => category.activo).length}
-      </div>
-      <div class="text-sm font-semibold text-gray-600">Activas</div>
-    </DivBox1>
-    <DivBox1>
-      <div class="text-2xl font-bold text-neutral-600">{cantidadProductos}</div>
-      <div class="text-sm font-semibold text-gray-600">Total Productos</div>
-    </DivBox1>
-    <DivBox1>
-      <div class="text-2xl font-bold text-purple-600">
-        {(cantidadProductos / categories.length).toFixed(2)}
-      </div>
-      <div class="text-sm font-semibold text-gray-600">
-        Promedio por Categoría
-      </div>
-    </DivBox1>
-  </div>
-  <ListarCardCategorias client:load />
+    <!-- Estadísticas en tiempo real -->
+  <StatsCategorias client:load />
+  
+  <!-- Categorías con skeleton -->
+  <CategoriasWrapper client:load skeletonCount={countCatSkeletor || 3} />
 </MainDashboard>
 
 <script>

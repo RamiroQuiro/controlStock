@@ -1,7 +1,7 @@
 ---
 import { dataFormularioContexto } from '../../context/store';
 import Button1 from '../atomos/Button1.astro';
-import { CircleX,X } from 'lucide-react';
+import { CircleX, X } from 'lucide-react';
 const { id, label, title } = Astro.props;
 
 dataFormularioContexto.set({ isEdit: false });
@@ -15,7 +15,9 @@ dataFormularioContexto.set({ isEdit: false });
     class="modal print:hidden relative duration-300 open:fixed open:flex flex-col w-full max-w-3xl rounded-lg backdrop:bg-primary-textoTitle/80 open:backdrop:backdrop-blur-sm max-h-[90vh] overflow-hidden"
   >
     {/* Header Fijo */}
-    <div class="flex justify-between items-center p-4 border-b bg-white flex-shrink-0">
+    <div
+      class="flex justify-between items-center p-4 border-b bg-primary-bg-componentes flex-shrink-0"
+    >
       <h3 class="text-xl font-semibold text-gray-800">{title}</h3>
       <button
         id={`modal-close-${id}`}

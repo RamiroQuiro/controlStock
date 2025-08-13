@@ -14,7 +14,7 @@ export default function Button3({
       id={id}
       onClick={onClick}
       disabled={disabled}
-      className={`${className } 'bg-transparent hover:bg-primary-100/80 hover:text-white  border-primary-100' px-3 py-1 rounded-lg font-semibold capitalize duration-300 text-xs  border disabled:bg-gray-200 disabled:text-stone-600 disabled:border-opacity-0 disabled:hover:text-stone-600 `}
+      className={`${className} 'bg-transparent hover:bg-primary-texto/10 :text-primary-texto hover:shadow border-primary-100' px-3 py-1 rounded-lg font-semibold capitalize duration-300 text-xs  border disabled:bg-gray-200 disabled:text-stone-600 disabled:border-opacity-0 disabled:hover:text-stone-600 `}
     >
       {children}
     </button>

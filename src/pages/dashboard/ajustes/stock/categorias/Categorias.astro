@@ -1,13 +1,14 @@
 ---
-import { eq, sql } from "drizzle-orm";
-import Button1 from "../../../../../components/atomos/Button1.astro";
-import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
-import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
-import Modal from "../../../../../components/moleculas/Modal.astro";
-import db from "../../../../../db";
-import { categorias, productoCategorias } from "../../../../../db/schema";
-import CardInfoCatUbiDep from "../../components/CardInfoCatUbiDep.astro";
-import FormularioNuevaCat from "../../components/FormularioNuevaCat";
+import { eq, sql } from 'drizzle-orm';
+import Button1 from '../../../../../components/atomos/Button1.astro';
+import DivBox1 from '../../../../../components/atomos/DivBox1.astro';
+import MainDashboard from '../../../../../components/atomos/MainDashboard.astro';
+import Modal from '../../../../../components/moleculas/Modal.astro';
+import db from '../../../../../db';
+import { categorias, productoCategorias } from '../../../../../db/schema';
+import CardInfoCatUbiDep from '../../components/CardInfoCatUbiDep.astro';
+import FormularioNuevaCat from '../../components/FormularioNuevaCat';
+import ListarCardCategorias from './ListarCardCategorias';
 
 interface Category {
   id: string;
@@ -24,44 +25,15 @@ let categories: Category[] = [];
 let cantidadProductos: number = 0;
 
 const { user } = Astro.locals;
-
-try {
-  const categoriasConConteo = await db
-    .select({
-      id: categorias.id,
-      nombre: categorias.nombre,
-      descripcion: categorias.descripcion,
-      color: categorias.color,
-      activo: categorias.activo,
-      creadoPor: categorias.creadoPor,
-      created_at: categorias.created_at,
-      cantidadProductos: sql`COUNT(${productoCategorias.productoId})`,
-    })
-    .from(categorias)
-    .leftJoin(
-      productoCategorias,
-      eq(productoCategorias.categoriaId, categorias.id)
-    )
-    .where(eq(categorias.empresaId, user?.empresaId))
-    .groupBy(categorias.id);
-
-  categories = categoriasConConteo;
-  cantidadProductos = categoriasConConteo.reduce(
-    (total, categoria) => total + categoria.cantidadProductos,
-    0
-  );
-} catch (error) {
-  console.error("Error al obtener categorias:", error);
-}
 ---
 
 <MainDashboard h1="Gestión de Categorías" subtitle="Gestiona de Categorías.">
   <div
-    slot={"menu"}
+    slot={'menu'}
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
     <div class="flex gap-3">
-      <Modal label="Crear" id="crearCliente">
+      <Modal label="Crear" id="crearCategoria" title="Crear nueva categoría">
         <FormularioNuevaCat client:load />
       </Modal>
       <Button1
@@ -97,18 +69,41 @@ try {
     </DivBox1>
     <DivBox1>
       <div class="text-2xl font-bold text-purple-600">
-        {cantidadProductos / categories.length}
+        {(cantidadProductos / categories.length).toFixed(2)}
       </div>
       <div class="text-sm font-semibold text-gray-600">
         Promedio por Categoría
       </div>
     </DivBox1>
   </div>
-  <div class="grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-3 gap-4">
-    {
-      categories.map((category) => (
-        <CardInfoCatUbiDep item={category} type="categoria" />
-      ))
-    }
-  </div>
+  <ListarCardCategorias client:load />
 </MainDashboard>
+
+<script>
+  import { categoriasStore } from '../../../../../context/store';
+
+  const empresaId = document.getElementById('mainDashboard').dataset.emprsisi;
+  console.log('id de la empresa', empresaId);
+
+  const traerCategorias = async () => {
+    try {
+      const response = await fetch(
+        `/api/categorias?empresaId=${empresaId}&all=true`
+      );
+      const data = await response.json();
+      categoriasStore.set({ loading: false, data: data.data, error: null });
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      categoriasStore.set({ loading: false, data: null, error: error.message });
+    }
+  };
+
+  traerCategorias();
+
+  categoriasStore.subscribe((state) => {
+    console.log('Estado actual de categorias:', state);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('categorias', JSON.stringify(state));
+    }
+  });
+</script>

@@ -5,6 +5,7 @@ import DivBox1 from '../../../../components/atomos/DivBox1.astro';
 import FormularioNuevaCategoria from './FormularioNuevaCat';
 import formatDate from '../../../../utils/formatDate';
 import BotonDeleteCategoria from './BotonDeleteCategoria.astro';
+import BotonDesactivarCat from './BotonDesactivarCat';
 
 interface Item {
   id: string;
@@ -75,9 +76,7 @@ const formProps = {
       <Button4 id={`editar-${type}-${item.id}`}>
         <Edit className="h-4 w-4" />
       </Button4>
-      <Button4>
-        {item.activo ? 'Desactivar' : 'Activar'}
-      </Button4>
+      <BotonDesactivarCat item={item} client:load />
       <BotonDeleteCategoria item={item} type={type} />
     </div>
   </div>

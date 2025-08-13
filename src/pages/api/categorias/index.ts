@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { and, eq, like, or, sql } from 'drizzle-orm';
 import db from '../../../db';
-import { categorias } from '../../../db/schema';
+import { categorias, productoCategorias } from '../../../db/schema';
 import { generateId } from 'lucia';
 import { createResponse } from '../../../types';
 
@@ -60,12 +60,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 };
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const url = new URL(request.url);
     const query = url.searchParams.get('search')?.toLowerCase();
-    const empresaId = request.headers.get('xx-empresa-id');
+    // const empresaId = request.headers.get('xx-empresa-id');
+    const { user } = locals;
     const isAll = url.searchParams.get('all');
+    const empresaId = url.searchParams.get('empresaId');
     console.log('enpoint .>', isAll);
     if (!empresaId) {
       return createResponse(400, 'ID de empresa requerido');
@@ -74,12 +76,26 @@ export const GET: APIRoute = async ({ request }) => {
     let whereCondition = eq(categorias.empresaId, empresaId);
 
     if (isAll) {
-      const categoriasDB = await db
-        .select()
+      const categoriasConConteo = await db
+        .select({
+          id: categorias.id,
+          nombre: categorias.nombre,
+          descripcion: categorias.descripcion,
+          color: categorias.color,
+          activo: categorias.activo,
+          creadoPor: categorias.creadoPor,
+          created_at: categorias.created_at,
+          cantidadProductos: sql`COUNT(${productoCategorias.productoId})`,
+        })
         .from(categorias)
-        .where(whereCondition);
+        .leftJoin(
+          productoCategorias,
+          eq(productoCategorias.categoriaId, categorias.id)
+        )
+        .where(eq(categorias.empresaId, user?.empresaId))
+        .groupBy(categorias.id);
 
-      return createResponse(200, 'Categorias encontradas', categoriasDB);
+      return createResponse(200, 'Categorias encontradas', categoriasConConteo);
     }
 
     // Agregar condición de búsqueda solo si hay query
@@ -108,21 +124,35 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const PUT: APIRoute = async ({ request, locals }) => {
   try {
-    const { id, nombre, descripcion, color } = await request.json();
+    const { id, nombre, descripcion, color, activo, modo } =
+      await request.json();
+    const url = new URL(request.url);
+    const idCategoria = url.searchParams.get('id');
+
     const empresaId = locals.user?.empresaId;
-    // console.log('esto son los datos de entrada',id,nombre,descripcion,color)
+    console.log('esto son los datos de entrada', activo, modo, idCategoria);
     if (!locals.user) {
       return createResponse(401, 'No autenticado');
     }
     const isCategoriaExistente = await db
       .select()
       .from(categorias)
-      .where(eq(categorias.id, id))
+      .where(eq(categorias.id, id || idCategoria))
       .limit(1);
     if (!isCategoriaExistente) {
       return createResponse(404, 'Categoria no encontrada');
     }
-
+    if (modo === 'activacion') {
+      console.log('modo actiacion', activo);
+      const categoria = await db
+        .update(categorias)
+        .set({
+          activo: activo,
+        })
+        .where(eq(categorias.id, idCategoria))
+        .returning();
+      return createResponse(200, 'Categoria actualizada', categoria[0]);
+    }
     const nombreLowerCase = nombre.toLowerCase();
     const categoria = await db
       .update(categorias)

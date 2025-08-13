@@ -46,7 +46,6 @@ export const stockStore = atom({
   error: null,
 });
 
-
 export const fetchStockData = async (userId, empresaId) => {
   stockStore.set({ loading: true, data: null, error: null });
   try {
@@ -106,6 +105,12 @@ const fetchProducto = async (productoId) => {
     });
   }
 };
+
+const categoriasStore = atom({
+  loading: true,
+  data: null,
+  error: null,
+});
 
 const rolesStore = atom({
   loading: true,
@@ -229,4 +234,5 @@ export {
   tiendaStore,
   fetchTiendaData,
   carritoStore,
+  categoriasStore,
 };

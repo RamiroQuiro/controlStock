@@ -12,7 +12,9 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   userId,
 }) => {
   const { data, loading, error } = useStore(stockStore);
-
+    'datos obteniosod desde stockSoire en FormuñlarioModigicacion de precios pór lotes ->',
+    data
+  );
   const dataFiltros = useMemo(() => {
     if (loading) {
       return {
@@ -22,7 +24,7 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
       };
     }
 
-    if (!data?.obtenerFiltros) {
+    if (!data?.filtros) {
       console.log('⚠️ No hay datos de filtros');
       return {
         categorias: [],
@@ -33,9 +35,9 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
 
     console.log('✅ Datos de filtros obtenidos:', data);
     return {
-      categorias: data.obtenerFiltros.categorias || [],
-      ubicaciones: data.obtenerFiltros.ubicaciones || [],
-      depositos: data.obtenerFiltros.depositos || [],
+      categorias: data.filtros.categorias || [],
+      ubicaciones: data.filtros.ubicaciones || [],
+      depositos: data.filtros.depositos || [],
     };
   }, [data, loading]);
 
@@ -45,7 +47,7 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   const [filtroTipo, setFiltroTipo] = useState<
     'categorias' | 'ubicaciones' | 'depositos' | 'todas'
   >('categorias');
-  const [filtros, setFiltros] = useState<DataFiltros>(dataFiltros);
+
   const [valorSeleccionado, setValorSeleccionado] = useState<{
     nombre: string;
     id: string;
@@ -75,15 +77,18 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
     const nuevoFiltroTipo = e.target.value as typeof filtroTipo;
     setFiltroTipo(nuevoFiltroTipo);
     setShowPreview(false);
-    if (nuevoFiltroTipo === 'categorias' && filtros?.categorias?.length) {
-      setValorSeleccionado(filtros.categorias[0]);
+    if (nuevoFiltroTipo === 'categorias' && dataFiltros?.categorias?.length) {
+      setValorSeleccionado(dataFiltros.categorias[0]);
     } else if (
       nuevoFiltroTipo === 'ubicaciones' &&
-      filtros?.ubicaciones?.length
+      dataFiltros?.ubicaciones?.length
     ) {
-      setValorSeleccionado(filtros.ubicaciones[0]);
-    } else if (nuevoFiltroTipo === 'depositos' && filtros?.depositos?.length) {
-      setValorSeleccionado(filtros.depositos[0]);
+      setValorSeleccionado(dataFiltros.ubicaciones[0]);
+    } else if (
+      nuevoFiltroTipo === 'depositos' &&
+      dataFiltros?.depositos?.length
+    ) {
+      setValorSeleccionado(dataFiltros.depositos[0]);
     } else if (nuevoFiltroTipo == 'todas') {
       setValorSeleccionado({ nombre: 'todos', id: 'todos' });
     } else {
@@ -169,12 +174,34 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
           </label>
           <select
             className="w-full p-2 border rounded"
-            value={valorSeleccionado}
+            value={valorSeleccionado.id} // Changed here
             onChange={(e) => {
-              setValorSeleccionado({
-                nombre: e.target.value,
-                id: e.target.value,
-              });
+              let selectedItem: { nombre: string; id: string } | undefined;
+              if (filtroTipo === 'categorias') {
+                selectedItem = dataFiltros.categorias.find(
+                  (cat) => cat.id === e.target.value
+                );
+              } else if (filtroTipo === 'ubicaciones') {
+                selectedItem = dataFiltros.ubicaciones.find(
+                  (ubi) => ubi.id === e.target.value
+                );
+              } else if (filtroTipo === 'depositos') {
+                selectedItem = dataFiltros.depositos.find(
+                  (dep) => dep.id === e.target.value
+                );
+              } else if (filtroTipo === 'todas') {
+                selectedItem = { nombre: 'todos', id: 'todos' }; // Special case for 'todas'
+              }
+
+              if (selectedItem) {
+                setValorSeleccionado(selectedItem);
+              } else {
+                // Fallback if item not found (shouldn't happen if dataFiltros is correct)
+                setValorSeleccionado({
+                  nombre: e.target.value,
+                  id: e.target.value,
+                });
+              }
               setShowPreview(false);
             }}
           >
@@ -184,23 +211,35 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
               </option>
             )}
             {filtroTipo === 'categorias' &&
-              filtros?.categorias.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nombre}
-                </option>
-              ))}
+              dataFiltros?.categorias.map(
+                (
+                  cat // Changed here
+                ) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.nombre}
+                  </option>
+                )
+              )}
             {filtroTipo === 'ubicaciones' &&
-              filtros?.ubicaciones.map((ubi) => (
-                <option key={ubi.id} value={ubi.id}>
-                  {ubi.nombre}
-                </option>
-              ))}
+              dataFiltros?.ubicaciones.map(
+                (
+                  ubi // Changed here
+                ) => (
+                  <option key={ubi.id} value={ubi.id}>
+                    {ubi.nombre}
+                  </option>
+                )
+              )}
             {filtroTipo === 'depositos' &&
-              filtros?.depositos.map((dep) => (
-                <option key={dep.id} value={dep.id}>
-                  {dep.nombre}
-                </option>
-              ))}
+              dataFiltros?.depositos.map(
+                (
+                  dep // Changed here
+                ) => (
+                  <option key={dep.id} value={dep.id}>
+                    {dep.nombre}
+                  </option>
+                )
+              )}
           </select>
         </div>
 

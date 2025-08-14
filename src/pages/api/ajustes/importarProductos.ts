@@ -121,12 +121,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
                 const nuevoProductoId = nanoid();
                 const stockInicial = parseInt(row.stock, 10) || 0;
                 const fechaHoyDate = new Date(getFechaUnix()*1000);
-console.log('fechaHoyDate -->',fechaHoyDate)
                 // 1. Insertar producto
                 await tx.insert(productos).values({
                   id: nuevoProductoId,
                   nombre: row.nombre,
                   codigoBarra: row.codigoBarra,
+                  srcPhoto:'/controlStockLogo.png',
                   stock: stockInicial,
                   pVenta: parseFloat(row.pVenta) || 0,
                   pCompra: row.pCompra ? parseFloat(row.pCompra) : undefined,
@@ -163,7 +163,7 @@ console.log('fechaHoyDate -->',fechaHoyDate)
                 await tx.insert(movimientosStock).values({
                   id: nanoid(),
                   productoId: nuevoProductoId,
-                  tipo: "entrada",
+                  tipo: "ingreso",
                   cantidad: stockInicial,
                   motivo: "Carga inicial por importación CSV",
                   fecha: fechaHoyDate,

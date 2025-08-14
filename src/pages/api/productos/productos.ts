@@ -96,6 +96,7 @@ export const DELETE: APIRoute = async ({ request, params }) => {
   const url = new URL(request.url);
   const productoId = url.searchParams.get('search');
   const srcPhoto = request.headers.get('srcPhoto');
+  console.log('delete en el enpoint',productoId)
   try {
     const transacciones = await db.transaction(async (trx) => {
       await trx

@@ -1,0 +1,6 @@
+nombre,codigoBarra,stock,pCompra,pVenta,categoria,marca,descripcion,alertaStock,iva,unidadMedida
+Coca-Cola,7790000000001,50,150,220,bebidas,Coca-Cola,Bebida Gaseosa de 2.25L,10,21,L
+Chocolinas,7791234567890,30,80,130,galletas,Chocolinas,Galletitas de chocolate de 150g,5,10.5,g
+Red Bull,7799876543210,20,200,350,energizantes,Red Bull,Bebida Energizante,5,21,ml
+Quilmes,7790123456789,40,180,280,cervezas,Quilmes,Cerveza Lager,10,21,ml
+Alfajor Jorgito,7795555555555,60,70,110,general,Jorgito,Alfajor de chocolate,15,10.5,g

@@ -12,9 +12,7 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   userId,
 }) => {
   const { data, loading, error } = useStore(stockStore);
-    'datos obteniosod desde stockSoire en FormuñlarioModigicacion de precios pór lotes ->',
-    data
-  );
+
   const dataFiltros = useMemo(() => {
     if (loading) {
       return {

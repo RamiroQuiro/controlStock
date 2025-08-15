@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { showToast } from '../../utils/toast/toastShow';
 import BotonChildresIcono from '../atomos/BotonChildresIcono';
+import { toggleEcommerceProduct } from '../../services/productos.services';
 
 export default function ContenedorBotonera({
   handleDelete,
@@ -22,31 +23,22 @@ export default function ContenedorBotonera({
   data,
 }) {
   const [isEcommerce, setIsEcommerce] = useState(false);
+
   useEffect(() => {
     setIsEcommerce(data?.productData.isEcommerce);
   }, [data]);
+
   const handleIsEcommerce = async () => {
-    try {
-      const response = await fetch(`/api/productos/tiendaOnline`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: data?.productData.id,
-          isEcommerce: !isEcommerce,
-        }),
-      });
-      const dataRes = await response.json();
-      console.log(dataRes);
-      if (dataRes.status === 200) {
-        showToast('producto actualizado', { background: 'bg-green-500' });
-      } else if (dataRes.status === 400) {
-        showToast(dataRes.msg, { background: 'bg-red-500' });
-      }
-    } catch (error) {
-      console.log(error);
-      showToast('error al actualizar', { background: 'bg-red-500' });
+    const result = await toggleEcommerceProduct(
+      data?.productData.id,
+      !isEcommerce
+    );
+
+    if (result.status === 200) {
+      setIsEcommerce(!isEcommerce);
+      showToast('Producto actualizado', { background: 'bg-green-500' });
+    } else {
+      showToast(result.msg || 'Error al actualizar', { background: 'bg-red-500' });
     }
   };
 
@@ -55,45 +47,34 @@ export default function ContenedorBotonera({
       <label
         htmlFor="isEcommerce"
         onClick={handleIsEcommerce}
-        className={
-          isEcommerce
-            ? 'flex items-center gap-2 border rounded-lg p-2 bg-primary-300/80 justify-center font-semibold cursor-pointer'
-            : 'flex items-center gap-2 border rounded-lg p-2 bg-primary-300/40 justify-center font-semibold cursor-pointer'
-        }
+        className={`flex items-center gap-2 border rounded-lg p-2 justify-center font-semibold cursor-pointer ${
+          isEcommerce ? 'bg-primary-300/80' : 'bg-primary-300/40'
+        }`}
       >
         Tienda Online?
         {isEcommerce ? (
-          <Check
-            width={16}
-            className="duration-300 font-bold text-primary-100 animate-aparecer"
-          />
+          <Check width={16} className="duration-300 font-bold text-primary-100 animate-aparecer" />
         ) : (
-          <CircleOff
-            width={16}
-            className="duration-300 font-bold text-primary-100 animate-aparecer"
-          />
+          <CircleOff width={16} className="duration-300 font-bold text-primary-100 animate-aparecer" />
         )}
         <input
           type="checkbox"
-          name="isEcommerce"
-          value={isEcommerce}
           id="isEcommerce"
           className="hidden"
-          onChange={() => setIsEcommerce(!isEcommerce)}
           checked={isEcommerce}
+          onChange={() => setIsEcommerce(!isEcommerce)}
         />
       </label>
+
       <BotonEliminarLts handleClick={handleDelete} />
       <BotonPdfLts handleClick={downloadPdf} />
-      <BotonEditar handleClick={handleEdit} />
+      <BotonEditar handleClick={handleEdit} disabled={disableEdit} />
       <BotonChildresIcono
         children="Cerrar"
         handleClick={() => onClose(false)}
         icono={CircleX}
-        className={`bg-red-400 hover:bg-red-500 text-white`}
-      >
-        Cerrar
-      </BotonChildresIcono>
+        className="bg-red-400 hover:bg-red-500 text-white"
+      />
     </div>
   );
 }

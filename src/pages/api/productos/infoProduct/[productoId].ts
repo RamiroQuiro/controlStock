@@ -26,7 +26,13 @@ console.log('productoId', productoId);
     );
   }
   try {
-    const [productDataRaw, stockMovimientoRaw] = await Promise.all([
+    const [
+      productDataRaw,
+      categoriasDelProducto,
+      depositosDB,
+      ubicacionesDB
+    ] = await Promise.all([
+      // Producto
       db
         .select({
           id: productos.id,
@@ -56,76 +62,63 @@ console.log('productoId', productoId);
           modelo: productos.modelo,
           alertaStock: stockActual.alertaStock,
           cantidadReservada: stockActual.reservado,
+          ultimaReposicion: movimientosStock.fecha,
           localizacionesId: stockActual.localizacionesId,
           ubicacionesId: stockActual.ubicacionesId,
           depositosId: stockActual.depositosId,
         })
         .from(productos)
         .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
+        .leftJoin(movimientosStock, eq(movimientosStock.productoId, productos.id))
         .where(eq(productos.id, productoId))
         .limit(1),
-
+    
+ 
+    
+      // Categorías
       db
         .select({
-          id: movimientosStock.id,
-          tipo: movimientosStock.tipo,
-          cantidad: movimientosStock.cantidad,
-          motivo: movimientosStock.motivo,
-          proveedorNombre: proveedores.nombre,
-          clienteNombre: clientes.nombre,
-          fecha: movimientosStock.fecha,
+          id: categorias.id,
+          nombre: categorias.nombre,
+          descripcion: categorias.descripcion,
         })
-        .from(movimientosStock)
-        .leftJoin(proveedores, eq(proveedores.id, movimientosStock.proveedorId))
-        .leftJoin(clientes, eq(clientes.id, movimientosStock.clienteId))
-        .where(eq(movimientosStock.productoId, productoId))
-        .orderBy(desc(movimientosStock.fecha))
-        .limit(10),
+        .from(productoCategorias)
+        .innerJoin(categorias, eq(productoCategorias.categoriaId, categorias.id))
+        .where(eq(productoCategorias.productoId, productoId)),
+    
+      // Depósitos
+      db
+        .select({
+          id: depositos.id,
+          nombre: depositos.nombre,
+        })
+        .from(depositos)
+        .where(eq(depositos.empresaId, 
+          db.select({ empresaId: productos.empresaId })
+            .from(productos)
+            .where(eq(productos.id, productoId))
+            .limit(1)
+        )),
+    
+      // Ubicaciones
+      db
+        .select({
+          id: ubicaciones.id,
+          nombre: ubicaciones.nombre,
+          depositoId: ubicaciones.depositoId
+        })
+        .from(ubicaciones)
+        .where(eq(ubicaciones.empresaId, 
+          db.select({ empresaId: productos.empresaId })
+            .from(productos)
+            .where(eq(productos.id, productoId))
+            .limit(1)
+        ))
     ]);
+    
 
-    // Consulta adicional para obtener las categorías del producto
-    const categoriasDelProducto = await db
-      .select({
-        id: categorias.id,
-        nombre: categorias.nombre,
-        descripcion: categorias.descripcion,
-      })
-      .from(productoCategorias)
-      .innerJoin(categorias, eq(productoCategorias.categoriaId, categorias.id))
-      .where(eq(productoCategorias.productoId, productoId));
-
-    const depositosDB = await db
-      .select({
-        id: depositos.id,
-        nombre: depositos.nombre,
-
-      })
-      .from(depositos)
-      .where(eq(depositos.empresaId, productDataRaw[0]?.empresaId));
-
-    const ubicacionesDB = await db
-      .select({
-        id: ubicaciones.id,
-        nombre: ubicaciones.nombre,
-        depositoId:ubicaciones.depositoId
-      })
-      .from(ubicaciones)
-      .where(eq(ubicaciones.empresaId, productDataRaw[0]?.empresaId));
 
     const productData = productDataRaw?.[0] ?? null;
-    const stockMovimiento = stockMovimientoRaw.map((mov) => ({
-      id: mov.id,
-      tipo: mov.tipo,
-      cantidad: mov.cantidad,
-      motivo: mov.motivo,
-      fecha: mov.fecha,
-      nombreResponsable: mov.proveedorNombre || mov.clienteNombre || "Sistema",
-      tipoResponsable: mov.proveedorNombre
-        ? "Proveedor"
-        : mov.clienteNombre
-          ? "Cliente"
-          : "Sistema",
-    }));
 
     return new Response(
       JSON.stringify({
@@ -135,7 +128,6 @@ console.log('productoId', productoId);
             ...productData,
             categorias: categoriasDelProducto,
           },
-          stockMovimiento,
           depositosDB,
           ubicacionesDB,
         },

@@ -1,16 +1,16 @@
 import type { Producto } from "../types";
 import { formateoMoneda } from "./formateoMoneda";
 
-function calcularStockInicial(stockMovimientos) {
+function calcularStockInicial(stockMovimientos: any) {
   return (
-    stockMovimientos?.find((mov) => mov.motivo === "StockInicial")?.cantidad ??
+    stockMovimientos?.find((mov: any) => mov.motivo === "StockInicial")?.cantidad ??
     0
   );
 }
 
-function obtenerMovimientosOrdenados(stockMovimientos) {
+function obtenerMovimientosOrdenados(stockMovimientos: any) {
   return [...(stockMovimientos || [])].sort(
-    (a, b) => new Date(a.fecha) - new Date(b.fecha)
+    (a: any, b: any) => new Date(a.fecha) - new Date(b.fecha)
   );
 }
 

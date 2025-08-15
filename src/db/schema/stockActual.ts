@@ -23,6 +23,7 @@ export const stockActual = sqliteTable('stockActual', {
   reservado: integer('reservado').notNull().default(0), // Cantidad reservada para ventas
   stockSeguridad: integer('stockSeguridad').notNull().default(0), // Stock mínimo ideal
   costoTotalStock: integer('costoTotalStock', { mode: 'number' }), // Valor total del stock
+  userUltimaReposicion: text('userUltimaReposicion').references(() => users.id), // Usuario que actualizó el stock
   updatedBy: text('updatedBy').references(() => users.id), // Usuario que actualizó el stock
   empresaId: text('empresaId').references(() => empresas.id),
   createdAt: integer('createdAt', { mode: 'timestamp' }) // Timestamp Unix para seguimiento de última actualización
@@ -31,4 +32,6 @@ export const stockActual = sqliteTable('stockActual', {
   updatedAt: integer('updatedAt', { mode: 'timestamp' }) // Timestamp Unix para seguimiento de última actualización
     .notNull()
     .default(sql`(strftime('%s', 'now'))`), // Actualiza al modificar stock
+  ultimaReposicion: integer('ultimaReposicion', { mode: 'timestamp' }) // Timestamp Unix para seguimiento de última actualización
+
 });

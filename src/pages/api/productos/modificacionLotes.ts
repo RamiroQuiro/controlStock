@@ -92,7 +92,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
         const productosUbicacion = await db
           .select({ productoId: stockActual.productoId })
           .from(stockActual)
-          .where(eq(stockActual.localizacion, valorSeleccionado.nombre));
+          .where(eq(stockActual.ubicacionesId, valorSeleccionado.id));
         condicionFiltro = inArray(
           productos.id,
           productosUbicacion.map((p) => p.productoId)
@@ -103,7 +103,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
         const productosDeposito = await db
           .select({ productoId: stockActual.productoId })
           .from(stockActual)
-          .where(eq(stockActual.deposito, valorSeleccionado.nombre));
+          .where(eq(stockActual.depositosId, valorSeleccionado.id));
         condicionFiltro = inArray(
           productos.id,
           productosDeposito.map((p) => p.productoId)

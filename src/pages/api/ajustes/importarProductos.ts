@@ -155,6 +155,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
                   id: nanoid(),
                   productoId: nuevoProductoId,
                   cantidad: stockInicial,
+                  userUltimaReposicion: userId,
+                  ultimaReposicion: fechaHoyDate,
                   empresaId: empresaId,
                   fecha: fechaHoyDate,
                 });

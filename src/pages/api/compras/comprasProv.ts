@@ -10,6 +10,7 @@ import {
 } from '../../../db/schema';
 import db from '../../../db';
 import { createResponse, User } from '../../../types';
+import { getFechaUnix } from '../../../utils/timeUtils';
 
 export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
@@ -28,11 +29,10 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     if (data.total <= 0) {
       return createResponse(402, 'El monto total debe ser mayor a 0');
     }
-console.log('data que llega al enpoint',data,'productos comprados',productosComprados)
     // 2. Lógica de la transacción
     const compraDB = await db.transaction(async (trx) => {
       const compraId = nanoid();
-      const fechaActual = new Date(); // Usar new Date() directamente es más limpio
+      const fechaActual = new Date(getFechaUnix()*1000); // Usar new Date() directamente es más limpio
 
       // Manejo seguro de la fecha de vencimiento opcional
       const vencimientoCheque = data.vencimientoCheque ? new Date(data.vencimientoCheque) : null;
@@ -70,6 +70,8 @@ console.log('data que llega al enpoint',data,'productos comprados',productosComp
           .update(stockActual)
           .set({
             cantidad: sql`${stockActual.cantidad} + ${prod.cantidad}`,
+            userUltimaReposicion: user.id,
+            ultimaReposicion: fechaActual,
             updatedAt: fechaActual,
           })
           .where(and(eq(stockActual.productoId, prod.id), eq(stockActual.empresaId, user.empresaId)));

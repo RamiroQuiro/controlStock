@@ -135,7 +135,6 @@ export async function POST({ request }: APIContext): Promise<Response> {
           created_at: fechaHoy,
           descripcion: productoData.descripcion,
           iva: productoData.iva,
-          precio: productoData.precio,
           pCompra: productoData.pCompra,
           pVenta: productoData.pVenta,
           codigoBarra: productoData.codigoBarra,
@@ -168,9 +167,9 @@ export async function POST({ request }: APIContext): Promise<Response> {
         productoId: id,
         cantidad: productoData.stock,
         alertaStock: productoData.alertaStock,
-        localizacionesId: productoData.localizacion,  
         ubicacionesId: productoData.ubicacion,  
         createdAt: fechaHoy,
+        userUltimaReposicion: productoData.userId,
         depositosId: productoData.deposito,
         empresaId: productoData.empresaId,
       });

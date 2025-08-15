@@ -27,6 +27,7 @@ const [dataDB] = await db
   .from(empresas)
   .where(eq(empresas.razonSocial, razonSocial));
 
+  dataDB.theme="moderna"
 if (!dataDB) {
   return Astro.redirect('/noEncontrado');
 }

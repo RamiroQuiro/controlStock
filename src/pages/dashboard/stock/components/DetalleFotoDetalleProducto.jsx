@@ -20,10 +20,7 @@ export default function DetalleFotoDetalleProducto({
   const { data: infoProducto, loading } = useStore(perfilProducto);
   const [stateOferta, setStateOferta] = useState(false);
 
-  const ultimaRepo = useMemo(() => {
-    if (!infoProducto?.stockMovimiento) return null;
-    return obtenerUltimaReposicion(infoProducto.stockMovimiento);
-  }, [loading]);
+
 
   useEffect(() => {
     if (infoProducto?.productData?.isOferta !== undefined) {
@@ -493,7 +490,7 @@ export default function DetalleFotoDetalleProducto({
               <div className="flex w-full items-center justify-start gap-3 ">
                 <span className="">Ultima Reposición:</span>
                 <p className="capitalize font-medium text-primary-textoTitle">
-                  {formatDate(ultimaRepo)}
+                  {formatDate(infoProducto?.productData?.ultimaReposicion)}
                 </p>
               </div>
             </div>

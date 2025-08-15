@@ -62,19 +62,15 @@ console.log('productoId', productoId);
           modelo: productos.modelo,
           alertaStock: stockActual.alertaStock,
           cantidadReservada: stockActual.reservado,
-          ultimaReposicion: movimientosStock.fecha,
+          ultimaReposicion: stockActual.ultimaReposicion,
           localizacionesId: stockActual.localizacionesId,
           ubicacionesId: stockActual.ubicacionesId,
           depositosId: stockActual.depositosId,
         })
         .from(productos)
         .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
-        .leftJoin(movimientosStock, eq(movimientosStock.productoId, productos.id))
         .where(eq(productos.id, productoId))
         .limit(1),
-    
- 
-    
       // Categorías
       db
         .select({

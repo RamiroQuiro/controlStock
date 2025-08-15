@@ -14,7 +14,6 @@ export async function toggleEcommerceProduct(id:string, isEcommerce:boolean) {
     }
   }
   
-  // productosService.js
 export async function obtenerPronostico(productId:string) {
     const res = await fetch(`/api/productos/${productId}/pronostico`);
     if (!res.ok) throw new Error('Error al obtener pronóstico');

@@ -25,8 +25,7 @@ const calcularMargenGanancia = (productData:Producto) => {
   return ((pVenta - costoConIVA) / costoConIVA) * 100;
 };
 
-const obtenerUltimaReposicion = (stockMovimiento) =>
-  stockMovimiento.filter((mov) => mov?.tipo === "ingreso")[0]?.fecha || null;
+
 
 const obtenerIvaMonto = (productData: Producto) => {
   // Obtener impuesto del producto -> "21%" | "10.5%" | "27%" | "No aplica"

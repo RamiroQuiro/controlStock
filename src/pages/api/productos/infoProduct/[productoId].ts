@@ -15,7 +15,7 @@ import { productoCategorias } from "../../../../db/schema/productoCategorias";
 
 export const GET: APIRoute = async ({ params }) => {
   const { productoId } = params;
-console.log('productoId', productoId);
+  
   if (!productoId) {
     return new Response(
       JSON.stringify({ error: "ID del producto no proporcionado" }),
@@ -25,14 +25,35 @@ console.log('productoId', productoId);
       }
     );
   }
+
   try {
+    // Primero obtenemos la empresaId para evitar subqueries
+    const empresaResult = await db
+      .select({ empresaId: productos.empresaId })
+      .from(productos)
+      .where(eq(productos.id, productoId))
+      .limit(1);
+
+    if (!empresaResult.length) {
+      return new Response(
+        JSON.stringify({ error: "Producto no encontrado" }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const empresaId = empresaResult[0].empresaId;
+
+    // Ejecutamos todas las consultas en paralelo con índices optimizados
     const [
       productDataRaw,
       categoriasDelProducto,
       depositosDB,
       ubicacionesDB
     ] = await Promise.all([
-      // Producto
+      // 🔍 CONSULTA PRINCIPAL OPTIMIZADA
       db
         .select({
           id: productos.id,
@@ -69,9 +90,15 @@ console.log('productoId', productoId);
         })
         .from(productos)
         .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
-        .where(eq(productos.id, productoId))
+        .where(
+          and(
+            eq(productos.id, productoId),
+            eq(productos.empresaId, empresaId) // ✅ Usamos empresaId ya conocido
+          )
+        )
         .limit(1),
-      // Categorías
+
+      // 🏷️ CATEGORÍAS CON ÍNDICE OPTIMIZADO
       db
         .select({
           id: categorias.id,
@@ -80,23 +107,23 @@ console.log('productoId', productoId);
         })
         .from(productoCategorias)
         .innerJoin(categorias, eq(productoCategorias.categoriaId, categorias.id))
-        .where(eq(productoCategorias.productoId, productoId)),
-    
-      // Depósitos
+        .where(
+          and(
+            eq(productoCategorias.productoId, productoId),
+            eq(categorias.empresaId, empresaId) // ✅ Filtro adicional
+          )
+        ),
+
+      // 🏭 DEPÓSITOS OPTIMIZADOS
       db
         .select({
           id: depositos.id,
           nombre: depositos.nombre,
         })
         .from(depositos)
-        .where(eq(depositos.empresaId, 
-          db.select({ empresaId: productos.empresaId })
-            .from(productos)
-            .where(eq(productos.id, productoId))
-            .limit(1)
-        )),
-    
-      // Ubicaciones
+        .where(eq(depositos.empresaId, empresaId)), // ✅ Sin subquery
+
+      // 📍 UBICACIONES OPTIMIZADAS
       db
         .select({
           id: ubicaciones.id,
@@ -104,17 +131,20 @@ console.log('productoId', productoId);
           depositoId: ubicaciones.depositoId
         })
         .from(ubicaciones)
-        .where(eq(ubicaciones.empresaId, 
-          db.select({ empresaId: productos.empresaId })
-            .from(productos)
-            .where(eq(productos.id, productoId))
-            .limit(1)
-        ))
+        .where(eq(ubicaciones.empresaId, empresaId)) // ✅ Sin subquery
     ]);
-    
-
 
     const productData = productDataRaw?.[0] ?? null;
+
+    if (!productData) {
+      return new Response(
+        JSON.stringify({ error: "Producto no encontrado" }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
     return new Response(
       JSON.stringify({

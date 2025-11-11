@@ -40,7 +40,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
       stock: parseInt(data.get('stock')?.toString() || '0'),
       pVenta: Number(data.get('pVenta') || 0),
       pCompra: Number(data.get('pCompra') || 0),
-      categoriasIds: data.get('categoriasIds')?.toString() || '[]',
+      categoriasIds: data.get('categoriasIds'),
       deposito: data.get('deposito')?.toString() || '',
       impuesto: data.get('impuesto')?.toString() || '21%',
       empresaId: data.get('empresaId')?.toString() || '',
@@ -48,11 +48,14 @@ export async function POST({ request }: APIContext): Promise<Response> {
       iva: Number(data.get('iva') || 21),
       descuento: Number(data.get('descuento') || 0),
       modelo: data.get('modelo')?.toString() || '',
+      ubicacionId: data.get('ubicacionId')?.toString() || '',
+      depositoId: data.get('depositoId')?.toString() || '',
       marca: data.get('marca')?.toString() || '',
       localizacion: data.get('localizacion')?.toString() || '',
       alertaStock: Number(data.get('alertaStock') || 0),
       codigoBarra: data.get('codigoBarra')?.toString() || '',
     };
+    console.log('productoData ->', productoData);
     
     // Parsear categoriasIds con manejo seguro de errores
     let categoriasIds = [];
@@ -149,9 +152,11 @@ export async function POST({ request }: APIContext): Promise<Response> {
           srcPhoto: rutaRelativa,
         })
         .returning();
+        console.log('empezando a verificar relacion y exitencia de categoria ->', categoriasIds)
 
       // Insertar relaciones con categorías si existen
       if (categoriasIds && categoriasIds.length > 0) {
+        console.log('categoriasIds ->', categoriasIds)
         for (const categoriaId of categoriasIds) {
           await trx.insert(productoCategorias).values({
             id: generateId(10),
@@ -162,18 +167,21 @@ export async function POST({ request }: APIContext): Promise<Response> {
       }
       
       // Crear registro de stock
+      console.log('empezando a crear registro de stock')
       await trx.insert(stockActual).values({
         id: nanoid(10),
         productoId: id,
         cantidad: productoData.stock,
         alertaStock: productoData.alertaStock,
-        ubicacionesId: productoData.ubicacion,  
+        ubicacionesId: productoData.ubicacionId,  
         createdAt: fechaHoy,
         userUltimaReposicion: productoData.userId,
-        depositosId: productoData.deposito,
+        depositosId: productoData.depositoId,
         empresaId: productoData.empresaId,
+
       });
 
+      console.log('empezando a registrar movimiento de stock')
       // Registrar movimiento de stock
       await trx.insert(movimientosStock).values({
         id: nanoid(10),

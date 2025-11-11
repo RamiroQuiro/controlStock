@@ -12,21 +12,12 @@ import { loader } from '../../utils/loader/showLoader';
 // PerfilProducto.jsx (o .tsx)
 
 
-// Store
-
-// Services (ya los creaste)
-import {
-  obtenerPronostico,
-  actualizarProducto,
-  eliminarProducto,
-  descargarPDF,
-} from "../../services/productos.services";
 
 // (Opcional) si tenés utilidades de UI
 // import { showToast } from "../../utils/toast";
 
-export default function PerfilProducto({ onClose }) {
-  const { data, loading } = useStore(perfilProducto); // data: { productData, depositosDB, ubicacionesDB, ... }
+export default function PerfilProducto({ data }) {
+  const [loading, setLoading] = useState(true);
   const [formulario, setFormulario] = useState({});
   const [disableEdit, setDisableEdit] = useState(true);
 
@@ -40,17 +31,20 @@ export default function PerfilProducto({ onClose }) {
   useEffect(() => {
     if (data?.productData) {
       setFormulario(data.productData);
+      setLoading(false);
     }
   }, [data?.productData]);
 
-  // 2) Cargar pronóstico (con cancelación simple)
+  // 2) Cargar pronóstico (con fetch directo)
   useEffect(() => {
     let cancelado = false;
     const fetchPronostico = async () => {
       if (!data?.productData?.id) return;
       try {
-        const res = await obtenerPronostico(data.productData.id);
-        if (!cancelado) setPronosticoDemanda(res?.pronostico ?? null);
+        const res = await fetch(`/api/productos/${data.productData.id}/pronostico`);
+        if (!res.ok) throw new Error('Error en la respuesta del servidor');
+        const jsonRes = await res.json();
+        if (!cancelado) setPronosticoDemanda(jsonRes?.pronostico ?? null);
       } catch (e) {
         console.error("Error al obtener pronóstico:", e);
         if (!cancelado) setPronosticoDemanda(null);
@@ -78,10 +72,21 @@ export default function PerfilProducto({ onClose }) {
 
   // 5) Guardado (actualización) — llamado al salir de modo edición
   const handleSave = async () => {
-    if (!data?.productData?.id) return;
+    const productId = data?.productData?.id;
+    if (!productId) return;
+
     try {
       setBusy(true);
-      await actualizarProducto(data.productData.id, formulario, data.productData?.srcPhoto);
+      const response = await fetch(`/api/productos/productos?search=${productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formulario),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || 'Error al actualizar el producto');
+      }
 
       // Actualizo store para mantenerlo en sync con lo que guardé
       perfilProducto.set({
@@ -96,8 +101,7 @@ export default function PerfilProducto({ onClose }) {
     } catch (err) {
       console.error(err);
       // showToast?.("Error al actualizar", { background: "bg-red-500" });
-      // Si querés, podés mantener la edición abierta si falla
-      throw err;
+      throw err; // Relanzamos para que handleEdit lo capture
     } finally {
       setBusy(false);
     }
@@ -125,12 +129,22 @@ export default function PerfilProducto({ onClose }) {
 
   // 8) Confirmar eliminación (del modal)
   const handleEliminar = async () => {
-    if (!data?.productData?.id) return;
+    const productId = data?.productData?.id;
+    if (!productId) return;
+
     try {
       setBusy(true);
-      await eliminarProducto(data.productData.id);
+      const response = await fetch(`/api/productos/productos?search=${productId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || 'Error al eliminar el producto');
+      }
+
       // showToast?.("Producto eliminado", { background: "bg-green-500" });
-      onClose(false);
+      setLoading(false);
     } catch (err) {
       console.error(err);
       // showToast?.("Error al eliminar", { background: "bg-red-500" });
@@ -142,17 +156,23 @@ export default function PerfilProducto({ onClose }) {
 
   // 9) Descargar PDF
   const handleDownloadPdf = async () => {
-    if (!data?.productData?.id) return;
+    const productId = data?.productData?.id;
+    if (!productId) return;
+
     try {
       setBusy(true);
-      const blob = await descargarPDF(
-        data.productData.id,
-        data?.productData?.userId // ajustá si tu API requiere otro header/param
-      );
+      const res = await fetch(`/api/productos/generarPdf/${productId}`, {
+        method: 'GET',
+        headers: { 'xx-user-id': data?.productData?.userId }
+      });
+
+      if (!res.ok) throw new Error('Error al generar PDF');
+      
+      const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `producto_${data.productData.id}.pdf`;
+      a.download = `producto_${productId}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -207,7 +227,7 @@ export default function PerfilProducto({ onClose }) {
 
           {/* Botonera */}
           <ContenedorBotonera
-            onClose={onClose}
+            // onClose={onClose}
             downloadPdf={handleDownloadPdf}
             disableEdit={disableEdit}
             handleEdit={handleEdit}
@@ -223,6 +243,8 @@ export default function PerfilProducto({ onClose }) {
         <DetalleFotoDetalleProducto
           handleChangeForm={handleChangeForm}
           disableEdit={disableEdit}
+          data={data}
+          loading={loading}
           formulario={formulario}
           depositosDB={data?.depositosDB ?? []}
           ubicacionesDB={ubicacionesFiltradas}
@@ -233,6 +255,8 @@ export default function PerfilProducto({ onClose }) {
           handleChangeForm={handleChangeForm}
           disableEdit={disableEdit}
           formulario={formulario}
+          data={data}
+          loading={loading}
         />
 
         {/* Historial de movimientos (independiente, con su propio fetch) */}

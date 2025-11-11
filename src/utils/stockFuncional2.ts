@@ -31,8 +31,7 @@ export const obtenerDatosStock = async (
 
   // Ejecutamos todas las consultas en paralelo para máxima eficiencia.
   const [
-    listaProductos,
-    totalProductos,
+
     topMasVendidos,
     topMenosVendidos,
     topMenosEgresos,
@@ -42,53 +41,6 @@ export const obtenerDatosStock = async (
     ubicacionesData,
     depositosData,
   ] = await Promise.all([
-    // 1. Consulta principal de productos (paginada y corregida)
-    db
-      .select({
-        id: productos.id,
-        nombre: productos.nombre,
-        codigoBarra: productos.codigoBarra,
-        descripcion: productos.descripcion,
-        pCompra: productos.pCompra,
-        pVenta: productos.pVenta,
-        stock: productos.stock,
-        srcPhoto: productos.srcPhoto,
-        // CORREGIDO: Se obtiene el nombre de la ubicación a través del JOIN
-        
-        alertaStock: stockActual.alertaStock,
-        ultimaActualizacion: productos.ultimaActualizacion,
-        totalVentas: sql<number>`cast(coalesce(sum(${detalleVentas.cantidad}), 0) as int)`.as("totalVentas"),
-      })
-      .from(productos)
-      .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
-      // CORREGIDO: Hacemos LEFT JOIN para no excluir productos sin ubicación definida
-      .leftJoin(ubicaciones, eq(stockActual.ubicacionesId, ubicaciones.id))
-      .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
-      .where(and(eq(productos.empresaId, empresaId), eq(productos.activo, true)))
-      // CORREGIDO: Agrupamos por todas las columnas no agregadas
-      .groupBy(
-        productos.id,
-        productos.nombre,
-        productos.codigoBarra,
-        productos.descripcion,
-        productos.pCompra,
-        productos.pVenta,
-        productos.stock,
-        productos.srcPhoto,
-        ubicaciones.nombre,
-        stockActual.alertaStock,
-        productos.ultimaActualizacion
-      )
-      .orderBy(desc(sql`totalVentas`))
-      .limit(limit)
-      .offset(offset),
-
-    // 2. Conteo total de productos
-    db
-      .select({ count: sql<number>`count(*)` })
-      .from(productos)
-      .where(eq(productos.empresaId, empresaId))
-      .then((res) => res[0]?.count ?? 0),
 
     // 3. Top 10 más vendidos
     db
@@ -150,9 +102,6 @@ export const obtenerDatosStock = async (
 
   // Estructuramos el resultado final en un objeto claro y fácil de usar.
   const resultadoFinal = {
-    // Datos paginados
-    productos: listaProductos,
-    totalProductos: totalProductos,
     // Estadísticas
     stats: {
       topMasVendidos,

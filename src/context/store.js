@@ -40,32 +40,7 @@ const dataFormularioContexto = atom({
 
 const productosSeleccionadosVenta = atom([]);
 
-export const stockStore = atom({
-  loading: true,
-  data: null,
-  error: null,
-});
 
-export const fetchStockData = async (userId, empresaId) => {
-  stockStore.set({ loading: true, data: null, error: null });
-  try {
-    const response = await fetch('/api/stock/statistStock', {
-      headers: {
-        'x-user-id': userId,
-        'xx-empresa-id': empresaId,
-      },
-    });
-    const data = await response.json();
-    stockStore.set({ loading: false, data: data.data, error: null });
-  } catch (error) {
-    console.error('Error fetching stock data:', error);
-    stockStore.set({
-      loading: false,
-      data: null,
-      error: 'Error al cargar los datos de stock',
-    });
-  }
-};
 
 const perfilProducto = atom({
   loading: true,

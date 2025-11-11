@@ -1,45 +1,45 @@
 import { useStore } from '@nanostores/react';
 import React, { useMemo } from 'react';
-import { stockStore } from '../../../../context/store';
+import { stockStore } from '../../../../context/stock.store';
 import { formateoMoneda } from '../../../../utils/formateoMoneda';
 
 export default function ReactData({ idData }) {
-  const { data, loading } = useStore(stockStore);
+  const { productos, loading ,totalProductos} = useStore(stockStore);
   // Memoizamos los cálculos para evitar recálculos innecesarios
-  console.log('estamos en reacCData ->',data)
+  console.log('estamos en reacCData ->',productos)
   const calculatedData = useMemo(() => {
-    if (!data?.productos) return null;
+    if (!productos) return null;
 
-    const totalStockPrecio = data.productos.reduce(
+    const totalStockPrecio = productos.reduce(
       (acc, producto) => acc + producto.pVenta * producto.stock,
       0
     );
 
-    const totalStockCosto = data.productos.reduce(
+    const totalStockCosto = productos.reduce(
       (acc, producto) => acc + producto.pCompra * producto.stock,
       0
     );
 
-    const productosStockBajos = data.productos.filter(
+    const productosStockBajos = productos.filter(
       (prod) => prod.stock <= prod.alertaStock
     );
 
     const totalMasVendidos =
-      data?.topMasVendidos?.reduce(
+      productos?.reduce(
         (total, producto) =>
-          total + producto.totalVendido * producto.producto.pVenta,
+          total + producto.totalVendido *producto.pVenta,
         0
       ) || 0;
 
     return {
-      totalProductos: data.productos.length,
+      totalProductos: totalProductos,
       stockBajos: productosStockBajos.length,
       totalVendidos: totalMasVendidos,
       valorStock: totalStockPrecio,
       costoStock: totalStockCosto,
     };
-  }, [data]);
-
+  }, [productos]);
+console.log('calculatedData ->',calculatedData)
   const obtenerData = (id) => {
     if (!calculatedData) return '0';
 

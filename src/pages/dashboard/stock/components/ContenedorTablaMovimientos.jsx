@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 import ConfeccionTablaMovimientos from "./ConfeccionTablaMovimientos";
-import { stockStore } from "../../../../context/store";
+import { stockStore } from "../../../../context/stock.store";
 
 
 

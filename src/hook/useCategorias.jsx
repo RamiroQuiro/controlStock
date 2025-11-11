@@ -20,10 +20,7 @@ export function useCategorias(empresaId, isAll) {
         const response = await fetch(
           isAll
             ? `/api/categorias?search=${searchTerm}&all=true`
-            : `/api/categorias?search=${searchTerm}`,
-          {
-            headers: { "xx-empresa-id": empresaId },
-          }
+            : `/api/categorias?search=${searchTerm}`
         );
         const data = await response.json();
 

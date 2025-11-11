@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, unique, index } from 'drizzle-orm/sqlite-core';
 import { empresas } from './empresas';
 import { users } from './users';
 import { sql } from 'drizzle-orm';
@@ -25,5 +25,21 @@ export const depositos = sqliteTable(
     ),
     activo: integer('activo', { mode: 'boolean' }).default(true),
   },
-  (t) => [unique().on(t.nombre, t.empresaId)]
+  (t) => [
+     // 🔑 UNICIDAD
+    unique('uq_deposito_nombre_empresa').on(t.nombre, t.empresaId),
+    
+    // 📊 ÍNDICES PARA CONSULTAS FRECUENTES
+    // Búsqueda por empresa y estado activo
+    index('idx_depositos_empresa_activo').on(t.empresaId, t.activo),
+    
+    // Depósitos principales por empresa
+    index('idx_depositos_principal').on(t.empresaId, t.principal, t.activo),
+    
+    // Ordenamiento por prioridad
+    index('idx_depositos_prioridad').on(t.empresaId, t.prioridad, t.activo),
+    
+    // Búsqueda rápida por nombre dentro de empresa
+    index('idx_depositos_nombre_empresa').on(t.empresaId, t.nombre),
+  ]
 );

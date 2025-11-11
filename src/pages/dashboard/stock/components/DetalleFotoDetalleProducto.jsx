@@ -5,7 +5,7 @@ import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import DivReact from "../../../../components/atomos/DivReact";
 import { useStore } from "@nanostores/react";
 import { perfilProducto } from "../../../../context/store";
-import { obtenerUltimaReposicion } from "../../../../utils/detallesProducto";
+
 import { CircleCheck, CircleX, Plus } from "lucide-react";
 import BotonAgregarCat from "../../../../components/moleculas/BotonAgregarCat";
 import SelectorCategoriasExistentes from "./SelectorCategoriasExistentes";
@@ -14,10 +14,11 @@ export default function DetalleFotoDetalleProducto({
   disableEdit,
   handleChangeForm,
   formulario,
+  data:infoProducto,
   depositosDB,
+  loading,
   ubicacionesDB,
 }) {
-  const { data: infoProducto, loading } = useStore(perfilProducto);
   const [stateOferta, setStateOferta] = useState(false);
 
 

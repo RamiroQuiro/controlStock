@@ -1,37 +1,27 @@
 import { ScanBarcode } from "lucide-react";
 import { formateoMoneda } from "../../../../utils/formateoMoneda.js";
-import { useState } from "react";
-import ModalProducto from "../../../../components/organismos/ModalProducto.jsx";
-
-// interface ProductoType {
-//   srcPhoto: string;
-//   descripcion: string;
-//   pVenta: string;
-//   stock: number;
-//   codigoBarra: string;
-// };
 
 export default function CardProductosStock({ prod }) {
-  const [modalActive, setModalActive] = useState(false)
+  if (!prod) return null;
 
-  if(!prod)return
   const totalStock = prod?.pVenta * prod?.stock;
-  const resta = prod?.stock - prod?.alertaStock;
-  const intensidad = Math.max(0, Math.min(1, 1 - prod?.stock / prod?.alertaStock)); 
-  
-  const estiloAlerta = prod?.stock <= prod?.alertaStock 
+  const intensidad = Math.max(0, Math.min(1, 1 - prod?.stock / prod?.alertaStock));
+
+  const estiloAlerta = prod?.stock <= prod?.alertaStock
     ? {
         background: `linear-gradient(to right, rgba(255, 87, 51, 0.05), rgba(255, 87, 51, ${0.1 + intensidad * 0.1}))`,
         border: `1px solid rgba(255, 87, 51, ${0.4 + intensidad * 0.1})`,
         boxShadow: `0 0 8px rgba(255, 87, 51, ${0.2 + intensidad * 0.3})`,
         transition: 'all 0.3s ease'
       }
-    : {}; 
+    : {};
+
   return (
-    <>
-    <div onClick={()=>setModalActive(true)}
-    style={estiloAlerta}
-    className={`rounded-lg py-1 md:px-2 px-1 flex items-center border border-transparent md:shadow-md hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full`}>
+    <a 
+      href={`/dashboard/stock/producto/${prod.id}`}
+      style={estiloAlerta}
+      className={`rounded-lg py-1 md:px-2 px-1 flex items-center border border-transparent md:shadow-md hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full`}
+    >
       <div className="md:min-w-[75%] flex items-center justify-start gap-2 capitalize">
         <div className="bg-gray-200 w-1/3">
           <img
@@ -69,12 +59,6 @@ export default function CardProductosStock({ prod }) {
           Total :{formateoMoneda.format(totalStock)}
         </h3>
       </div>
-    </div>
-    {
-      modalActive&&(
-        <ModalProducto productoId={prod?.id} onClose={setModalActive}/>
-      )
-    }
-    </>    
+    </a>
   );
 }

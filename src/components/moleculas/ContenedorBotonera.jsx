@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { showToast } from '../../utils/toast/toastShow';
 import BotonChildresIcono from '../atomos/BotonChildresIcono';
-import { toggleEcommerceProduct } from '../../services/productos.services';
+
 
 export default function ContenedorBotonera({
   handleDelete,
@@ -29,16 +29,24 @@ export default function ContenedorBotonera({
   }, [data]);
 
   const handleIsEcommerce = async () => {
-    const result = await toggleEcommerceProduct(
-      data?.productData.id,
-      !isEcommerce
-    );
+    try {
+      const response = await fetch(`/api/productos/tiendaOnline`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: data?.productData.id, isEcommerce: !isEcommerce }),
+      });
+      
+      const result = await response.json();
 
-    if (result.status === 200) {
-      setIsEcommerce(!isEcommerce);
-      showToast('Producto actualizado', { background: 'bg-green-500' });
-    } else {
-      showToast(result.msg || 'Error al actualizar', { background: 'bg-red-500' });
+      if (response.ok) {
+        setIsEcommerce(!isEcommerce);
+        showToast('Producto actualizado', { background: 'bg-green-500' });
+      } else {
+        showToast(result.msg || 'Error al actualizar', { background: 'bg-red-500' });
+      }
+    } catch (error) {
+      console.error("Error en handleIsEcommerce:", error);
+      showToast("Error de conexión con el servidor", { background: 'bg-red-500' });
     }
   };
 

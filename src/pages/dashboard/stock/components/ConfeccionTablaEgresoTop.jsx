@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import Table from '../../../../components/tablaComponentes/Table'
 
 export default function ConfeccionTablaEgresoTop({arrayProduct}) {
     const [sortColumn, setSortColumn] = useState(null);

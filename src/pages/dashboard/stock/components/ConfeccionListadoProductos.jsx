@@ -1,18 +1,21 @@
 import CardProductosStock from './CardProductosStock';
 import { useStore } from '@nanostores/react';
-import { stockStore } from '../../../../context/store';
 import SkeletorCarProductos from './SkeletorCarProductos';
+import { useEffect } from 'react';
+import { stockStore, fetchListadoProductos } from '../../../../context/stock.store';
 
-const ConfeccionListadoProductos = () => {
+const ConfeccionListadoProductos = ({empresaId}) => {
   // Obtenemos el estado del store
-  const { data, loading } = useStore(stockStore);
-
-  // console.log('estamos en ConfeccionListadoProductos ->',data)
+  const { data, loading,productos } = useStore(stockStore);
+  console.log('estamos en ConfeccionListadoProductos ->',productos)
+useEffect(() => {
+  fetchListadoProductos(empresaId);
+}, [empresaId]);
   return (
     <div className="flex w-full flex-col gap-1">
       {!loading ? (
-        data?.productos?.length > 0 ? (
-          data?.productos.map((producto) => (
+        productos?.length > 0 ? (
+          productos.map((producto) => (
             <CardProductosStock key={producto.id} prod={producto} />
           ))
         ) : (

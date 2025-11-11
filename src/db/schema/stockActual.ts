@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
 import { productos } from './productos';
 import { users } from './users';
 import { empresas } from './empresas';
@@ -34,4 +34,41 @@ export const stockActual = sqliteTable('stockActual', {
     .default(sql`(strftime('%s', 'now'))`), // Actualiza al modificar stock
   ultimaReposicion: integer('ultimaReposicion', { mode: 'timestamp' }) // Timestamp Unix para seguimiento de última actualización
 
-});
+},(t)=>[
+   // 🔑 UNICIDAD - Un producto por ubicación/depósito
+    unique('uq_stock_producto_ubicacion').on(t.productoId, t.ubicacionesId, t.empresaId),
+    unique('uq_stock_producto_deposito').on(t.productoId, t.depositosId, t.empresaId),
+    
+    // 📊 ÍNDICES PRINCIPALES
+    // Búsqueda principal por producto y empresa
+    index('idx_stock_producto_empresa').on(t.productoId, t.empresaId),
+    
+    // Stock bajo para alertas
+    index('idx_stock_alerta').on(t.empresaId, t.cantidad, t.alertaStock),
+    
+    // Stock por ubicación/depósito
+    index('idx_stock_ubicacion_deposito').on(t.empresaId, t.ubicacionesId, t.depositosId),
+    
+    // 📈 ÍNDICES PARA REPORTES
+    // Valoración de inventario
+    index('idx_stock_valor_inventario').on(t.empresaId, t.costoTotalStock),
+    
+    // Productos con stock crítico
+    index('idx_stock_critico').on(
+      t.empresaId, 
+      t.cantidad, 
+      t.stockSeguridad, 
+      t.alertaStock
+    ),
+    
+    // 🔄 ÍNDICES PARA OPERACIONES
+    // Actualizaciones recientes
+    index('idx_stock_actualizaciones').on(t.empresaId, t.updatedAt),
+    
+    // Stock disponible (cantidad - reservado)
+    index('idx_stock_disponible').on(t.empresaId, t.cantidad, t.reservado),
+    
+    // 🏷️ ÍNDICES PARA JOINS
+    // Para joins con productos
+    index('idx_stock_join_productos').on(t.productoId, t.empresaId, t.cantidad),
+]);

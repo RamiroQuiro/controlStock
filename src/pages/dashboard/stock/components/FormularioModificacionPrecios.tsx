@@ -6,12 +6,13 @@ import type {
   ProductoPrevisualizado,
 } from '../../../../types';
 import { useStore } from '@nanostores/react';
-import { stockStore } from '../../../../context/store';
+import { stockStatsStore, stockStore } from '../../../../context/stock.store';
+;
 
 const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
   userId,
 }) => {
-  const { data, loading, error } = useStore(stockStore);
+  const { filtros, loading, error }: { filtros: DataFiltros, loading: boolean, error: string } = useStore(stockStatsStore);
 
   const dataFiltros = useMemo(() => {
     if (loading) {
@@ -22,7 +23,7 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
       };
     }
 
-    if (!data?.filtros) {
+    if (!filtros) {
       console.log('⚠️ No hay datos de filtros');
       return {
         categorias: [],
@@ -31,13 +32,13 @@ const FormularioModificacionPrecios: React.FC<ModificacionPreciosProps> = ({
       };
     }
 
-    console.log('✅ Datos de filtros obtenidos:', data);
+    console.log('✅ Datos de filtros obtenidos:', filtros);
     return {
-      categorias: data.filtros.categorias || [],
-      ubicaciones: data.filtros.ubicaciones || [],
-      depositos: data.filtros.depositos || [],
+      categorias: filtros.categorias || [],
+      ubicaciones: filtros.ubicaciones || [],
+      depositos: filtros.depositos || [],
     };
-  }, [data, loading]);
+  }, [filtros, loading]);
 
   const [tipoModificacion, setTipoModificacion] = useState<
     'porcentaje' | 'monto'

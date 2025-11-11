@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { productos } from './productos';
 import { users } from './users';
 import { proveedores } from './proveedores';
@@ -26,4 +26,14 @@ export const movimientosStock = sqliteTable('movimientosStock', {
   motivo: text('motivo'), // 'recarga', 'devolucion', 'vencimiento', 'movimiento','ajustes
   observacion: text('observacion'), // Detalles adicionales opcionales
   clienteId: text('clienteId').references(() => clientes.id),
-});
+},
+(t) => [
+    index('idx_movimientos_producto_tipo').on(t.productoId, t.tipo, t.empresaId),
+    index('idx_movimientos_fecha').on(t.fecha),
+    index('idx_movimientos_producto').on(t.productoId),
+    index('idx_movimientos_usuario').on(t.userId),
+    index('idx_movimientos_empresa').on(t.empresaId),
+    index('idx_movimientos_proveedor').on(t.proveedorId),
+    index('idx_movimientos_cliente').on(t.clienteId),
+  ]
+);

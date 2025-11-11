@@ -64,16 +64,15 @@ export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const url = new URL(request.url);
     const query = url.searchParams.get('search')?.toLowerCase();
-    // const empresaId = request.headers.get('xx-empresa-id');
     const { user } = locals;
     const isAll = url.searchParams.get('all');
-    const empresaId = url.searchParams.get('empresaId');
-    console.log('enpoint .>', isAll);
-    if (!empresaId) {
-      return createResponse(400, 'ID de empresa requerido');
-    }
+    
+    // Solución: Usar el empresaId de la sesión del usuario
+    const empresaId = user?.empresaId;
 
-    let whereCondition = eq(categorias.empresaId, empresaId);
+    if (!empresaId) {
+      return createResponse(401, 'Usuario no autenticado o sin empresa asignada');
+    }
 
     if (isAll) {
       const categoriasConConteo = await db
@@ -92,11 +91,13 @@ export const GET: APIRoute = async ({ request, locals }) => {
           productoCategorias,
           eq(productoCategorias.categoriaId, categorias.id)
         )
-        .where(eq(categorias.empresaId, user?.empresaId))
+        .where(eq(categorias.empresaId, empresaId)) // Usar el empresaId correcto
         .groupBy(categorias.id);
 
       return createResponse(200, 'Categorias encontradas', categoriasConConteo);
     }
+
+    let whereCondition = eq(categorias.empresaId, empresaId);
 
     // Agregar condición de búsqueda solo si hay query
     if (query) {

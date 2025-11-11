@@ -4,17 +4,18 @@ import H2 from "../../../../components/atomos/H2.astro";
 import FiltroProductos from "../../../../components/moleculas/FiltroProductos";
 import ConfeccionListadoProductos from "./ConfeccionListadoProductos";
 const {user}=Astro.locals
+console.log('datos locales ->',user)
 ---
 
 <DivBox1 styleDiv="md:w-2/3 w-full">
   <div class="flex items-center justify-between gap-2">
     <H2>Productos</H2>
   </div>
-  <FiltroProductos client:load empresaId={user?.empresaId}/>
+  <!-- <FiltroProductos client:load empresaId={user?.empresaId}/> -->
   <div
     class="flex flex-col items-start justify-start gap-2 bg-primary-bg-componentes w-full md:p-2 p"
   >
-    <ConfeccionListadoProductos  client:load />
+    <ConfeccionListadoProductos empresaId={user?.empresaId} client:load />
   
   </div>
 </DivBox1>

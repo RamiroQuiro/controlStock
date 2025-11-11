@@ -14,57 +14,27 @@ import { promises as fs } from 'fs';
 import { productoCategorias } from '../../../db/schema/productoCategorias';
 import { generateId } from 'lucia';
 import { getFechaUnix } from '../../../utils/timeUtils';
+import { getProductosFromDB } from '../../../services/productos.db.service';
+
 // Handler para el método GET del endpoint
 export const GET: APIRoute = async ({ request, locals }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get('search');
-  const tipo = url.searchParams.get('tipo'); // Nuevo parámetro para distinguir el tipo de búsqueda
+  const tipo = url.searchParams.get('tipo');
   const { user } = locals;
   const empresaId = user?.empresaId;
 
-  console.log('empresaId', empresaId);
-  if (!query) {
-    return new Response(
-      JSON.stringify({ error: 'falta el parametro de busqueda' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+  if (!empresaId) {
+    return new Response(JSON.stringify({ error: 'Usuario no autenticado o sin empresa asignada' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-  try {
-    let resultados;
 
-    if (tipo === 'codigoBarra') {
-      // Búsqueda exacta para código de barra
-      resultados = await db
-        .select()
-        .from(productos)
-        .where(
-          and(
-            eq(productos.empresaId, empresaId),
-            eq(productos.codigoBarra, query)
-          )
-        );
-      console.log('resultados', resultados);
-    } else {
-      // Búsqueda parcial para los demás campos
-      resultados = await db
-        .select()
-        .from(productos)
-        .where(
-          and(
-            eq(productos.empresaId, empresaId),
-            or(
-              like(productos.codigoBarra, `%${query}%`),
-              like(productos.descripcion, `%${query}%`),
-              like(productos.categoria, `%${query}%`),
-              like(productos.marca, `%${query}%`),
-              like(productos.modelo, `%${query}%`)
-            )
-          )
-        );
-    }
+  try {
+    // La lógica de DB y de búsqueda está en el servicio.
+    // La API route solo orquesta.
+    const resultados = await getProductosFromDB(empresaId, query, tipo);
 
     return new Response(
       JSON.stringify({
@@ -77,221 +47,118 @@ export const GET: APIRoute = async ({ request, locals }) => {
       }
     );
   } catch (error) {
-    // Manejo de errores durante la transacción o consultas
     console.error('Error al obtener los datos del producto:', error);
     return new Response(
       JSON.stringify({
-        status: 400,
-        msg: 'Error al buscar los datos del producto',
+        status: 500,
+        msg: 'Error en el servidor al buscar los datos del producto',
       }),
       {
-        status: 400,
+        status: 500,
         headers: { 'Content-Type': 'application/json' },
       }
     );
   }
 };
 
-export const DELETE: APIRoute = async ({ request, params }) => {
+import { deleteProductoFromDB } from '../../../services/productos.db.service';
+
+export const DELETE: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
   const productoId = url.searchParams.get('search');
   const srcPhoto = request.headers.get('srcPhoto');
-  console.log('delete en el enpoint',productoId)
-  try {
-    const transacciones = await db.transaction(async (trx) => {
-      await trx
-        .delete(movimientosStock)
-        .where(eq(movimientosStock.productoId, productoId));
-      await trx
-        .delete(detalleVentas)
-        .where(eq(detalleVentas.productoId, productoId));
-      await trx
-        .delete(stockActual)
-        .where(eq(stockActual.productoId, productoId));
-      await trx.delete(productos).where(eq(productos.id, productoId));
-    });
 
-    if (srcPhoto) {
-      const imagePath = path.join(
-        process.cwd(),
-        'public',
-        srcPhoto.replace(/^\//, '')
-      );
-
-      try {
-        // Verifica si el archivo existe antes de intentar eliminarlo
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
-          console.log(`Imagen eliminada: ${imagePath}`);
-        }
-      } catch (imageError) {
-        console.error('Error al eliminar la imagen:', imageError);
-        // No detenemos la eliminación del producto si falla la eliminación de la imagen
-      }
-    }
-    // Invalida el caché de productos para este usuario
-    await cache.invalidate(`stock_data_${productoId}`);
-
-    // Invalida el caché de productos para este usuario
-    return new Response(
-      JSON.stringify({
-        status: 200,
-        msg: 'Prodcuto eliminado',
-      }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
-  } catch (error) {
-    console.log(error);
-    return new Response(
-      JSON.stringify({
-        status: 200,
-        msg: 'Eliminar producto',
-      }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+  if (!productoId) {
+    return new Response(JSON.stringify({ msg: 'ID de producto requerido' }), { status: 400 });
   }
-};
-export const PUT: APIRoute = async ({ request, params }) => {
-  const data = await request.json();
-  const url = new URL(request.url);
-  const query = url.searchParams.get('search');
-
-  // Extraer los IDs de categorías
-  const categoriasIds = data.categorias
-    ? data.categorias.map(
-        (categoria: { id: string; nombre: string; descripcion: string }) =>
-          categoria.id
-      )
-    : [];
-
-  // Eliminar categorías del objeto data para evitar problemas en la actualización
-  const { categorias, ...dataProducto } = data;
-
-  console.log('Datos del producto:', dataProducto);
 
   try {
-    // Obtener el producto actual
-    const [productoActual] = await db
-      .select()
-      .from(productos)
-      .where(eq(productos.id, data.id));
+    // Lógica de DB centralizada en el servicio
+    await deleteProductoFromDB(productoId);
 
-    if (!productoActual) {
-      return new Response(
-        JSON.stringify({
-          status: 404,
-          msg: 'Producto no encontrado',
-        }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
+    // La lógica de manejo de archivos se queda en la API route
+    if (srcPhoto) {
+      const imagePath = path.join(process.cwd(), 'public', srcPhoto.replace(/^\//, ''));
+      try {
+        // fs.promises.unlink para operaciones asíncronas
+        await fs.unlink(imagePath);
+        console.log(`Imagen eliminada: ${imagePath}`);
+      } catch (imageError: any) {
+        // Si el archivo no existe, no es un error fatal
+        if (imageError.code !== 'ENOENT') {
+          console.error('Error al eliminar la imagen:', imageError);
+          // Opcional: decidir si la falla en eliminar la imagen debe devolver un error
         }
-      );
-    }
-
-    // Solo verificar unicidad si se está cambiando el código de barras
-    if (data.codigoBarra && data.codigoBarra !== productoActual.codigoBarra) {
-      // Verificar si ya existe otro producto con el mismo código de barras para este usuario
-
-      const [productoExistente] = await db
-        .select()
-        .from(productos)
-        .where(
-          and(
-            eq(productos.codigoBarra, data.codigoBarra),
-            eq(productos.empresaId, productoActual.empresaId),
-            not(eq(productos.id, query))
-          )
-        );
-
-      if (productoExistente) {
-        return new Response(
-          JSON.stringify({
-            status: 409,
-            msg: 'Ya existe un producto con este código de barras',
-          }),
-          {
-            status: 409,
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
       }
     }
-
-    // Proceder con la actualización
-    const dataUpdate = await db.transaction(async (trx) => {
-      const ultimaActualizacion = new Date(getFechaUnix());
-      const dataProductoUpdate = { ...dataProducto, ultimaActualizacion };
-      delete dataProductoUpdate.creado;
-      // 1. Actualizar el producto
-      const [actualizarProducto] = await trx
-        .update(productos)
-        .set(dataProductoUpdate)
-        .where(eq(productos.id, query))
-        .returning();
-
-      // 2. Eliminar las relaciones existentes de categorías
-      await trx
-        .delete(productoCategorias)
-        .where(eq(productoCategorias.productoId, actualizarProducto.id));
-
-      // 3. Insertar las nuevas relaciones de categorías
-      if (categoriasIds.length > 0) {
-        // Usar Promise.all para ejecutar todas las inserciones
-        await Promise.all(
-          categoriasIds.map(async (categoriaId: string) => {
-            return await trx.insert(productoCategorias).values({
-              id: generateId(10),
-              productoId: actualizarProducto.id,
-              categoriaId: categoriaId,
-            });
-          })
-        );
-      }
-
-      // 4. Actualizar el stock
-      await trx
-        .update(stockActual)
-        .set({
-          reservado: dataProducto.reservado,
-          depositosId: dataProducto.depositosId,
-          alertaStock: dataProducto.alertaStock,
-          ubicacionesId: dataProducto.ubicacionesId,
-        })
-        .where(eq(stockActual.productoId, query));
-
-      return actualizarProducto;
-    });
 
     // Invalidar caché
-    await cache.invalidate(`stock_data_${dataUpdate.empresaId}`);
-    await cache.invalidate(`categorias_${dataUpdate.empresaId}`);
+    await cache.invalidate(`stock_data_${productoId}`);
+
+    return new Response(JSON.stringify({ status: 200, msg: 'Producto eliminado' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error en el endpoint DELETE:', error);
+    return new Response(JSON.stringify({ status: 500, msg: 'Error al eliminar el producto' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+};
+import { updateProductoInDB } from '../../../services/productos.db.service';
+
+export const PUT: APIRoute = async ({ request, locals }) => {
+  const data = await request.json();
+  const url = new URL(request.url);
+  const productoId = url.searchParams.get('search');
+  const { user } = locals;
+  const empresaId = user?.empresaId;
+
+  if (!productoId || !empresaId) {
+    return new Response(
+      JSON.stringify({ msg: 'ID de producto y autenticación de empresa requeridos' }),
+      { status: 400 }
+    );
+  }
+
+  try {
+    const productoActualizado = await updateProductoInDB(productoId, data, empresaId);
+
+    // Invalidar caché
+    await cache.invalidate(`stock_data_${empresaId}`);
+    await cache.invalidate(`categorias_${empresaId}`);
 
     return new Response(
       JSON.stringify({
         status: 200,
-        msg: 'producto actualizado',
+        msg: 'Producto actualizado',
+        data: productoActualizado,
       }),
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       }
     );
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    console.error('Error en el endpoint PUT:', error);
+    
+    // Determinar el código de estado basado en el tipo de error
+    let statusCode = 500;
+    if (error.message === 'Producto no encontrado') {
+      statusCode = 404;
+    } else if (error.message === 'Ya existe un producto con este código de barras') {
+      statusCode = 409;
+    }
+
     return new Response(
       JSON.stringify({
-        status: 500,
-        msg: 'error al actualizar producto',
+        status: statusCode,
+        msg: error.message || 'Error al actualizar el producto',
       }),
       {
-        status: 500,
+        status: statusCode,
         headers: { 'Content-Type': 'application/json' },
       }
     );

@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, unique, index } from 'drizzle-orm/sqlite-core';
 import { empresas } from './empresas';
 import { users } from './users';
 import { sql } from 'drizzle-orm';
@@ -26,7 +26,34 @@ export const ubicaciones = sqliteTable(
     activo: integer('activo', { mode: 'boolean' }).default(true),
   },
   (t) => [
-    // Índice único compuesto para evitar duplicados de nombre por usuario
-    unique().on(t.nombre, t.empresaId,t.depositoId),
+    // 🔑 UNICIDAD
+    unique('uq_ubicacion_nombre_deposito_empresa').on(t.nombre, t.depositoId, t.empresaId),
+    
+    // 📊 ÍNDICES PRINCIPALES
+    // Búsqueda por empresa y depósito
+    index('idx_ubicaciones_empresa_deposito').on(t.empresaId, t.depositoId, t.activo),
+    
+    // Ubicaciones activas por empresa
+    index('idx_ubicaciones_empresa_activo').on(t.empresaId, t.activo),
+    
+    // Búsqueda por zona dentro de depósito
+    index('idx_ubicaciones_zona_deposito').on(t.depositoId, t.zona, t.activo),
+    
+    // Ordenamiento por prioridad
+    index('idx_ubicaciones_prioridad').on(t.empresaId, t.prioridad, t.activo),
+    
+    // 📍 ÍNDICES PARA UBICACIÓN FÍSICA
+    // Búsqueda por coordenadas físicas
+    index('idx_ubicaciones_ubicacion_fisica').on(
+      t.depositoId, 
+      t.pasillo, 
+      t.estante, 
+      t.rack, 
+      t.nivel
+    ),
+    
+    // Capacidad disponible
+    index('idx_ubicaciones_capacidad').on(t.empresaId, t.capacidad, t.activo),
   ]
+  
 );

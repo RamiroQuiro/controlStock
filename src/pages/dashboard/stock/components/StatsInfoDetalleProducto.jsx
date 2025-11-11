@@ -4,12 +4,9 @@ import { formateoMoneda } from '../../../../utils/formateoMoneda'
 import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud'
 import { calcularMargenGanancia, calcularPrecioStock, obtenerIvaMonto } from '../../../../utils/detallesProducto'
 import DivReact from '../../../../components/atomos/DivReact'
-import { useStore } from '@nanostores/react'
-import { perfilProducto } from '../../../../context/store'
 
-export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,formulario}) {
+export default function StatsInfoDetalleProducto({handleChangeForm,disableEdit,formulario,data:infoProducto,loading}) {
 
-  const {data :infoProducto,loading}=useStore(perfilProducto)
 
 
   const calculos = useMemo(() => {

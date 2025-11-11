@@ -7,7 +7,6 @@ import { stockStore, fetchListadoProductos } from '../../../../context/stock.sto
 const ConfeccionListadoProductos = ({empresaId}) => {
   // Obtenemos el estado del store
   const { data, loading,productos } = useStore(stockStore);
-  console.log('estamos en ConfeccionListadoProductos ->',productos)
 useEffect(() => {
   fetchListadoProductos(empresaId);
 }, [empresaId]);

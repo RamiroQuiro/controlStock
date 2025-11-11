@@ -6,7 +6,7 @@ import { formateoMoneda } from '../../../../utils/formateoMoneda';
 export default function ReactData({ idData }) {
   const { productos, loading ,totalProductos} = useStore(stockStore);
   // Memoizamos los cálculos para evitar recálculos innecesarios
-  console.log('estamos en reacCData ->',productos)
+  
   const calculatedData = useMemo(() => {
     if (!productos) return null;
 
@@ -39,7 +39,6 @@ export default function ReactData({ idData }) {
       costoStock: totalStockCosto,
     };
   }, [productos]);
-console.log('calculatedData ->',calculatedData)
   const obtenerData = (id) => {
     if (!calculatedData) return '0';
 

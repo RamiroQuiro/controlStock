@@ -10,7 +10,7 @@ export const GET: APIRoute = async ({ request }) => {
 
     const userId = request.headers.get('x-user-id');
     const empresaId = request.headers.get('xx-empresa-id');
-    console.log('datos del encabezado ->', userId, empresaId);
+    
     if (!userId || !empresaId) { // Asegurarse que empresaId también exista
       return new Response(JSON.stringify({ error: 'Usuario o empresa no autorizados' }), {
         status: 401,

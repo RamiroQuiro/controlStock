@@ -7,7 +7,8 @@ import DetalleMontoCompra from "./FormularioCompra/DetalleMontoCompra";
 import ProveedorSelect from "./ProveedorSelect";
 import { showToast } from "../../../../utils/toast/toastShow";
 import { useStore } from "@nanostores/react";
-import { productosSeleccionadosVenta } from "../../../../context/store";
+import { productosSeleccionadosVenta } from "../../../../context/venta.store";
+
 const FormularioCompra = ({ user,empresaId }) => {
   const [totalVenta, setTotalVenta] = useState(0);
   const [error, setError] = useState({ msg: "", status: 0 });

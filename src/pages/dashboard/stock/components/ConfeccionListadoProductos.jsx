@@ -7,9 +7,10 @@ import { stockStore, fetchListadoProductos } from '../../../../context/stock.sto
 const ConfeccionListadoProductos = ({empresaId}) => {
   // Obtenemos el estado del store
   const { data, loading,productos } = useStore(stockStore);
-useEffect(() => {
+
+    useEffect(() => {
   fetchListadoProductos(empresaId);
-}, [empresaId]);
+    }, [empresaId]);
   return (
     <div className="flex w-full flex-col gap-1">
       {!loading ? (

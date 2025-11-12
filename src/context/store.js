@@ -1,12 +1,5 @@
 import { atom } from 'nanostores';
 
-const busqueda = atom({
-  productosBuscados: null,
-});
-
-const filtroBusqueda = atom({
-  filtro: '',
-});
 const reportPDF = atom({ cabecera: {}, columnas: [], arrayBody: [] });
 
 const columnSelectTable = atom({ asc: true, seleccion: '' });
@@ -37,8 +30,6 @@ const fetchStatsData = async (userId, empresaId) => {
 const dataFormularioContexto = atom({
   isEdit: false,
 });
-
-const productosSeleccionadosVenta = atom([]);
 
 
 
@@ -197,11 +188,8 @@ export {
   fetchRolesData,
   perfilProducto,
   fetchProducto,
-  productosSeleccionadosVenta,
-  busqueda,
   columnSelectTable,
   dataFormularioContexto,
-  filtroBusqueda,
   reportPDF,
   usuarioActivo,
   statsDashStore,

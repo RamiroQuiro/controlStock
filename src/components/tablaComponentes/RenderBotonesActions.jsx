@@ -68,20 +68,19 @@ export const RenderActionsProductos = (data) => (
 // botoner para acciones de diagnosticos
 
 //   botonera de acciones
-export const RenderActionsVentas = (
-  data,
-  restarCantidad,
-  sumarCantidad,
-  aplicaDescuento,
-  eliminarProducto
-) => {
+export const RenderActionsVentas = ({
+  onRestar,
+  onSumar,
+  onAplicarDescuento,
+  onEliminar,
+}) => {
   return (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
       <button
         className="text-green-400 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
         onClick={(e) => {
           e.preventDefault();
-          restarCantidad(data)();
+          onRestar();
         }}
       >
         <CircleMinus className="w-4 h-6" />
@@ -90,7 +89,7 @@ export const RenderActionsVentas = (
         className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
         onClick={(e) => {
           e.preventDefault();
-          sumarCantidad(data)();
+          onSumar();
         }}
       >
         <CirclePlus className="w-4 h-6" />
@@ -99,7 +98,7 @@ export const RenderActionsVentas = (
         className="text-green-500 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
         onClick={(e) => {
           e.preventDefault();
-          aplicaDescuento(data)();
+          onAplicarDescuento();
         }}
       >
         <Tag className="w-4 h-6" />
@@ -109,7 +108,7 @@ export const RenderActionsVentas = (
         className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
         onClick={(e) => {
           e.preventDefault();
-          eliminarProducto(data)();
+          onEliminar();
         }}
       >
         <Delete className="w-4 h-6" />

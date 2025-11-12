@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { busqueda, filtroBusqueda } from "../../context/store";
+import { busqueda, filtroBusqueda } from "../../context/venta.store";
 import { CheckCircle, CheckCircle2, LoaderCircle, Search } from "lucide-react";
 import { cache } from "../../utils/cache";
 import { formateoMoneda } from "../../utils/formateoMoneda";
 
-export default function FiltroProductos({ mostrarProductos, userId, empresaId }) {
+export default function FiltroProductosV2({ mostrarProductos, userId, empresaId }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(null);
-  const [encontrados, setEncontrados] = useState(0);
+  const [encontrados, setEncontrados] = useState([]);
   const [agregarAutomatico, setAgregarAutomatico] = useState(true);
   const inputRef = useRef(null);
 
@@ -25,7 +25,7 @@ export default function FiltroProductos({ mostrarProductos, userId, empresaId })
 
     if (e.target.value === "") {
       busqueda.set({ productosBuscados: null });
-      setEncontrados(0);
+      setEncontrados([]);
     } else {
       setTimer(
         setTimeout(() => {
@@ -70,8 +70,9 @@ export default function FiltroProductos({ mostrarProductos, userId, empresaId })
           await cache.set(cacheKey, data.data);
 
           busqueda.set({ productosBuscados: data.data });
+          console.log('data.data', data.data)
           setEncontrados(data.data);
-          if(data.data[0].stock <= 0) {
+          if(!data.data[0].stock || data.data[0].stock.cantidad <= 0) {
             alert("El producto no tiene stock disponible");
             setLoading(false);
             return;
@@ -106,10 +107,20 @@ export default function FiltroProductos({ mostrarProductos, userId, empresaId })
   };
 
   const handleClick = (producto) => {
-    filtroBusqueda.set({ filtro: producto });
+    // Procesa el producto para aplanar la información de stock
+    const processedProduct = {
+      ...producto,
+      stock: producto.stock?.cantidad ?? 0, // Ahora 'stock' es un número
+    };
+
+    filtroBusqueda.set({ filtro: processedProduct });
     setSearch("");
-    setEncontrados(0);
+    setEncontrados([]);
   };
+
+  console.log('--- RENDER ---');
+  console.log('Loading:', loading);
+  console.log('Encontrados:', encontrados);
 
   return (
     <div className="w-full flex flex-col relative">
@@ -170,37 +181,40 @@ export default function FiltroProductos({ mostrarProductos, userId, empresaId })
                 </tr>
               </thead>
               <tbody>
-                {encontrados.map((producto, i) => (
-                  <tr
-                    key={i}
-                    tabIndex={i}
-                    className={`transition ${
-                      producto.stock <= 0 
-                        ? 'bg-red-50 cursor-not-allowed opacity-60' 
-                        : 'cursor-pointer hover:bg-primary-100/40'
-                    }`}
-                    onClick={() => producto.stock > 0 && handleClick(producto)}
-                  >
-                    <td className="px-3 py-2 border-b">
-                      {producto.codigoBarra}
-                    </td>
-                    <td className="px-3 py-2 border-b">
-                      {producto.descripcion}
-                      {producto.stock <= 0 && (
-                        <span className="text-red-500 text-xs ml-2">
-                          (Sin stock disponible)
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 border-b">{producto.marca}</td>
-                    <td className={`px-3 py-2 border-b ${
-                      producto.stock <= 0 ? 'text-red-500 font-semibold' : ''
-                    }`}>
-                      {producto.stock}
-                    </td>
-                    <td className="px-3 py-2 border-b">{formateoMoneda.format(producto.pVenta)}</td>
-                  </tr>
-                ))}
+                {encontrados.map((producto, i) => {
+                  const stockCantidad = producto.stock?.cantidad ?? 0;
+                  return (
+                    <tr
+                      key={i}
+                      tabIndex={i}
+                      className={`transition ${
+                        stockCantidad <= 0
+                          ? 'bg-red-50 cursor-not-allowed opacity-60'
+                          : 'cursor-pointer hover:bg-primary-100/40'
+                      }`}
+                      onClick={() => stockCantidad > 0 && handleClick(producto)}
+                    >
+                      <td className="px-3 py-2 border-b">
+                        {producto.codigoBarra}
+                      </td>
+                      <td className="px-3 py-2 border-b">
+                        {producto.descripcion}
+                        {stockCantidad <= 0 && (
+                          <span className="text-red-500 text-xs ml-2">
+                            (Sin stock disponible)
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 border-b">{producto.marca}</td>
+                      <td className={`px-3 py-2 border-b ${
+                        stockCantidad <= 0 ? 'text-red-500 font-semibold' : ''
+                      }`}>
+                        {stockCantidad}
+                      </td>
+                      <td className="px-3 py-2 border-b">{formateoMoneda.format(producto.pVenta)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -1,11 +1,11 @@
 import { useStore } from '@nanostores/react';
 import React, { useEffect, useState } from 'react';
-import { productosSeleccionadosVenta } from '../../../../context/store';
+import { productosSeleccionadosVenta } from '../../../../context/venta.store';
 import BotoneraCarrito from './BotoneraCarrito';
 import { formateoMoneda } from '../../../../utils/formateoMoneda';
 import ModalPago from './ModalPago/ModalPago';
 
-export default function CarritoVenta({ user }) {
+export default function CarritoVentaV2({ user }) {
   const $productos = useStore(productosSeleccionadosVenta);
   const [totalVenta, setTotalVenta] = useState(0);
   const [modalConfirmacion, setModalConfirmacion] = useState(false);

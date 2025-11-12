@@ -5,14 +5,18 @@ import { RenderActionsVentas } from "../../../../components/tablaComponentes/Ren
 import {
   filtroBusqueda,
   productosSeleccionadosVenta,
-} from "../../../../context/store";
+  agregarProductoVenta,
+  sumarCantidad,
+  restarCantidad,
+  eliminarProducto,
+} from "../../../../context/venta.store";
 import ModalCliente from "./ModalCliente";
 
-export default function DetallesVentas() {
+export default function DetallesVentasV2() {
   const $filtro = useStore(filtroBusqueda).filtro;
-  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  const $productosSeleccionados = useStore(productosSeleccionadosVenta);
   const [openModal, setOpenModal] = useState(false);
-
+console.log('productosSeleccionados', $productosSeleccionados)
   const columnas = [
     { label: "N°", id: 1, selector: (row, index) => index + 1 },
     { label: "codigo de barra", id: 2, selector: (row) => row.codigoBarra },
@@ -26,32 +30,15 @@ export default function DetallesVentas() {
 
   useEffect(() => {
     if ($filtro && Object.keys($filtro).length > 0) {
-      setProductosSeleccionados((prev) => {
-        const productoExistente = prev.find(
-          (prod) => prod.codigoBarra === $filtro.codigoBarra
-        );
-
-        if (productoExistente) {
-          const newArray = prev.map((producto) =>
-            producto.codigoBarra === $filtro.codigoBarra
-              ? { ...producto, cantidad: producto.cantidad + 1 }
-              : producto
-          );
-          productosSeleccionadosVenta.set(newArray);
-          return newArray;
-        } else {
-          const newArray = [...prev, { ...$filtro, cantidad: 1 }];
-          productosSeleccionadosVenta.set(newArray);
-          return newArray;
-        }
-      });
+      agregarProductoVenta($filtro);
+      filtroBusqueda.set({ filtro: "" });
     }
-    filtroBusqueda.set({ filtro: "" });
   }, [$filtro]);
+
   // Formatear datos para la tabla
   const datosTabla = useMemo(
     () =>
-      productosSeleccionados.map((prod, i) => ({
+      $productosSeleccionados.map((prod, i) => ({
         "N°": i + 1,
         codigoBarra: prod.codigoBarra,
         descripcion: prod.descripcion,
@@ -60,47 +47,8 @@ export default function DetallesVentas() {
         stock: prod.stock,
         cantidad: prod.cantidad,
       })),
-    [productosSeleccionados]
+    [$productosSeleccionados]
   );
-  const sumarCantidad = (data) => () => {
-    setProductosSeleccionados((prev) => {
-      const newArray = prev.map((producto) =>
-        producto.codigoBarra === data.codigoBarra
-          ? { ...producto, cantidad: producto.cantidad + 1 }
-          : producto
-      );
-      productosSeleccionadosVenta.set(newArray);
-      return newArray;
-    });
-  };
-
-  const restarCantidad = (data) => () => {
-    setProductosSeleccionados((prev) => {
-      const newArray = prev
-        .map((producto) =>
-          producto.codigoBarra === data.codigoBarra && producto.cantidad > 1
-            ? { ...producto, cantidad: producto.cantidad - 1 }
-            : producto
-        )
-        .filter((producto) => producto.cantidad > 0);
-      productosSeleccionadosVenta.set(newArray);
-      return newArray;
-    });
-  };
-
-  const eliminarProducto = (data) => () => {
-    setProductosSeleccionados((prev) =>
-      prev.filter((producto) => producto.codigoBarra !== data.codigoBarra)
-    );
-    const newArray = productosSeleccionadosVenta
-      .get()
-      .filter((prod) => prod.codigoBarra !== data.codigoBarra);
-    productosSeleccionadosVenta.set(newArray);
-  };
-
-  const aplicaDescuento = (data) => () => {
-    setOpenModal(true);
-  };
 
   return (
     <>
@@ -108,7 +56,7 @@ export default function DetallesVentas() {
         <ModalCliente onClose={() => setOpenModal(false)}>hola</ModalCliente>
       )}
       <div className="w-full md:p-4 p-1 rounded-lg bg-primarycomponentes">
-        {productosSeleccionados.length === 0 ? (
+        {$productosSeleccionados.length === 0 ? (
           <div className="p-3">
             <p>No hay elementos para mostrar</p>
           </div>
@@ -117,17 +65,16 @@ export default function DetallesVentas() {
             <Table
               arrayBody={datosTabla}
               columnas={columnas}
-              renderBotonActions={(data) =>
-                RenderActionsVentas(
-                data,
-                restarCantidad,
-                sumarCantidad,
-                aplicaDescuento,
-                eliminarProducto
-              )
-            }
+              renderBotonActions={(data) => (
+                <RenderActionsVentas
+                  onRestar={() => restarCantidad(data.codigoBarra)}
+                  onSumar={() => sumarCantidad(data.codigoBarra)}
+                  onAplicarDescuento={() => setOpenModal(true)}
+                  onEliminar={() => eliminarProducto(data.codigoBarra)}
+                />
+              )}
             />
-            </div>
+          </div>
         )}
       </div>
     </>

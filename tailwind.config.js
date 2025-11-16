@@ -84,6 +84,10 @@ export default {
           '0%, 100%': { transform: 'translateX(0)' },
           '50%': { transform: 'translateX(3px)' },
         },
+        'fade-in': {
+          'from': { opacity: 0, transform: 'translateY(-10px)' },
+          'to': { opacity: 1, transform: 'translateY(0)' },
+        },
       },
       animation: {
         'waving-hand': 'abrirCat 2s linear infinite',
@@ -92,6 +96,7 @@ export default {
         desaparecerCostado: 'desaparecerCote .3s ease-in ',
         float: 'float 3s ease-in-out infinite',
         'bounce-side': 'bounce-side 0.5s ease-in-out infinite',
+        'fade-in': 'fade-in 0.2s ease-out',
       },
       boxShadow: {
         shadowCaja1: '10px 10px 25px -7px rgba(66,66,66,0.7)',

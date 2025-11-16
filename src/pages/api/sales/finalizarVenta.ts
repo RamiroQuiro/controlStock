@@ -20,11 +20,11 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     const {
       productos: productosSeleccionados,
       userId,
-      empresaId,
+      
       data,
     } = await request.json();
     const { user } = locals;
-
+const empresaId=user?.empresaId
     let clienteId = data.clienteId || user?.clienteDefault;
 
     if (
@@ -66,7 +66,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       }
     }
 
-    const fechaVenta = new Date(getFechaUnix() * 1000);
+    const fechaVenta = new Date();
 
     const ventaDB = await db.transaction(async (trx) => {
       const [numeracion] = await trx
@@ -139,6 +139,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             id: nanoid(),
             ventaId: ventaFinalizada.id,
             productoId: prod.id,
+            empresaId,
             nComprobante: numeroFormateado,
             cantidad: prod.cantidad,
             precio: prod.pVenta,

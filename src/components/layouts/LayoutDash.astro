@@ -74,6 +74,24 @@ const url = Astro.url;
   input[type='number'] {
     -moz-appearance: textfield;
   }
+
+  /* Scrollbar personalizado */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 </style>
 <script>
   document.addEventListener('keydown', (event) => {

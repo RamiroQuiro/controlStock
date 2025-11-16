@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const tipo = url.searchParams.get('tipo');
   const { user } = locals;
   const empresaId = user?.empresaId;
-
+console.log("tipo, y query",tipo,query)
   if (!empresaId) {
     return new Response(JSON.stringify({ error: 'Usuario no autenticado o sin empresa asignada' }), {
       status: 401,

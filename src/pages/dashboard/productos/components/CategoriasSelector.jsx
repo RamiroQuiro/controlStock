@@ -1,58 +1,60 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import { CircleX, PlusCircle } from "lucide-react";
 import ModalAgregarCat from "./ModalAgregarCat";
-import debounce from "debounce";
-import CategoriasList from "./CategoriaList";
+
 import { CategoriaTag } from "./CategoriaTag";
 import { useCategorias } from "../../../../hook/useCategorias";
 import BotonAgregarCat from "../../../../components/moleculas/BotonAgregarCat";
+import CategoriasListMejorado from "./CategoriaListMejorado";
 
 // Componente para la lista de sugerencias
 
 export default function CategoriasSelector({ empresaId, onCategoriasChange }) {
   const [categoria, setCategoria] = useState("");
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [mostrarPopulares, setMostrarPopulares] = useState(true); // 🎯 NUEVO ESTADO
+  const inputRef = useRef(null);
 
   const { categorias, isLoading, error, searchCategorias } =
     useCategorias(empresaId);
 
-  useEffect(() => {
-    if (onCategoriasChange) {
-      onCategoriasChange(categoriasSeleccionadas.map(cat => cat.id));
-    }
-  }, [categoriasSeleccionadas, onCategoriasChange]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     searchCategorias.cancel();
-  //   };
-  // }, [searchCategorias]);
-
-  const onChangeCategoria = (e) => {
+  const onChangeCategoria = useCallback((e) => {
     const value = e.target.value;
     setCategoria(value);
-    searchCategorias(value);
-  };
+    
+    if (value.length > 1) {
+      setShowSuggestions(true);
+ 
+      searchCategorias(value);
+    } else if (value.length === 0) {
+      setShowSuggestions(false);
+    
+    
+    }
+  }, [searchCategorias]);
 
   const handleCategoriaClick = (cat) => {
     if (!categoriasSeleccionadas.some((c) => c.id === cat.id)) {
-      setCategoriasSeleccionadas([...categoriasSeleccionadas, cat]);
+      setCategoriasSeleccionadas(prev => [...prev, cat]);
     }
     setCategoria("");
-    searchCategorias("");
-  };
+    setShowSuggestions(false);
 
-  const handleRemoveCategoria = (id) => {
-    setCategoriasSeleccionadas(
-      categoriasSeleccionadas.filter((c) => c.id !== id)
-    );
+    inputRef.current?.focus();
+  };
+  const handleRemoveCategoria = (cat) => {
+    setCategoriasSeleccionadas(prev => prev.filter(c => c.id !== cat.id));
+    onCategoriasChange(prev => prev.filter(c => c.id !== cat.id));
   };
 
   return (
-    <div className="w-full flex items-center   justify-start   gap-2 relative">
-        {/* Tags de categorías seleccionadas */}
-        <div className="flex -2 flex-wrap gap-2">
+    <div className="w-full flex flex-col gap-3 relative">
+      {/* TAGS DE CATEGORÍAS SELECCIONADAS */}
+      {categoriasSeleccionadas.length > 0 && (
+        <div className="flex flex-wrap gap-2">
           {categoriasSeleccionadas.map((cat) => (
             <CategoriaTag
               key={cat.id}
@@ -61,32 +63,54 @@ export default function CategoriasSelector({ empresaId, onCategoriasChange }) {
             />
           ))}
         </div>
+      )}
 
-        {/* Input de búsqueda */}
+      {/* INPUT DE BÚSQUEDA */}
+      <div className="relative">
         <InputComponenteJsx
+          ref={inputRef}
           name="categoria"
           value={categoria}
-          className={"text-sm"}
+          className="text-sm pr-10"
           type="search"
           handleChange={onChangeCategoria}
           placeholder="Buscar categoría..."
         />
+        
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+          {isLoading && (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+          )}
+        </div>
+      </div>
 
-        {/* Indicador de carga */}
-        {isLoading && (
-          <span className="text-xs text-gray-500">Buscando...</span>
-        )}
-
-      {/* Lista de sugerencias */}
-      {categorias.length > 0 && categoria.length > 2 && (
-        <CategoriasList
+      {/* SUGERENCIAS DE BÚSQUEDA */}
+      {showSuggestions && (
+        <CategoriasListMejorado
           categorias={categorias}
+          isLoading={isLoading}
           onSelect={handleCategoriaClick}
+          onClose={() => {
+            setShowSuggestions(false);
+          }}
+          searchQuery={categoria}
         />
       )}
 
-      {/* Botón para agregar nueva categoría */}
-     <BotonAgregarCat empresaId={empresaId}/>
+      {/* BOTÓN AGREGAR NUEVA CATEGORÍA */}
+      {categoria.length > 0 && !isLoading && categorias.length === 0 && (
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <span>¿No encuentras la categoría?</span>
+          <BotonAgregarCat 
+            empresaId={empresaId} 
+            categoriaNombre={categoria}
+            onCategoriaCreada={(nuevaCat) => {
+              handleCategoriaClick(nuevaCat);
+              setCategoria("");
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

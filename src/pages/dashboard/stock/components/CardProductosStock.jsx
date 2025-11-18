@@ -1,63 +1,182 @@
 import { ScanBarcode } from "lucide-react";
 import { formateoMoneda } from "../../../../utils/formateoMoneda.js";
 
+
+
+
 export default function CardProductosStock({ prod }) {
   if (!prod) return null;
 
   const totalStock = prod?.pVenta * prod?.stock;
-  const intensidad = Math.max(0, Math.min(1, 1 - prod?.stock / prod?.alertaStock));
+  
+  // 🎯 MEJOR CÁLCULO DE INTENSIDAD
+  const porcentajeStock = (prod?.stock / prod?.alertaStock) * 100;
+  const intensidad = Math.max(0, Math.min(1, 1 - (porcentajeStock / 100)));
+  
+  // 🎯 SISTEMA DE ALERTAS MÁS INTELIGENTE
+  const getStockStatus = () => {
+    if (prod?.stock === 0) {
+      return {
+        nivel: 'agotado',
+        color: 'rgba(239, 68, 68, 0.9)', // Rojo
+        bgColor: 'rgba(239, 68, 68, 0.05)',
+        texto: 'Sin stock',
+        icon: '❌'
+      };
+    } else if (prod?.stock <= prod?.alertaStock) {
+      return {
+        nivel: 'bajo',
+        color: `rgba(245, 158, 11, ${0.7 + intensidad * 0.3})`, // Naranja
+        bgColor: `rgba(245, 158, 11, ${0.05 + intensidad * 0.05})`,
+        texto: 'Stock bajo',
+        icon: '⚠️'
+      };
+    } else if (prod?.stock <= prod?.alertaStock * 2) {
+      return {
+        nivel: 'medio',
+        color: 'rgba(34, 197, 94, 0.7)', // Verde claro
+        bgColor: 'rgba(34, 197, 94, 0.05)',
+        texto: 'Stock medio',
+        icon: '📦'
+      };
+    } else {
+      return {
+        nivel: 'optimo',
+        color: 'rgba(34, 197, 94, 0.5)', // Verde
+        bgColor: 'rgba(34, 197, 94, 0.03)',
+        texto: 'Stock óptimo',
+        icon: '✅'
+      };
+    }
+  };
 
-  const estiloAlerta = prod?.stock <= prod?.alertaStock
-    ? {
-        background: `linear-gradient(to right, rgba(255, 87, 51, 0.05), rgba(255, 87, 51, ${0.1 + intensidad * 0.1}))`,
-        border: `1px solid rgba(255, 87, 51, ${0.4 + intensidad * 0.1})`,
-        boxShadow: `0 0 8px rgba(255, 87, 51, ${0.2 + intensidad * 0.3})`,
-        transition: 'all 0.3s ease'
-      }
-    : {};
+  const stockStatus = getStockStatus();
+
+  // 🎯 ESTILOS DINÁMICOS MEJORADOS
+  const estiloCard = {
+    background: `linear-gradient(to right, ${stockStatus.bgColor}, ${stockStatus.bgColor})`,
+    border: `1px solid ${stockStatus.color}`,
+    boxShadow: `0 2px 8px ${stockStatus.color}20`,
+    transition: 'all 0.3s ease'
+  };
+
+  // 🎯 BARRA DE PROGRESO VISUAL
+  const ProgressBar = () => {const stockPercentage = Math.min(100, (prod.stock / (prod.alertaStock * 3)) * 100);
+  
+  const getBarColor = (percentage) => {
+    if (percentage === 0) return '#ef4444'; // Rojo - Agotado
+    if (percentage < 33) return '#f59e0b';  // Naranja - Bajo
+    if (percentage < 66) return '#22c55e';  // Verde - Normal
+    return '#16a34a'; // Verde oscuro - Óptimo
+  };
+
+  return (
+    <div className="w-full mt-2">
+      <div className="flex justify-between text-xs text-gray-500 mb-1">
+        <span>Nivel de stock</span>
+        <span>{Math.round(stockPercentage)}%</span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div 
+          className="h-2 rounded-full transition-all duration-500"
+          style={{
+            width: `${stockPercentage}%`,
+            backgroundColor: getBarColor(stockPercentage)
+          }}
+        />
+      </div>
+      <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <span>Vacío</span>
+        <span>Lleno</span>
+      </div>
+    </div>
+  );
+};
 
   return (
     <a 
       href={`/dashboard/stock/producto/${prod.id}`}
-      style={estiloAlerta}
-      className={`rounded-lg py-1 md:px-2 px-1 flex items-center border border-transparent md:shadow-md hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full`}
+      style={estiloCard}
+      className={`rounded-lg p-3 flex items-center hover:-translate-y-0.5 hover:shadow-lg duration-200 cursor-pointer justify-between w-full group`}
     >
-      <div className="md:min-w-[75%] flex items-center justify-start gap-2 capitalize">
-        <div className="bg-gray-200 w-1/3">
-          <img
-            src={prod?.srcPhoto}
-            alt="logo"
-            className="rounded-lg h-20 object-contain w-full"
-          />
+      {/* 🎯 LADO IZQUIERDO - INFORMACIÓN DEL PRODUCTO */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* IMAGEN CON FALLBACK */}
+        <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+          {prod?.srcPhoto ? (
+            <img
+              src={prod.srcPhoto}
+              alt={prod.nombre}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-gray-600">
+              📦
+            </div>
+          )}
         </div>
-        <div className="flex flex-col items-start justify-normal">
-          {/* <!-- tiltulo del producto --> */}
-          <h3 className="text- font-semibold text-primary-textoTitle capitalize tracking-tight">
+
+        {/* INFORMACIÓN DEL PRODUCTO */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-sm font-semibold text-gray-900 truncate capitalize">
+              {prod?.nombre}
+            </h3>
+            <span className="text-xs px-1.5 py-0.5 rounded-full text-white font-medium"
+                  style={{ backgroundColor: stockStatus.color }}>
+              {stockStatus.icon} {stockStatus.texto}
+            </span>
+          </div>
+          
+          <p className="text-xs text-gray-600 truncate mb-2">
             {prod?.descripcion}
-          </h3>
-          {/* <!-- detalles --> */}
-          <div className="flex border-t w-full pt-1 gap-4">
-            <div>
-              <p className="text-sm">{prod?.stock} en stock</p>
-              <div className="inline-flex md:block items-center gap-2">
-                <ScanBarcode className="w-6 h-5" />
-                <p className="text-sm  lowercase">{prod?.codigoBarra}</p>
-              </div>
+          </p>
+
+          {/* 🎯 DETALLES COMPACTOS */}
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <div className="flex items-center gap-1">
+              <span className="font-medium" style={{ color: stockStatus.color }}>
+                {prod?.stock} unidades
+              </span>
             </div>
-            <div className="md:flex hidden flex-col items-start justify-">
-              <p className="text-sm">Categoria: {prod?.categoria}</p>
-              <p className="text-sm">Lugar: {prod?.localizacion}</p>
+            
+            <div className="flex items-center gap-1">
+              <ScanBarcode size={12} />
+              <span>{prod?.codigoBarra}</span>
             </div>
+
+            {prod?.categoria && (
+              <span className="bg-gray-100 px-2 py-0.5 rounded text-xs">
+                {prod.categoria}
+              </span>
+            )}
           </div>
         </div>
       </div>
-      <div className="text-end">
-        <h3 className="text-sm md:text-base md:font-semibold text-primary-textoTitle capitalize tracking-tight">
-          P. Venta :{formateoMoneda.format(prod?.pVenta)}
-        </h3>
-        <h3 className="text-sm md:text-base md:font-semibold text-primary-textoTitle capitalize tracking-tight">
-          Total :{formateoMoneda.format(totalStock)}
-        </h3>
+
+      {/* 🎯 LADO DERECHO - PRECIOS Y ACCIONES */}
+      <div className="flex flex-col items-end gap-1 ml-3 flex-shrink-0">
+        <div className="text-right">
+          <div className="text-sm font-semibold text-gray-900">
+            {formateoMoneda.format(prod?.pVenta)}
+          </div>
+          <div className="text-xs text-gray-500">P. venta</div>
+        </div>
+        
+        <div className="text-right">
+          <div className="text-sm font-bold text-green-600">
+            {formateoMoneda.format(totalStock)}
+          </div>
+          <div className="text-xs text-gray-500">Valor total</div>
+        </div>
+
+        {/* 🎯 BADGE DE ALERTA SI ES NECESARIO */}
+        {(stockStatus.nivel === 'agotado' || stockStatus.nivel === 'bajo') && (
+          <div className="text-xs px-2 py-1 rounded-full text-white font-medium mt-1 animate-pulse"
+               style={{ backgroundColor: stockStatus.color }}>
+            {stockStatus.nivel === 'agotado' ? 'REPONER' : 'ALERTA'}
+          </div>
+        )}
       </div>
     </a>
   );

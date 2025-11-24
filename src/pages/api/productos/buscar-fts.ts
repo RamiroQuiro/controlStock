@@ -2,7 +2,12 @@ import type { APIRoute } from "astro";
 
 import { like, eq, or, sql, and } from "drizzle-orm";
 import db from "../../../db";
-import { productos, productosFts, stockActual } from "../../../db/schema";
+import {
+  productos,
+  productosFts,
+  proveedores,
+  stockActual,
+} from "../../../db/schema";
 
 export const GET: APIRoute = async ({ request, locals }) => {
   const url = new URL(request.url);
@@ -36,13 +41,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
           categoria: productos.categoria,
           pVenta: productos.pVenta,
           srcPhoto: productos.srcPhoto,
-          // 🆕 AGREGAR ESTO para el stock:
           stock: stockActual.cantidad,
           alertaStock: stockActual.alertaStock,
         })
         .from(productosFts)
         .innerJoin(productos, eq(productosFts.id, productos.id))
-        .leftJoin(stockActual, eq(stockActual.productoId, productos.id)) // 🆕 JOIN con stock
+        .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
         .where(
           and(
             sql`productos_fts MATCH ${query + "*"}`,
@@ -53,11 +57,16 @@ export const GET: APIRoute = async ({ request, locals }) => {
         .limit(20);
     }
 
-    // 🟤 2 — Fallback LIKE
     if (resultados.length === 0) {
       resultados = await db
-        .select()
+        .select({
+          producto: productos,
+          stock: stockActual,
+          proveedor: proveedores,
+        })
         .from(productos)
+        .leftJoin(stockActual, eq(productos.id, stockActual.productoId))
+        .leftJoin(proveedores, eq(productos.proveedorId, proveedores.id))
         .where(
           and(
             eq(productos.empresaId, empresaId),
@@ -70,22 +79,18 @@ export const GET: APIRoute = async ({ request, locals }) => {
         .limit(20);
     }
 
-    // 🟢 3 — Agregar stock
     const ids = resultados.map((p) => p.id);
 
     const stockRows = await db
-      .select({
-        productoId: stockActual.productoId,
-        cantidad: stockActual.cantidad,
-      })
+      .select()
       .from(stockActual)
       .where(or(...ids.map((id) => eq(stockActual.productoId, id))));
 
-    const stockMap = new Map(stockRows.map((s) => [s.productoId, s.cantidad]));
+    const stockMap = new Map(stockRows.map((s) => [s.productoId, s]));
 
     const final = resultados.map((p) => ({
       ...p,
-      stock: stockMap.get(p.id) || 0,
+      stock: stockMap.get(p.id) || null,
     }));
 
     return new Response(JSON.stringify({ data: final }), { status: 200 });

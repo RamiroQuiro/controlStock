@@ -1,5 +1,5 @@
 import {
-    Box,
+  Box,
   Calculator,
   CircleX,
   Cuboid,
@@ -36,6 +36,7 @@ type Props = {
     productData: Producto;
     depositosDB: any;
     ubicacionesDB: any;
+    stockActualDB: any;
   };
 };
 
@@ -43,6 +44,7 @@ export default function FormProducto({ data }: Props) {
   const [form, setForm] = useState(data.productData);
   const [depositosIds, setDepositosIds] = useState(data.depositosDB);
   const [ubicacionesIds, setUbicacionesIds] = useState(data.ubicacionesDB);
+  const [stockActual, setStockActual] = useState(data.stockActualDB[0]);
   const [disableEdit, setDisableEdit] = useState(false);
   console.log("data del producto", data);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +101,9 @@ export default function FormProducto({ data }: Props) {
       className="w-full gap-2 flex flex-col items-start text-primary-texto "
     >
       <div className="flex items-center justify-between w-full">
-        <CardTitle className="flex-1">Formulario de Producto {form?.nombre}</CardTitle>
+        <CardTitle className="flex-1">
+          Formulario de Producto {form?.nombre}
+        </CardTitle>
         <div className="w-fit flex gap-2 items-center justify-end">
           <Button variant="primary">Guardar</Button>
           <Button variant="downloadPDF">Exportar PDF</Button>
@@ -116,13 +120,13 @@ export default function FormProducto({ data }: Props) {
               </CardSubTitle>
             </CardHeader>
             <CardContent className="py-3 gap-3 flex flex-col w-full items-center justify-center">
-                <Input
-                  label="Nombre"
-                  name="nombre"
-                  value={form.nombre}
-                  onChange={handleChange}
-                  placeholder="Nombre"
-                />
+              <Input
+                label="Nombre"
+                name="nombre"
+                value={form.nombre}
+                onChange={handleChange}
+                placeholder="Nombre"
+              />
               <div className="flex w-full flex-col md:flex-row gap-3">
                 <Input
                   label="Codigo de Barra"
@@ -273,21 +277,21 @@ export default function FormProducto({ data }: Props) {
                 <Input
                   label="Stock"
                   name="stock"
-                  value={form.stock}
+                  value={stockActual.cantidad}
                   onChange={handleChange}
                   placeholder="Stock"
                 />
                 <Input
                   label="Alerta de Sotck"
                   name="alertaStock"
-                  value={form.alertaStock}
+                  value={stockActual.alertaStock}
                   onChange={handleChange}
                   placeholder="Alerta de Stock"
                 />
                 <Input
                   label="Reservado"
                   name="reservado"
-                  value={form.reservado}
+                  value={stockActual.reservado}
                   onChange={handleChange}
                   placeholder="Reservado"
                 />
@@ -375,18 +379,18 @@ export default function FormProducto({ data }: Props) {
         </div>
         {/* segunda columna */}
         <div className="w-full md:w-1/4 flex flex-col gap-3 items-start">
-        <Card className="w-full  bg-primary-400/10 backdrop-blur-sm border-primary-400">
-         <CardSubTitle>Imagen del Producto</CardSubTitle>
-       <div className="w-full flex flex-col mt-2  items-center justify-start relative rounded-lg overflow-hidden ">
-            <div className="h- flex w-full rounded-lg  items-center ">
-              <img
-                src={form.srcPhoto}
-                alt={form.descripcion}
-                className=" object-cover w-auto h-full rounded-lg overflow-hidden hover:scale-105 duration-500"
-              />
+          <Card className="w-full  bg-primary-400/10 backdrop-blur-sm border-primary-400">
+            <CardSubTitle>Imagen del Producto</CardSubTitle>
+            <div className="w-full flex flex-col mt-2  items-center justify-start relative rounded-lg overflow-hidden ">
+              <div className="h- flex w-full rounded-lg  items-center ">
+                <img
+                  src={form.srcPhoto}
+                  alt={form.descripcion}
+                  className=" object-cover w-auto h-full rounded-lg overflow-hidden hover:scale-105 duration-500"
+                />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
           <Card className="w-full  bg-primary-100/20 backdrop-blur-sm border-primary-100">
             <CardHeader>
               <CardSubTitle className="inline-flex items-center gap-1 text-primary-100 ">
@@ -430,25 +434,23 @@ export default function FormProducto({ data }: Props) {
                   {formateoMoneda.format(form?.pCompra)}
                 </p>
               </Card>
-             
             </CardContent>
           </Card>
           <Card>
             <CardSubTitle>Estado del Producto</CardSubTitle>
             <CardContent className="w-full p-0 flex flex-col gap-3 mt-4">
-
-                <div className="flex w-full items-center justify-between">
-                    <p>Disponibilidad Online</p>
-                    <BadgesIndigo>No Disponible</BadgesIndigo>
-                </div>
-                <div className="flex w-full items-center justify-between">
-                    <p>Estado de Oferta</p>
-                    <BadgesIndigo>Precio Normal</BadgesIndigo>
-                </div>
-                <div className="flex w-full items-center justify-between">
-                    <p>Última Actualización</p>
-                    <BadgesIndigo>2025-11-11</BadgesIndigo>
-                </div>
+              <div className="flex w-full items-center justify-between">
+                <p>Disponibilidad Online</p>
+                <BadgesIndigo>No Disponible</BadgesIndigo>
+              </div>
+              <div className="flex w-full items-center justify-between">
+                <p>Estado de Oferta</p>
+                <BadgesIndigo>Precio Normal</BadgesIndigo>
+              </div>
+              <div className="flex w-full items-center justify-between">
+                <p>Última Actualización</p>
+                <BadgesIndigo>2025-11-11</BadgesIndigo>
+              </div>
             </CardContent>
           </Card>
         </div>

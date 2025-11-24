@@ -1,5 +1,4 @@
-
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql, count } from "drizzle-orm";
 import db from "../db";
 import {
   categorias,
@@ -15,7 +14,7 @@ import {
 
 /**
  * Obtiene un conjunto completo de datos de stock, productos y estadísticas relacionadas.
- * 
+ *
  * @param empresaId - El ID de la empresa para la que se obtienen los datos.
  * @param page - El número de página para la paginación de productos (comienza en 0).
  * @param limit - El número de productos a devolver por página.
@@ -28,10 +27,8 @@ export const obtenerDatosStock = async (
 ) => {
   const offset = page * limit;
 
-
   // Ejecutamos todas las consultas en paralelo para máxima eficiencia.
   const [
-
     topMasVendidos,
     topMenosVendidos,
     topMenosEgresos,
@@ -40,15 +37,21 @@ export const obtenerDatosStock = async (
     categoriasData,
     ubicacionesData,
     depositosData,
+    totalProductosData,
+    stockBajosData,
+    valorCostoData,
+    totalVendidosData,
+    agotadosData,
   ] = await Promise.all([
-
     // 3. Top 10 más vendidos
     db
       .select({
         id: productos.id,
         nombre: productos.nombre,
-        descripcion: productos.descripcion, 
-        totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as("totalVendido"),
+        descripcion: productos.descripcion,
+        totalVendido: sql<number>`sum(${detalleVentas.cantidad})`.as(
+          "totalVendido"
+        ),
       })
       .from(detalleVentas)
       .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
@@ -62,8 +65,11 @@ export const obtenerDatosStock = async (
       .select({
         id: productos.id,
         nombre: productos.nombre,
-        descripcion: productos.descripcion, 
-        totalVendido: sql<number>`coalesce(sum(${detalleVentas.cantidad}), 0)`.as("totalVendido"),
+        descripcion: productos.descripcion,
+        totalVendido:
+          sql<number>`coalesce(sum(${detalleVentas.cantidad}), 0)`.as(
+            "totalVendido"
+          ),
       })
       .from(productos)
       .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
@@ -77,14 +83,17 @@ export const obtenerDatosStock = async (
       .select({
         id: productos.id,
         nombre: productos.nombre,
-        descripcion: productos.descripcion, 
-        totalEgresos: sql<number>`count(${movimientosStock.id})`.as("totalEgresos"),
+        descripcion: productos.descripcion,
+        totalEgresos: sql<number>`count(${movimientosStock.id})`.as(
+          "totalEgresos"
+        ),
       })
       .from(productos)
-      .leftJoin(movimientosStock, 
+      .leftJoin(
+        movimientosStock,
         and(
           eq(movimientosStock.productoId, productos.id),
-          eq(movimientosStock.tipo, 'egreso')
+          eq(movimientosStock.tipo, "egreso")
         )
       )
       .where(eq(productos.empresaId, empresaId))
@@ -98,6 +107,60 @@ export const obtenerDatosStock = async (
     db.select().from(categorias).where(eq(categorias.empresaId, empresaId)),
     db.select().from(ubicaciones).where(eq(ubicaciones.empresaId, empresaId)),
     db.select().from(depositos).where(eq(depositos.empresaId, empresaId)),
+
+    // 7. Estadísticas Agregadas (NUEVO)
+    // Total Productos
+    db
+      .select({ count: count() })
+      .from(productos)
+      .where(
+        and(eq(productos.empresaId, empresaId), eq(productos.activo, true))
+      ),
+
+    // Stock Bajos
+    db
+      .select({ count: count() })
+      .from(productos)
+      .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
+      .where(
+        and(
+          eq(productos.empresaId, empresaId),
+          eq(productos.activo, true),
+          sql`${stockActual.cantidad} <= ${stockActual.alertaStock}`
+        )
+      ),
+
+    // Valor y Costo del Inventario
+    db
+      .select({
+        valorStock: sql<number>`sum(${productos.pVenta} * ${stockActual.cantidad})`,
+        costoStock: sql<number>`sum(${productos.pCompra} * ${stockActual.cantidad})`,
+      })
+      .from(productos)
+      .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
+      .where(
+        and(eq(productos.empresaId, empresaId), eq(productos.activo, true))
+      ),
+
+    // Total Vendidos Global
+    db
+      .select({ total: sql<number>`sum(${detalleVentas.cantidad})` })
+      .from(detalleVentas)
+      .innerJoin(productos, eq(detalleVentas.productoId, productos.id))
+      .where(eq(productos.empresaId, empresaId)),
+
+    // Agotados (Stock == 0)
+    db
+      .select({ count: count() })
+      .from(productos)
+      .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
+      .where(
+        and(
+          eq(productos.empresaId, empresaId),
+          eq(productos.activo, true),
+          eq(stockActual.cantidad, 0)
+        )
+      ),
   ]);
 
   // Estructuramos el resultado final en un objeto claro y fácil de usar.
@@ -117,6 +180,15 @@ export const obtenerDatosStock = async (
     // Datos adicionales
     proveedores: proveedoresData,
     clientes: clientesData,
+    // 🆕 Datos Agregados para Cards
+    datosAdicionales: {
+      totalProductos: totalProductosData[0]?.count || 0,
+      stockBajos: stockBajosData[0]?.count || 0,
+      valorStock: valorCostoData[0]?.valorStock || 0,
+      costoStock: valorCostoData[0]?.costoStock || 0,
+      totalVendidos: totalVendidosData[0]?.total || 0,
+      agotados: agotadosData[0]?.count || 0,
+    },
   };
 
   return resultadoFinal;

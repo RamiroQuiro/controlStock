@@ -1,70 +1,87 @@
 ---
-import { ChartColumnDecreasing, Package, Sticker, StickyNote, TrendingUp } from "lucide-react";
+import {
+  ChartColumnDecreasing,
+  Package,
+  Sticker,
+  StickyNote,
+  TrendingUp,
+  AlertTriangle,
+} from "lucide-react";
 import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 import StatsStock from "./StatsStock.astro";
+import { obtenerDatosStock } from "../../../../utils/stockFuncional2";
+import { formateoMoneda } from "../../../../utils/formateoMoneda";
 
-const {user}=Astro.locals
+const { user } = Astro.locals;
 
+// 🚀 SSR: Fetch de datos directo en el servidor
+const data = await obtenerDatosStock(user.empresaId);
+const stats = data.datosAdicionales;
 
 // stats
 const infoStats = [
   {
     id: 1,
     icono: Package,
-    bgColor: "from-primary-100 to-blue-700",
-    title: "Productos en Stock",
+    bgColor: "from-blue-500 to-blue-700",
+    title: "Total Productos",
+    value: stats.totalProductos,
     tooltip: `Total de productos únicos en inventario`,
   },
   {
-    id:2,
-    icono: ChartColumnDecreasing,
-    bgColor: "from-red-400 to-amber-700",
-    title: "Productos de Stock Bajo",
+    id: 2,
+    icono: AlertTriangle,
+    bgColor: "from-orange-400 to-orange-600",
+    title: "Stock Bajo",
+    value: stats.stockBajos,
     tooltip: `Productos que requieren reposición inmediata`,
   },
-
   {
-    id:3,
+    id: 3,
+    icono: ChartColumnDecreasing,
+    bgColor: "from-red-500 to-red-700",
+    title: "Agotados",
+    value: stats.agotados,
+    tooltip: `Productos sin stock`,
+  },
+  {
+    id: 4,
     icono: TrendingUp,
-    bgColor: "from-lime-500 to-lime-700",
-    title: "Ingresos por Ventas Top",
-    tooltip: `Ingresos generados por los productos más vendidos`,
+    bgColor: "from-emerald-500 to-emerald-700",
+    title: "Valor Venta",
+    value: formateoMoneda.format(stats.valorStock),
+    tooltip: `Valor total si se vendiera todo el stock`,
   },
   {
-    id:4,
+    id: 5,
     icono: StickyNote,
-    bgColor: "from-orange-400 to-orange-700",
-    title: "Costo de Inventario",
-    tooltip: `Valor de reposición de todo el inventario`,
-  },
-  {
-    id:5,
-    icono: Sticker,
-    bgColor: "from-purple-500 to-purple-700",
-    title: "Precio de  Inventario",
+    bgColor: "from-indigo-500 to-indigo-700",
+    title: "Costo Inversión",
+    value: formateoMoneda.format(stats.costoStock),
+    tooltip: `Costo total de adquisición del stock actual`,
   },
 ];
-
-
 ---
 
-
 <DivBox1 styleDiv="w-full">
-    <div class="w-full flex flex-wrap md:flex-nowrap items-stretch md:items-center justify-between gap-2 gap1 overflow-x-auto">
-      {
-        infoStats.map((info, index) => {
-          let Icon = info.icono;
-          return (
-            <StatsStock
-              icon={Icon}
-              bgColor={info.bgColor}
-              key={index}
-              id={info.id}
-            >
-              {info.title}
-            </StatsStock>
-          );
-        })
-      }
-    </div>
-  </DivBox1>
+  <div
+    class="w-full flex flex-wrap md:flex-nowrap items-stretch md:items-center justify-between gap-3 overflow-x-auto pb-2"
+  >
+    {
+      infoStats.map((info, index) => {
+        let Icon = info.icono;
+        return (
+          <StatsStock
+            icon={Icon}
+            bgColor={info.bgColor}
+            key={index}
+            id={info.id}
+            value={info.value}
+          >
+            {info.title}
+          </StatsStock>
+        );
+      })
+    }
+  </div>
+</DivBox1>

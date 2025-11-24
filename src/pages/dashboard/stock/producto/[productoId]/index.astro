@@ -1,6 +1,11 @@
 ---
 import db from "../../../../../db";
-import { productos, depositos, ubicaciones } from "../../../../../db/schema";
+import {
+  productos,
+  depositos,
+  ubicaciones,
+  stockActual,
+} from "../../../../../db/schema";
 import { eq, and } from "drizzle-orm";
 import LayoutDash from "../../../../../components/layouts/LayoutDash.astro";
 import FormProducto from "./componentes/FormProducto";
@@ -9,59 +14,59 @@ import HistorialMovimientosDetalleProducto from "../../components/HistorialMovim
 // 1. Proteger la ruta y obtener datos del usuario desde la sesión
 const { user } = Astro.locals;
 if (!user) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 const { empresaId } = user;
 
 // 2. Obtener el ID del producto de la URL
 const { productoId } = Astro.params;
 
-  if (!productoId) {
-    return new Response("ID de producto no encontrado", { status: 404 });
-  }
+if (!productoId) {
+  return new Response("ID de producto no encontrado", { status: 404 });
+}
 
-  // 3. Obtener todos los datos en PARALELO para mejor rendimiento
-  const [productosResult, depositosDB, ubicacionesDB] = await Promise.all([
-    // 🔍 PRODUCTO PRINCIPAL CON ÍNDICE OPTIMIZADO
-    db.select()
-      .from(productos)
-      .where(
-        and(
-          eq(productos.id, productoId), 
-          eq(productos.empresaId, empresaId)
-        )
-      )
-      .limit(1),
-    
-    // 🏭 DEPÓSITOS
-    db.select()
-      .from(depositos)
-      .where(eq(depositos.empresaId, empresaId)),
-    
-    // 📍 UBICACIONES  
-    db.select()
-      .from(ubicaciones)
-      .where(eq(ubicaciones.empresaId, empresaId))
-  ]);
+const [productoConStock, depositosDB, ubicacionesDB] = await Promise.all([
+  db
+    .select({
+      producto: productos,
+      stock: stockActual,
+    })
+    .from(productos)
+    .leftJoin(stockActual, eq(productos.id, stockActual.productoId))
+    .where(
+      and(eq(productos.id, productoId), eq(productos.empresaId, empresaId))
+    )
+    .limit(1),
+  db.select().from(depositos).where(eq(depositos.empresaId, empresaId)),
+  db.select().from(ubicaciones).where(eq(ubicaciones.empresaId, empresaId)),
+]);
 
-  const productData = productosResult[0];
+const result = productoConStock[0];
+console.log("productData result", result);
 
-  if (!productData) {
-    return new Response("Producto no encontrado o no pertenece a esta empresa", { status: 404 });
-  }
+if (!result) {
+  return new Response("Producto no encontrado o no pertenece a esta empresa", {
+    status: 404,
+  });
+}
 
-  // 4. Estructura de datos optimizada para el componente
-  const perfilProductoData = {
-    productData,
-    depositosDB,
-    ubicacionesDB
-  };
+const { producto: productData, stock } = result;
+
+// 4. Estructura de datos optimizada para el componente
+const perfilProductoData = {
+  productData,
+  depositosDB,
+  ubicacionesDB,
+  stockActualDB: stock ? [stock] : [],
+};
 ---
 
-<LayoutDash title={`Perfil de ${productData?.nombre || 'Producto'}`}>
-    <div class="flex w-full item-center flex-col gap-4 p-8 justify-between">
-    <FormProducto  client:load data={perfilProductoData}/>
-         <HistorialMovimientosDetalleProducto client:load productoId={productData?.id} />
-
-    </div>
+<LayoutDash title={`Perfil de ${productData?.nombre || "Producto"}`}>
+  <div class="flex w-full item-center flex-col gap-4 p-8 justify-between">
+    <FormProducto client:load data={perfilProductoData} />
+    <HistorialMovimientosDetalleProducto
+      client:load
+      productoId={productData?.id}
+    />
+  </div>
 </LayoutDash>

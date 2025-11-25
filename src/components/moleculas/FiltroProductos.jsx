@@ -34,6 +34,7 @@ export default function FiltroProductosV3({
   mostrarProductos,
   userId,
   empresaId,
+  modoCompra = false, // 🆕 Nuevo prop para modo compra
 }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -204,6 +205,8 @@ export default function FiltroProductosV3({
     const processedProduct = {
       ...producto,
       stock: producto.stock?.cantidad ?? producto.stock ?? 0,
+      // 🆕 En modo compra, asegurar que pCompra esté disponible
+      ...(modoCompra && { pCompra: producto.pCompra || 0 }),
     };
 
     filtroBusqueda.set({ filtro: processedProduct });
@@ -264,7 +267,7 @@ export default function FiltroProductosV3({
               type="checkbox"
               id="agregarAutomatico"
               checked={agregarAutomatico}
-              onChange={handleToggleAutoAgregar} // ✅ AGREGADO
+              onChange={handleToggleAutoAgregar}
               className="sr-only peer"
             />
             <label
@@ -429,19 +432,21 @@ export default function FiltroProductosV3({
             {encontrados.map((producto, index) => {
               const stock = producto.stock?.cantidad ?? producto.stock ?? 0;
               const tieneStock = stock > 0;
+              // 🆕 En modo compra, permitir agregar productos sin stock
+              const puedeAgregar = modoCompra || tieneStock;
 
               return (
                 <div
                   key={producto.id}
                   className={`border-b last:border-b-0 transition-colors cursor-pointer group ${
-                    tieneStock
+                    puedeAgregar
                       ? "hover:bg-blue-50 focus:bg-blue-50"
                       : "bg-gray-50 opacity-60 cursor-not-allowed"
                   }`}
-                  onClick={() => tieneStock && handleClick(producto)}
-                  tabIndex={tieneStock ? 0 : -1}
+                  onClick={() => puedeAgregar && handleClick(producto)}
+                  tabIndex={puedeAgregar ? 0 : -1}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && tieneStock) {
+                    if (e.key === "Enter" && puedeAgregar) {
                       handleClick(producto);
                     }
                   }}

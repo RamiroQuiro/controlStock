@@ -9,7 +9,7 @@ import { showToast } from "../../../../utils/toast/toastShow";
 import { useStore } from "@nanostores/react";
 import { productosSeleccionadosVenta } from "../../../../context/venta.store";
 
-const FormularioCompra = ({ user,empresaId }) => {
+const FormularioCompra = ({ user, empresaId }) => {
   const [totalVenta, setTotalVenta] = useState(0);
   const [error, setError] = useState({ msg: "", status: 0 });
   const $productos = useStore(productosSeleccionadosVenta);
@@ -22,7 +22,7 @@ const FormularioCompra = ({ user,empresaId }) => {
     nombre: "",
     dni: "00000000",
     celular: "0000000000",
-    id:user.proveedorDefault,
+    id: user.proveedorDefault,
   });
   const [formulario, setFormulario] = useState({
     proveedorId: proveedor.id,
@@ -65,7 +65,8 @@ const FormularioCompra = ({ user,empresaId }) => {
 
     formulario.total = totalVenta;
     formulario.proveedorId = proveedor.id;
-    console.log(formulario)
+    formulario.impuesto = ivaMonto; // 🎯 Agregar el IVA calculado
+    console.log(formulario);
     try {
       setCargando(true);
       const response = await fetch(`/api/compras/comprasProv`, {
@@ -155,7 +156,12 @@ const FormularioCompra = ({ user,empresaId }) => {
 
       <div className="flex flex-col items-start justify-normal">
         <h3 className="text-lg font-medium">Productos</h3>
-        <FiltroProductos mostrarProductos={true} />
+        <FiltroProductos
+          modoCompra={true}
+          mostrarProductos={true}
+          userId={user.id}
+          empresaId={user.empresaId}
+        />
         <DetallesVentas />
       </div>
       <DetalleMontoCompra

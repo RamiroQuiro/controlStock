@@ -1,5 +1,5 @@
-import { and, count, eq, gte, lte, sql, sum } from 'drizzle-orm';
-import db from '../db';
+import { and, count, eq, gte, lte, sql, sum } from "drizzle-orm";
+import db from "../db";
 import {
   categorias,
   clientes,
@@ -9,19 +9,27 @@ import {
   proveedores,
   ventas,
   productoCategorias,
-} from '../db/schema';
-import { 
-  getInicioYFinDeMesActual, 
-  getInicioYFinDeMesAnterior 
-} from '../utils/timeUtils';
+  stockActual,
+} from "../db/schema";
+import {
+  getInicioYFinDeMesActual,
+  getInicioYFinDeMesAnterior,
+} from "../utils/timeUtils";
 
 const stadisticasDash = async (userId: string, empresaId: string) => {
   try {
     // 🔹 Rangos de fechas obtenidos desde timeUtils
-    const { inicio: inicioMesActual, fin: finMesActual } = getInicioYFinDeMesActual();
-    const { inicio: inicioMesAnterior, fin: finMesAnterior } = getInicioYFinDeMesAnterior();
+    const { inicio: inicioMesActual, fin: finMesActual } =
+      getInicioYFinDeMesActual();
+    const { inicio: inicioMesAnterior, fin: finMesAnterior } =
+      getInicioYFinDeMesAnterior();
 
-    console.log('inicio mes actual,',new Date(inicioMesActual * 1000),' fin del mes actual',new Date(finMesActual))
+    console.log(
+      "inicio mes actual,",
+      new Date(inicioMesActual * 1000),
+      " fin del mes actual",
+      new Date(finMesActual)
+    );
     // 1️⃣ Ventas del mes actual
     const [ventasMes] = await db
       .select({ nVentasMes: count(), totalVentasMes: sum(ventas.total) })
@@ -50,11 +58,12 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
     const [productosBajoStock] = await db
       .select({ cantidadBajoStock: count() })
       .from(productos)
+      .innerJoin(stockActual, eq(stockActual.productoId, productos.id))
       .where(
         and(
           eq(productos.empresaId, empresaId),
           eq(productos.activo, true),
-          lte(productos.stock, productos.alertaStock)
+          lte(stockActual.cantidad, productos.alertaStock)
         )
       );
 
@@ -83,7 +92,10 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         metodoPago: comprasProveedores.metodoPago,
       })
       .from(comprasProveedores)
-      .innerJoin(proveedores, eq(proveedores.id, comprasProveedores.proveedorId))
+      .innerJoin(
+        proveedores,
+        eq(proveedores.id, comprasProveedores.proveedorId)
+      )
       .where(eq(comprasProveedores.empresaId, empresaId))
       .orderBy(sql`comprasProveedores.fecha DESC`)
       .limit(10);
@@ -98,7 +110,10 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       .from(detalleVentas)
       .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
       .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
-      .innerJoin(productoCategorias, eq(productoCategorias.productoId, productos.id))
+      .innerJoin(
+        productoCategorias,
+        eq(productoCategorias.productoId, productos.id)
+      )
       .innerJoin(categorias, eq(categorias.id, productoCategorias.categoriaId))
       .where(
         and(
@@ -119,7 +134,10 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       .from(detalleVentas)
       .innerJoin(ventas, eq(ventas.id, detalleVentas.ventaId))
       .innerJoin(productos, eq(productos.id, detalleVentas.productoId))
-      .innerJoin(productoCategorias, eq(productoCategorias.productoId, productos.id))
+      .innerJoin(
+        productoCategorias,
+        eq(productoCategorias.productoId, productos.id)
+      )
       .innerJoin(categorias, eq(categorias.id, productoCategorias.categoriaId))
       .where(
         and(
@@ -131,10 +149,12 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       .groupBy(categorias.nombre);
 
     // 8️⃣ Mezclar ventas y compras para mostrar últimas transacciones
-    const ultimasTransacciones = [...ultimasVentas, ...ultimasCompras].map((trans) => ({
-      ...trans,
-      tipo: trans.cliente ? 'venta' : 'compra',
-    }));
+    const ultimasTransacciones = [...ultimasVentas, ...ultimasCompras].map(
+      (trans) => ({
+        ...trans,
+        tipo: trans.cliente ? "venta" : "compra",
+      })
+    );
 
     // 9️⃣ Cálculo del rendimiento por categoría
     const totalVentasMesActual = ventasPorCategoria.reduce(
@@ -143,7 +163,9 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
     );
 
     const rendimientoCategorias = ventasPorCategoria.map((actual) => {
-      const anterior = ventasAnteriores.find((a) => a.categoria === actual.categoria);
+      const anterior = ventasAnteriores.find(
+        (a) => a.categoria === actual.categoria
+      );
       const porcentaje = totalVentasMesActual
         ? Math.round((actual.cantidadVentas / totalVentasMesActual) * 100)
         : 0;
@@ -153,7 +175,7 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
         : 0;
 
       const tendencia =
-        diferencia > 0 ? 'subida' : diferencia < 0 ? 'bajada' : 'estable';
+        diferencia > 0 ? "subida" : diferencia < 0 ? "bajada" : "estable";
 
       return {
         nombre: actual.categoria,
@@ -191,7 +213,7 @@ const stadisticasDash = async (userId: string, empresaId: string) => {
       },
     };
   } catch (error) {
-    console.error('Error en stadisticasDash:', error);
+    console.error("Error en stadisticasDash:", error);
     return { dataDb: null };
   }
 };

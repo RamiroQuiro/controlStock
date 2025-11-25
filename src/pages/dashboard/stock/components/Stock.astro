@@ -10,6 +10,7 @@ import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
 import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
 import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
+import TablaMovimientosStock from "./TablaMovimientosStock"; // 🆕 Import agregado
 import {
   depositos as depositosTable,
   ubicaciones as ubicacionesTable,
@@ -100,49 +101,29 @@ try {
         class="w-full bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200"
       >
         <div class="flex items-center justify-between gap-2 mb-3">
-          <H2 class="text-orange-800">📉 Menos Vendidos</H2>
+          <H2 class="text-orange-800">📉 Huesos (Sin Movimiento)</H2>
           <span
             class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded-full"
           >
-            Revisar
+            +180 días
           </span>
         </div>
-        <ContenedorTablaTopEgreso label="topMenosVendidos" client:load />
+        <ContenedorTablaTopEgreso label="topHuesos" client:load />
       </div>
 
-      {/* 🎯 REEMPLAZAR "MENOS MOVIMIENTOS" POR ALGO MÁS ÚTIL */}
+      {/* HISTORIAL DE MOVIMIENTOS */}
       <div
         class="w-full bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200"
       >
         <div class="flex items-center justify-between gap-2 mb-3">
-          <H2 class="text-blue-800">⚡ Acciones Rápidas</H2>
+          <H2 class="text-blue-800">📊 Últimos Movimientos</H2>
+          <span
+            class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full"
+          >
+            Kardex
+          </span>
         </div>
-        <div class="space-y-2">
-          <button
-            class="w-full text-left p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-          >
-            <div class="font-medium text-blue-800">📦 Reponer stock bajo</div>
-            <div class="text-xs text-blue-600 mt-1">
-              Ver productos con stock crítico
-            </div>
-          </button>
-          <button
-            class="w-full text-left p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-          >
-            <div class="font-medium text-blue-800">💰 Ajustar precios</div>
-            <div class="text-xs text-blue-600 mt-1">
-              Productos sin movimientos
-            </div>
-          </button>
-          <button
-            class="w-full text-left p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-          >
-            <div class="font-medium text-blue-800">
-              📊 Reporte de inventario
-            </div>
-            <div class="text-xs text-blue-600 mt-1">Generar reporte PDF</div>
-          </button>
-        </div>
+        <TablaMovimientosStock client:visible />
       </div>
     </DivBox1>
   </div>

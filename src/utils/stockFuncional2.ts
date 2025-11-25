@@ -42,6 +42,7 @@ export const obtenerDatosStock = async (
     valorCostoData,
     totalVendidosData,
     agotadosData,
+    topHuesosData, // 🆕 Agregado a la desestructuración
   ] = await Promise.all([
     // 3. Top 10 más vendidos
     db
@@ -161,6 +162,33 @@ export const obtenerDatosStock = async (
           eq(stockActual.cantidad, 0)
         )
       ),
+    // 8. Top Huesos (Sin ventas en 180 días o nunca)
+    db
+      .select({
+        id: productos.id,
+        nombre: productos.nombre,
+        descripcion: productos.descripcion,
+        ultimaVenta: sql<number>`max(${detalleVentas.created_at})`.as(
+          "ultimaVenta"
+        ),
+        stock: stockActual.cantidad,
+      })
+      .from(productos)
+      .leftJoin(detalleVentas, eq(detalleVentas.productoId, productos.id))
+      .leftJoin(stockActual, eq(stockActual.productoId, productos.id))
+      .where(
+        and(
+          eq(productos.empresaId, empresaId),
+          eq(productos.activo, true),
+          sql`${stockActual.cantidad} > 0`
+        )
+      )
+      .groupBy(productos.id, productos.nombre)
+      // Filtramos en el HAVING comparando timestamps (segundos)
+      .having(
+        sql`max(${detalleVentas.created_at}) IS NULL OR max(${detalleVentas.created_at}) < strftime('%s', 'now', '-180 days')`
+      )
+      .limit(5),
   ]);
 
   // Estructuramos el resultado final en un objeto claro y fácil de usar.
@@ -170,6 +198,7 @@ export const obtenerDatosStock = async (
       topMasVendidos,
       topMenosVendidos,
       topMenosEgresos,
+      topHuesos: topHuesosData, // ✅ Asignación correcta
     },
     // Datos para filtros y otras secciones
     filtros: {

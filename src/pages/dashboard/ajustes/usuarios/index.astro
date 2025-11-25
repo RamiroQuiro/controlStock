@@ -1,14 +1,30 @@
 ---
-import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
-import LayoutDash from '../../../../components/layouts/LayoutDash.astro';
-import SeccionUsuarios from './SeccionUsuarios.astro';
-import Modal from '../../../../components/moleculas/Modal.astro';
-import FormularioNuevoUser from '../components/FormularioNuevoUser';
-import FormularioNuevoUserEdit from '../components/FormularioNuevoUserEdit';
-import FormularioNuevoRol from '../components/FormularioNuevoRol';
-import SeccionRoles from './SeccionRoles.astro';
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
+import SeccionUsuarios from "./SeccionUsuarios.astro";
+import Modal from "../../../../components/moleculas/Modal.astro";
+import FormularioNuevoUser from "../components/FormularioNuevoUser";
+import FormularioNuevoUserEdit from "../components/FormularioNuevoUserEdit";
+import FormularioNuevoRol from "../components/FormularioNuevoRol";
+import SeccionRoles from "./SeccionRoles.astro";
+
+import { depositos as depositosTable } from "../../../../db/schema";
+import db from "../../../../db";
+import { eq } from "drizzle-orm";
 
 const { user } = Astro.locals;
+
+let depositos = [];
+try {
+  depositos = await db
+    .select({ id: depositosTable.id, nombre: depositosTable.nombre })
+    .from(depositosTable)
+    .where(eq(depositosTable.empresaId, user?.empresaId));
+  console.log("seccion usuarios,depositos", depositos);
+} catch (error) {
+  console.error("Error fetching depositos:", error);
+}
+
 // Datos de ejemplo (en un escenario real, vendrían de una base de datos)
 
 interface NuevoUsuario {
@@ -19,8 +35,8 @@ interface NuevoUsuario {
   apellido: string;
   email: string;
   password: string;
-  rol: 'admin' | 'vendedor' | 'repositor';
-  tipoUsuario: 'empleado' | 'cliente' | 'proveedor';
+  rol: "admin" | "vendedor" | "repositor";
+  tipoUsuario: "empleado" | "cliente" | "proveedor";
 }
 ---
 
@@ -29,13 +45,17 @@ interface NuevoUsuario {
     h1="Gestión de Usuarios y Roles"
     subtitle="Creacion y gestion de usuarios y roles"
   >
-    <div slot={'menu'} class="flex items-center justify-end pb-2 gap-2 pr-6 w-">
+    <div slot={"menu"} class="flex items-center justify-end pb-2 gap-2 pr-6 w-">
       <div class="flex gap-3">
         <Modal id="modificarUser">
           <FormularioNuevoUserEdit userId={user?.id} client:visible />
         </Modal>
         <Modal label="+ Nuevo Usuario" id="crearUser">
-          <FormularioNuevoUser userId={user?.id} client:visible />
+          <FormularioNuevoUser
+            userId={user?.id}
+            depositos={depositos}
+            client:visible
+          />
         </Modal>
 
         <Modal label="+ Nuevo Rol" id="crearRole">

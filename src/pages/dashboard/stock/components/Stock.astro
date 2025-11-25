@@ -9,20 +9,41 @@ import FormularioCompra from "./FormularioCompra";
 import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
 import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
-import ContenedorTablaMovimientos from "./ContenedorTablaMovimientos";
-import TablaMovimientosStock from "./TablaMovimientosStock"; // 🆕 Import agregado
+import TablaMovimientosStock from "./TablaMovimientosStock";
 import {
   depositos as depositosTable,
   ubicaciones as ubicacionesTable,
 } from "../../../../db/schema";
 import db from "../../../../db";
 import { eq } from "drizzle-orm";
+import { tienePermiso } from "../../../../modules/users/utils/permissions";
+import { PERMISOS } from "../../../../modules/users/types/permissions";
+
 const { user } = Astro.locals;
 if (!user) {
   return Astro.redirect("/login");
 }
-let depositos = [];
-let ubicaciones = [];
+
+// Adaptamos el usuario para la verificación de permisos
+const usuarioConRol = {
+  ...user,
+  id: String(user?.id),
+  rol: user?.rol || "vendedor",
+  permisos: (user as any)?.permisos,
+};
+
+const puedeCrearProducto = tienePermiso(
+  usuarioConRol,
+  PERMISOS.PRODUCTOS_CREAR
+);
+const puedeEditarPrecios = tienePermiso(
+  usuarioConRol,
+  PERMISOS.PRODUCTOS_EDITAR
+);
+const puedeComprar = tienePermiso(usuarioConRol, PERMISOS.ORDEN_COMPRA_CREAR);
+
+let depositos: any[] = [];
+let ubicaciones: any[] = [];
 try {
   depositos = await db
     .select({ id: depositosTable.id, nombre: depositosTable.nombre })
@@ -47,28 +68,48 @@ try {
     slot={"menu"}
     class="flex items-center justify-end pb-2 md:gap-2 gap-1 pr-6 w-full"
   >
-    <Modal
-      label="Crear Producto"
-      id="agregarProducto"
-      title="Crear Nuevo Producto"
-    >
-      <FormularioCargaProducto
-        depositos={depositos}
-        ubicaciones={ubicaciones}
-      />
-    </Modal>
+    {
+      puedeCrearProducto && (
+        <Modal
+          label="Crear Producto"
+          id="agregarProducto"
+          title="Crear Nuevo Producto"
+        >
+          <FormularioCargaProducto
+            depositos={depositos}
+            ubicaciones={ubicaciones}
+          />
+        </Modal>
+      )
+    }
 
-    <Modal label="Comprar" id="compraProveedir" title="Registrar Compra">
-      <FormularioCompra user={user} client:visible />
-    </Modal>
+    {
+      puedeComprar && (
+        <Modal label="Comprar" id="compraProveedir" title="Registrar Compra">
+          <FormularioCompra
+            user={user}
+            empresaId={user.empresaId}
+            client:visible
+          />
+        </Modal>
+      )
+    }
 
-    <Modal
-      label="Modificar Precios"
-      id="modificarPrecios"
-      title="Modificar Precios"
-    >
-      <FormularioModificacionPrecios userId={user.id} client:visible />
-    </Modal>
+    {
+      puedeEditarPrecios && (
+        <Modal
+          label="Modificar Precios"
+          id="modificarPrecios"
+          title="Modificar Precios"
+        >
+          <FormularioModificacionPrecios
+            userId={user.id}
+            dataFiltros={{}}
+            client:visible
+          />
+        </Modal>
+      )
+    }
   </div>
 
   <ContenedorStock />
@@ -108,7 +149,7 @@ try {
             +180 días
           </span>
         </div>
-        <ContenedorTablaTopEgreso label="topHuesos" client:load />
+        <ContenedorTablaTopEgreso label="topHuesos" client:load user={user} />
       </div>
 
       {/* HISTORIAL DE MOVIMIENTOS */}

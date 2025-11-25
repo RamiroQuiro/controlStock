@@ -8,49 +8,64 @@ import {
   SlidersHorizontal,
   Truck,
   UserSquare,
-} from 'lucide-react';
-import { puedeAccederRuta } from '../../utils/permisosRoles';
+} from "lucide-react";
+import { tienePermiso } from "../../modules/users/utils/permissions";
+import { PERMISOS } from "../../modules/users/types/permissions";
+
 const menuItems = [
   {
     icon: LayoutDashboard,
-    label: 'Dashboard',
-    path: '/dashboard',
-    permiso: 'dashboard',
+    label: "Dashboard",
+    path: "/dashboard",
+    permiso: PERMISOS.VENTAS_VER_REPORTES, // Dashboard principal suele requerir ver reportes
   },
   {
     icon: ShoppingCart,
-    label: 'Venta',
-    path: '/dashboard/ventas',
-    permiso: 'ventas',
+    label: "Venta",
+    path: "/dashboard/ventas",
+    permiso: PERMISOS.VENTAS_CREAR,
   },
-  { icon: Boxes, label: 'Stock', path: '/dashboard/stock', permiso: 'stock' },
+  {
+    icon: Boxes,
+    label: "Stock",
+    path: "/dashboard/stock",
+    permiso: PERMISOS.STOCK_VER,
+  },
   {
     icon: UserSquare,
-    label: 'Clientes',
-    path: '/dashboard/clientes',
-    permiso: 'clientes',
+    label: "Clientes",
+    path: "/dashboard/clientes",
+    permiso: PERMISOS.CLIENTES_VER,
   },
   {
     icon: Truck,
-    label: 'Proveedores',
-    path: '/dashboard/proveedores',
-    permiso: 'proveedores',
+    label: "Proveedores",
+    path: "/dashboard/proveedores",
+    permiso: PERMISOS.PROVEEDORES_VER,
   },
   {
     icon: ShoppingBag,
-    label: 'Compras',
-    path: '/dashboard/compras',
-    permiso: 'compras',
+    label: "Compras",
+    path: "/dashboard/compras",
+    permiso: PERMISOS.ORDEN_COMPRA_VER,
   },
   {
     icon: SlidersHorizontal,
-    label: 'Ajustes',
-    path: '/dashboard/ajustes',
-    permiso: 'ajustes',
+    label: "Ajustes",
+    path: "/dashboard/ajustes",
+    permiso: PERMISOS.EMPRESA_CONFIG,
   },
 ];
 
 const { user } = Astro.locals;
+
+// Adaptamos el usuario para la verificación de permisos
+const userWithRole = {
+  ...user,
+  id: String(user?.id),
+  rol: user?.rol || "vendedor",
+  permisos: (user as any)?.permisos,
+};
 ---
 
 <sidebar
@@ -71,14 +86,14 @@ const { user } = Astro.locals;
       id="logo"
       alt="ramaCode"
       width="200"
-      height={'200'}
+      height={"200"}
       class="duration-200 -translate-y-7-scale-down"
     />
   </div>
   <div class="flex md:flex-col justify-between items-start px-3 md:px-0 w-full">
     {
       menuItems
-        .filter((item) => puedeAccederRuta(user, item.path))
+        .filter((item) => tienePermiso(userWithRole, item.permiso as any))
         .map((item) => (
           <a
             href={item.path}
@@ -95,22 +110,22 @@ const { user } = Astro.locals;
 </sidebar>
 
 <script>
-  const btnCollaps = document.getElementById('collapse-button');
-  const sidebar = document.getElementById('sidebar');
-  const logo = document.getElementById('logo');
-  const spanesSiedebar = document.querySelectorAll('.spanSidebar');
-  btnCollaps?.addEventListener('click', () => {
-    if (sidebar.style.width === '10vw') {
-      btnCollaps.style.transform = 'rotate(0deg)';
-      sidebar.style.width = '4vw'; // Ancho expandido
+  const btnCollaps = document.getElementById("collapse-button");
+  const sidebar = document.getElementById("sidebar");
+  const logo = document.getElementById("logo");
+  const spanesSiedebar = document.querySelectorAll(".spanSidebar");
+  btnCollaps?.addEventListener("click", () => {
+    if (sidebar.style.width === "10vw") {
+      btnCollaps.style.transform = "rotate(0deg)";
+      sidebar.style.width = "4vw"; // Ancho expandido
       spanesSiedebar.forEach((span) => {
-        span.style.opacity = '0';
+        span.style.opacity = "0";
       });
     } else {
-      btnCollaps.style.transform = 'rotate(180deg)';
-      sidebar.style.width = '10vw'; // Ancho colapsado
+      btnCollaps.style.transform = "rotate(180deg)";
+      sidebar.style.width = "10vw"; // Ancho colapsado
       spanesSiedebar.forEach((span) => {
-        span.style.opacity = '100';
+        span.style.opacity = "100";
       });
     }
   });

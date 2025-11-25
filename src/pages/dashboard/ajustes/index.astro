@@ -1,25 +1,32 @@
 ---
 import LayoutDash from "../../../components/layouts/LayoutDash.astro";
-import { puedeAccederRuta } from "../../../utils/permisosRoles";
+import { tienePermiso } from "../../../modules/users/utils/permissions";
+import { PERMISOS } from "../../../modules/users/types/permissions";
 import Ajustes from "./Ajustes.astro";
-const {user}=Astro.locals
-const tieneAcceso = puedeAccederRuta(user, Astro.url.pathname);
-if (!tieneAcceso && user.rol==="vendedor") {
-  return Astro.redirect("/dashboard/ventas");
-}
-if (!tieneAcceso && user.rol==="repositor") {
-  return Astro.redirect("/dashboard/stock");
-}
+
+const { user } = Astro.locals;
+
+// Adaptamos el usuario para la verificación de permisos
+const userWithRole = {
+  ...user,
+  id: String(user?.id),
+  rol: user?.rol || "vendedor",
+  permisos: (user as any)?.permisos,
+};
+
+const tieneAcceso = tienePermiso(userWithRole, PERMISOS.EMPRESA_CONFIG);
+
 if (!tieneAcceso) {
+  if (user?.rol === "vendedor") return Astro.redirect("/dashboard/ventas");
+  if (user?.rol === "repositor") return Astro.redirect("/dashboard/stock");
   return Astro.redirect("/dashboard");
 }
 ---
+
 <LayoutDash title="Ajustes">
-    <Ajustes/>
+  <Ajustes />
 </LayoutDash>
 
 <script>
   // Manejadores de eventos
-
- 
 </script>

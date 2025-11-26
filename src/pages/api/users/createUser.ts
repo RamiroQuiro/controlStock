@@ -11,8 +11,17 @@ export async function POST({
 }: APIContext): Promise<Response> {
   const formData = await request.json();
 
-  const { email, password, dni, nombre, apellido, rol, creadoPor, depositoId } =
-    await formData;
+  const {
+    email,
+    password,
+    dni,
+    nombre,
+    apellido,
+    rol,
+    creadoPor,
+    depositoId,
+    rolPersonalizadoId,
+  } = await formData;
 
   if (!email || !password || !dni || !nombre || !apellido) {
     return new Response(
@@ -73,6 +82,7 @@ export async function POST({
         apellido: apellido,
         email: email,
         rol: rol || "vendedor", // Default a vendedor si no se especifica
+        rolPersonalizadoId: rolPersonalizadoId || null, // Guardar rol personalizado si existe
         password: hashPassword,
         creadoPor: creadoPor,
         emailVerificado: true, // Auto-verificado al ser creado por admin

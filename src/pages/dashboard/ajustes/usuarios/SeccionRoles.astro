@@ -1,50 +1,20 @@
 ---
-import {  ShieldCheck, } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import DivBox1 from "../../../../components/atomos/DivBox1.astro";
 import ContenedorRoles from "../components/ContenedorRoles";
 
-interface Rol {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  permisos: string[];
-}
- 
-const roles: Rol[] = [
-  {
-    id: 1,
-    nombre: "Administrador",
-    descripcion: "Control total del sistema",
-    permisos: [
-      "Gestión de Usuarios",
-      "Configuración del Sistema",
-      "Gestión de Productos",
-      "Reportes Completos",
-    ],
-  },
-  {
-    id: 2,
-    nombre: "Vendedor",
-    descripcion: "Acceso limitado para ventas",
-    permisos: [
-      "Registrar Ventas",
-      "Ver Inventario",
-      "Generar Reportes Básicos",
-    ],
-  },
-];
-
+const { roles } = Astro.props;
 ---
 
 <DivBox1 styleDiv="w-2/3">
-    <div class="flex justify-between items-center mb-4">
-      <div class="flex items-center">
-        <ShieldCheck className="w-8 h-8 text-primary-100 mr-3" />
-        <h2 class="text-xl font-semibold text-primary-textoTitle">
-          Roles y Permisos
-        </h2>
-      </div>
+  <div class="flex justify-between items-center mb-4">
+    <div class="flex items-center">
+      <ShieldCheck className="w-8 h-8 text-primary-100 mr-3" />
+      <h2 class="text-xl font-semibold text-primary-textoTitle">
+        Roles y Permisos
+      </h2>
     </div>
+  </div>
 
-   <ContenedorRoles client:load/>
-  </DivBox1>
+  <ContenedorRoles client:load roles={roles} />
+</DivBox1>

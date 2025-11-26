@@ -8,24 +8,42 @@ import FormularioNuevoUserEdit from "../components/FormularioNuevoUserEdit";
 import FormularioNuevoRol from "../components/FormularioNuevoRol";
 import SeccionRoles from "./SeccionRoles.astro";
 
-import { depositos as depositosTable } from "../../../../db/schema";
+import {
+  depositos as depositosTable,
+  roles as rolesTable,
+} from "../../../../db/schema";
 import db from "../../../../db";
 import { eq } from "drizzle-orm";
+import { ROLES_INICIALES } from "../../../../services/roles.sevice";
 
 const { user } = Astro.locals;
 
-let depositos = [];
+let depositos: any[] = [];
 try {
   depositos = await db
     .select({ id: depositosTable.id, nombre: depositosTable.nombre })
     .from(depositosTable)
-    .where(eq(depositosTable.empresaId, user?.empresaId));
-  console.log("seccion usuarios,depositos", depositos);
+    .where(eq(depositosTable.empresaId, user?.empresaId!));
 } catch (error) {
   console.error("Error fetching depositos:", error);
 }
 
-// Datos de ejemplo (en un escenario real, vendrían de una base de datos)
+// Roles base del sistema (hardcodeados)
+const rolesBase = ROLES_INICIALES;
+
+// Roles personalizados de la DB (ya vienen con prefijo rolCustom-)
+let rolesPersonalizados: any[] = [];
+try {
+  rolesPersonalizados = await db
+    .select()
+    .from(rolesTable)
+    .where(eq(rolesTable.empresaId, user?.empresaId!));
+} catch (error) {
+  console.error("Error fetching roles:", error);
+}
+console.log("roles personalizados", rolesPersonalizados);
+// Combinar ambos tipos de roles
+const roles = [...rolesBase, ...rolesPersonalizados];
 
 interface NuevoUsuario {
   dni: number;
@@ -35,7 +53,7 @@ interface NuevoUsuario {
   apellido: string;
   email: string;
   password: string;
-  rol: "admin" | "vendedor" | "repositor";
+  rol: string;
   tipoUsuario: "empleado" | "cliente" | "proveedor";
 }
 ---
@@ -48,18 +66,19 @@ interface NuevoUsuario {
     <div slot={"menu"} class="flex items-center justify-end pb-2 gap-2 pr-6 w-">
       <div class="flex gap-3">
         <Modal id="modificarUser">
-          <FormularioNuevoUserEdit userId={user?.id} client:visible />
+          <FormularioNuevoUserEdit userId={user?.id!} client:visible />
         </Modal>
         <Modal label="+ Nuevo Usuario" id="crearUser">
           <FormularioNuevoUser
-            userId={user?.id}
+            userId={user?.id!}
             depositos={depositos}
+            roles={roles}
             client:visible
           />
         </Modal>
 
         <Modal label="+ Nuevo Rol" id="crearRole">
-          <FormularioNuevoRol userId={user?.id} client:visible />
+          <FormularioNuevoRol client:visible />
         </Modal>
       </div>
     </div>
@@ -69,7 +88,7 @@ interface NuevoUsuario {
       {/* Sección de Usuarios */}
       <SeccionUsuarios />
       {/* Sección de Roles y Permisos */}
-      <SeccionRoles />
+      <SeccionRoles roles={roles} />
     </div>
   </MainDashboard>
 </LayoutDash>

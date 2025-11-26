@@ -67,10 +67,13 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       empresaId
     );
 
-    await db.update(users).set({
-      emailVerificado: true,
-      empresaId: empresaId,
-    }).where(eq(users.id, userFind.id));
+    await db
+      .update(users)
+      .set({
+        emailVerificado: true,
+        empresaId: empresaId,
+      })
+      .where(eq(users.id, userFind.id));
 
     const session = await lucia.createSession(userFind.id, {
       userName: userFind.userName,
@@ -96,6 +99,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       puntosDeVenta: puntoVenta,
       rol: userFind.rol,
       empresaId: empresaId,
+      rolPersonalizadoId: userFind.rolPersonalizadoId || null,
     };
 
     const jwtToken = jwt.sign(

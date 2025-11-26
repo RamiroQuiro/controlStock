@@ -1,18 +1,19 @@
 ---
-import DivBox1 from '../../../components/atomos/DivBox1.astro';
-import MainDashboard from '../../../components/atomos/MainDashboard.astro';
-import ProductosMasVendidos from '../../../components/dashboard/ProductosMasVendidos';
-import RendimientoCategoria from '../../../components/dashboard/RendimientoCategoria';
-import ResumenVentas from '../../../components/dashboard/ResumenVentas';
-import UltimasTransacciones from '../../../components/dashboard/UltimasTransacciones';
-import ContenedorStats from './componente/ContenedorStats';
-import AnalisisIA from '../../../components/dashboard/AnalisisIA';
-import { ArrowDownCircleIcon, Brain } from 'lucide-react';
+import DivBox1 from "../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../components/atomos/MainDashboard.astro";
+import ProductosMasVendidos from "../../../components/dashboard/ProductosMasVendidos";
+import RendimientoCategoria from "../../../components/dashboard/RendimientoCategoria";
+import ResumenVentas from "../../../components/dashboard/ResumenVentas";
+import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
+import ContenedorStats from "./componente/ContenedorStats";
+import AnalisisIA from "../../../components/dashboard/AnalisisIA";
+import { ArrowDownCircleIcon, Brain } from "lucide-react";
 
 const { user } = Astro.locals;
+
 const userId = user?.id;
 if (!user || !userId) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 ---
 
@@ -71,8 +72,8 @@ if (!user || !userId) {
 </MainDashboard>
 
 <script>
-  import { fetchStatsData } from '../../../context/store';
+  import { fetchStatsData } from "../../../context/store";
   const { usisisi, emprsisi } =
-    document.getElementById('mainDashboard')?.dataset;
+    document.getElementById("mainDashboard")?.dataset;
   fetchStatsData(usisisi, emprsisi);
 </script>

@@ -1,18 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { showToast } from "../../../../utils/toast/toastShow";
 import { loader } from "../../../../utils/loader/showLoader";
-import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
 import LoaderReact from "../../../../utils/loader/LoaderReact";
-import { useStore } from "@nanostores/react";
-import { dataFormularioContexto } from "../../../../context/store";
 import Input from "../../../../components/atomos/Input";
 import Button from "../../../../components/atomos/Button";
 import Selector from "../../../../components/atomos/Selector";
 
 interface Props {
-  userId: string; // ID del admin que está creando el usuario
-  datosFormulario?: NuevoUsuario;
+  userId: string;
   depositos: { id: string; nombre: string }[];
+  roles: { id: string; value: string; name: string }[];
 }
 
 interface NuevoUsuario {
@@ -23,12 +20,16 @@ interface NuevoUsuario {
   apellido: string;
   email: string;
   password: string;
-  rol: "admin" | "vendedor" | "repositor";
+  rol: string;
   tipoUsuario: "empleado" | "cliente" | "proveedor";
   depositoId?: string;
 }
 
-export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
+export default function FormularioNuevoUser({
+  userId,
+  depositos = [],
+  roles = [],
+}: Props) {
   const [formData, setFormData] = useState<NuevoUsuario>({
     dni: 0,
     id: "",
@@ -41,7 +42,6 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
     tipoUsuario: "empleado",
     depositoId: "",
   });
-  console.log("seccion usuarios,depositos", depositos);
   const [errors, setErrors] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -94,6 +94,11 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
     setLoading(true);
 
     try {
+      // Detectar si es un rol personalizado (prefijo rolCustom-)
+      const esRolPersonalizado = formData.rol.startsWith("rolCustom-");
+      const rolPersonalizadoId = esRolPersonalizado ? formData.rol : null;
+      const rolBase = esRolPersonalizado ? "vendedor" : formData.rol;
+
       const response = await fetch("/api/users/createUser", {
         method: "POST",
         headers: {
@@ -102,6 +107,8 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
         },
         body: JSON.stringify({
           ...formData,
+          rol: rolBase, // Rol base (admin/vendedor/repositor)
+          rolPersonalizadoId, // ID del rol personalizado si aplica
           creadoPor: userId,
         }),
       });
@@ -115,8 +122,16 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
           background: "bg-green-600",
         });
         setFormData({
-          ...formData,
+          dni: 0,
+          id: "",
           isEdit: false,
+          nombre: "",
+          apellido: "",
+          email: "",
+          password: "",
+          rol: "vendedor",
+          tipoUsuario: "empleado",
+          depositoId: "",
         });
         window.location.reload();
       }
@@ -136,9 +151,7 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 w-full text-primary-textoTitle p-6"
     >
-      <h2 className="text-xl font-semibold">
-        {formData.isEdit ? "Editar Usuario" : "Crear Nuevo Usuario"}
-      </h2>
+      <h2 className="text-xl font-semibold">Crear Nuevo Usuario</h2>
 
       <div className="flex gap-2">
         <Input
@@ -194,16 +207,12 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
           <Selector
             name="rol"
             labelOption="Seleccione un rol"
+            defaultSelect={false}
             value={formData.rol}
             handleSelect={(e: React.ChangeEvent<HTMLSelectElement>) =>
               handleChange(e)
             }
-            className="mt-1 w-full border rounded px-3 py-2"
-            options={[
-              { id: "vendedor", value: "vendedor", name: "Vendedor" },
-              { id: "repositor", value: "repositor", name: "Repositor" },
-              { id: "admin", value: "admin", name: "Administrador" },
-            ]}
+            options={roles}
           />
         </div>
 
@@ -211,7 +220,7 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
           <Selector
             name="depositoId"
             labelOption="Seleccione una sucursal"
-            defaultSelect
+            defaultSelect={false}
             value={formData.depositoId}
             handleSelect={(e: React.ChangeEvent<HTMLSelectElement>) =>
               handleChange(e)
@@ -229,6 +238,7 @@ export default function FormularioNuevoUser({ userId, depositos = [] }: Props) {
         <Selector
           name="tipoUsuario"
           labelOption="Seleccione un tipo de usuario"
+          defaultSelect={false}
           value={formData.tipoUsuario}
           handleSelect={(e: React.ChangeEvent<HTMLSelectElement>) =>
             handleChange(e)

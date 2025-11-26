@@ -1,10 +1,10 @@
-import type { APIContext } from 'astro';
-import { lucia } from '../../../lib/auth';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import db from '../../../db';
-import { clientes, proveedores, users } from '../../../db/schema';
-import { and, eq } from 'drizzle-orm';
+import type { APIContext } from "astro";
+import { lucia } from "../../../lib/auth";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import db from "../../../db";
+import { clientes, proveedores, users } from "../../../db/schema";
+import { and, eq } from "drizzle-orm";
 
 export async function POST({
   request,
@@ -15,7 +15,7 @@ export async function POST({
   const { email, password } = await formData;
   if (!email || !password) {
     return new Response(
-      JSON.stringify({ msg: 'email y contraseña requerida', status: 400 })
+      JSON.stringify({ msg: "email y contraseña requerida", status: 400 })
     );
   }
 
@@ -28,13 +28,13 @@ export async function POST({
 
   if (!findUser || findUser.activo === 0) {
     return new Response(
-      JSON.stringify({ msg: 'email incorrecta', status: 401 })
+      JSON.stringify({ msg: "email incorrecta", status: 401 })
     );
   }
   if (!findUser.emailVerificado) {
-    console.log('Usuario no tiene email verificado');
+    console.log("Usuario no tiene email verificado");
     return new Response(
-      JSON.stringify({ msg: 'email no verificado', status: 401 })
+      JSON.stringify({ msg: "email no verificado", status: 401 })
     );
   }
 
@@ -44,7 +44,7 @@ export async function POST({
     .where(
       and(
         eq(clientes.empresaId, findUser.empresaId),
-        eq(clientes.nombre, 'consumidor final')
+        eq(clientes.nombre, "consumidor final")
       )
     );
   const [findProovedorDefault] = await db
@@ -53,7 +53,7 @@ export async function POST({
     .where(
       and(
         eq(proveedores.empresaId, findUser.empresaId),
-        eq(proveedores.nombre, 'proveedor general')
+        eq(proveedores.nombre, "proveedor general")
       )
     );
 
@@ -62,7 +62,7 @@ export async function POST({
   if (!(await bcrypt.compare(password, findUser.password))) {
     return new Response(
       JSON.stringify({
-        msg: 'contraseña incorrecta',
+        msg: "contraseña incorrecta",
         status: 402,
       })
     );
@@ -88,21 +88,22 @@ export async function POST({
     proveedorDefault: findProovedorDefault.id,
     creadoPor: findUser.creadoPor,
     empresaId: findUser.empresaId,
+    rolPersonalizadoId: findUser.rolPersonalizadoId || null,
   };
 
   const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, {
-    expiresIn: '14d',
+    expiresIn: "14d",
   }); // Firmar la cookie
-  cookies.set('userData', token, {
+  cookies.set("userData", token, {
     httpOnly: true,
-    secure: import.meta.env.NODE_ENV === 'production', // Solo enviar en HTTPS en producción
-    sameSite: 'strict',
+    secure: import.meta.env.NODE_ENV === "production", // Solo enviar en HTTPS en producción
+    sameSite: "strict",
     maxAge: 14 * 24 * 3600, // 14 días
-    path: '/',
+    path: "/",
   });
   return new Response(
     JSON.stringify({
-      msg: 'usuario logeado con exito',
+      msg: "usuario logeado con exito",
       status: 200,
     })
   );

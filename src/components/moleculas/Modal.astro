@@ -1,14 +1,20 @@
 ---
-import { dataFormularioContexto } from '../../context/store';
-import Button1 from '../atomos/Button1.astro';
-import { CircleX, X } from 'lucide-react';
+import { dataFormularioContexto } from "../../context/store";
+import Button from "../atomos/Button";
+import { CircleX, X } from "lucide-react";
 const { id, label, title } = Astro.props;
 
 dataFormularioContexto.set({ isEdit: false });
 ---
 
 <div data-id={id}>
-  {label && <Button1 id={`modal-open-${id}`}>{label}</Button1>}
+  {
+    label && (
+      <Button variant="primary" id={`modal-open-${id}`}>
+        {label}
+      </Button>
+    )
+  }
 
   <dialog
     id={`dialog-modal-${id}`}
@@ -39,16 +45,16 @@ dataFormularioContexto.set({ isEdit: false });
   const closeBtn = document.getElementById(`modal-close-${id}`);
   const dialog = document.getElementById(`dialog-modal-${id}`);
 
-  openBtn?.addEventListener('click', () => {
+  openBtn?.addEventListener("click", () => {
     dialog?.showModal();
   });
 
-  closeBtn?.addEventListener('click', () => {
+  closeBtn?.addEventListener("click", () => {
     dialog?.close();
   });
 
   // Opcional: cerrar al hacer clic en el backdrop
-  dialog?.addEventListener('click', (event) => {
+  dialog?.addEventListener("click", (event) => {
     if (event.target === dialog) {
       dialog.close();
     }
@@ -69,18 +75,18 @@ dataFormularioContexto.set({ isEdit: false });
 </style>
 
 <script>
-  import { dataFormularioContexto } from '../../context/store';
+  import { dataFormularioContexto } from "../../context/store";
 
   const emptyForm = {
     dni: 0,
-    id: '',
+    id: "",
     isEdit: false,
-    nombre: '',
-    apellido: '',
-    email: '',
-    password: '',
-    rol: 'vendedor',
-    tipoUsuario: 'empleado',
+    nombre: "",
+    apellido: "",
+    email: "",
+    password: "",
+    rol: "vendedor",
+    tipoUsuario: "empleado",
   };
   dataFormularioContexto.set({ ...emptyForm, isEdit: false });
 </script>

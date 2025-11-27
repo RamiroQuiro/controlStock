@@ -35,7 +35,12 @@ const rolesBase = ROLES_INICIALES;
 let rolesPersonalizados: any[] = [];
 try {
   rolesPersonalizados = await db
-    .select()
+    .select({
+      id: rolesTable.id,
+      nombre: rolesTable.nombre,
+      descripcion: rolesTable.descripcion,
+      permisos: rolesTable.permisos,
+    })
     .from(rolesTable)
     .where(eq(rolesTable.empresaId, user?.empresaId!));
 } catch (error) {
@@ -45,6 +50,7 @@ console.log("roles personalizados", rolesPersonalizados);
 // Combinar ambos tipos de roles
 const roles = [...rolesBase, ...rolesPersonalizados];
 
+console.log("roles", roles);
 interface NuevoUsuario {
   dni: number;
   id: string;
@@ -63,12 +69,19 @@ interface NuevoUsuario {
     h1="Gestión de Usuarios y Roles"
     subtitle="Creacion y gestion de usuarios y roles"
   >
-    <div slot={"menu"} class="flex items-center justify-end pb-2 gap-2 pr-6 w-">
+    <div
+      slot={"menu"}
+      class="flex items-center w-fit justify-end pb-2 gap-2 pr-6 w-"
+    >
       <div class="flex gap-3">
         <Modal id="modificarUser">
-          <FormularioNuevoUserEdit userId={user?.id!} client:visible />
+          <FormularioNuevoUserEdit
+            depositos={depositos}
+            roles={roles}
+            client:visible
+          />
         </Modal>
-        <Modal label="+ Nuevo Usuario" id="crearUser">
+        <Modal label="+ Nuevo Usuario" id="crearUser" title="Nuevo Usuario">
           <FormularioNuevoUser
             userId={user?.id!}
             depositos={depositos}
@@ -77,7 +90,7 @@ interface NuevoUsuario {
           />
         </Modal>
 
-        <Modal label="+ Nuevo Rol" id="crearRole">
+        <Modal label="+ Nuevo Rol" id="crearRole" title="Nuevo Rol">
           <FormularioNuevoRol client:visible />
         </Modal>
       </div>

@@ -1,65 +1,67 @@
-import { useEffect, useState } from 'react';
-import { showToast } from '../../../../utils/toast/toastShow';
-import { loader } from '../../../../utils/loader/showLoader';
-import InputFormularioSolicitud from '../../../../components/moleculas/InputFormularioSolicitud';
-import LoaderReact from '../../../../utils/loader/LoaderReact';
-import { useStore } from '@nanostores/react';
-import { dataFormularioContexto } from '../../../../context/store';
+import { useState, useEffect } from "react";
+import { useStore } from "@nanostores/react";
+import { dataFormularioContexto } from "../../../../context/store";
+import { showToast } from "../../../../utils/toast/toastShow";
+import { loader } from "../../../../utils/loader/showLoader";
+import LoaderReact from "../../../../utils/loader/LoaderReact";
+import Input from "../../../../components/atomos/Input";
+import Button from "../../../../components/atomos/Button";
+import Selector from "../../../../components/atomos/Selector";
 
 interface Props {
-  userId: string; // ID del admin que está creando el usuario
-  datosFormulario: NuevoUsuario;
+  depositos: { id: string; nombre: string }[];
+  roles: { id: string; value: string; name: string }[];
+  onClose?: () => void;
 }
 
-interface NuevoUsuario {
-  dni: number;
+interface EditUsuario {
   id: string;
-  isEdit: boolean;
+  dni: number;
   nombre: string;
   apellido: string;
   email: string;
-  password: string;
-
-  rol: 'admin' | 'vendedor' | 'repositor';
-  tipoUsuario: 'empleado' | 'cliente' | 'proveedor';
+  rol: string;
+  tipoUsuario: "empleado" | "cliente" | "proveedor";
+  depositoId?: string;
 }
 
 export default function FormularioNuevoUserEdit({
-  userId,
-  datosFormulario,
+  depositos = [],
+  roles = [],
+  onClose,
 }: Props) {
-  const $dataFormularioContexto = useStore(dataFormularioContexto);
+  const userToEdit = useStore(dataFormularioContexto);
 
-  console.log($dataFormularioContexto);
-  const [formData, setFormData] = useState<NuevoUsuario>({
+  const [formData, setFormData] = useState<EditUsuario>({
+    id: "",
     dni: 0,
-    id: '',
-    isEdit: false,
-    nombre: '',
-    apellido: '',
-    email: '',
-    password: '',
-    rol: 'vendedor',
-    tipoUsuario: 'empleado',
+    nombre: "",
+    apellido: "",
+    email: "",
+    rol: "vendedor",
+    tipoUsuario: "empleado",
+    depositoId: "",
   });
-  const [errors, setErrors] = useState('');
+  const [errors, setErrors] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if ($dataFormularioContexto?.isEdit) {
+    if (userToEdit && userToEdit.isEdit) {
+      // Determinar el rol inicial (si tiene rolPersonalizadoId, usar ese)
+      const rolInicial = userToEdit.rolPersonalizadoId || userToEdit.rol;
+
       setFormData({
-        dni: $dataFormularioContexto.dni || 0,
-        id: $dataFormularioContexto.id || '',
-        isEdit: true,
-        nombre: $dataFormularioContexto.nombre || '',
-        apellido: $dataFormularioContexto.apellido || '',
-        email: $dataFormularioContexto.email || '',
-        password: '', // Nunca mostrar password existente
-        rol: $dataFormularioContexto.rol || 'vendedor',
-        tipoUsuario: $dataFormularioContexto.tipoUsuario || 'empleado',
+        id: userToEdit.id,
+        dni: Number(userToEdit.dni || userToEdit.documento) || 0,
+        nombre: userToEdit.nombre || "",
+        apellido: userToEdit.apellido || "",
+        email: userToEdit.email || "",
+        rol: rolInicial || "vendedor",
+        tipoUsuario: "empleado", // Asumimos empleado por defecto si no viene
+        depositoId: userToEdit.depositoId || "",
       });
     }
-  }, [$dataFormularioContexto]);
+  }, [userToEdit]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -67,23 +69,26 @@ export default function FormularioNuevoUserEdit({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'dni' ? Number(value) : value,
+      [name]: name === "dni" ? Number(value) : value,
     }));
   };
 
   const validateForm = () => {
-  
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setErrors('Email inválido');
+    if (
+      !formData.dni ||
+      !formData.nombre ||
+      !formData.apellido ||
+      !formData.email
+    ) {
+      setErrors("Todos los campos son obligatorios");
       return false;
     }
 
-    // if (formData.password.length < 6) {
-    //   setErrors('La contraseña debe tener al menos 6 caracteres');
-    //   return false;
-    // }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setErrors("Email inválido");
+      return false;
+    }
 
     return true;
   };
@@ -91,7 +96,7 @@ export default function FormularioNuevoUserEdit({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     loader(true);
-    setErrors('');
+    setErrors("");
 
     if (!validateForm()) {
       loader(false);
@@ -101,36 +106,37 @@ export default function FormularioNuevoUserEdit({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/users/editUser', {
-        method: 'PUT',
+      // Detectar si es un rol personalizado (prefijo rolCustom-)
+      const esRolPersonalizado = formData.rol.startsWith("rolCustom-");
+      const rolPersonalizadoId = esRolPersonalizado ? formData.rol : null;
+      const rolBase = esRolPersonalizado ? "vendedor" : formData.rol;
+
+      const response = await fetch("/api/users/editUser", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': userId,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...formData,
-          creadoPor: userId,
+          rol: rolBase,
+          rolPersonalizadoId,
         }),
       });
 
       const result = await response.json();
 
-      if (result.status === 400 || result.status === 403) {
-        setErrors(result.data || 'Error al crear usuario');
+      if (result.status !== 200) {
+        setErrors(result.message || "Error al actualizar usuario");
       } else {
-        showToast('Usuario creado exitosamente', {
-          background: 'bg-green-600',
-        });
-        setFormData({
-          ...formData,
-          isEdit: false,
+        showToast("Usuario actualizado exitosamente", {
+          background: "bg-green-600",
         });
         window.location.reload();
       }
     } catch (error) {
-      console.error('Error al crear usuario:', error);
-      showToast('Ocurrió un error inesperado', {
-        background: 'bg-red-600',
+      console.error("Error al actualizar usuario:", error);
+      showToast("Ocurrió un error inesperado", {
+        background: "bg-red-600",
       });
     } finally {
       setLoading(false);
@@ -143,95 +149,104 @@ export default function FormularioNuevoUserEdit({
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 w-full text-primary-textoTitle p-6"
     >
-      <h2 className="text-xl font-semibold">
-        {formData.isEdit ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
-      </h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Editar Usuario</h2>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        )}
+      </div>
 
       <div className="flex gap-2">
-        <InputFormularioSolicitud
+        <Input
           id="nombre"
           type="text"
           name="nombre"
           placeholder="Nombre"
           value={formData.nombre}
-          onchange={handleChange}
-        >
-          Nombre
-        </InputFormularioSolicitud>
-        <InputFormularioSolicitud
+          onChange={handleChange}
+        />
+        <Input
           id="apellido"
           type="text"
           name="apellido"
           placeholder="Apellido"
           value={formData.apellido}
-          onchange={handleChange}
-        >
-          Apellido
-        </InputFormularioSolicitud>
+          onChange={handleChange}
+        />
       </div>
 
       <div className="flex gap-2">
-        <InputFormularioSolicitud
+        <Input
           id="DNI"
-          type="number"
+          type="text"
           name="dni"
           placeholder="DNI"
           value={formData.dni}
-          onchange={handleChange}
-        >
-          DNI
-        </InputFormularioSolicitud>
-        <InputFormularioSolicitud
+          onChange={handleChange}
+        />
+        <Input
           id="email"
           type="email"
           name="email"
           placeholder="Email"
           value={formData.email}
-          onchange={handleChange}
-        >
-          Email
-        </InputFormularioSolicitud>
-      </div>
-
-      <div>
-        <InputFormularioSolicitud
-          id="password"
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={formData.password}
-          onchange={handleChange}
-        >
-          Contraseña
-        </InputFormularioSolicitud>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium">Rol</label>
-        <select
-          name="rol"
-          value={formData.rol}
           onChange={handleChange}
-          className="mt-1 w-full border rounded px-3 py-2"
-        >
-          <option value="vendedor">Vendedor</option>
-          <option value="repositor">Repositor</option>
-          <option value="admin">Administrador</option>
-        </select>
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Selector
+            name="rol"
+            labelOption="Seleccione un rol"
+            defaultSelect={false}
+            value={formData.rol}
+            handleSelect={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              handleChange(e)
+            }
+            options={roles}
+          />
+        </div>
+
+        <div>
+          <Selector
+            name="depositoId"
+            labelOption="Seleccione una sucursal"
+            defaultSelect={false}
+            value={formData.depositoId}
+            handleSelect={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              handleChange(e)
+            }
+            options={depositos.map((dep) => ({
+              id: dep.id,
+              value: dep.id,
+              name: dep.nombre,
+            }))}
+          />
+        </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium">Tipo de Usuario</label>
-        <select
+        <Selector
           name="tipoUsuario"
+          labelOption="Seleccione un tipo de usuario"
+          defaultSelect={false}
           value={formData.tipoUsuario}
-          onChange={handleChange}
-          className="mt-1 w-full border rounded px-3 py-2"
-        >
-          <option value="empleado">Empleado</option>
-          <option value="cliente">Cliente</option>
-          <option value="proveedor">Proveedor</option>
-        </select>
+          handleSelect={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            handleChange(e)
+          }
+          options={[
+            { id: "empleado", value: "empleado", name: "Empleado" },
+            { id: "cliente", value: "cliente", name: "Cliente" },
+            { id: "proveedor", value: "proveedor", name: "Proveedor" },
+          ]}
+        />
       </div>
 
       <div className="text-center">
@@ -240,13 +255,14 @@ export default function FormularioNuevoUserEdit({
       </div>
 
       <div className="flex justify-end gap-4">
-        
-        <button
-          type="submit"
-          className="px-4 py-1 bg-primary-100 text-white rounded hover:bg-primary-100/80"
-        >
-          {'Actualizar Usuario' }
-        </button>
+        {onClose && (
+          <Button variant="secondary" type="button" onClick={onClose}>
+            Cancelar
+          </Button>
+        )}
+        <Button variant="primary" type="submit">
+          Guardar Cambios
+        </Button>
       </div>
     </form>
   );

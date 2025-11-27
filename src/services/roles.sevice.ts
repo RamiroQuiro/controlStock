@@ -12,6 +12,7 @@ type RolInicial = {
 // Roles iniciales
 export const ROLES_INICIALES: RolInicial[] = [
   {
+    id: "rolAdmin",
     nombre: "admin",
     descripcion: "Administrador con acceso total",
     permisos: [
@@ -34,6 +35,7 @@ export const ROLES_INICIALES: RolInicial[] = [
     ],
   },
   {
+    id: "rolVendedor",
     nombre: "vendedor",
     descripcion: "Rol para personal de ventas",
     permisos: [
@@ -48,6 +50,7 @@ export const ROLES_INICIALES: RolInicial[] = [
     ],
   },
   {
+    id: "rolRepositorio",
     nombre: "repositorio",
     descripcion: "Gestión de inventario y stock",
     permisos: [

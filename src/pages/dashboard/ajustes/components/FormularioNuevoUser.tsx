@@ -151,8 +151,6 @@ export default function FormularioNuevoUser({
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 w-full text-primary-textoTitle p-6"
     >
-      <h2 className="text-xl font-semibold">Crear Nuevo Usuario</h2>
-
       <div className="flex gap-2">
         <Input
           id="nombre"
@@ -206,6 +204,7 @@ export default function FormularioNuevoUser({
         <div>
           <Selector
             name="rol"
+            className="text-black"
             labelOption="Seleccione un rol"
             defaultSelect={false}
             value={formData.rol}

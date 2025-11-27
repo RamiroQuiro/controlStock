@@ -1,5 +1,6 @@
 export const PERMISOS = {
   // Usuarios y Roles
+  USUARIOS_VER: "ver_usuarios",
   USUARIOS_CREAR: "crear_usuarios",
   USUARIOS_EDITAR: "editar_usuarios",
   USUARIOS_ELIMINAR: "eliminar_usuarios",

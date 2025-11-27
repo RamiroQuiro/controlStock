@@ -3,7 +3,7 @@ import { lucia } from "../../../lib/auth";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../../../db";
-import { clientes, proveedores, users } from "../../../db/schema";
+import { clientes, proveedores, users, roles } from "../../../db/schema";
 import { and, eq } from "drizzle-orm";
 
 export async function POST({
@@ -75,6 +75,38 @@ export async function POST({
     sessionCookie.attributes
   );
 
+  // Cargar permisos del rol personalizado si existe
+  let permisos: string[] = [];
+  if (findUser.rolPersonalizadoId) {
+    console.log(
+      "Usuario tiene rol personalizado:",
+      findUser.rolPersonalizadoId
+    );
+    try {
+      const [rolPersonalizado] = await db
+        .select()
+        .from(roles)
+        .where(eq(roles.id, findUser.rolPersonalizadoId));
+
+      console.log("Rol encontrado en DB:", rolPersonalizado);
+
+      if (rolPersonalizado && rolPersonalizado.permisos) {
+        // Parsear permisos (viene como string JSON de la DB)
+        permisos =
+          typeof rolPersonalizado.permisos === "string"
+            ? JSON.parse(rolPersonalizado.permisos)
+            : rolPersonalizado.permisos;
+        console.log("Permisos parseados:", permisos);
+      } else {
+        console.log("Rol no tiene permisos o no se encontró");
+      }
+    } catch (error) {
+      console.error("Error al cargar permisos del rol personalizado:", error);
+    }
+  } else {
+    console.log("Usuario NO tiene rol personalizado");
+  }
+
   // Crear una cookie con los datos del usuario
   const userData = {
     id: findUser.id,
@@ -89,6 +121,7 @@ export async function POST({
     creadoPor: findUser.creadoPor,
     empresaId: findUser.empresaId,
     rolPersonalizadoId: findUser.rolPersonalizadoId || null,
+    permisos, // Agregar permisos del rol personalizado
   };
 
   const token = jwt.sign(userData, import.meta.env.SECRET_KEY_CREATECOOKIE, {

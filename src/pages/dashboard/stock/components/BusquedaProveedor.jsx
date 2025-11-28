@@ -45,15 +45,16 @@ export default function BusquedaProveedor({ onClose, setProveedor }) {
   };
 
   const newArray = armandoNewArray(proveedoresEncontrados, [
+    "id", // 🔧 FIX: Incluir el ID para que se pueda guardar en la compra
     "nombre",
     "ruc",
     "email",
     "telefono",
-    "direccion"
+    "direccion",
   ]);
 
   const clickRegistro = (e) => {
-    console.log(e);
+    console.log("Proveedor seleccionado:", e); // 🔍 DEBUG
     onClose(false);
     setProveedor(e);
   };

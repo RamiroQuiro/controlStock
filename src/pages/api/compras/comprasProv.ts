@@ -7,6 +7,7 @@ import {
   movimientosStock,
   productos,
   stockActual,
+  proveedores,
 } from "../../../db/schema";
 import db from "../../../db";
 import { createResponse, User } from "../../../types";
@@ -16,6 +17,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
     const { productos: productosComprados, data } = await request.json();
 
+    console.log("prodcutos ->", productosComprados);
+    console.log("data ->", data);
     // 1. Validación de seguridad y datos de entrada
     const { user } = locals as { user: User };
     if (!user) {
@@ -49,11 +52,33 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
         total: data.total,
         descuento: data.descuento,
         esFinito: {
-          total: Number.isFinite(data.total),
-          descuento: Number.isFinite(data.descuento),
+          total: Number(data.total),
+          descuento: Number(data.descuento),
         },
       });
 
+      // 🔍 VALIDACIÓN: Verificar que las foreign keys existan
+      console.log("🔍 DEBUG Foreign Keys:", {
+        userId: user.id,
+        empresaId: user.empresaId,
+        proveedorId: data.proveedorId,
+      });
+
+      // Validar que el proveedor existe
+      if (!data.proveedorId) {
+        throw new Error("proveedorId es requerido");
+      }
+
+      const [proveedorExiste] = await trx
+        .select({ id: proveedores.id })
+        .from(proveedores)
+        .where(eq(proveedores.id, data.proveedorId))
+        .limit(1);
+
+      if (!proveedorExiste) {
+        throw new Error(`El proveedor con ID ${data.proveedorId} no existe`);
+      }
+      console.log("empezando a registrar compra");
       const [compraRegistrada] = await trx
         .insert(comprasProveedores)
         .values({
@@ -70,7 +95,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
           fecha: fechaActual,
         })
         .returning();
-
+      console.log("compraRegistrada", compraRegistrada);
+      console.log("productosComprados", productosComprados);
       for (const prod of productosComprados) {
         const [stockAnterior] = await trx
           .select({
@@ -85,17 +111,18 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             )
           )
           .limit(1);
-
+        console.log("stockAnterior", stockAnterior);
         const cantidadAnterior = stockAnterior?.cantidad || 0;
         const precioAnterior = stockAnterior?.precioPromedio || prod.pCompra;
-
+        console.log("cantidadAnterior", cantidadAnterior);
+        console.log("precioAnterior", precioAnterior);
         const nuevoPrecioPromedio =
           cantidadAnterior > 0
             ? (cantidadAnterior * precioAnterior +
                 prod.cantidad * prod.pCompra) /
               (cantidadAnterior + prod.cantidad)
             : prod.pCompra;
-
+        console.log("nuevoPrecioPromedio", nuevoPrecioPromedio);
         // 🐛 DEBUG: Verificar valores antes de actualizar
         console.log("🔍 DEBUG Producto:", {
           productoId: prod.id,
@@ -106,7 +133,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
           nuevoPrecioPromedio,
           esFinito: Number.isFinite(nuevoPrecioPromedio),
         });
-
+        console.log("por ir a actualizar el stock actual");
         // Actualizar stockActual con cantidad y precio promedio
         await trx
           .update(stockActual)
@@ -123,7 +150,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
               eq(stockActual.empresaId, user.empresaId)
             )
           );
-
+        console.log("por ir a registrar el movimiento en stock");
         // Registrar el movimiento en stock
         await trx.insert(movimientosStock).values({
           id: nanoid(),
@@ -137,7 +164,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
           motivo: "compra",
           observacion: data.observacion || null,
         });
-
+        console.log("por ir a insertar en detalleCompras");
         // Insertar en detalleCompras
         await trx.insert(detalleCompras).values({
           id: nanoid(),

@@ -1,13 +1,14 @@
-import { eq, and, or, like } from 'drizzle-orm';
-import db from '../db';
+import { eq, and, or, like, not } from "drizzle-orm";
+import db from "../db";
 import {
   productos,
   stockActual,
   proveedores,
   movimientosStock,
   detalleVentas,
-} from '../db/schema';
-import type { Producto, NewProducto } from '../types';
+  productoCategorias,
+} from "../db/schema";
+import type { Producto, NewProducto } from "../types";
 
 /**
  * Servicio para interactuar directamente con la tabla de productos en la base de datos.
@@ -39,7 +40,7 @@ export const getProductosFromDB = async (
     const conditions = [eq(productos.empresaId, empresaId)];
 
     if (query) {
-      if (tipo === 'codigoBarra') {
+      if (tipo === "codigoBarra") {
         conditions.push(eq(productos.codigoBarra, query));
       } else {
         conditions.push(
@@ -62,8 +63,8 @@ export const getProductosFromDB = async (
       proveedor: proveedor,
     }));
   } catch (error) {
-    console.error('Error al obtener productos de la DB:', error);
-    throw new Error('No se pudieron obtener los productos.');
+    console.error("Error al obtener productos de la DB:", error);
+    throw new Error("No se pudieron obtener los productos.");
   }
 };
 
@@ -88,8 +89,8 @@ export const deleteProductoFromDB = async (productoId: string) => {
     });
     return true;
   } catch (error) {
-    console.error('Error al eliminar el producto de la DB:', error);
-    throw new Error('No se pudo eliminar el producto.');
+    console.error("Error al eliminar el producto de la DB:", error);
+    throw new Error("No se pudo eliminar el producto.");
   }
 };
 
@@ -114,6 +115,7 @@ export const updateProductoInDB = async (
     ? categorias.map((cat: { id: string }) => cat.id)
     : [];
 
+  console.log("empezando a buscar el producto actual");
   try {
     const [productoActual] = await db
       .select()
@@ -121,10 +123,13 @@ export const updateProductoInDB = async (
       .where(eq(productos.id, productoId));
 
     if (!productoActual) {
-      throw new Error('Producto no encontrado');
+      throw new Error("Producto no encontrado");
     }
 
+    console.log("codigo barra", data.codigoBarra);
+    console.log("codigo barra actual", productoActual.codigoBarra);
     if (data.codigoBarra && data.codigoBarra !== productoActual.codigoBarra) {
+      console.log("codigo barra no coincide");
       const [productoExistente] = await db
         .select()
         .from(productos)
@@ -137,37 +142,52 @@ export const updateProductoInDB = async (
         );
 
       if (productoExistente) {
-        throw new Error('Ya existe un producto con este código de barras');
+        console.log("producto existente");
+        throw new Error("Ya existe un producto con este código de barras");
       }
     }
 
+    console.log("empezando a actualizar el producto");
     const dataUpdate = await db.transaction(async (trx) => {
       const ultimaActualizacion = new Date();
       const dataProductoUpdate = { ...dataProducto, ultimaActualizacion };
-      delete dataProductoUpdate.creado;
+      delete dataProductoUpdate.created_at;
+      const fechaInicioOferta = dataProducto.fechaInicioOferta
+        ? new Date(dataProducto.fechaInicioOferta)
+        : null;
+      const fechaFinOferta = dataProducto.fechaFinOferta
+        ? new Date(dataProducto.fechaFinOferta)
+        : null;
+      dataProductoUpdate.fechaInicioOferta = fechaInicioOferta;
+      dataProductoUpdate.fechaFinOferta = fechaFinOferta;
 
+      console.log("actualizando el producto");
       const [actualizarProducto] = await trx
         .update(productos)
         .set(dataProductoUpdate)
         .where(eq(productos.id, productoId))
         .returning();
 
-      await trx
-        .delete(productoCategorias)
-        .where(eq(productoCategorias.productoId, actualizarProducto.id));
+      // Solo actualizar categorías si vienen en el request
+      if (categorias !== undefined) {
+        await trx
+          .delete(productoCategorias)
+          .where(eq(productoCategorias.productoId, actualizarProducto.id));
 
-      if (categoriasIds.length > 0) {
-        await Promise.all(
-          categoriasIds.map(async (categoriaId: string) => {
-            return await trx.insert(productoCategorias).values({
-              id: generateId(10),
-              productoId: actualizarProducto.id,
-              categoriaId: categoriaId,
-            });
-          })
-        );
+        if (categoriasIds.length > 0) {
+          await Promise.all(
+            categoriasIds.map(async (categoriaId: string) => {
+              return await trx.insert(productoCategorias).values({
+                id: generateId(10),
+                productoId: actualizarProducto.id,
+                categoriaId: categoriaId,
+              });
+            })
+          );
+        }
       }
 
+      console.log("actualizando el stock");
       await trx
         .update(stockActual)
         .set({
@@ -184,7 +204,7 @@ export const updateProductoInDB = async (
 
     return dataUpdate;
   } catch (error) {
-    console.error('Error al actualizar el producto en la DB:', error);
+    console.error("Error al actualizar el producto en la DB:", error);
     // Relanzamos el error para que la API route lo capture
     throw error;
   }

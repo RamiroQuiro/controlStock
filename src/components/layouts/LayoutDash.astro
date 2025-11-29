@@ -1,13 +1,13 @@
 ---
-import Loader from '../../utils/loader/Loader.astro';
-import Sidebar from '../organismos/Sidebar.astro';
-import NavDashboard from '../organismos/NavDashboard.astro';
-import DownloadLoader from '../../utils/loader/DownloadLoader.astro';
+import Loader from "../../utils/loader/Loader.astro";
+import Sidebar from "../organismos/Sidebar.astro";
+import NavDashboard from "../organismos/NavDashboard.astro";
+import DownloadLoader from "../../utils/loader/DownloadLoader.astro";
 
 interface Props {
   title: string;
-  dataCliente: string;
-  userData: { nombre: string; apellido: string; userName: string };
+  dataCliente?: string;
+  userData?: { nombre: string; apellido: string; userName: string };
 }
 
 const { title, dataCliente, userData } = Astro.props;
@@ -46,8 +46,8 @@ const url = Astro.url;
   /* Registra tu font family personalizada y le indicamos al navegador dónde encontrarla. */
 
   @font-face {
-    font-family: 'IndieFlower';
-    src: url('/font/IndieFlower-Regular.ttf') format('ttf');
+    font-family: "IndieFlower";
+    src: url("/font/IndieFlower-Regular.ttf") format("ttf");
     font-weight: 400;
     font-style: normal;
   }
@@ -65,43 +65,43 @@ const url = Astro.url;
       Courier New,
       monospace;
   }
-  input[type='number']::-webkit-inner-spin-button,
-  input[type='number']::-webkit-outer-spin-button {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  input[type='number'] {
+  input[type="number"] {
     -moz-appearance: textfield;
   }
 
   /* Scrollbar personalizado */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
-}
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
 
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 </style>
 <script>
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'F10') {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "F10") {
       event.preventDefault();
       // Compara solo la ruta, no el dominio
-      if (window.location.pathname === '/dashboard/ventas') {
+      if (window.location.pathname === "/dashboard/ventas") {
         return;
       }
-      window.location.href = '/dashboard/ventas';
+      window.location.href = "/dashboard/ventas";
     }
   });
 </script>

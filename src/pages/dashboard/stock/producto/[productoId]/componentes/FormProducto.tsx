@@ -30,6 +30,7 @@ import Selector from "../../../../../../components/atomos/Selector";
 import Switch from "../../../../../../components/atomos/Switch";
 import type { Producto } from "../../../../../../types";
 import { formateoMoneda } from "../../../../../../utils/formateoMoneda";
+import TablaStockDepositos from "../../../components/TablaStockDepositos";
 
 type Props = {
   data: {
@@ -37,6 +38,7 @@ type Props = {
     depositosDB: any;
     ubicacionesDB: any;
     stockActualDB: any;
+    stockDetalle?: any; // Agregamos el detalle opcional
   };
 };
 
@@ -45,11 +47,68 @@ export default function FormProducto({ data }: Props) {
   const [depositosIds, setDepositosIds] = useState(data.depositosDB);
   const [ubicacionesIds, setUbicacionesIds] = useState(data.ubicacionesDB);
   const [stockActual, setStockActual] = useState(data.stockActualDB[0]);
-  const [disableEdit, setDisableEdit] = useState(false);
+  const [disableEdit, setDisableEdit] = useState(true);
+  const [busy, setBusy] = useState(false);
   console.log("data del producto", data);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, name: value || "" }));
+    setForm((prev) => ({ ...prev, [name]: value || "" }));
+  };
+
+  // Función para guardar cambios
+  const handleSave = async () => {
+    const productId = data?.productData?.id;
+    if (!productId) return;
+    try {
+      setBusy(true);
+
+      // Limpiar el objeto: eliminar undefined y convertir strings vacíos a null
+      const cleanedForm = Object.entries(form).reduce((acc, [key, value]) => {
+        if (value !== undefined && value !== "") {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as any);
+
+      const response = await fetch(
+        `/api/productos/productos?search=${productId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cleanedForm),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || "Error al actualizar el producto");
+      }
+
+      alert("Producto actualizado correctamente");
+    } catch (err) {
+      console.error(err);
+      alert("Error al actualizar el producto");
+      throw err;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Función para alternar entre editar y guardar
+  const handleEdit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (disableEdit) {
+      // Activar modo edición
+      setDisableEdit(false);
+      return;
+    }
+    // Estamos editando -> guardamos
+    try {
+      await handleSave();
+      setDisableEdit(true);
+    } catch {
+      // Si hubo error, no cerramos edición
+      setDisableEdit(false);
+    }
   };
   // Función para agregar una categoría existente
   const handleAgregarCategoria = (categoria) => {
@@ -105,7 +164,9 @@ export default function FormProducto({ data }: Props) {
           Formulario de Producto {form?.nombre}
         </CardTitle>
         <div className="w-fit flex gap-2 items-center justify-end">
-          <Button variant="primary">Guardar</Button>
+          <Button variant="primary" onClick={handleEdit} disabled={busy}>
+            {disableEdit ? "Editar" : "Guardar"}
+          </Button>
           <Button variant="downloadPDF">Exportar PDF</Button>
           <Switch label="¿Activo?" value={form?.activo} />
         </div>
@@ -125,6 +186,7 @@ export default function FormProducto({ data }: Props) {
                 name="nombre"
                 value={form.nombre}
                 onChange={handleChange}
+                disabled={disableEdit}
                 placeholder="Nombre"
               />
               <div className="flex w-full flex-col md:flex-row gap-3">
@@ -133,6 +195,7 @@ export default function FormProducto({ data }: Props) {
                   name="codigoBarra"
                   value={form.codigoBarra}
                   onChange={handleChange}
+                  disabled={disableEdit}
                   placeholder="Codigo de Barra"
                 />
                 <Input
@@ -149,6 +212,7 @@ export default function FormProducto({ data }: Props) {
                 name="descripcion"
                 value={form.descripcion}
                 onChange={handleChange}
+                disabled={disableEdit}
                 placeholder="Descripción"
               />
               <div className="flex w-full flex-col md:flex-row gap-3">
@@ -157,6 +221,7 @@ export default function FormProducto({ data }: Props) {
                   name="marca"
                   value={form.marca}
                   onChange={handleChange}
+                  disabled={disableEdit}
                   placeholder="Marca"
                 />
                 <Input
@@ -164,6 +229,7 @@ export default function FormProducto({ data }: Props) {
                   name="modelo"
                   value={form.modelo}
                   onChange={handleChange}
+                  disabled={disableEdit}
                   placeholder="Modelo"
                 />{" "}
                 <Selector
@@ -250,6 +316,7 @@ export default function FormProducto({ data }: Props) {
               </div>
             </CardContent>
           </Card>
+          {/* SECCIÓN LEGACY - OCULTADA
           <Card>
             <CardHeader>
               <CardSubTitle className="inline-flex items-center gap-1">
@@ -298,6 +365,7 @@ export default function FormProducto({ data }: Props) {
               </div>
             </CardContent>
           </Card>
+          */}
           {/* precios y ofertas */}
           <Card>
             <CardHeader>
@@ -313,6 +381,7 @@ export default function FormProducto({ data }: Props) {
                   type="number"
                   value={form.pCompra}
                   onChange={handleChange}
+                  disabled={disableEdit}
                   placeholder="Precio de Compbra"
                 />
                 <Input
@@ -321,6 +390,7 @@ export default function FormProducto({ data }: Props) {
                   type="number"
                   value={form.pVenta}
                   onChange={handleChange}
+                  disabled={disableEdit}
                   placeholder="Precio de Venta"
                 />
                 <Selector
@@ -453,6 +523,8 @@ export default function FormProducto({ data }: Props) {
               </div>
             </CardContent>
           </Card>
+
+          {/* Tabla de Stock por Depósito */}
         </div>
       </div>
     </form>

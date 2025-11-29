@@ -1,17 +1,16 @@
-import ContenedorBotonera from '../moleculas/ContenedorBotonera';
-import HistorialMovimientosDetalleProducto from '../../pages/dashboard/stock/components/HistorialMovimientosDetalleProducto';
-import StatsInfoDetalleProducto from '../../pages/dashboard/stock/components/StatsInfoDetalleProducto';
-import DetalleFotoDetalleProducto from '../../pages/dashboard/stock/components/DetalleFotoDetalleProducto';
-import { useEffect, useMemo, useState } from 'react';
-import { showToast } from '../../utils/toast/toastShow';
-import ModalConfirmacion from '../moleculas/ModalConfirmacion';
-import { useStore } from '@nanostores/react';
-import { perfilProducto } from '../../context/store';
-import { downloadLoader } from '../../utils/loader/showDownloadLoader';
-import { loader } from '../../utils/loader/showLoader';
+import ContenedorBotonera from "../moleculas/ContenedorBotonera";
+import HistorialMovimientosDetalleProducto from "../../pages/dashboard/stock/components/HistorialMovimientosDetalleProducto";
+import StatsInfoDetalleProducto from "../../pages/dashboard/stock/components/StatsInfoDetalleProducto";
+import DetalleFotoDetalleProducto from "../../pages/dashboard/stock/components/DetalleFotoDetalleProducto";
+import TablaStockDepositos from "../../pages/dashboard/stock/components/TablaStockDepositos";
+import { useEffect, useMemo, useState } from "react";
+import { showToast } from "../../utils/toast/toastShow";
+import ModalConfirmacion from "../moleculas/ModalConfirmacion";
+import { useStore } from "@nanostores/react";
+import { perfilProducto } from "../../context/store";
+import { downloadLoader } from "../../utils/loader/showDownloadLoader";
+import { loader } from "../../utils/loader/showLoader";
 // PerfilProducto.jsx (o .tsx)
-
-
 
 // (Opcional) si tenés utilidades de UI
 // import { showToast } from "../../utils/toast";
@@ -41,8 +40,10 @@ export default function PerfilProducto({ data }) {
     const fetchPronostico = async () => {
       if (!data?.productData?.id) return;
       try {
-        const res = await fetch(`/api/productos/${data.productData.id}/pronostico`);
-        if (!res.ok) throw new Error('Error en la respuesta del servidor');
+        const res = await fetch(
+          `/api/productos/${data.productData.id}/pronostico`
+        );
+        if (!res.ok) throw new Error("Error en la respuesta del servidor");
         const jsonRes = await res.json();
         if (!cancelado) setPronosticoDemanda(jsonRes?.pronostico ?? null);
       } catch (e) {
@@ -77,15 +78,18 @@ export default function PerfilProducto({ data }) {
 
     try {
       setBusy(true);
-      const response = await fetch(`/api/productos/productos?search=${productId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formulario),
-      });
+      const response = await fetch(
+        `/api/productos/productos?search=${productId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formulario),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.msg || 'Error al actualizar el producto');
+        throw new Error(errorData.msg || "Error al actualizar el producto");
       }
 
       // Actualizo store para mantenerlo en sync con lo que guardé
@@ -134,13 +138,16 @@ export default function PerfilProducto({ data }) {
 
     try {
       setBusy(true);
-      const response = await fetch(`/api/productos/productos?search=${productId}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `/api/productos/productos?search=${productId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.msg || 'Error al eliminar el producto');
+        throw new Error(errorData.msg || "Error al eliminar el producto");
       }
 
       // showToast?.("Producto eliminado", { background: "bg-green-500" });
@@ -162,12 +169,12 @@ export default function PerfilProducto({ data }) {
     try {
       setBusy(true);
       const res = await fetch(`/api/productos/generarPdf/${productId}`, {
-        method: 'GET',
-        headers: { 'xx-user-id': data?.productData?.userId }
+        method: "GET",
+        headers: { "xx-user-id": data?.productData?.userId },
       });
 
-      if (!res.ok) throw new Error('Error al generar PDF');
-      
+      if (!res.ok) throw new Error("Error al generar PDF");
+
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -259,8 +266,15 @@ export default function PerfilProducto({ data }) {
           loading={loading}
         />
 
+        {/* Tabla de Stock por Depósito */}
+        <div className="w-full">
+          <TablaStockDepositos stockDetalle={data?.stockDetalle} />
+        </div>
+
         {/* Historial de movimientos (independiente, con su propio fetch) */}
-        <HistorialMovimientosDetalleProducto productoId={data?.productData?.id} />
+        <HistorialMovimientosDetalleProducto
+          productoId={data?.productData?.id}
+        />
 
         {/* Pronóstico de demanda */}
         {pronosticoDemanda !== null && (
@@ -280,11 +294,7 @@ export default function PerfilProducto({ data }) {
       </div>
 
       {/* Estado global simple */}
-      {busy && (
-        <div className="text-xs text-gray-500 mt-2">
-          Procesando…
-        </div>
-      )}
+      {busy && <div className="text-xs text-gray-500 mt-2">Procesando…</div>}
     </div>
   );
 }

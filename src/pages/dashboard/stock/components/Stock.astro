@@ -9,6 +9,7 @@ import FormularioCompra from "./FormularioCompra";
 import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
 import FormularioTraslado from "./Traslados/FormularioTraslado";
 import ContenedorRecepcion from "./Traslados/ContenedorRecepcion";
+import ContenedorHistorial from "./Traslados/ContenedorHistorial";
 import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
 import TablaMovimientosStock from "./TablaMovimientosStock";
@@ -48,6 +49,7 @@ const puedeRecibirTraslado = tienePermiso(
   usuarioConRol,
   PERMISOS.TRASLADO_RECIBIR
 );
+const puedeVerHistorial = tienePermiso(usuarioConRol, PERMISOS.TRASLADO_VER);
 
 let depositos: any[] = [];
 let ubicaciones: any[] = [];
@@ -145,6 +147,18 @@ console.log("variable d eusuario locals, en stock.astro", user);
           title="Recepción de Mercadería"
         >
           <ContenedorRecepcion user={user} client:visible />
+        </Modal>
+      )
+    }
+
+    {
+      puedeVerHistorial && (
+        <Modal
+          label="Historial de Traslados"
+          id="historialTraslados"
+          title="Historial de Traslados"
+        >
+          <ContenedorHistorial user={user} client:visible />
         </Modal>
       )
     }

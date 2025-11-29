@@ -130,7 +130,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
   const productoId = url.searchParams.get("search");
   const { user } = locals;
   const empresaId = user?.empresaId;
-
+  console.log("datos traisods para aactualizar en productos", data);
   if (!productoId || !empresaId) {
     return new Response(
       JSON.stringify({

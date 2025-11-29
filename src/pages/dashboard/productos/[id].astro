@@ -1,19 +1,25 @@
 ---
-import { 
-  productos as productosSchema, 
-  depositos as depositosSchema, 
-  ubicaciones as ubicacionesSchema 
-} from '../../../db/schema';
-import { eq, and } from 'drizzle-orm';
-import db from '../../../db';
-import LayoutDash from '../../../components/layouts/LayoutDash.astro';
-import PerfilProducto from '../../../components/organismos/PerfilProducto';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/organismos/Card';
+import {
+  productos as productosSchema,
+  depositos as depositosSchema,
+  ubicaciones as ubicacionesSchema,
+  stockActual,
+} from "../../../db/schema";
+import { eq, and, sql } from "drizzle-orm";
+import db from "../../../db";
+import LayoutDash from "../../../components/layouts/LayoutDash.astro";
+import PerfilProducto from "../../../components/organismos/PerfilProducto";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/organismos/Card";
 
 // 1. Proteger la ruta y obtener datos del usuario desde la sesión
 const { user } = Astro.locals;
 if (!user) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
 const { empresaId } = user;
 
@@ -25,44 +31,74 @@ if (!productoId) {
 }
 
 // 3. Obtener todos los datos en PARALELO para mejor rendimiento
-const [productosResult, depositosDB, ubicacionesDB] = await Promise.all([
-  // 🔍 PRODUCTO PRINCIPAL CON ÍNDICE OPTIMIZADO
-  db.select()
-    .from(productosSchema)
-    .where(
-      and(
-        eq(productosSchema.id, productoId), 
-        eq(productosSchema.empresaId, empresaId)
+const [productosResult, depositosDB, ubicacionesDB, stockResult, stockDetalle] =
+  await Promise.all([
+    // 🔍 PRODUCTO PRINCIPAL CON ÍNDICE OPTIMIZADO
+    db
+      .select()
+      .from(productosSchema)
+      .where(
+        and(
+          eq(productosSchema.id, productoId),
+          eq(productosSchema.empresaId, empresaId)
+        )
       )
-    )
-    .limit(1),
-  
-  // 🏭 DEPÓSITOS
-  db.select()
-    .from(depositosSchema)
-    .where(eq(depositosSchema.empresaId, empresaId)),
-  
-  // 📍 UBICACIONES  
-  db.select()
-    .from(ubicacionesSchema)
-    .where(eq(ubicacionesSchema.empresaId, empresaId))
-]);
+      .limit(1),
+
+    // 🏭 DEPÓSITOS
+    db
+      .select()
+      .from(depositosSchema)
+      .where(eq(depositosSchema.empresaId, empresaId)),
+
+    // 📍 UBICACIONES
+    db
+      .select()
+      .from(ubicacionesSchema)
+      .where(eq(ubicacionesSchema.empresaId, empresaId)),
+
+    // 📦 STOCK TOTAL (Suma de todos los depósitos)
+    db
+      .select({
+        total: sql`sum(${stockActual.cantidad})`.mapWith(Number),
+      })
+      .from(stockActual)
+      .where(eq(stockActual.productoId, productoId)),
+
+    // 📋 STOCK DETALLADO POR DEPÓSITO
+    db
+      .select({
+        depositoId: stockActual.depositosId,
+        cantidad: stockActual.cantidad,
+        depositoNombre: depositosSchema.nombre,
+      })
+      .from(stockActual)
+      .leftJoin(
+        depositosSchema,
+        eq(stockActual.depositosId, depositosSchema.id)
+      )
+      .where(eq(stockActual.productoId, productoId)),
+  ]);
 
 const productData = productosResult[0];
+const stockTotal = stockResult?.[0]?.total || 0;
 
 if (!productData) {
-  return new Response("Producto no encontrado o no pertenece a esta empresa", { status: 404 });
+  return new Response("Producto no encontrado o no pertenece a esta empresa", {
+    status: 404,
+  });
 }
 
 // 4. Estructura de datos optimizada para el componente
 const perfilProductoData = {
-  productData,
+  productData: { ...productData, stock: stockTotal },
   depositosDB,
-  ubicacionesDB
+  ubicacionesDB,
+  stockDetalle, // Pasamos el detalle de stock
 };
 ---
 
-<LayoutDash title={`Perfil de ${productData.nombre || 'Producto'}`}>
+<LayoutDash title={`Perfil de ${productData.nombre || "Producto"}`}>
   <!-- <div class="container mx-auto px-4 py-8">
     <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
       <PerfilProducto 
@@ -74,15 +110,12 @@ const perfilProductoData = {
     </div>
   </div> -->
   <div class="flex w-full item-center gap-4 p-10 justify-between">
-<Card>
-  <CardHeader>
-    <CardTitle>Perfil de {productData.nombre || 'Producto'}</CardTitle>
-  </CardHeader>
-  <CardContent>
-  </CardContent>
-</Card>
-<Card>
-</Card>
+    <Card>
+      <CardHeader>
+        <CardTitle>Perfil de {productData.nombre || "Producto"}</CardTitle>
+      </CardHeader>
+      <CardContent />
+    </Card>
+    <Card />
   </div>
-
 </LayoutDash>

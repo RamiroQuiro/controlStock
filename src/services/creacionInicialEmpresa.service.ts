@@ -9,6 +9,7 @@ import {
   empresas,
   proveedores,
   puntosDeVenta,
+  usuariosDepositos,
 } from "../db/schema";
 import { inicializarRoles } from "./roles.sevice";
 import { inciarCategoria } from "./categoriaInicial.service";
@@ -89,6 +90,10 @@ export async function inicializarEmpresaParaUsuario(user: any) {
     { tipo: "RECIBO", descripcion: "Recibo de pago" },
     { tipo: "NC", descripcion: "Nota de crédito estándar" },
     { tipo: "PRESUPUESTO", descripcion: "Presupuesto estándar" },
+    {
+      tipo: "REMITO_TRASLADO",
+      descripcion: "Remito de traslado entre sucursales",
+    },
   ];
 
   for (const comp of tiposComprobantes) {
@@ -122,7 +127,13 @@ export async function inicializarEmpresaParaUsuario(user: any) {
   // 7. Inicializacion de ubicaciones
   await ubicacionesInicial(empresaId, user.id);
   // 8. Inicializacion de depositos
-  await depositoInicial(empresaId, user.id);
+  const depositoCasaCentral = await depositoInicial(empresaId, user.id);
+
+  // 9. Relacionar usuario con Casa Central
+  await db.insert(usuariosDepositos).values({
+    usuarioId: user.id,
+    depositoId: depositoCasaCentral.id,
+  });
 
   // 9. Crear carpeta para imágenes
   const empresaDir = path.join(
@@ -136,6 +147,7 @@ export async function inicializarEmpresaParaUsuario(user: any) {
 
   // 9. Retornar info útil
   return {
+    depositoDefault: depositoCasaCentral?.id,
     empresaId: empresaId,
     clienteDefault: clienteFinal?.id,
     proveedorDefault: proveedorGeneral?.id,

@@ -23,7 +23,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const tipo = url.searchParams.get("tipo");
   const { user } = locals;
   const empresaId = user?.empresaId;
-  console.log("tipo, y query", tipo, query);
   if (!empresaId) {
     return new Response(
       JSON.stringify({
@@ -40,7 +39,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // La lógica de DB y de búsqueda está en el servicio.
     // La API route solo orquesta.
     const resultados = await getProductosFromDB(empresaId, query, tipo);
-    console.log("resultados", resultados);
     return new Response(
       JSON.stringify({
         status: 200,

@@ -35,6 +35,7 @@ export default function FiltroProductosV3({
   userId,
   empresaId,
   modoCompra = false, // 🆕 Nuevo prop para modo compra
+  onProductoAgregado = null, // 🆕 Callback opcional para manejar la acción de agregar
 }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -209,7 +210,13 @@ export default function FiltroProductosV3({
       ...(modoCompra && { pCompra: producto.pCompra || 0 }),
     };
 
-    filtroBusqueda.set({ filtro: processedProduct });
+    // 🆕 Si se pasa una función personalizada (ej: para Compras), usarla.
+    // Si no, usar el comportamiento default (store de Ventas).
+    if (onProductoAgregado) {
+      onProductoAgregado(processedProduct);
+    } else {
+      filtroBusqueda.set({ filtro: processedProduct });
+    }
 
     setEstado("agregado");
     setProductoAgregado(producto);

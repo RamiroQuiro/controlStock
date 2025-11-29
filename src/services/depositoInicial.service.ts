@@ -4,13 +4,16 @@ import { depositos } from "../db/schema";
 
 export const depositoInicial = async (empresaId: string, userId: string) => {
   try {
-    const deposito = await db.insert(depositos).values({
-      id: generateId(13),
-      nombre: "Casa Central",
-      creadoPor: userId,
-      empresaId,
-      activo: true,
-    });
+    const [deposito] = await db
+      .insert(depositos)
+      .values({
+        id: generateId(13),
+        nombre: "Casa Central",
+        creadoPor: userId,
+        empresaId,
+        activo: true,
+      })
+      .returning();
     return deposito;
   } catch (error) {
     const errorData = error as Error;

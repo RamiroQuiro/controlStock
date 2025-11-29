@@ -3,7 +3,14 @@ import { lucia } from "../../../lib/auth";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../../../db";
-import { clientes, proveedores, users, roles } from "../../../db/schema";
+import {
+  clientes,
+  proveedores,
+  users,
+  roles,
+  depositos,
+  usuariosDepositos,
+} from "../../../db/schema";
 import { and, eq } from "drizzle-orm";
 
 export async function POST({
@@ -56,6 +63,25 @@ export async function POST({
         eq(proveedores.nombre, "proveedor general")
       )
     );
+  const [depositoRelacionado] = await db
+    .select({
+      depositoId: usuariosDepositos.depositoId,
+    })
+    .from(usuariosDepositos)
+    .where(eq(usuariosDepositos.usuarioId, findUser.id));
+
+  // Si el usuario no tiene depósito asignado (ej: superadmin), asignar el primero de la empresa
+  let depositoDefault = depositoRelacionado?.depositoId || null;
+
+  if (!depositoDefault) {
+    const [primerDeposito] = await db
+      .select({ id: depositos.id })
+      .from(depositos)
+      .where(eq(depositos.empresaId, findUser.empresaId))
+      .limit(1);
+
+    depositoDefault = primerDeposito?.id || null;
+  }
 
   // crear usuario en DB
   // Hacemos comapracion  hash de la contraseña
@@ -117,6 +143,7 @@ export async function POST({
     email: findUser.email,
     rol: findUser.rol,
     clienteDefault: findClienteDefault.id,
+    depositoDefault: depositoDefault, // Depósito asignado o primer depósito de la empresa
     proveedorDefault: findProovedorDefault.id,
     creadoPor: findUser.creadoPor,
     empresaId: findUser.empresaId,

@@ -31,7 +31,7 @@ export const detalleTraslados = sqliteTable("detalle_traslados", {
 
   // Datos del producto (snapshot al momento del traslado)
   nombreProducto: text("nombre_producto").notNull(),
-  codigoProducto: text("codigo_producto"),
+  codigoProducto: text("codigo_producto"), //codgio de barra, pendiente de cambiar
   unidadMedida: text("unidad_medida").default("unidad"),
 
   // Observaciones específicas del item

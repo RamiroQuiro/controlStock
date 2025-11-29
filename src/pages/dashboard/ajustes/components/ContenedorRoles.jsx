@@ -1,7 +1,5 @@
-import { useStore } from "@nanostores/react";
 import { Edit, Trash2, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { rolesStore } from "../../../../context/store";
+import React, { useState } from "react";
 import BotonEditar from "../../../../components/moleculas/BotonEditar";
 import BotonEliminar from "../../../../components/moleculas/BotonEliminar";
 import FormularioEditarRol from "./FormularioEditarRol";

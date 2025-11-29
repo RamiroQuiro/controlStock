@@ -8,6 +8,7 @@ import {
   agregarProductoVenta,
   sumarCantidad,
   restarCantidad,
+  setCantidad,
   eliminarProducto,
 } from "../../../../context/venta.store";
 import ModalCliente from "./ModalCliente";
@@ -16,7 +17,7 @@ export default function DetallesVentasV2() {
   const $filtro = useStore(filtroBusqueda).filtro;
   const $productosSeleccionados = useStore(productosSeleccionadosVenta);
   const [openModal, setOpenModal] = useState(false);
-console.log('productosSeleccionados', $productosSeleccionados)
+  console.log("productosSeleccionados", $productosSeleccionados);
   const columnas = [
     { label: "N°", id: 1, selector: (row, index) => index + 1 },
     { label: "codigo de barra", id: 2, selector: (row) => row.codigoBarra },
@@ -45,7 +46,16 @@ console.log('productosSeleccionados', $productosSeleccionados)
         categoria: prod.categoria,
         precio: prod.pVenta,
         stock: prod.stock,
-        cantidad: prod.cantidad,
+        cantidad: (
+          <input
+            type="number"
+            min="1"
+            value={prod.cantidad}
+            onChange={(e) => setCantidad(prod.codigoBarra, e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            className="w-20 p-1 border rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-100 bg-white text-black"
+          />
+        ),
       })),
     [$productosSeleccionados]
   );

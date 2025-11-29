@@ -16,6 +16,12 @@ export const PERMISOS = {
   STOCK_VER: "ver_stock",
   STOCK_AJUSTAR: "ajustar_inventario", // Ajustes manuales, ingresos/egresos
 
+  // Traslados
+  TRASLADO_CREAR: "crear_traslado",
+  TRASLADO_VER: "ver_traslado",
+  TRASLADO_EDITAR: "editar_traslado",
+  TRASLADO_RECIBIR: "recibir_traslado",
+
   // Ventas
   VENTAS_CREAR: "crear_ventas",
   VENTAS_EDITAR: "editar_ventas",

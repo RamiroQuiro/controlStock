@@ -57,14 +57,20 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       );
     }
 
-    const { clienteDefault, proveedorDefault, puntoVenta, empresaId } =
-      await inicializarEmpresaParaUsuario(userFind);
+    const {
+      clienteDefault,
+      proveedorDefault,
+      puntoVenta,
+      empresaId,
+      depositoDefault,
+    } = await inicializarEmpresaParaUsuario(userFind);
     console.log(
       "datos de la inicilaziaacion",
       clienteDefault,
       proveedorDefault,
       puntoVenta,
-      empresaId
+      empresaId,
+      depositoDefault
     );
 
     await db
@@ -92,6 +98,7 @@ export const GET: APIRoute = async ({ request, params, redirect, cookies }) => {
       id: userFind.id,
       nombre: userFind.nombre,
       apellido: userFind.apellido,
+      depositoDefault: depositoDefault,
       userName: userFind.userName,
       email: userFind.email,
       clienteDefault: clienteDefault,

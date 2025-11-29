@@ -2,17 +2,21 @@ import { useState, useEffect } from "react";
 import InputDate from "../../../../components/atomos/InputDate";
 import InputFormularioSolicitud from "../../../../components/moleculas/InputFormularioSolicitud";
 import FiltroProductos from "../../../../components/moleculas/FiltroProductos";
-import DetallesVentas from "../../ventas/components/DetallesVentas";
+import DetallesCompras from "./FormularioCompra/DetallesCompras"; // 🆕 Usar componente específico
 import DetalleMontoCompra from "./FormularioCompra/DetalleMontoCompra";
 import ProveedorSelect from "./ProveedorSelect";
 import { showToast } from "../../../../utils/toast/toastShow";
 import { useStore } from "@nanostores/react";
-import { productosSeleccionadosVenta } from "../../../../context/venta.store";
+import {
+  productosSeleccionadosCompra,
+  agregarProductoCompra,
+  limpiarCarritoCompra,
+} from "../../../../context/compra.store"; // 🆕 Usar store de compra
 
 const FormularioCompra = ({ user, empresaId }) => {
   const [totalVenta, setTotalVenta] = useState(0);
   const [error, setError] = useState({ msg: "", status: 0 });
-  const $productos = useStore(productosSeleccionadosVenta);
+  const $productos = useStore(productosSeleccionadosCompra); // 🆕 Escuchar store de compra
   const [cargando, setCargando] = useState(false);
 
   const [subtotal, setSubtotal] = useState(0);
@@ -37,15 +41,25 @@ const FormularioCompra = ({ user, empresaId }) => {
     productos: [],
   });
 
+  // Limpiar carrito al desmontar el componente para evitar contaminación de estado
   useEffect(() => {
+    return () => {
+      limpiarCarritoCompra();
+    };
+  }, []);
+
+  useEffect(() => {
+    // Calcular totales basados en COSTO (pCompra)
     const sumaTotal = $productos.reduce(
-      (acc, producto) => acc + producto.pVenta * producto.cantidad,
+      (acc, producto) => acc + (producto.pCompra || 0) * producto.cantidad,
       0
     );
 
     const sumaSubtotal = $productos.reduce(
       (acc, producto) =>
-        acc + (producto.pVenta * producto.cantidad) / (1 + producto.iva / 100),
+        acc +
+        ((producto.pCompra || 0) * producto.cantidad) /
+          (1 + (producto.iva || 0) / 100),
       0
     );
 
@@ -65,7 +79,7 @@ const FormularioCompra = ({ user, empresaId }) => {
 
     formulario.total = totalVenta;
     formulario.proveedorId = proveedor.id;
-    formulario.impuesto = ivaMonto; // 🎯 Agregar el IVA calculado
+    formulario.impuesto = ivaMonto;
     console.log(formulario);
     try {
       setCargando(true);
@@ -86,6 +100,7 @@ const FormularioCompra = ({ user, empresaId }) => {
       if (!response.ok) throw new Error(data.error || "Error en la solicitud");
 
       showToast("Compra registrada exitosamente");
+      limpiarCarritoCompra(); // Limpiar después de éxito
       setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       setError({ msg: error.message, status: 400 });
@@ -161,8 +176,9 @@ const FormularioCompra = ({ user, empresaId }) => {
           mostrarProductos={true}
           userId={user.id}
           empresaId={user.empresaId}
+          onProductoAgregado={agregarProductoCompra} // 🆕 Inyectar acción de compra
         />
-        <DetallesVentas />
+        <DetallesCompras />
       </div>
       <DetalleMontoCompra
         subtotal={subtotal}

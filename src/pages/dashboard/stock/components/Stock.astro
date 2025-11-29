@@ -7,6 +7,8 @@ import Modal from "../../../../components/moleculas/Modal.astro";
 import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
 import FormularioCompra from "./FormularioCompra";
 import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
+import FormularioTraslado from "./Traslados/FormularioTraslado";
+import ContenedorRecepcion from "./Traslados/ContenedorRecepcion";
 import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
 import TablaMovimientosStock from "./TablaMovimientosStock";
@@ -41,6 +43,11 @@ const puedeEditarPrecios = tienePermiso(
   PERMISOS.PRODUCTOS_EDITAR
 );
 const puedeComprar = tienePermiso(usuarioConRol, PERMISOS.ORDEN_COMPRA_CREAR);
+const puedeTranslado = tienePermiso(usuarioConRol, PERMISOS.TRASLADO_CREAR);
+const puedeRecibirTraslado = tienePermiso(
+  usuarioConRol,
+  PERMISOS.TRASLADO_RECIBIR
+);
 
 let depositos: any[] = [];
 let ubicaciones: any[] = [];
@@ -60,6 +67,8 @@ try {
 } catch (error) {
   console.log(error);
 }
+
+console.log("variable d eusuario locals, en stock.astro", user);
 ---
 
 <MainDashboard h1="Stock" user={user}>
@@ -107,6 +116,35 @@ try {
             dataFiltros={{}}
             client:visible
           />
+        </Modal>
+      )
+    }
+
+    {
+      depositos.length > 1 && (
+        <Modal
+          label="Traslados"
+          id="trasladosSucursales"
+          title="Traslado entre Sucursales"
+        >
+          <FormularioTraslado
+            user={user}
+            empresaId={user.empresaId}
+            depositos={depositos}
+            client:visible
+          />
+        </Modal>
+      )
+    }
+
+    {
+      puedeRecibirTraslado && (
+        <Modal
+          label="Recibir Mercadería"
+          id="recibirTraslado"
+          title="Recepción de Mercadería"
+        >
+          <ContenedorRecepcion user={user} client:visible />
         </Modal>
       )
     }

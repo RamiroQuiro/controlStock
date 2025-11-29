@@ -18,6 +18,12 @@ const PERMISOS_DISPONIBLES = {
     { key: PERMISOS.ORDEN_COMPRA_CREAR, label: "Crear Órdenes de Compra" },
     { key: PERMISOS.ORDEN_COMPRA_VER, label: "Ver Órdenes de Compra" },
   ],
+  Traslados: [
+    { key: PERMISOS.TRASLADO_CREAR, label: "Crear Traslados" },
+    { key: PERMISOS.TRASLADO_VER, label: "Ver Traslados" },
+    { key: PERMISOS.TRASLADO_EDITAR, label: "Editar Traslados" },
+    { key: PERMISOS.TRASLADO_RECIBIR, label: "Recibir Traslados" },
+  ],
   "Clientes y Proveedores": [
     { key: PERMISOS.CLIENTES_VER, label: "Ver Clientes" },
     { key: PERMISOS.PROVEEDORES_VER, label: "Ver Proveedores" },

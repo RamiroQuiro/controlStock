@@ -5,6 +5,8 @@ import {
   depositos,
   ubicaciones,
   stockActual,
+  productoCategorias,
+  categorias,
 } from "../../../../../db/schema";
 import { eq, and } from "drizzle-orm";
 import LayoutDash from "../../../../../components/layouts/LayoutDash.astro";
@@ -26,31 +28,46 @@ if (!productoId) {
   return new Response("ID de producto no encontrado", { status: 404 });
 }
 
-const [productoResult, depositosDB, ubicacionesDB, stockResult] =
-  await Promise.all([
-    db
-      .select()
-      .from(productos)
-      .where(
-        and(eq(productos.id, productoId), eq(productos.empresaId, empresaId))
-      )
-      .limit(1),
-    db.select().from(depositos).where(eq(depositos.empresaId, empresaId)),
-    db.select().from(ubicaciones).where(eq(ubicaciones.empresaId, empresaId)),
-    // Obtener stock detallado por depósito
-    db
-      .select({
-        id: stockActual.id,
-        cantidad: stockActual.cantidad,
-        depositosId: stockActual.depositosId,
-        depositoNombre: depositos.nombre,
-        alertaStock: stockActual.alertaStock,
-        reservado: stockActual.reservado,
-      })
-      .from(stockActual)
-      .leftJoin(depositos, eq(stockActual.depositosId, depositos.id))
-      .where(eq(stockActual.productoId, productoId)),
-  ]);
+const [
+  productoResult,
+  depositosDB,
+  ubicacionesDB,
+  stockResult,
+  categoriasResult,
+] = await Promise.all([
+  db
+    .select()
+    .from(productos)
+    .where(
+      and(eq(productos.id, productoId), eq(productos.empresaId, empresaId))
+    )
+    .limit(1),
+  db.select().from(depositos).where(eq(depositos.empresaId, empresaId)),
+  db.select().from(ubicaciones).where(eq(ubicaciones.empresaId, empresaId)),
+  // Obtener stock detallado por depósito
+  db
+    .select({
+      id: stockActual.id,
+      cantidad: stockActual.cantidad,
+      depositosId: stockActual.depositosId,
+      depositoNombre: depositos.nombre,
+      alertaStock: stockActual.alertaStock,
+      reservado: stockActual.reservado,
+    })
+    .from(stockActual)
+    .leftJoin(depositos, eq(stockActual.depositosId, depositos.id))
+    .where(eq(stockActual.productoId, productoId)),
+  // Obtener categorías del producto
+  db
+    .select({
+      id: categorias.id,
+      nombre: categorias.nombre,
+      descripcion: categorias.descripcion,
+    })
+    .from(productoCategorias)
+    .innerJoin(categorias, eq(productoCategorias.categoriaId, categorias.id))
+    .where(eq(productoCategorias.productoId, productoId)),
+]);
 
 const productData = productoResult[0];
 console.log("productData result", productData);
@@ -67,7 +84,8 @@ const perfilProductoData = {
   depositosDB,
   ubicacionesDB,
   stockActualDB: stockResult || [],
-  stockDetalle: stockResult || [], // Pasamos el detalle también con este nombre para claridad
+  stockDetalle: stockResult || [],
+  categorias: categoriasResult || [], // Categorías del producto
 };
 ---
 

@@ -1,6 +1,5 @@
-
-import * as React from 'react';
-import { cn } from '../../lib/cn';
+import * as React from "react";
+import { cn } from "../../lib/cn";
 
 interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -10,8 +9,15 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
   ({ className, label, ...props }, ref) => {
     const [isChecked, setIsChecked] = React.useState(props.checked || false);
 
+    React.useEffect(() => {
+      if (props.checked !== undefined) {
+        setIsChecked(props.checked);
+      }
+    }, [props.checked]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setIsChecked(e.target.checked);
+      const newChecked = e.target.checked;
+      setIsChecked(newChecked);
       if (props.onChange) {
         props.onChange(e);
       }
@@ -32,31 +38,33 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
           />
           <div
             className={cn(
-              'w-11 h-6 bg-gray-200 rounded-full dark:bg-gray-700',
-              'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800',
-              'transition-all'
+              "w-11 h-6 bg-gray-200 rounded-full dark:bg-gray-700",
+              "peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800",
+              "transition-all"
             )}
           ></div>
           <div
             className={cn(
-              'absolute top-[2px] left-[2px] bg-white border-gray-300 border rounded-full h-5 w-5',
-              'transition-all',
-              isChecked ? 'translate-x-full' : 'translate-x-0',
-              isChecked ? 'border-white' : 'border-gray-300'
+              "absolute top-[2px] left-[2px] bg-white border-gray-300 border rounded-full h-5 w-5",
+              "transition-all",
+              isChecked ? "translate-x-full" : "translate-x-0",
+              isChecked ? "border-white" : "border-gray-300"
             )}
           ></div>
           <div
             className={cn(
-              'absolute inset-0 h-full w-full rounded-full',
-              'transition-all',
-              isChecked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+              "absolute inset-0 h-full w-full rounded-full",
+              "transition-all",
+              isChecked ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
             )}
           ></div>
           <div
             className={cn(
-              'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full',
-              'transition-transform',
-              isChecked ? 'transform translate-x-full' : 'transform translate-x-0'
+              "absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full",
+              "transition-transform",
+              isChecked
+                ? "transform translate-x-full"
+                : "transform translate-x-0"
             )}
           ></div>
         </div>
@@ -65,6 +73,6 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
   }
 );
 
-Switch.displayName = 'Switch';
+Switch.displayName = "Switch";
 
 export default Switch;

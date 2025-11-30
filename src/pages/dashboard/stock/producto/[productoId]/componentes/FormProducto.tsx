@@ -31,6 +31,8 @@ import Switch from "../../../../../../components/atomos/Switch";
 import type { Producto } from "../../../../../../types";
 import { formateoMoneda } from "../../../../../../utils/formateoMoneda";
 import TablaStockDepositos from "../../../components/TablaStockDepositos";
+import CategoriasSelector from "../../../../productos/components/CategoriasSelector";
+import { showToast } from "../../../../../../utils/toast/toastShow";
 
 type Props = {
   data: {
@@ -38,21 +40,43 @@ type Props = {
     depositosDB: any;
     ubicacionesDB: any;
     stockActualDB: any;
-    stockDetalle?: any; // Agregamos el detalle opcional
+    stockDetalle?: any;
+    categorias?: any[]; // Categorías del producto
   };
 };
 
 export default function FormProducto({ data }: Props) {
   const [form, setForm] = useState(data.productData);
-  const [depositosIds, setDepositosIds] = useState(data.depositosDB);
-  const [ubicacionesIds, setUbicacionesIds] = useState(data.ubicacionesDB);
-  const [stockActual, setStockActual] = useState(data.stockActualDB[0]);
   const [disableEdit, setDisableEdit] = useState(true);
   const [busy, setBusy] = useState(false);
-  console.log("data del producto", data);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value || "" }));
+  const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState(
+    data.categorias || []
+  );
+
+  // Estados para imagen
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value || "",
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   // Función para guardar cambios
@@ -62,6 +86,26 @@ export default function FormProducto({ data }: Props) {
     try {
       setBusy(true);
 
+      // 1. Subir imagen si existe
+      let currentSrcPhoto = form.srcPhoto;
+      if (selectedFile) {
+        const formDataImg = new FormData();
+        formDataImg.append("productoId", productId);
+        formDataImg.append("fotoProducto", selectedFile);
+
+        const resImg = await fetch("/api/productos/update-image", {
+          method: "POST",
+          body: formDataImg,
+        });
+
+        if (!resImg.ok) throw new Error("Error al subir imagen");
+        const dataImg = await resImg.json();
+        currentSrcPhoto = dataImg.srcPhoto;
+
+        // Actualizar estado local
+        setForm((prev) => ({ ...prev, srcPhoto: currentSrcPhoto }));
+      }
+
       // Limpiar el objeto: eliminar undefined y convertir strings vacíos a null
       const cleanedForm = Object.entries(form).reduce((acc, [key, value]) => {
         if (value !== undefined && value !== "") {
@@ -70,12 +114,19 @@ export default function FormProducto({ data }: Props) {
         return acc;
       }, {} as any);
 
+      // Agregar categorías y foto al objeto de actualización
+      const dataToSend = {
+        ...cleanedForm,
+        srcPhoto: currentSrcPhoto,
+        categorias: categoriasSeleccionadas,
+      };
+
       const response = await fetch(
         `/api/productos/productos?search=${productId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cleanedForm),
+          body: JSON.stringify(dataToSend),
         }
       );
       if (!response.ok) {
@@ -83,10 +134,14 @@ export default function FormProducto({ data }: Props) {
         throw new Error(errorData.msg || "Error al actualizar el producto");
       }
 
-      alert("Producto actualizado correctamente");
+      showToast("Producto actualizado correctamente", {
+        background: "bg-green-500",
+      });
     } catch (err) {
       console.error(err);
-      alert("Error al actualizar el producto");
+      showToast("Error al actualizar el producto", {
+        background: "bg-red-500",
+      });
       throw err;
     } finally {
       setBusy(false);
@@ -110,48 +165,36 @@ export default function FormProducto({ data }: Props) {
       setDisableEdit(false);
     }
   };
-  // Función para agregar una categoría existente
-  const handleAgregarCategoria = (categoria) => {
-    // Verificar si la categoría ya existe en el producto
-    const categoriaExistente = data.categoriasIds.find(
-      (cat) => cat === categoria.id
-    );
-    if (categoriaExistente) return; // Evitar duplicados
 
-    // Actualizar el store con la nueva categoría
-    const nuevasCategorias = [...data?.categoriasIds, categoria];
-    setForm({
-      ...data,
-      categoriasIds: nuevasCategorias,
-    });
-    // Actualizar el formulario
-    handleChange({
-      target: {
-        name: "categoriasIds",
-        value: nuevasCategorias,
-      },
-    });
-  };
-  const handleRemoveCategoria = (categoriaId) => {
-    // Actualizar el store
-    const categoriasFiltradas = data.productData.categorias.filter(
-      (cat) => cat.id !== categoriaId
-    );
-    setForm({
-      ...data,
-      productData: {
-        ...data?.productData,
-        categorias: categoriasFiltradas,
-      },
-    });
+  // 9) Descargar PDF
+  const handleDownloadPdf = async () => {
+    const productId = data?.productData?.id;
+    if (!productId) return;
 
-    // Actualizar el formulario
-    handleChange({
-      target: {
-        name: "categorias",
-        value: categoriasFiltradas,
-      },
-    });
+    try {
+      setBusy(true);
+      const res = await fetch(`/api/productos/generarPdf/${productId}`, {
+        method: "GET",
+        headers: { "xx-user-id": data?.productData?.userId },
+      });
+
+      if (!res.ok) throw new Error("Error al generar PDF");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `producto_${productId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error al generar PDF:", err);
+      // showToast?.("Error al generar PDF", { background: "bg-red-500" });
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -167,8 +210,21 @@ export default function FormProducto({ data }: Props) {
           <Button variant="primary" onClick={handleEdit} disabled={busy}>
             {disableEdit ? "Editar" : "Guardar"}
           </Button>
-          <Button variant="downloadPDF">Exportar PDF</Button>
-          <Switch label="¿Activo?" value={form?.activo} />
+          <Button variant="primary" onClick={handleDownloadPdf} disabled={busy}>
+            Exportar PDF
+          </Button>
+          <Switch
+            label="¿Online?"
+            name="isEcommerce"
+            checked={form?.isEcommerce}
+            onChange={handleChange}
+          />
+          <Switch
+            label="¿Activo?"
+            name="activo"
+            checked={form?.activo}
+            onChange={handleChange}
+          />
         </div>
       </div>
       <div className="w-full flex flex-col md:flex-row items-stretch justify-between gap-5">
@@ -259,61 +315,11 @@ export default function FormProducto({ data }: Props) {
               </CardSubTitle>
             </CardHeader>
             <CardContent>
-              <div className="w-full inline-flex gap-3 items-end justify-between">
-                <div className="flex flex-col w-full">
-                  <label
-                    htmlFor="unidadMedida"
-                    className="mb-1 text-sm font-semibold text-primary-texto disabled:text-gray-400"
-                  >
-                    Categorias
-                  </label>
-                  <select
-                    name="unidadMedida"
-                    id="unidadMedida"
-                    className={`p-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-primary-100 focus:border-primary-100 placeholder:text-gray-400 transition`}
-                  >
-                    <option value="unidad" className="px-3 w-full">
-                      Unidad
-                    </option>
-                    <option value="kilogramos" className="px-3 w-full">
-                      Kilogramos
-                    </option>
-                    <option value="litros" className="px-3 w-full">
-                      Litros
-                    </option>
-                    <option value="decena" className="px-3 w-full">
-                      Decena
-                    </option>
-                  </select>
-                </div>
-                <Button variant="primary">
-                  <PlusCircle /> Agregar
-                </Button>
-              </div>
-              <div className="w-full flex mt-3 flex-wrap gap-3">
-                <BadgesIndigo>
-                  {" "}
-                  gaseosas{" "}
-                  <CircleX
-                    onClick={() => handleRemoveCategoria(categoria.id)}
-                    className="rounded-full bg-primary-400 ml-2 cursor-pointer text-white px-1 text-center active:-scale-95"
-                  />
-                </BadgesIndigo>
-                <BadgesIndigo>
-                  sistemas{" "}
-                  <CircleX
-                    onClick={() => handleRemoveCategoria(categoria.id)}
-                    className="rounded-full bg-primary-400 ml-2 cursor-pointer text-white px-1 text-center active:-scale-95"
-                  />
-                </BadgesIndigo>
-                <BadgesIndigo>
-                  alimentos{" "}
-                  <CircleX
-                    onClick={() => handleRemoveCategoria(categoria.id)}
-                    className="rounded-full bg-primary-400 ml-2 cursor-pointer text-white px-1 text-center active:-scale-95"
-                  />
-                </BadgesIndigo>
-              </div>
+              <CategoriasSelector
+                empresaId={data.productData.empresaId}
+                onCategoriasChange={setCategoriasSeleccionadas}
+                categoriasIniciales={data.categorias}
+              />
             </CardContent>
           </Card>
           {/* SECCIÓN LEGACY - OCULTADA
@@ -410,6 +416,7 @@ export default function FormProducto({ data }: Props) {
               <div className="w-full mt-3 flex md:flex-row flex-col gap-3">
                 <Switch
                   label="¿Es Oferta?"
+                  name="isOferta"
                   onChange={handleChange}
                   checked={form.isOferta}
                 />
@@ -454,11 +461,31 @@ export default function FormProducto({ data }: Props) {
             <div className="w-full flex flex-col mt-2  items-center justify-start relative rounded-lg overflow-hidden ">
               <div className="h- flex w-full rounded-lg  items-center ">
                 <img
-                  src={form.srcPhoto}
+                  src={previewUrl || form.srcPhoto || "/placeholder-image.png"}
                   alt={form.descripcion}
                   className=" object-cover w-auto h-full rounded-lg overflow-hidden hover:scale-105 duration-500"
                 />
               </div>
+              {!disableEdit && (
+                <div className="mt-2 w-full px-2 pb-2">
+                  <label className="block text-xs font-medium text-primary-texto mb-1">
+                    Cambiar Imagen
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="block w-full text-xs text-gray-500
+                      file:mr-2 file:py-1 file:px-2
+                      file:rounded-md file:border-0
+                      file:text-xs file:font-semibold
+                      file:bg-primary-100 file:text-white
+                      hover:file:bg-primary-200
+                      cursor-pointer
+                    "
+                  />
+                </div>
+              )}
             </div>
           </Card>
           <Card className="w-full  bg-primary-100/20 backdrop-blur-sm border-primary-100">
@@ -511,11 +538,15 @@ export default function FormProducto({ data }: Props) {
             <CardContent className="w-full p-0 flex flex-col gap-3 mt-4">
               <div className="flex w-full items-center justify-between">
                 <p>Disponibilidad Online</p>
-                <BadgesIndigo>No Disponible</BadgesIndigo>
+                <BadgesIndigo>
+                  {form.isEcommerce ? "Disponible" : "No Disponible"}
+                </BadgesIndigo>
               </div>
               <div className="flex w-full items-center justify-between">
                 <p>Estado de Oferta</p>
-                <BadgesIndigo>Precio Normal</BadgesIndigo>
+                <BadgesIndigo>
+                  {form.isOferta ? "En Oferta" : "Precio Normal"}
+                </BadgesIndigo>
               </div>
               <div className="flex w-full items-center justify-between">
                 <p>Última Actualización</p>

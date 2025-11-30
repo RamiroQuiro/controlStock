@@ -1,10 +1,10 @@
-export type Rol = 'admin' | 'vendedor' | 'repositor';
-export type TipoUsuario = 'empleado' | 'cliente' | 'proveedor';
+export type Rol = "admin" | "vendedor" | "repositor";
+export type TipoUsuario = "empleado" | "cliente" | "proveedor";
 
 export const createResponse = (status: number, msg: string, data = null) => {
   return new Response(JSON.stringify({ status, msg, data }), {
     status: status >= 400 ? status : 200,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
 };
 
@@ -133,8 +133,8 @@ export type Producto = {
   categoriasIds?: string; // Categoría del producto
   marca?: string; // Marca del producto
   iva: 21 | 10.5 | 27 | 0; // IVA del producto
-  impuesto: '21%' | '10.5%' | '27%' | 'no aplica'; // Opciones de IVA más comunes en Argentina y "no aplica"
-  signoDescuento: '$' | '%'; //signos de descuento si hay , '$' o '%', si es monto o porcentaje
+  impuesto: "21%" | "10.5%" | "27%" | "no aplica"; // Opciones de IVA más comunes en Argentina y "no aplica"
+  signoDescuento: "$" | "%"; //signos de descuento si hay , '$' o '%', si es monto o porcentaje
   descuento?: string; // Descuento aplicado al producto "$100" o "10%"
   modelo?: string; // Modelo del producto
   descripcion: string; // Descripción del producto
@@ -148,18 +148,25 @@ export type Producto = {
   empresaId?: string; // ID de la empresa
   creadoPor?: string; // ID del usuario que creó el producto
   activo: boolean; // Estado del producto (activo/inactivo)
-  unidadMedida?: 'unidad' | 'litros' | 'kilogramos' | 'decena'; // Unidad de medida (unidad, kg, litro, etc.)
+  unidadMedida?: "unidad" | "litros" | "kilogramos" | "decena"; // Unidad de medida (unidad, kg, litro, etc.)
   precioMinimoVenta?: number; // Precio mínimo de venta del producto
   userUpdate?: string; // ID del usuario que actualizó el producto
   ultimaActualizacion: number; // Timestamp Unix de la última actualización
   created_at: number; // Timestamp Unix de la creación del producto
   userId: string; // ID del usuario que creó el producto
+  isOferta?: boolean;
+  precioOferta?: number;
+  fechaInicioOferta?: Date | string;
+  fechaFinOferta?: Date | string;
+  isEcommerce?: boolean;
+  estadoPublicacion?: string;
 };
+
 export type MovimientoStock = {
   id: string; // ID único del movimiento
   productoId: string; // ID del producto asociado al movimiento
   cantidad: number; // Cantidad involucrada en el movimiento
-  tipo: 'recarga' | 'devolucion' | 'vencimiento' | 'movimiento'; // Tipo de movimiento
+  tipo: "recarga" | "devolucion" | "vencimiento" | "movimiento"; // Tipo de movimiento
   fecha: string; // Fecha del movimiento (timestamp Unix)
   userId: string; // ID del usuario que realizó el movimiento
   proveedorId?: string; // ID del proveedor (si aplica)
@@ -176,8 +183,8 @@ export type responseAPIType = {
 };
 
 interface ConfiguracionBackup {
-  frecuencia: 'diaria' | 'semanal' | 'mensual';
-  destino: 'local' | 'nube';
+  frecuencia: "diaria" | "semanal" | "mensual";
+  destino: "local" | "nube";
   compresion: boolean;
   historialBackups: number;
 }
@@ -198,7 +205,7 @@ interface CuentaCorriente {
   balance: number;
   limiteCredito: number;
   historialPagos: Pago[];
-  estado: 'activo' | 'suspendido';
+  estado: "activo" | "suspendido";
 }
 
 interface CuentaCorriente {
@@ -206,13 +213,13 @@ interface CuentaCorriente {
   balance: number;
   limiteCredito: number;
   historialPagos: Pago[];
-  estado: 'activo' | 'suspendido';
+  estado: "activo" | "suspendido";
 }
 
 interface Alerta {
-  tipo: 'stockBajo' | 'vencimiento' | 'pagosPendientes';
+  tipo: "stockBajo" | "vencimiento" | "pagosPendientes";
   mensaje: string;
-  nivel: 'info' | 'warning' | 'error';
+  nivel: "info" | "warning" | "error";
   fecha: Date;
   leida: boolean;
 }
@@ -224,7 +231,7 @@ export type optionsSelectInputType = {
 };
 
 interface PermisoUsuario {
-  rol: 'admin' | 'vendedor' | 'supervisor';
+  rol: "admin" | "vendedor" | "supervisor";
   permisos: {
     ventas: boolean;
     compras: boolean;
@@ -246,7 +253,7 @@ interface PaginacionParams {
   pagina: number;
   porPagina: number;
   ordenarPor: string;
-  direccion: 'asc' | 'desc';
+  direccion: "asc" | "desc";
 }
 // Interfaces para selects y formularios
 export interface IProductoForm {
@@ -257,8 +264,8 @@ export interface IProductoForm {
   categoria?: string;
   marca?: string;
   iva: 21 | 10.5 | 27 | 0;
-  impuesto: '21%' | '10.5%' | '27%' | 'no aplica';
-  signoDescuento: '$' | '%';
+  impuesto: "21%" | "10.5%" | "27%" | "no aplica";
+  signoDescuento: "$" | "%";
   descuento?: string;
   modelo?: string;
   descripcion: string;
@@ -266,14 +273,14 @@ export interface IProductoForm {
   pVenta?: number;
   utilidad?: number;
   stock: number;
-  unidadMedida?: 'unidad' | 'litros' | 'kilogramos' | 'decena';
+  unidadMedida?: "unidad" | "litros" | "kilogramos" | "decena";
   precioMinimoVenta?: number;
 }
 
 export interface IMovimientoStockForm {
   productoId: string;
   cantidad: number;
-  tipo: 'recarga' | 'devolucion' | 'vencimiento' | 'movimiento';
+  tipo: "recarga" | "devolucion" | "vencimiento" | "movimiento";
   proveedorId?: string;
   clienteId?: string;
   motivo?: string;
@@ -302,13 +309,13 @@ export type Venta = {
   fecha: number; // Timestamp de la venta
   total: number; // Monto total de la venta
   descuento?: number; // Descuento total aplicado
-  tipoDescuento?: '$' | '%'; // Tipo de descuento aplicado
-  metodoPago: 'efectivo' | 'tarjeta' | 'transferencia' | 'mercadopago'; // Método de pago
+  tipoDescuento?: "$" | "%"; // Tipo de descuento aplicado
+  metodoPago: "efectivo" | "tarjeta" | "transferencia" | "mercadopago"; // Método de pago
   nComprobante?: string;
   srcComprobante?: string;
   vencimientoCheque?: string;
   nCheque?: string;
-  estado?: 'pendiente' | 'completada' | 'cancelada'; // Estado de la venta
+  estado?: "pendiente" | "completada" | "cancelada"; // Estado de la venta
   userId: string; // Usuario que realizó la venta
   observaciones?: string; // Notas adicionales
   created_at: number; // Timestamp de creación
@@ -322,16 +329,16 @@ export type DetalleVenta = {
   precioUnitario: number; // Precio unitario al momento de la venta
   subtotal: number; // Subtotal (cantidad * precioUnitario)
   descuento?: number; // Descuento aplicado al ítem
-  tipoDescuento?: '$' | '%'; // Tipo de descuento del ítem
+  tipoDescuento?: "$" | "%"; // Tipo de descuento del ítem
   iva: number; // IVA aplicado
 };
 
 // Interfaces para formularios
 export interface IVentaForm {
   clienteId?: string;
-  metodoPago: 'efectivo' | 'tarjeta' | 'transferencia' | 'mercadopago';
+  metodoPago: "efectivo" | "tarjeta" | "transferencia" | "mercadopago";
   descuento?: number;
-  tipoDescuento?: '$' | '%';
+  tipoDescuento?: "$" | "%";
   observaciones?: string;
 }
 
@@ -340,7 +347,7 @@ export interface IDetalleVentaForm {
   cantidad: number;
   precioUnitario: number;
   descuento?: number;
-  tipoDescuento?: '$' | '%';
+  tipoDescuento?: "$" | "%";
 }
 
 // Interfaces para respuestas de API
@@ -348,7 +355,7 @@ export interface IVentaResponse extends IVentaForm {
   id: string;
   fecha: number;
   total: number;
-  estado: 'pendiente' | 'completada' | 'cancelada';
+  estado: "pendiente" | "completada" | "cancelada";
   userId: string;
   created_at: number;
 }
@@ -376,7 +383,7 @@ export interface IPresupuesto {
   observaciones?: string;
   created_at: number;
   expira_at: number; // Timestamp de expiración (5 días después)
-  estado: 'activo' | 'convertido' | 'expirado';
+  estado: "activo" | "convertido" | "expirado";
   userId: string; // Usuario que generó el presupuesto
 }
 

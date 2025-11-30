@@ -9,6 +9,7 @@ import {
   productoCategorias,
 } from "../db/schema";
 import type { Producto, NewProducto } from "../types";
+import { normalizadorUUID } from "../utils/normalizadorUUID";
 
 /**
  * Servicio para interactuar directamente con la tabla de productos en la base de datos.
@@ -178,7 +179,7 @@ export const updateProductoInDB = async (
           await Promise.all(
             categoriasIds.map(async (categoriaId: string) => {
               return await trx.insert(productoCategorias).values({
-                id: generateId(10),
+                id: normalizadorUUID("productoCategorias", 10),
                 productoId: actualizarProducto.id,
                 categoriaId: categoriaId,
               });

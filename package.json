@@ -26,6 +26,7 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.1",
     "html2canvas": "^1.4.1",
+    "html5-qrcode": "^2.3.8",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.0",
     "jszip": "^3.10.1",

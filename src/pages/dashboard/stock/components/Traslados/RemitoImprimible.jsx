@@ -100,6 +100,12 @@ const RemitoImprimible = ({ traslado, onCerrar }) => {
                   <th className="border border-gray-300 px-4 py-2 text-left">
                     Producto
                   </th>
+                  {/* Mostrar Cant. Solicitada si existe */}
+                  {traslado.detalles?.some((d) => d.cantidadSolicitada > 0) && (
+                    <th className="border border-gray-300 px-4 py-2 text-center bg-blue-50">
+                      Cant. Solicitada
+                    </th>
+                  )}
                   <th className="border border-gray-300 px-4 py-2 text-center">
                     Cant. Enviada
                   </th>
@@ -124,6 +130,14 @@ const RemitoImprimible = ({ traslado, onCerrar }) => {
                     <td className="border border-gray-300 px-4 py-2">
                       {detalle.nombreProducto}
                     </td>
+                    {/* Mostrar Cant. Solicitada si existe */}
+                    {traslado.detalles?.some(
+                      (d) => d.cantidadSolicitada > 0
+                    ) && (
+                      <td className="border border-gray-300 px-4 py-2 text-center font-medium bg-blue-50">
+                        {detalle.cantidadSolicitada || "-"}
+                      </td>
+                    )}
                     <td className="border border-gray-300 px-4 py-2 text-center font-medium">
                       {detalle.cantidadEnviada}
                     </td>
@@ -161,6 +175,15 @@ const RemitoImprimible = ({ traslado, onCerrar }) => {
                   >
                     Total de Items:
                   </td>
+                  {/* Total Cant. Solicitada si existe */}
+                  {traslado.detalles?.some((d) => d.cantidadSolicitada > 0) && (
+                    <td className="border border-gray-300 px-4 py-2 text-center bg-blue-50">
+                      {traslado.detalles?.reduce(
+                        (sum, d) => sum + (d.cantidadSolicitada || 0),
+                        0
+                      )}
+                    </td>
+                  )}
                   <td className="border border-gray-300 px-4 py-2 text-center">
                     {traslado.detalles?.reduce(
                       (sum, d) => sum + d.cantidadEnviada,

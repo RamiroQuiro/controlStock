@@ -10,9 +10,11 @@ import {
   Zap,
   AlertCircle,
   Scan,
+  Camera,
 } from "lucide-react";
 import { cache } from "../../utils/cache";
 import { formateoMoneda } from "../../utils/formateoMoneda";
+import BarcodeScanner from "./BarcodeScanner"; // Importar Scanner
 
 // Debounce hook para mejor performance
 const useDebounce = (value, delay) => {
@@ -45,6 +47,7 @@ export default function FiltroProductosV3({
   const [estado, setEstado] = useState("inicial");
   const [ultimaBusqueda, setUltimaBusqueda] = useState("");
   const [productoAgregado, setProductoAgregado] = useState(null);
+  const [mostrarScanner, setMostrarScanner] = useState(false); // Estado para el scanner
 
   const inputRef = useRef(null);
   const debouncedSearch = useDebounce(search, 300);
@@ -252,6 +255,15 @@ export default function FiltroProductosV3({
     }
   }, [estado]);
 
+  // Manejador del escaneo
+  const handleScan = (code) => {
+    console.log("📸 Código escaneado:", code);
+    setMostrarScanner(false);
+    setSearch(code); // Esto disparará el debounce y la búsqueda automática
+    // Opcional: forzar búsqueda inmediata si no quieres esperar al debounce
+    // handleBusqueda(code);
+  };
+
   const stats = {
     total: encontrados.length,
     conStock: encontrados.filter((p) => {
@@ -266,6 +278,14 @@ export default function FiltroProductosV3({
 
   return (
     <div className="w-full flex flex-col relative">
+      {/* Scanner Modal */}
+      {mostrarScanner && (
+        <BarcodeScanner
+          onScan={handleScan}
+          onClose={() => setMostrarScanner(false)}
+        />
+      )}
+
       {/* Header con controles */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -316,65 +336,76 @@ export default function FiltroProductosV3({
       </div>
 
       {/* Input de búsqueda con estados */}
-      <div className="relative">
-        <input
-          ref={inputRef}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          id="busquedaProducto"
-          placeholder="Escanee código o busque por nombre..."
-          value={search}
-          type="search"
-          className="w-full text-sm bg-white rounded-lg px-4 py-3 border-2 transition-all duration-200 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          style={{
-            borderColor:
-              estado === "error"
-                ? "#ef4444"
-                : estado === "agregado"
-                  ? "#10b981"
-                  : estado === "agregando"
-                    ? "#f59e0b"
-                    : "#d1d5db",
-          }}
-          autoComplete="off"
-          spellCheck="false"
-          // 🆕 IMPORTANTE para scanner - no perder foco
-          onBlur={(e) => {
-            // Solo prevenir blur si está auto-agregando
-            if (estado === "agregando") {
-              e.preventDefault();
-              inputRef.current?.focus();
-            }
-          }}
-        />
+      <div className="relative flex gap-2">
+        <div className="relative flex-grow">
+          <input
+            ref={inputRef}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            id="busquedaProducto"
+            placeholder="Escanee código o busque por nombre..."
+            value={search}
+            type="search"
+            className="w-full text-sm bg-white rounded-lg px-4 py-3 border-2 transition-all duration-200 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style={{
+              borderColor:
+                estado === "error"
+                  ? "#ef4444"
+                  : estado === "agregado"
+                    ? "#10b981"
+                    : estado === "agregando"
+                      ? "#f59e0b"
+                      : "#d1d5db",
+            }}
+            autoComplete="off"
+            spellCheck="false"
+            // 🆕 IMPORTANTE para scanner - no perder foco
+            onBlur={(e) => {
+              // Solo prevenir blur si está auto-agregando
+              if (estado === "agregando") {
+                e.preventDefault();
+                inputRef.current?.focus();
+              }
+            }}
+          />
 
-        {/* Iconos del input */}
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-          {loading && (
-            <LoaderCircle size={18} className="animate-spin text-blue-500" />
-          )}
+          {/* Iconos del input */}
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+            {loading && (
+              <LoaderCircle size={18} className="animate-spin text-blue-500" />
+            )}
 
-          {estado === "agregando" && (
-            <LoaderCircle size={18} className="animate-spin text-amber-500" />
-          )}
+            {estado === "agregando" && (
+              <LoaderCircle size={18} className="animate-spin text-amber-500" />
+            )}
 
-          {estado === "error" && (
-            <AlertCircle size={18} className="text-red-500" />
-          )}
+            {estado === "error" && (
+              <AlertCircle size={18} className="text-red-500" />
+            )}
 
-          {estado === "agregado" && (
-            <CheckCircle size={18} className="text-green-500 animate-pulse" />
-          )}
+            {estado === "agregado" && (
+              <CheckCircle size={18} className="text-green-500 animate-pulse" />
+            )}
 
-          {search && !loading && estado !== "agregando" && (
-            <button
-              onClick={limpiarBusqueda}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <XCircle size={18} />
-            </button>
-          )}
+            {search && !loading && estado !== "agregando" && (
+              <button
+                onClick={limpiarBusqueda}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <XCircle size={18} />
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Botón de Scanner */}
+        <button
+          onClick={() => setMostrarScanner(true)}
+          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
+          title="Escanear código de barras"
+        >
+          <Camera size={20} />
+        </button>
       </div>
 
       {/* Estado de auto-agregando */}

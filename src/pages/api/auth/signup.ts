@@ -11,7 +11,7 @@ import { getTemplate } from "../../../lib/templatesEmail/templates";
 export async function POST({
   request,
   cookies,
-  url
+  url,
 }: APIContext): Promise<Response> {
   const formData = await request.json();
   const { email, password, razonSocial, nombre, apellido, rol } =
@@ -38,7 +38,7 @@ export async function POST({
   const [existingUser] = await db
     .select()
     .from(users)
-    .where(or(eq(users.email, email), eq(users.razonSocial, razonSocial)))
+    .where(or(eq(users.email, email), eq(users.razonSocial, razonSocial)));
 
   if (existingUser) {
     if (existingUser.emailVerificado) {
@@ -52,13 +52,16 @@ export async function POST({
     } else {
       // Usuario existe pero NO está verificado → reenviar email de confirmación
       const code = generateId(6);
+      const hostUrl = url.origin; // Usar origin para incluir protocolo
       const tokenConfirmacionEmail = getToken({
         email: existingUser.email,
         code,
+        hostUrl,
       });
       const template = getTemplate(
         `${existingUser.nombre} ${existingUser.apellido}`,
-        tokenConfirmacionEmail
+        tokenConfirmacionEmail,
+        hostUrl
       );
       try {
         await sendMailer(
@@ -108,7 +111,8 @@ export async function POST({
   ).at(0);
 
   // generando el token de confirmacion de email
-const hostUrl = url.host;
+  console.log("este es mi url", url);
+  const hostUrl = url.origin; // Usar origin para incluir protocolo
 
   const code = generateId(6);
   const tokenConfirmacionEmail = getToken({
@@ -116,7 +120,11 @@ const hostUrl = url.host;
     code,
     hostUrl,
   });
-  const template = getTemplate(`${nombre} ${apellido}`, tokenConfirmacionEmail, hostUrl);
+  const template = getTemplate(
+    `${nombre} ${apellido}`,
+    tokenConfirmacionEmail,
+    hostUrl
+  );
 
   try {
     await sendMailer(email, "Confirmacion de Cuenta controlStock", template);

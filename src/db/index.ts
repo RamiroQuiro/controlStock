@@ -1,8 +1,8 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 
 if (!import.meta.env.TURSO_DB_URL || !import.meta.env.TURSO_DB_AUTH_TOKEN) {
-  throw new Error('Missing Turso database credentials');
+  throw new Error("Missing Turso database credentials");
 }
 
 const client = createClient({

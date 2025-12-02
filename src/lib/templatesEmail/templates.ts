@@ -1,130 +1,238 @@
 export const getTemplate = (name: string, token: string, hostUrl: string) => {
-  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
-     <head>
-      <meta charset="UTF-8">
-      <meta content="width=device-width, initial-scale=1" name="viewport">
-      <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta content="telephone=no" name="format-detection">
-     
-     </head>
-     <body style="width:100%;font-family:arial, 'helvetica neue', helvetica, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0">
-      <div class="es-wrapper-color" style="background-color:#FAFAFA"><!--[if gte mso 9]>
-          <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
-            <v:fill type="tile" color="#fafafa"></v:fill>
-          </v:background>
-        <![endif]-->
-       <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;padding:0;Margin:0;width:100%;height:100%;background-repeat:repeat;background-position:center top;background-color:#FAFAFA">
-         <tr>
-          <td valign="top" style="padding:0;Margin:0">
-          
-           <table cellpadding="0" cellspacing="0" class="es-content es-visible-simple-html-only" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%">
-             <tr>
-              <td class="es-stripe-html" align="center" style="padding:0;Margin:0">
-               <table bgcolor="#ffffff" class="es-content-body" align="center" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
-                 <tr>
-                  <td align="left" style="Margin:0;padding-left:20px;padding-right:20px;padding-top:30px;padding-bottom:30px">
-                   <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                     <tr>
-                      <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
-                       <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                         <tr>
-                          <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><img src="https://qkbect.stripocdn.email/content/guids/CABINET_67e080d830d87c17802bd9b4fe1c0912/images/55191618237638326.png" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="100"></td>
-                         </tr>
-                         <tr>
-                          <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;padding-bottom:10px"><h1 style="Margin:0;line-height:46px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:26px;font-style:normal;font-weight:bold;color:#333333">Hola ${name}!!!&nbsp;</h1></td>
-                         </tr>
-                         <tr>
-                          <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-bottom:5px;padding-left:40px;padding-right:40px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><p>Para confirmar tu cuenta, ingresa al siguiente enlace</p>
-                            <a
-                                href="${hostUrl}/verificar-email/${token}"
-                                target="_blank"
-                            >Confirmar Cuenta</a></td>
-                         </tr>
-                         
-                         <tr>
-                          <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-bottom:5px;padding-left:40px;padding-right:40px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#e7812f;font-size:14px"><strong>RamiroCode </strong>| WebDeveloper.</p></td>
-                         </tr>
-                       </table></td>
-                     </tr>
-                   </table></td>
-                 </tr>
-               </table></td>
-             </tr>
-           </table>
-         
-          </td>
-         </tr>
-       </table>
+  const verificationUrl = `${hostUrl}/verificar-email/${token}`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica tu cuenta</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f5;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #ffffff;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 40px 30px;
+      color: #374151;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+    .message {
+      margin-bottom: 30px;
+      color: #4b5563;
+    }
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .button {
+      background-color: #2563eb;
+      color: #ffffff !important;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+      transition: background-color 0.2s;
+    }
+    .button:hover {
+      background-color: #1d4ed8;
+    }
+    .footer {
+      background-color: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      border-top: 1px solid #e5e7eb;
+    }
+    .link-fallback {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #6b7280;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ControlStock</h1>
+    </div>
+    <div class="content">
+      <div class="greeting">¡Hola ${name}!</div>
+      <p class="message">
+        Gracias por registrarte en ControlStock. Para comenzar a gestionar tu negocio, necesitamos verificar tu dirección de correo electrónico.
+      </p>
+      
+      <div class="button-container">
+        <a href="${verificationUrl}" class="button">Verificar mi cuenta</a>
       </div>
-     </body>
-    </html>`;
+      
+      <div class="link-fallback">
+        <p>Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+        <p><a href="${verificationUrl}" style="color: #2563eb;">${verificationUrl}</a></p>
+      </div>
+    </div>
+    <div class="footer">
+      <p>&copy; ${new Date().getFullYear()} ControlStock. Todos los derechos reservados.</p>
+      <p>Si no creaste esta cuenta, puedes ignorar este correo.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
 };
 
 export const getTemplateEmailRestablecimiento = (
   email: string,
   token: string
 ) => {
-  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
-     <head>
-      <meta charset="UTF-8">
-      <meta content="width=device-width, initial-scale=1" name="viewport">
-      <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta content="telephone=no" name="format-detection">
-     
-     </head>
-     <body style="width:100%;font-family:arial, 'helvetica neue', helvetica, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0">
-      <div class="es-wrapper-color" style="background-color:#FAFAFA"><!--[if gte mso 9]>
-          <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
-            <v:fill type="tile" color="#fafafa"></v:fill>
-          </v:background>
-        <![endif]-->
-       <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;padding:0;Margin:0;width:100%;height:100%;background-repeat:repeat;background-position:center top;background-color:#FAFAFA">
-         <tr>
-          <td valign="top" style="padding:0;Margin:0">
-          
-           <table cellpadding="0" cellspacing="0" class="es-content es-visible-simple-html-only" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%">
-             <tr>
-              <td class="es-stripe-html" align="center" style="padding:0;Margin:0">
-               <table bgcolor="#ffffff" class="es-content-body" align="center" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
-                 <tr>
-                  <td align="left" style="Margin:0;padding-left:20px;padding-right:20px;padding-top:30px;padding-bottom:30px">
-                   <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                     <tr>
-                      <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
-                       <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                         <tr>
-                          <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><img src="https://qkbect.stripocdn.email/content/guids/CABINET_67e080d830d87c17802bd9b4fe1c0912/images/55191618237638326.png" alt style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" width="100"></td>
-                         </tr>
-                         <tr>
-                          <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;padding-bottom:10px"><h1 style="Margin:0;line-height:46px;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#333333">Hola ${email}!!!&nbsp;</h1></td>
-                         </tr>
-                         <tr>
-                          <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-bottom:5px;padding-left:40px;padding-right:40px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;font-size:14px"><p>Para restablecer tu contraseña, ingresa al siguiente enlace</p>
-                            <a
-                                href="http://localhost:3000/api/auth/confirm/${token}"
-                                target="_blank"
-                            >Confirmar Cuenta</a></td>
-                         </tr>
-                         
-                         <tr>
-                          <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-bottom:5px;padding-left:40px;padding-right:40px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#e7812f;font-size:14px"><strong>RamiroCode </strong>| WebDeveloper.</p></td>
-                         </tr>
-                       </table></td>
-                     </tr>
-                   </table></td>
-                 </tr>
-               </table></td>
-             </tr>
-           </table>
-         
-          </td>
-         </tr>
-       </table>
+  // Nota: Asumimos localhost:3000 por defecto si no se pasa hostUrl,
+  // pero idealmente deberíamos pasar hostUrl también a esta función.
+  // Por ahora mantenemos la lógica existente pero mejoramos el diseño.
+  const resetUrl = `http://localhost:4321/api/auth/confirm/${token}`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restablecer Contraseña</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f5;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #ffffff;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 40px 30px;
+      color: #374151;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+    .message {
+      margin-bottom: 30px;
+      color: #4b5563;
+    }
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .button {
+      background-color: #ef4444;
+      color: #ffffff !important;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+      transition: background-color 0.2s;
+    }
+    .button:hover {
+      background-color: #dc2626;
+    }
+    .footer {
+      background-color: #f9fafb;
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      border-top: 1px solid #e5e7eb;
+    }
+    .link-fallback {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #6b7280;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ControlStock</h1>
+    </div>
+    <div class="content">
+      <div class="greeting">Hola</div>
+      <p class="message">
+        Hemos recibido una solicitud para restablecer la contraseña de tu cuenta asociada a <strong>${email}</strong>.
+      </p>
+      
+      <div class="button-container">
+        <a href="${resetUrl}" class="button">Restablecer Contraseña</a>
       </div>
-     </body>
-    </html>`;
+      
+      <div class="link-fallback">
+        <p>Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+        <p><a href="${resetUrl}" style="color: #ef4444;">${resetUrl}</a></p>
+      </div>
+      
+      <p class="message" style="margin-top: 20px; font-size: 14px;">
+        Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
+      </p>
+    </div>
+    <div class="footer">
+      <p>&copy; ${new Date().getFullYear()} ControlStock. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
 };

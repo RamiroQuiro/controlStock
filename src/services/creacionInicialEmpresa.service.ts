@@ -15,9 +15,10 @@ import { inicializarRoles } from "./roles.sevice";
 import { inciarCategoria } from "./categoriaInicial.service";
 import { ubicacionesInicial } from "./ubicacionesInicial.service";
 import { depositoInicial } from "./depositoInicial.service";
+import { normalizadorUUID } from "../utils/normalizadorUUID";
 
 export async function inicializarEmpresaParaUsuario(user: any) {
-  const empresaId = generateId(13);
+  const empresaId = normalizadorUUID("empresa", 15);
 
   // 1. Crear empresa
   const newEmpresa = (
@@ -41,7 +42,7 @@ export async function inicializarEmpresaParaUsuario(user: any) {
     await db
       .insert(clientes)
       .values({
-        id: generateId(13),
+        id: normalizadorUUID("cliente", 15),
         nombre: "consumidor final",
         creadoPor: user.id,
         empresaId,
@@ -57,7 +58,7 @@ export async function inicializarEmpresaParaUsuario(user: any) {
     await db
       .insert(proveedores)
       .values({
-        id: generateId(13),
+        id: normalizadorUUID("proveedor", 15),
         nombre: "proveedor general",
         creadoPor: user.id,
         empresaId,
@@ -73,7 +74,7 @@ export async function inicializarEmpresaParaUsuario(user: any) {
   const [puntoVenta] = await db
     .insert(puntosDeVenta)
     .values({
-      id: generateId(13),
+      id: normalizadorUUID("puntoVenta", 15),
       codigo: 1,
       nombre: "Punto de venta principal",
       tipo: "caja",
@@ -98,7 +99,7 @@ export async function inicializarEmpresaParaUsuario(user: any) {
 
   for (const comp of tiposComprobantes) {
     await db.insert(comprobantes).values({
-      id: generateId(13),
+      id: normalizadorUUID(`${comp.tipo}-${puntoVenta.codigo}`, 15),
       empresaId,
       tipo: comp.tipo,
       descripcion: comp.descripcion,

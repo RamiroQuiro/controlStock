@@ -1,13 +1,14 @@
 import db from "../db";
 import { generateId } from "lucia";
 import { depositos } from "../db/schema";
+import { normalizadorUUID } from "../utils/normalizadorUUID";
 
 export const depositoInicial = async (empresaId: string, userId: string) => {
   try {
     const [deposito] = await db
       .insert(depositos)
       .values({
-        id: generateId(13),
+        id: normalizadorUUID(`deposito-${empresaId}`, 10),
         nombre: "Casa Central",
         creadoPor: userId,
         empresaId,

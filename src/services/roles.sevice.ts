@@ -2,6 +2,7 @@ import { generateId } from "lucia";
 import { roles } from "../db/schema/roles";
 import db from "../db";
 import { and, eq } from "drizzle-orm";
+import { normalizadorUUID } from "../utils/normalizadorUUID";
 
 type RolInicial = {
   nombre: string;
@@ -89,7 +90,7 @@ export async function inicializarRoles(userId: string, empresaId: string) {
       .insert(roles)
       .values(
         rolesFaltantes.map((rol) => ({
-          id: generateId(10),
+          id: normalizadorUUID(`rol-${empresaId}`, 7),
           nombre: rol.nombre,
           empresaId,
           descripcion: rol.descripcion,

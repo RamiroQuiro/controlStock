@@ -25,6 +25,10 @@ const PUBLIC_PATHS = new Set([
   "/login",
   "/registro",
   "/recuperar-password",
+  "/reenviar-confirmacion",
+  "/api/auth/reenviar-verificacion",
+  "/api/public/",
+  "/catalogo/",
 ]);
 
 // 🔧 MEJORA: Cache para evitar imports dinámicos repetidos

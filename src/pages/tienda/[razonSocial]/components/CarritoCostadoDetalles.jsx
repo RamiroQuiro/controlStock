@@ -1,10 +1,10 @@
-import React from 'react';
-import Button3 from '../../../../components/atomos/Button3';
-import { useStore } from '@nanostores/react';
-import { carritoStore } from '../../../../context/store';
-import { Trash2, Plus, Minus, CarTaxiFront, ShoppingCart } from 'lucide-react';
-import CardProductoCarritoEcommerceCostado from './CardProductoCarritoEcommerceCostado';
-import { carritoService } from '../../../../services/carricoEcommerce.service';
+import React from "react";
+import Button3 from "../../../../components/atomos/Button3";
+import { useStore } from "@nanostores/react";
+import { carritoStore } from "../../../../context/tiendaOnline.store";
+import { Trash2, Plus, Minus, CarTaxiFront, ShoppingCart } from "lucide-react";
+import CardProductoCarritoEcommerceCostado from "./CardProductoCarritoEcommerceCostado";
+import { carritoService } from "../../../../services/carricoEcommerce.service";
 export default function CarritoCostadoDetalles() {
   const $carritoStore = useStore(carritoStore);
   const isOpen = $carritoStore.isOpen;
@@ -35,7 +35,7 @@ export default function CarritoCostadoDetalles() {
 
   return (
     <div
-      className={`fixed top-0 right-0 w-full md:w-3/4 lg:w-1/3  h-screen bg-white border-l border-primary-100 z-[70] transform  transition-transform trasition-shadow z-  duration-300 ${isOpen ? 'translate-x-0 shadow-[-10px_0px_100px_0px_rgba(0,0,0,0.5)]' : 'translate-x-full'}`}
+      className={`fixed top-0 right-0 w-full md:w-3/4 lg:w-1/3 h-screen bg-white border-l border-primary-100 z-[9999] transform transition-transform transition-shadow duration-300 ${isOpen ? "translate-x-0 shadow-[-10px_0px_100px_0px_rgba(0,0,0,0.5)]" : "translate-x-full"}`}
     >
       <div className="h-full flex flex-col">
         {/* Header */}
@@ -83,7 +83,7 @@ export default function CarritoCostadoDetalles() {
               Continuar Comprando
             </Button3>
             <Button3
-              onClick={() => console.log('Ir a Pago')}
+              onClick={() => console.log("Ir a Pago")}
               className="w-1/2 bg-primary-100 hover:bg-primary-500 text-white hover:text-primary-textoTitle duration-300"
             >
               Proceder al Pago

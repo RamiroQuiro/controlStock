@@ -1,5 +1,5 @@
-import { useStore } from '@nanostores/react';
-import { carritoStore } from '../../../../context/store';
+import { useStore } from "@nanostores/react";
+import { carritoStore } from "../../../../context/tiendaOnline.store";
 export default function CarritoFixed() {
   const $carritoStore = useStore(carritoStore);
   const isOpen = $carritoStore.isOpen;
@@ -39,7 +39,7 @@ export default function CarritoFixed() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            className={`${isOpen ? 'rotate-180' : ''} duration-200 w-4 h-4 `}
+            className={`${isOpen ? "rotate-180" : ""} duration-200 w-4 h-4 `}
             viewBox="0 0 24 24"
           >
             <path d="M5 12h14M12 5l7 7-7 7"></path>

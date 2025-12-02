@@ -1,7 +1,7 @@
 import React from "react";
 import { ShoppingCart, Phone, MapPin, Instagram, Facebook } from "lucide-react";
 import { useStore } from "@nanostores/react";
-import { cart } from "../../context/cart.store";
+import { cart, toggleCart } from "../../context/cart.store";
 
 export default function CatalogoLayoutModerna({ empresa, children }) {
   const $cart = useStore(cart);

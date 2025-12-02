@@ -1,50 +1,123 @@
 ---
-import { eq } from 'drizzle-orm';
-import db from '../../../db';
-import { empresas } from '../../../db/schema';
-import Clasica from '../../../layouts/tienda/Clasica.astro';
-import Moderna from '../../../layouts/tienda/Moderna.astro';
-import Minimal from '../../../layouts/tienda/Minimal.astro';
-import ModernaPlantilla from './plantillas/Moderna.astro';
-const { razonSocial } = Astro.params;
-const dataSEO = {
-  title: 'Minimal',
-  description:
-    'controlStock: Solución integral para gestión de inventario y punto de venta. Optimiza tu negocio con control de stock, ventas y reportes en tiempo real.',
-  keywords: [
-    'gestión de inventario',
-    'punto de venta',
-    'software para negocios',
-    'control de stock',
-    'sistema de ventas',
-  ],
-  image: '/og-image.png',
-  canonicalURL: 'controlStock',
-};
+import { eq, or } from "drizzle-orm";
+import db from "../../../db";
+import {
+  empresas,
+  empresaConfigTienda,
+  productos,
+  stockActual,
+  categorias,
+} from "../../../db/schema";
+import Clasica from "../../../layouts/tienda/Clasica.astro";
+import Moderna from "../../../layouts/tienda/Moderna.astro";
+import Minimal from "../../../layouts/tienda/Minimal.astro";
+import ModernaPlantilla from "./plantillas/Moderna.astro";
+import MinimalistaPlantilla from "./plantillas/Minimalista.astro";
+import { and, desc } from "drizzle-orm";
 
-const [dataDB] = await db
+const { razonSocial } = Astro.params;
+
+// Normalizar el slug de la URL para comparación
+const slugNormalized = razonSocial?.toLowerCase().replace(/\s+/g, "-");
+
+// Buscar empresa por razonSocial o nombreFantasia (normalizado)
+const empresasFound = await db
   .select()
   .from(empresas)
-  .where(eq(empresas.razonSocial, razonSocial));
+  .where(
+    or(
+      eq(empresas.razonSocial, razonSocial),
+      eq(empresas.nombreFantasia, razonSocial)
+    )
+  );
 
-  dataDB.theme="moderna"
+const dataDB = empresasFound[0];
+console.log("dataDB", dataDB);
 if (!dataDB) {
-  return Astro.redirect('/noEncontrado');
+  return Astro.redirect("/404");
 }
+
+// Obtener configuración de tienda
+const [configTienda] = await db
+  .select()
+  .from(empresaConfigTienda)
+  .where(eq(empresaConfigTienda.empresaId, dataDB.id));
+
+const theme = configTienda?.theme || "clasica";
+const colores = configTienda?.colores
+  ? JSON.parse(configTienda.colores as string)
+  : {};
+const textos = configTienda?.textos
+  ? JSON.parse(configTienda.textos as string)
+  : {};
+
+// Obtener productos activos para ecommerce
+const listaProductos = await db
+  .select({
+    id: productos.id,
+    nombre: productos.nombre,
+    descripcion: productos.descripcion,
+    precio: productos.pVenta,
+    stock: stockActual.cantidad,
+    srcImagen: productos.srcPhoto,
+    categoria: productos.categoria,
+    codigoBarra: productos.codigoBarra,
+  })
+  .from(productos)
+  .innerJoin(stockActual, eq(productos.id, stockActual.productoId))
+  .where(
+    and(
+      eq(productos.empresaId, dataDB.id),
+      eq(productos.activo, 1),
+      eq(productos.isEcommerce, true)
+    )
+  )
+  .orderBy(desc(productos.nombre));
+
+// Obtener categorías
+const listaCategorias = await db
+  .select({
+    id: categorias.id,
+    nombre: categorias.nombre,
+    color: categorias.color,
+  })
+  .from(categorias)
+  .where(and(eq(categorias.empresaId, dataDB.id), eq(categorias.activo, true)));
+
+const dataSEO = {
+  title: textos.nombreTienda || dataDB.nombreFantasia || dataDB.razonSocial,
+  description:
+    textos.descripcion ||
+    `Catálogo online de ${dataDB.nombreFantasia || dataDB.razonSocial}`,
+  keywords: ["tienda online", "catálogo", "productos"],
+  image: dataDB.srcLogo || "/og-image.png",
+  canonicalURL: `/tienda/${razonSocial}`,
+};
+
+const empresaData = {
+  ...dataDB,
+  colores,
+  textos,
+  configTienda,
+  productos: listaProductos,
+  categorias: listaCategorias,
+};
+
+console.log("esta es dato de la empresa", empresaData);
 ---
 
 {
-  dataDB.theme === 'clasica' ? (
-    <Clasica>
+  theme === "moderna" ? (
+    <Moderna data={dataSEO}>
+      <ModernaPlantilla data={empresaData as any} />
+    </Moderna>
+  ) : theme === "minimal" ? (
+    <Minimal {...dataSEO}>
+      <MinimalistaPlantilla data={empresaData as any} />
+    </Minimal>
+  ) : (
+    <Clasica {...dataSEO}>
       <slot />
     </Clasica>
-  ) : dataDB.theme === 'moderna' ? (
-    <Moderna data={dataDB}>
-      <ModernaPlantilla data={dataDB as any} />
-    </Moderna>
-  ) : (
-    <Minimal>
-      <slot />
-    </Minimal>
   )
 }

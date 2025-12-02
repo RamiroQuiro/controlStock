@@ -1,24 +1,25 @@
-import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core';
-import { empresas } from './empresas';
-import { users } from './users';
-import { sql } from 'drizzle-orm';
+import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
+import { empresas } from "./empresas";
+import { users } from "./users";
+import { sql } from "drizzle-orm";
 
 export const categorias = sqliteTable(
-  'categorias',
+  "categorias",
   {
-    id: text('id').primaryKey(),
-    nombre: text('nombre').notNull(),
-    descripcion: text('descripcion'),
-    creadoPor: text('creadoPor').references(() => users.id),
+    id: text("id").primaryKey(),
+    nombre: text("nombre").notNull(),
+    descripcion: text("descripcion"),
+    creadoPor: text("creadoPor").references(() => users.id),
 
-    empresaId: text('empresaId')
+    empresaId: text("empresaId")
       .notNull()
       .references(() => empresas.id),
-    created_at: integer('created_at', { mode: 'timestamp' })
+    created_at: integer("created_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
-    activo: integer('activo', { mode: 'boolean' }).default(true),
-    color: text('color').default('bg-blue-500'),
+    activo: integer("activo", { mode: "boolean" }).default(true),
+    color: text("color").default("bg-blue-500"),
+    srcImage: text("srcImage"), // Imagen para mostrar en cards de categoría
   },
   (t) => [
     unique().on(t.nombre, t.empresaId), // una categoria por nombre y empresa

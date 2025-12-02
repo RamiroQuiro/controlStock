@@ -1,6 +1,5 @@
 ---
-import CarritoCostadoDetalles from '../../pages/tienda/[userName]/components/CarritoCostadoDetalles';
-import Loader from '../../utils/loader/Loader.astro';
+import Loader from "../../utils/loader/Loader.astro";
 
 const { data } = Astro.props;
 
@@ -8,7 +7,7 @@ const currentURL = Astro.url.href;
 ---
 
 <!doctype html>
-<html lang="es" theme="white">
+<html lang="es">
   <head>
     <!-- Primary Meta Tags -->
     <title>{data.title}</title>

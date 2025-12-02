@@ -1,0 +1,20 @@
+---
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
+import FormConfiguracionTienda from "./components/FormConfiguracionTienda";
+
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+---
+
+<LayoutDash title="Tienda Online">
+  <MainDashboard h1="Tienda Online" subtitle="Personaliza tu catálogo digital">
+    <DivBox1 styleDiv="w-full">
+      <FormConfiguracionTienda client:load user={user} />
+    </DivBox1>
+  </MainDashboard>
+</LayoutDash>

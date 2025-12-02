@@ -1,17 +1,19 @@
 ---
 import { eq, and, desc } from "drizzle-orm";
-import CatalogoLayoutClasica from "../../../components/catalogo/CatalogoLayoutClasica";
-import CatalogoLayoutModerna from "../../../components/catalogo/CatalogoLayoutModerna";
-import CatalogoLayoutMinimal from "../../../components/catalogo/CatalogoLayoutMinimal";
-import ListaProductos from "../../../components/catalogo/ListaProductos";
-import ModalCarrito from "../../../components/catalogo/ModalCarrito";
-import db from "../../../db";
+
 import {
   categorias,
   empresas,
   productos,
   stockActual,
+  empresaConfigTienda,
 } from "../../../db/schema";
+import db from "../../../db";
+import CatalogoLayoutModerna from "../../../components/catalogo/CatalogoLayoutModerna";
+import ListaProductos from "../../../components/catalogo/ListaProductos";
+import ModalCarrito from "../../../components/catalogo/ModalCarrito";
+import CatalogoLayoutMinimal from "../../../components/catalogo/CatalogoLayoutMinimal";
+import CatalogoLayoutClasica from "../../../components/catalogo/CatalogoLayoutClasica";
 
 const { empresaId } = Astro.params;
 if (!empresaId) {
@@ -29,7 +31,6 @@ const [empresa] = await db
     srcLogo: empresas.srcLogo,
     colorAsset: empresas.colorAsset,
     colorSecundario: empresas.colorSecundario,
-    theme: empresas.theme,
   })
   .from(empresas)
   .where(eq(empresas.id, empresaId));
@@ -37,6 +38,14 @@ const [empresa] = await db
 if (!empresa) {
   return Astro.redirect("/404");
 }
+
+// Obtener configuración de tienda (theme)
+const [configTienda] = await db
+  .select()
+  .from(empresaConfigTienda)
+  .where(eq(empresaConfigTienda.empresaId, empresaId));
+
+const theme = configTienda?.theme || "clasica";
 
 // 2. Obtener productos activos
 const listaProductos = await db
@@ -61,6 +70,7 @@ const listaProductos = await db
     )
   )
   .orderBy(desc(productos.nombre));
+
 // 3. Obtener categorías activas
 const listaCategorias = await db
   .select({
@@ -70,13 +80,6 @@ const listaCategorias = await db
   })
   .from(categorias)
   .where(and(eq(categorias.empresaId, empresaId), eq(categorias.activo, true)));
-//Selección de Layout
-const Layouts = {
-  clasica: CatalogoLayoutClasica,
-  moderna: CatalogoLayoutModerna,
-  minimal: CatalogoLayoutMinimal,
-};
-const SelectedLayout = CatalogoLayoutClasica;
 ---
 
 <html lang="es">
@@ -87,13 +90,48 @@ const SelectedLayout = CatalogoLayoutClasica;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
-    <CatalogoLayoutClasica empresa={empresa} client:load>
-      <ListaProductos
-        productos={listaProductos}
-        categorias={listaCategorias}
-        client:load
-      />
-      <ModalCarrito telefonoEmpresa={empresa.telefono} client:load />
-    </CatalogoLayoutClasica>
+    {
+      theme === "moderna" && (
+        <CatalogoLayoutModerna
+          empresa={empresa}
+          listarCategorias={listaCategorias}
+          listaProductos={listaProductos}
+          client:load
+        >
+          <ListaProductos
+            productos={listaProductos}
+            categorias={listaCategorias}
+            client:load
+          />
+          <ModalCarrito telefonoEmpresa={empresa.telefono} client:load />
+        </CatalogoLayoutModerna>
+      )
+    }
+
+    {
+      theme === "minimal" && (
+        <CatalogoLayoutMinimal empresa={empresa} client:load>
+          <ListaProductos
+            productos={listaProductos}
+            categorias={listaCategorias}
+            client:load
+          />
+          <ModalCarrito telefonoEmpresa={empresa.telefono} client:load />
+        </CatalogoLayoutMinimal>
+      )
+    }
+
+    {
+      (theme === "clasica" || !theme) && (
+        <CatalogoLayoutClasica empresa={empresa} client:load>
+          <ListaProductos
+            productos={listaProductos}
+            categorias={listaCategorias}
+            client:load
+          />
+          <ModalCarrito telefonoEmpresa={empresa.telefono} client:load />
+        </CatalogoLayoutClasica>
+      )
+    }
   </body>
 </html>

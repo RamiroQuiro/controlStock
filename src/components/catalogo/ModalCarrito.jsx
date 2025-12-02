@@ -45,7 +45,7 @@ export default function ModalCarrito({ telefonoEmpresa }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center pointer-events-none">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 pointer-events-auto transition-opacity"

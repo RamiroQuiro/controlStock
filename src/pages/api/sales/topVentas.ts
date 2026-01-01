@@ -61,7 +61,7 @@ export const GET: APIRoute = async ({ request }) => {
         id: productos.id,
         nombre: productos.nombre,
         descripcion: productos.descripcion,
-        stock: productos.stock,
+        
         alertaStock: productos.alertaStock,
         categoria: productos.categoria,
         pVenta: productos.pVenta,

@@ -7,6 +7,7 @@ import Button5 from "../../../../components/atomos/Button5.jsx";
 import BotonAgregarDeposito from "../../../../components/moleculas/BotonAgregarDepositojsx.jsx";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx.jsx";
 import BotonAgregarUbicacion from "../../../../components/moleculas/BotonAgregarUbicacion.jsx";
+import { fetchListadoProductos } from "../../../../context/stock.store";
 
 // Interfaces para las props
 interface Deposito {
@@ -49,69 +50,76 @@ const FormularioCargaProducto: React.FC<Props> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [categoriasIds, setCategoriasIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // 🎯 NUEVO: Estado para errores específicos por campo
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [validando, setValidando] = useState<Record<string, boolean>>({});
 
   const [localDepositos, setLocalDepositos] = useState<Deposito[]>(depositos);
-  const [localUbicaciones, setLocalUbicaciones] = useState<Ubicacion[]>(ubicaciones);
+  const [localUbicaciones, setLocalUbicaciones] =
+    useState<Ubicacion[]>(ubicaciones);
 
   // 🎯 FUNCIONES DE VALIDACIÓN (las mismas que antes)
   const validarCodigoBarra = async (codigo: string) => {
     if (!codigo || codigo.length < 2) return;
-    
-    setValidando(prev => ({ ...prev, codigoBarra: true }));
-    
+
+    setValidando((prev) => ({ ...prev, codigoBarra: true }));
+
     try {
-      const res = await fetch(`/api/productos/verificar-codigo?codigo=${codigo}&empresaId=${empresaId}`);
+      const res = await fetch(
+        `/api/productos/verificar-codigo?codigo=${codigo}&empresaId=${empresaId}`
+      );
       const data = await res.json();
-      
+
       if (data.existe) {
-        setErrores(prev => ({ 
-          ...prev, 
-          codigoBarra: `❌ Ya existe un producto con el código: ${codigo}` 
+        setErrores((prev) => ({
+          ...prev,
+          codigoBarra: `❌ Ya existe un producto con el código: ${codigo}`,
         }));
       } else {
-        setErrores(prev => ({ ...prev, codigoBarra: '' }));
+        setErrores((prev) => ({ ...prev, codigoBarra: "" }));
       }
     } catch (error) {
-      console.error('Error validando código:', error);
+      console.error("Error validando código:", error);
     } finally {
-      setValidando(prev => ({ ...prev, codigoBarra: false }));
+      setValidando((prev) => ({ ...prev, codigoBarra: false }));
     }
   };
 
   const validarNombre = async (nombre: string) => {
     if (!nombre || nombre.length < 3) return;
-    
-    setValidando(prev => ({ ...prev, nombre: true }));
-    
+
+    setValidando((prev) => ({ ...prev, nombre: true }));
+
     try {
-      const res = await fetch(`/api/productos/verificar-nombre?nombre=${encodeURIComponent(nombre)}&empresaId=${empresaId}`);
+      const res = await fetch(
+        `/api/productos/verificar-nombre?nombre=${encodeURIComponent(nombre)}&empresaId=${empresaId}`
+      );
       const data = await res.json();
-      
+
       if (data.existe) {
-        setErrores(prev => ({ 
-          ...prev, 
-          nombre: `❌ Ya existe un producto con el nombre: "${nombre}"` 
+        setErrores((prev) => ({
+          ...prev,
+          nombre: `❌ Ya existe un producto con el nombre: "${nombre}"`,
         }));
       } else {
-        setErrores(prev => ({ ...prev, nombre: '' }));
+        setErrores((prev) => ({ ...prev, nombre: "" }));
       }
     } catch (error) {
-      console.error('Error validando nombre:', error);
+      console.error("Error validando nombre:", error);
     } finally {
-      setValidando(prev => ({ ...prev, nombre: false }));
+      setValidando((prev) => ({ ...prev, nombre: false }));
     }
   };
 
   // 🎯 MANEJADOR MEJORADO CON VALIDACIONES EN TIEMPO REAL
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    
+
     setFormData((prev) => {
       const newFormData = { ...prev, [name]: value };
       if (name === "depositoId") {
@@ -122,12 +130,12 @@ const FormularioCargaProducto: React.FC<Props> = ({
 
     // 🎯 VALIDACIONES EN TIEMPO REAL
     if (name === "codigoBarra") {
-      setErrores(prev => ({ ...prev, codigoBarra: '' }));
+      setErrores((prev) => ({ ...prev, codigoBarra: "" }));
       setTimeout(() => validarCodigoBarra(value), 500);
     }
-    
+
     if (name === "nombre") {
-      setErrores(prev => ({ ...prev, nombre: '' }));
+      setErrores((prev) => ({ ...prev, nombre: "" }));
       setTimeout(() => validarNombre(value), 500);
     }
 
@@ -136,12 +144,13 @@ const FormularioCargaProducto: React.FC<Props> = ({
       const pCompra = parseFloat(formData.pCompra);
       const pVenta = parseFloat(value);
       if (pVenta < pCompra) {
-        setErrores(prev => ({ 
-          ...prev, 
-          pVenta: '⚠️ El precio de venta no puede ser menor al precio de compra' 
+        setErrores((prev) => ({
+          ...prev,
+          pVenta:
+            "⚠️ El precio de venta no puede ser menor al precio de compra",
         }));
       } else {
-        setErrores(prev => ({ ...prev, pVenta: '' }));
+        setErrores((prev) => ({ ...prev, pVenta: "" }));
       }
     }
 
@@ -149,12 +158,12 @@ const FormularioCargaProducto: React.FC<Props> = ({
       const stock = parseInt(value);
       const alerta = formData.alertaStock;
       if (stock < alerta) {
-        setErrores(prev => ({ 
-          ...prev, 
-          stock: `⚠️ Stock inicial (${stock}) es menor que la alerta (${alerta})` 
+        setErrores((prev) => ({
+          ...prev,
+          stock: `⚠️ Stock inicial (${stock}) es menor que la alerta (${alerta})`,
         }));
       } else {
-        setErrores(prev => ({ ...prev, stock: '' }));
+        setErrores((prev) => ({ ...prev, stock: "" }));
       }
     }
   };
@@ -162,22 +171,25 @@ const FormularioCargaProducto: React.FC<Props> = ({
   // 🎯 FUNCIÓN DE ENVÍO MEJORADA (la misma que antes)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validar antes de enviar
     const erroresFinales: Record<string, string> = {};
-    
-    if (!formData.codigoBarra) erroresFinales.codigoBarra = 'Código de barras es requerido';
-    if (!formData.nombre) erroresFinales.nombre = 'Nombre es requerido';
-    if (!formData.descripcion) erroresFinales.descripcion = 'Descripción es requerida';
-    if (!formData.pVenta) erroresFinales.pVenta = 'Precio de venta es requerido';
-    
+
+    if (!formData.codigoBarra)
+      erroresFinales.codigoBarra = "Código de barras es requerido";
+    if (!formData.nombre) erroresFinales.nombre = "Nombre es requerido";
+    if (!formData.descripcion)
+      erroresFinales.descripcion = "Descripción es requerida";
+    if (!formData.pVenta)
+      erroresFinales.pVenta = "Precio de venta es requerido";
+
     if (Object.keys(erroresFinales).length > 0) {
       setErrores(erroresFinales);
       showToast("error", "Por favor completa los campos requeridos");
       return;
     }
 
-    if (Object.values(errores).some(error => error)) {
+    if (Object.values(errores).some((error) => error)) {
       showToast("error", "Corrige los errores antes de guardar");
       return;
     }
@@ -201,7 +213,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
         body: submissionData,
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         if (response.status === 409) {
           setErrores({ codigoBarra: data.msg });
@@ -209,15 +221,18 @@ const FormularioCargaProducto: React.FC<Props> = ({
         }
         throw new Error(data.msg || "Error en el servidor");
       }
-      
+
       showToast("success", "¡Producto guardado con éxito!");
+
+      // 🎯 Refrescar la lista de productos en el store global
+      await fetchListadoProductos(empresaId);
+
       resetForm();
       if (window.parent) {
-        window.parent.postMessage({ type: 'PRODUCTO_CREADO' }, '*');
+        window.parent.postMessage({ type: "PRODUCTO_CREADO" }, "*");
       }
-      
     } catch (err: any) {
-      console.error('Error al guardar:', err);
+      console.error("Error al guardar:", err);
       showToast("error", err.message);
     } finally {
       setIsSubmitting(false);
@@ -252,7 +267,6 @@ const FormularioCargaProducto: React.FC<Props> = ({
   return (
     <div className="p-4 bg-white w-f rounded-lg shadow-md">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        
         {/* SECCIÓN 1: FOTO, CÓDIGO, NOMBRE, DESCRIPCIÓN */}
         <div className="flex flex-col md:flex-row gap-6 w-full">
           <div className="md:col-span-1 flex flex-col items-center">
@@ -261,11 +275,14 @@ const FormularioCargaProducto: React.FC<Props> = ({
             </label>
             <InputFile name="fotoProducto" onFileChange={setSelectedFile} />
           </div>
-          
+
           <div className="md:col-span-2 flex flex-col gap-4 w-full">
             {/* CÓDIGO DE BARRA CON VALIDACIÓN */}
             <div>
-              <label htmlFor="codigoBarra" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="codigoBarra"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Código de Barra ✅
               </label>
               <div className="relative">
@@ -276,11 +293,11 @@ const FormularioCargaProducto: React.FC<Props> = ({
                   value={formData.codigoBarra}
                   onChange={handleChange}
                   className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
-                    errores.codigoBarra 
-                      ? 'border-red-500 bg-red-50' 
+                    errores.codigoBarra
+                      ? "border-red-500 bg-red-50"
                       : validando.codigoBarra
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300'
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300"
                   }`}
                   required
                 />
@@ -299,7 +316,10 @@ const FormularioCargaProducto: React.FC<Props> = ({
 
             {/* NOMBRE CON VALIDACIÓN */}
             <div>
-              <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="nombre"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Nombre ✅
               </label>
               <div className="relative">
@@ -310,11 +330,11 @@ const FormularioCargaProducto: React.FC<Props> = ({
                   value={formData.nombre}
                   onChange={handleChange}
                   className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
-                    errores.nombre 
-                      ? 'border-red-500 bg-red-50' 
+                    errores.nombre
+                      ? "border-red-500 bg-red-50"
                       : validando.nombre
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300'
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300"
                   }`}
                   required
                 />
@@ -333,7 +353,10 @@ const FormularioCargaProducto: React.FC<Props> = ({
 
             {/* DESCRIPCIÓN CON VALIDACIÓN */}
             <div>
-              <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="descripcion"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Descripción ✅
               </label>
               <textarea
@@ -341,15 +364,19 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 name="descripcion"
                 value={formData.descripcion}
                 onChange={handleChange}
-                rows="4"
+                rows={4}
                 className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
-                  errores.descripcion ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  errores.descripcion
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300"
                 }`}
                 placeholder="Color, tamaño, detalles..."
                 required
               ></textarea>
               {errores.descripcion && (
-                <p className="mt-1 text-sm text-red-600">{errores.descripcion}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {errores.descripcion}
+                </p>
               )}
             </div>
           </div>
@@ -363,33 +390,49 @@ const FormularioCargaProducto: React.FC<Props> = ({
             </label>
             <CategoriasSelector
               empresaId={empresaId}
-              onCategoriasChange={setCategoriasIds}
+              onCategoriasChange={(cats: any[]) =>
+                setCategoriasIds(cats.map((c) => c.id))
+              }
             />
           </div>
-          
+
           <div>
-            <label htmlFor="marca" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="marca"
+              className="block text-sm font-medium text-gray-700"
+            >
               Marca
             </label>
             <InputComponenteJsx
               name="marca"
               id="marca"
+              type="text"
               value={formData.marca}
               handleChange={handleChange}
               placeholder="Marca"
+              disable={isSubmitting}
+              tab={0}
+              className=""
             />
           </div>
-          
+
           <div>
-            <label htmlFor="modelo" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="modelo"
+              className="block text-sm font-medium text-gray-700"
+            >
               Modelo
             </label>
             <InputComponenteJsx
               name="modelo"
               id="modelo"
+              type="text"
               value={formData.modelo}
               handleChange={handleChange}
               placeholder="Modelo"
+              disable={isSubmitting}
+              tab={0}
+              className=""
             />
           </div>
         </div>
@@ -398,7 +441,10 @@ const FormularioCargaProducto: React.FC<Props> = ({
         <div className="flex w-full justify-between items-center gap-6 border-t pt-4">
           <div className="flex items-center w-full gap-2">
             <div className="w-full flex flex-col">
-              <label htmlFor="depositoId" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="depositoId"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Depósito
               </label>
               <select
@@ -408,18 +454,28 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 onChange={handleChange}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
               >
-                <option value="" disabled>Selecciona un depósito</option>
+                <option value="" disabled>
+                  Selecciona un depósito
+                </option>
                 {localDepositos?.map((d) => (
-                  <option key={d.id} value={d.id}>{d.nombre}</option>
+                  <option key={d.id} value={d.id}>
+                    {d.nombre}
+                  </option>
                 ))}
               </select>
             </div>
-            <BotonAgregarDeposito handleDepositoAgregado={handleDepositoAgregado} empresaId={empresaId} />
+            <BotonAgregarDeposito
+              handleDepositoAgregado={handleDepositoAgregado}
+              empresaId={empresaId}
+            />
           </div>
-          
+
           <div className="flex items-center w-full gap-2">
             <div className="w-full flex flex-col">
-              <label htmlFor="ubicacionId" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="ubicacionId"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Ubicación
               </label>
               <select
@@ -430,20 +486,31 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
                 disabled={!formData.depositoId}
               >
-                <option value="" disabled>Selecciona una ubicación</option>
+                <option value="" disabled>
+                  Selecciona una ubicación
+                </option>
                 {filteredUbicaciones?.map((u) => (
-                  <option key={u.id} value={u.id}>{u.nombre}</option>
+                  <option key={u.id} value={u.id}>
+                    {u.nombre}
+                  </option>
                 ))}
               </select>
             </div>
-            <BotonAgregarUbicacion depositos={localDepositos} handleUbicacionAgregada={handleUbicacionAgregada} empresaId={empresaId} />
+            <BotonAgregarUbicacion
+              depositos={localDepositos}
+              handleUbicacionAgregada={handleUbicacionAgregada}
+              empresaId={empresaId}
+            />
           </div>
         </div>
 
         {/* SECCIÓN 4: PRECIOS, IVA, STOCK */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 border-t pt-6">
           <div>
-            <label htmlFor="pCompra" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="pCompra"
+              className="block text-sm font-medium text-gray-700"
+            >
               Precio Compra
             </label>
             <InputComponenteJsx
@@ -452,13 +519,18 @@ const FormularioCargaProducto: React.FC<Props> = ({
               id="pCompra"
               value={formData.pCompra}
               handleChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
-              required
+              className=""
+              placeholder="0.00"
+              disable={isSubmitting}
+              tab={0}
             />
           </div>
-          
+
           <div>
-            <label htmlFor="pVenta" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="pVenta"
+              className="block text-sm font-medium text-gray-700"
+            >
               Precio Venta ✅
             </label>
             <input
@@ -468,7 +540,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
               value={formData.pVenta}
               onChange={handleChange}
               className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
-                errores.pVenta ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                errores.pVenta ? "border-red-500 bg-red-50" : "border-gray-300"
               }`}
               required
             />
@@ -476,9 +548,12 @@ const FormularioCargaProducto: React.FC<Props> = ({
               <p className="mt-1 text-sm text-red-600">{errores.pVenta}</p>
             )}
           </div>
-          
+
           <div>
-            <label htmlFor="iva" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="iva"
+              className="block text-sm font-medium text-gray-700"
+            >
               IVA
             </label>
             <select
@@ -494,10 +569,13 @@ const FormularioCargaProducto: React.FC<Props> = ({
             </select>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 border-t pt-6">
           <div>
-            <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="stock"
+              className="block text-sm font-medium text-gray-700"
+            >
               Stock Inicial
             </label>
             <input
@@ -507,7 +585,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
               value={formData.stock}
               onChange={handleChange}
               className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
-                errores.stock ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                errores.stock ? "border-red-500 bg-red-50" : "border-gray-300"
               }`}
               required
             />
@@ -515,19 +593,24 @@ const FormularioCargaProducto: React.FC<Props> = ({
               <p className="mt-1 text-sm text-red-600">{errores.stock}</p>
             )}
           </div>
-          
+
           <div>
-            <label htmlFor="alertaStock" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="alertaStock"
+              className="block text-sm font-medium text-gray-700"
+            >
               Alerta Stock
             </label>
             <InputComponenteJsx
               type="number"
               name="alertaStock"
               id="alertaStock"
-              value={formData.alertaStock}
+              value={formData.alertaStock.toString()}
               handleChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
-              required
+              className=""
+              placeholder="0"
+              disable={isSubmitting}
+              tab={0}
             />
           </div>
         </div>
@@ -536,11 +619,13 @@ const FormularioCargaProducto: React.FC<Props> = ({
         <div className="flex justify-end mt-6">
           <button
             type="submit"
-            disabled={isSubmitting || Object.values(errores).some(error => error)}
+            disabled={
+              isSubmitting || Object.values(errores).some((error) => error)
+            }
             className={`px-6 py-2 rounded-md font-medium ${
-              isSubmitting || Object.values(errores).some(error => error)
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+              isSubmitting || Object.values(errores).some((error) => error)
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
             }`}
           >
             {isSubmitting ? (
@@ -549,7 +634,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 Guardando...
               </span>
             ) : (
-              'Guardar Producto'
+              "Guardar Producto"
             )}
           </button>
         </div>

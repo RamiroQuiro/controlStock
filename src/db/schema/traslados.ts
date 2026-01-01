@@ -41,9 +41,9 @@ export const traslados = sqliteTable("traslados", {
   // Usuarios involucrados
   creadoPor: text("creado_por")
     .notNull()
-    .references(() => users.id),
-  enviadoPor: text("enviado_por").references(() => users.id),
-  recibidoPor: text("recibido_por").references(() => users.id),
+    .references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }), // No dejar borrar si creó traslados activos
+  enviadoPor: text("enviado_por").references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }),
+  recibidoPor: text("recibido_por").references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }),
 
   // Observaciones
   observaciones: text("observaciones"),

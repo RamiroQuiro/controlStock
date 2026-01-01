@@ -87,6 +87,31 @@ export function setCantidadCompra(codigoBarra, cantidad) {
 }
 
 /**
+ * Establece un precio de compra (costo) específico para un producto.
+ * @param {string} codigoBarra
+ * @param {number} precio
+ */
+export function setPrecioCompra(codigoBarra, precio) {
+  const productos = productosSeleccionadosCompra.get();
+  const nuevoPrecio = Number(precio);
+
+  const nuevosProductos = productos.map((p) =>
+    p.codigoBarra === codigoBarra ? { ...p, pCompra: nuevoPrecio } : p
+  );
+  productosSeleccionadosCompra.set(nuevosProductos);
+}
+
+export function setPrecioVentaCompra(codigoBarra, precioVenta) {
+  const productos = productosSeleccionadosCompra.get();
+  const nuevoPrecio = Number(precioVenta);
+
+  const nuevosProductos = productos.map((p) =>
+    p.codigoBarra === codigoBarra ? { ...p, pVenta: nuevoPrecio } : p
+  );
+  productosSeleccionadosCompra.set(nuevosProductos);
+}
+
+/**
  * Elimina un producto del carrito.
  * @param {string} codigoBarra
  */

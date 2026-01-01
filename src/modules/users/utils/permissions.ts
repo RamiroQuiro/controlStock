@@ -17,8 +17,8 @@ export function tienePermiso(
   // 1. Superadmin / Admin siempre tiene acceso total
   if (usuario.rol === "admin") return true;
 
-  // 2. Si el usuario tiene permisos explícitos (cargados desde DB)
-  if (usuario.permisos && Array.isArray(usuario.permisos)) {
+  // 2. Si el usuario tiene permisos explícitos (cargados desde DB) Y no está vacío
+  if (usuario.permisos && Array.isArray(usuario.permisos) && usuario.permisos.length > 0) {
     return usuario.permisos.includes(permiso);
   }
 
@@ -30,7 +30,8 @@ export function tienePermiso(
       PERMISOS.VENTAS_EDITAR,
       PERMISOS.CLIENTES_VER,
       PERMISOS.PRODUCTOS_VER,
-      PERMISOS.STOCK_VER, // Ahora permitimos ver stock
+      PERMISOS.STOCK_VER,
+      PERMISOS.VENTAS_VER_REPORTES, // Permitir ver dashboard (aunque sea limitado a su usuario)
     ],
     repositor: [
       PERMISOS.STOCK_VER,

@@ -14,12 +14,17 @@ interface Category {
 }
 
 type Props = {
-  setIsDialogOpen: (isOpen: boolean) => void;
-  category: Category;
+  setIsDialogOpen?: (isOpen: boolean) => void;
+  category?: Category;
   onClose: () => void;
+  onCategoriaCreada?: (categoria: any) => void;
 };
 
-export default function FormularioNuevaCategoria({ category, onClose }: Props) {
+export default function FormularioNuevaCategoria({
+  category,
+  onClose,
+  onCategoriaCreada,
+}: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,8 +48,8 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
     if (!formData.nombre.trim()) return;
     try {
       setLoading(true);
-      const fecthNewCat = await fetch("/api/categorias", {
-        method: category ? "PUT" : "POST",
+      const fecthNewCat = await fetch("/api/categorias/", {
+        method: category?.id ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -52,30 +57,53 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
       });
       const data = await fecthNewCat.json();
       if (data.status === 200) {
-        showToast("categoria actualizada", { background: "bg-green-500" });
-        const newCategorias = categoriasStore.get().data;
-        const newCategoria = newCategorias.map((categoria: Categoria) => {
-          if (categoria.id === formData.id) {
-            return formData;
-          }
-          return categoria;
+        showToast(category ? "Categoría actualizada" : "Categoría creada", {
+          background: "bg-green-500",
         });
-        categoriasStore.set({ ...categoriasStore.get(), data: newCategoria });
+
+        const currentStore = categoriasStore.get();
+        const currentData = Array.isArray(currentStore.data)
+          ? currentStore.data
+          : [];
+
+        let updatedData;
+        const savedCategory = data.data;
+
+        if (category) {
+          // Modo edición: reemplazar elemento
+          updatedData = currentData.map((cat: any) =>
+            cat.id === savedCategory.id ? savedCategory : cat
+          );
+        } else {
+          // Modo creación: añadir elemento
+          updatedData = [...currentData, savedCategory];
+        }
+
+        categoriasStore.set({
+          ...currentStore,
+          data: updatedData as any,
+          loading: false,
+        });
+
+        if (onCategoriaCreada) {
+          onCategoriaCreada(savedCategory);
+        }
+
         if (onClose) onClose();
       } else {
         setErrorMessage(data.msg);
-        showToast("error al actualizar", {background: "bg-primary-400" });
+        showToast("error al actualizar", { background: "bg-primary-400" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      setErrorMessage(error);
+      setErrorMessage(error.message || String(error));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancel = (e:Event) => {
-    e.preventDefault()
+  const handleCancel = (e: Event) => {
+    e.preventDefault();
     onClose();
   };
 
@@ -91,11 +119,16 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
         </label>
         <InputComponenteJsx
           id="nombre"
+          name="nombre"
+          type="text"
           value={formData.nombre}
           handleChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setFormData({ ...formData, nombre: e.target.value })
           }
           placeholder="Nombre de la categoría"
+          disable={loading}
+          tab={0}
+          className=""
         />
       </div>
       <div>
@@ -114,6 +147,7 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
           placeholder="Descripción de la categoría"
           className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           rows={3}
+          disabled={loading}
         />
       </div>
       <div>
@@ -130,6 +164,7 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
               }`}
               onClick={() => setFormData({ ...formData, color: color.value })}
               title={color.label}
+              disabled={loading}
             />
           ))}
         </div>
@@ -140,10 +175,22 @@ export default function FormularioNuevaCategoria({ category, onClose }: Props) {
         </div>
       )}
       <div className="flex justify-end space-x-3 pt-4">
-        <Button3 className="hover:bg-primary-400/80 bg-primary-400 py-1 text-white" onClick={handleCancel}>
+        <Button3
+          className="hover:bg-primary-400/80 bg-primary-400 py-1 text-white"
+          onClick={handleCancel}
+          disabled={loading}
+          isActive={false}
+          id="btn-cancelar-cat"
+        >
           Cancelar
         </Button3>
-        <Button3 className="hover:bg-primary-100/80 bg-primary-100 py-1 text-white" onClick={handleGuardarCategoria}>
+        <Button3
+          className="hover:bg-primary-100/80 bg-primary-100 py-1 text-white"
+          onClick={handleGuardarCategoria}
+          disabled={loading}
+          isActive={false}
+          id="btn-guardar-cat"
+        >
           {category ? "Actualizar" : "Guardar"}
         </Button3>
       </div>

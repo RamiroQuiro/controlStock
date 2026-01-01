@@ -11,21 +11,21 @@ export const stockActual = sqliteTable('stockActual', {
   id: text('id').primaryKey(),
   productoId: text('productoId')
     .notNull()
-    .references(() => productos.id), // Relación con productos
+    .references(() => productos.id, { onUpdate: 'cascade', onDelete: 'restrict' }), // Relación con productos
   cantidad: integer('cantidad').notNull().default(0), // Cantidad actual en stock
   alertaStock: integer('alertaStock').notNull().default(5), // Mínimo antes de alertar
-  ubicacionesId: text('ubicacionesId').references(() => ubicaciones.id),
-  depositosId: text('depositosId').references(() => depositos.id),
+  ubicacionesId: text('ubicacionesId').references(() => ubicaciones.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+  depositosId: text('depositosId').references(() => depositos.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   localizacionesId: text('localizacionesId').references(
-    () => localizaciones.id
+    () => localizaciones.id, { onUpdate: 'cascade', onDelete: 'restrict' }
   ),
   precioPromedio: integer('precioPromedio').notNull().default(0), // Precio promedio de compra
   reservado: integer('reservado').notNull().default(0), // Cantidad reservada para ventas
   stockSeguridad: integer('stockSeguridad').notNull().default(0), // Stock mínimo ideal
   costoTotalStock: integer('costoTotalStock', { mode: 'number' }), // Valor total del stock
-  userUltimaReposicion: text('userUltimaReposicion').references(() => users.id), // Usuario que actualizó el stock
-  updatedBy: text('updatedBy').references(() => users.id), // Usuario que actualizó el stock
-  empresaId: text('empresaId').references(() => empresas.id),
+  userUltimaReposicion: text('userUltimaReposicion').references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }), // Usuario que actualizó el stock
+  updatedBy: text('updatedBy').references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }), // Usuario que actualizó el stock
+  empresaId: text('empresaId').references(() => empresas.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   createdAt: integer('createdAt', { mode: 'timestamp' }) // Timestamp Unix para seguimiento de última actualización
     .notNull()
     .default(sql`(strftime('%s', 'now'))`), // Actualiza al modificar stock

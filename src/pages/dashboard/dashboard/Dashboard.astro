@@ -6,6 +6,8 @@ import RendimientoCategoria from "../../../components/dashboard/RendimientoCateg
 import ResumenVentas from "../../../components/dashboard/ResumenVentas";
 import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
 import ContenedorStats from "./componente/ContenedorStats";
+import PanelCaja from "./componente/PanelCaja.astro";
+import PanelCajasAdmin from "./componente/PanelCajasAdmin";
 import AnalisisIA from "../../../components/dashboard/AnalisisIA";
 import { ArrowDownCircleIcon, Brain } from "lucide-react";
 
@@ -18,7 +20,7 @@ if (!user || !userId) {
 ---
 
 <MainDashboard h1="Dashboard Principal">
-  <details
+  <!-- <details
     open
     class="w-full mb-2 cursor-pointer text-primary-textoTitle duration-300"
     title="Analisis IA"
@@ -29,7 +31,7 @@ if (!user || !userId) {
       Analisis IA <ArrowDownCircleIcon width={20} height={20} /></summary
     >
     <AnalisisIA client:load />
-  </details>
+  </details> -->
   <ContenedorStats client:load />
   {/* Gráficos principales */}
   <div
@@ -51,7 +53,9 @@ if (!user || !userId) {
       />
     </DivBox1>
   </div>
-
+  <DivBox1 styleDiv="w-full items-stretch">
+    <PanelCajasAdmin client:load userRole={user.rol} />
+  </DivBox1>
   {/* Segunda fila de gráficos */}
   <div
     class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
@@ -73,7 +77,7 @@ if (!user || !userId) {
 
 <script>
   import { fetchStatsData } from "../../../context/store";
-  const { usisisi, emprsisi } =
-    document.getElementById("mainDashboard")?.dataset;
+  const dataset = document.getElementById("mainDashboard")?.dataset || {};
+  const { usisisi, emprsisi } = dataset;
   fetchStatsData(usisisi, emprsisi);
 </script>

@@ -1,23 +1,24 @@
 ---
-import { ShoppingCart } from 'lucide-react';
-import DivBox1 from '../../../../components/atomos/DivBox1.astro';
-import H2 from '../../../../components/atomos/H2.astro';
-import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
-import DetallesVentas from './DetallesVentas';
-import CarritoVenta from './CarritoVenta';
-import FiltroProductos from '../../../../components/moleculas/FiltroProductos';
-import Button1 from '../../../../components/atomos/Button1.astro';
+import { ShoppingCart } from "lucide-react";
+import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import H2 from "../../../../components/atomos/H2.astro";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import DetallesVentas from "./DetallesVentas";
+import CarritoVenta from "./CarritoVenta";
+import FiltroProductos from "../../../../components/moleculas/FiltroProductos";
+import Button1 from "../../../../components/atomos/Button1.astro";
+import PanelCaja from "../../dashboard/componente/PanelCaja.astro";
 
 const { user } = Astro.locals;
-console.log('variables locales ->',user)
+console.log("variables locales ->", user);
 ---
 
 <MainDashboard h1="Ventas">
   <div
-    slot={'menu'}
+    slot={"menu"}
     class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
   >
-  <div class="flex gap-3">
+    <div class="flex gap-3">
       <Button1 id="presupuestosTodos"> Todos los presupuestos </Button1>
       <Button1 id="ventasTodas"> Todas las ventas </Button1>
     </div>
@@ -35,7 +36,6 @@ console.log('variables locales ->',user)
           client:load
           mostrarProductos={true}
           userId={user?.id}
-      
         />
       </DivBox1>
       <DivBox1 styleDiv="w-full">
@@ -47,6 +47,7 @@ console.log('variables locales ->',user)
     <div
       class="flex flex-col items-start sticky top-4 justify-between gap-2 w-full md:w-1/4"
     >
+      <PanelCaja />
       <DivBox1 styleDiv="w-full">
         <div class="flex items-center w-full justify-start">
           <ShoppingCart className="h-5 w-5 text-primary-textoTitle mr-4" /><H2>
@@ -60,33 +61,33 @@ console.log('variables locales ->',user)
 </MainDashboard>
 
 <script>
-  const inputBusqueda = document.getElementById('busquedaProducto');
-  const btnPagar = document.getElementById('btnPagar');
-  const btnBusquedaCliente = document.getElementById('btnBusquedaCliente');
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'F2') {
+  const inputBusqueda = document.getElementById("busquedaProducto");
+  const btnPagar = document.getElementById("btnPagar");
+  const btnBusquedaCliente = document.getElementById("btnBusquedaCliente");
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "F2") {
       inputBusqueda.focus();
     }
-    if (e.key === 'F3') {
+    if (e.key === "F3") {
       e.preventDefault();
       btnBusquedaCliente.click();
     }
-    if (e.key === 'F4') {
+    if (e.key === "F4") {
       e.preventDefault();
       btnPagar.click();
     }
   });
 
-document
-  .getElementById('ventasTodas')
-  ?.addEventListener(
-    'click',
-    () => (window.location.href = '/dashboard/ventas/todas')
-  );
-document
-  .getElementById('presupuestosTodos')
-  ?.addEventListener(
-    'click',
-    () => (window.location.href = '/dashboard/ventas/presupuestos')
-  );
+  document
+    .getElementById("ventasTodas")
+    ?.addEventListener(
+      "click",
+      () => (window.location.href = "/dashboard/ventas/todas")
+    );
+  document
+    .getElementById("presupuestosTodos")
+    ?.addEventListener(
+      "click",
+      () => (window.location.href = "/dashboard/ventas/presupuestos")
+    );
 </script>

@@ -15,11 +15,11 @@ export default function ModalReact({
       onClick={() => onClose(false)}
     >
       <div
-        className={`bg-white relative rounded-lg overflow-hidden border-l-2 text-border-primary-100/80 mt-0 shadow-lg h- md:min-h-[50vh] overflow-y-auto md:min-w-[40vw] ${className}`}
+        className={`bg-white relative rounded-lg overflow-hidden  border-l-2 text-border-primary-100/80 mt-0 shadow-lg max-h-[95dvh] md:min-h-[50vh] overflow-y-auto md:min-w-[40vw] ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Fijo */}
-        <div className="flex justify-between items-center p-4 border-b bg-primary-bg-componentes flex-shrink-0">
+        <div className="flex justify-between sticky top-0 items-center p-4 border-b bg-primary-bg-componentes flex-shrink-0">
           <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
           <button
             id={`modal-close-${id}`}

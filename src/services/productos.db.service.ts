@@ -58,11 +58,14 @@ export const getProductosFromDB = async (
 
     const result = await baseQuery.where(and(...conditions));
 
-    return result.map(({ producto, stock, proveedor }) => ({
-      ...producto,
-      stock: stock,
-      proveedor: proveedor,
-    }));
+    return result.map(({ producto, stock, proveedor }) => {
+      console.log(`📦 Producto ${producto.nombre} - pCompra: ${producto.pCompra}`);
+      return {
+        ...producto,
+        stock: stock,
+        proveedor: proveedor,
+      };
+    });
   } catch (error) {
     console.error("Error al obtener productos de la DB:", error);
     throw new Error("No se pudieron obtener los productos.");

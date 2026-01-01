@@ -29,3 +29,4 @@ export { planes } from "./planes";
 export { suscripciones } from "./suscripciones";
 export { traslados } from "./traslados";
 export { detalleTraslados } from "./detalleTraslados";
+export { cajas, sesionesCaja, movimientosCaja } from "./caja";

@@ -38,6 +38,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
       marca: productos.marca,
       categoria: productos.categoria,
       pVenta: productos.pVenta,
+      pCompra: productos.pCompra,
       srcPhoto: productos.srcPhoto,
       empresaId: productos.empresaId,
       // Seleccionamos campos específicos de stock para evitar problemas de anidamiento

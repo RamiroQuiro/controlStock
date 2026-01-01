@@ -8,6 +8,8 @@ import { sendMailer } from "../../../lib/nodemailer";
 import { users } from "../../../db/schema";
 import { getTemplate } from "../../../lib/templatesEmail/templates";
 
+import { normalizadorUUID } from "../../../utils/normalizadorUUID";
+
 export async function POST({
   request,
   cookies,
@@ -89,7 +91,7 @@ export async function POST({
 
   // crear usuario en DB
 
-  const userId = generateId(15);
+  const userId = normalizadorUUID("user-", 15);
   // Hacemos hash de la contraseña
   const hashPassword = await bcrypt.hash(password, 12);
   console.log(userId, email, password, razonSocial, nombre, apellido, rol);
@@ -108,7 +110,7 @@ export async function POST({
         creadoPor: userId,
       })
       .returning()
-  ).at(0);
+  )[0];
 
   // generando el token de confirmacion de email
   console.log("este es mi url", url);

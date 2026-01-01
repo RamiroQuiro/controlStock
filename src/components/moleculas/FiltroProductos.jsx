@@ -36,8 +36,8 @@ export default function FiltroProductosV3({
   mostrarProductos,
   userId,
   empresaId,
-  modoCompra = false, // 🆕 Nuevo prop para modo compra
-  onProductoAgregado = null, // 🆕 Callback opcional para manejar la acción de agregar
+  modoCompra = false,
+  onProductoAgregado = null, 
 }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,7 +54,7 @@ export default function FiltroProductosV3({
 
   // Debug del estado
   useEffect(() => {
-    console.log("🔘 Estado agregarAutomatico:", agregarAutomatico);
+    console.log("Estado agregarAutomatico:", agregarAutomatico);
   }, [agregarAutomatico]);
 
   // Auto-focus
@@ -103,7 +103,7 @@ export default function FiltroProductosV3({
     setTipoBusqueda(tipo);
 
     try {
-      // 🎯 PRIMERO: Búsqueda EXACTA por código si está activado el auto-agregar
+      
       if (agregarAutomatico && tipo === "codigo") {
         console.log("🚀 Búsqueda EXACTA por código activada");
 
@@ -122,14 +122,14 @@ export default function FiltroProductosV3({
         const dataExacta = await resExacta.json();
         console.log("📦 Resultado búsqueda exacta:", dataExacta);
 
-        // 🎯 SI ENCUENTRA - AUTO-AGREGAR INMEDIATO
+
         if (dataExacta.data && dataExacta.data.length > 0) {
           const producto = dataExacta.data[0];
           const stock = producto.stock?.cantidad ?? producto.stock ?? 0;
 
           console.log("✅ Producto encontrado - Stock:", stock);
 
-          if (stock > 0) {
+          if (modoCompra || stock > 0) {
             console.log("🎯 AUTO-AGREGANDO PRODUCTO:", producto.nombre);
             setProductoAgregado(producto);
             setEstado("agregando");
@@ -137,18 +137,17 @@ export default function FiltroProductosV3({
             setTimeout(() => {
               handleClick(producto);
             }, 100);
-            return; // 🚫 SALIR - no continuar con búsqueda normal
+            return; 
           } else {
             console.log("❌ Producto sin stock");
             alert(`❌ ${producto.nombre} no tiene stock disponible`);
-            // Continuar con búsqueda normal para mostrar resultados
+       
           }
         } else {
           console.log("❌ No se encontró producto por código exacto");
         }
       }
 
-      // 🎯 SEGUNDO: Búsqueda normal (FTS)
       console.log("🔍 Realizando búsqueda normal FTS");
       const resFTS = await fetch(
         `/api/productos/buscar-fts?search=${encodeURIComponent(query)}`,
@@ -162,7 +161,7 @@ export default function FiltroProductosV3({
       );
 
       const dataFTS = await resFTS.json();
-      console.log("📊 Resultados FTS:", dataFTS.data);
+      console.log("Resultados FTS:", dataFTS.data);
 
       if (dataFTS.data && dataFTS.data.length > 0) {
         setEstado("resultados");
@@ -185,7 +184,7 @@ export default function FiltroProductosV3({
 
   const handleToggleAutoAgregar = (e) => {
     const nuevoValor = e.target.checked;
-    console.log("🔘 Checkbox cambiado a:", nuevoValor);
+    console.log("Checkbox cambiado a:", nuevoValor);
     setAgregarAutomatico(nuevoValor);
   };
 
@@ -209,12 +208,9 @@ export default function FiltroProductosV3({
     const processedProduct = {
       ...producto,
       stock: producto.stock?.cantidad ?? producto.stock ?? 0,
-      // 🆕 En modo compra, asegurar que pCompra esté disponible
       ...(modoCompra && { pCompra: producto.pCompra || 0 }),
     };
 
-    // 🆕 Si se pasa una función personalizada (ej: para Compras), usarla.
-    // Si no, usar el comportamiento default (store de Ventas).
     if (onProductoAgregado) {
       onProductoAgregado(processedProduct);
     } else {
@@ -241,7 +237,7 @@ export default function FiltroProductosV3({
     if (e.key === "Enter" && encontrados.length === 1 && !loading) {
       const producto = encontrados[0];
       const stock = producto.stock?.cantidad ?? producto.stock ?? 0;
-      if (stock > 0) {
+      if (modoCompra || stock > 0) {
         handleClick(producto);
       }
     }
@@ -250,7 +246,6 @@ export default function FiltroProductosV3({
   // 🆕 MANEJAR SCANNER - Limpiar input rápido después de auto-agregar
   useEffect(() => {
     if (estado === "agregado" && inputRef.current) {
-      // Mantener el foco pero limpiar el texto
       inputRef.current.focus();
     }
   }, [estado]);
@@ -259,9 +254,7 @@ export default function FiltroProductosV3({
   const handleScan = (code) => {
     console.log("📸 Código escaneado:", code);
     setMostrarScanner(false);
-    setSearch(code); // Esto disparará el debounce y la búsqueda automática
-    // Opcional: forzar búsqueda inmediata si no quieres esperar al debounce
-    // handleBusqueda(code);
+    setSearch(code);
   };
 
   const stats = {

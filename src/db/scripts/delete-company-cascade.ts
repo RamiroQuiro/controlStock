@@ -28,6 +28,8 @@ import {
   localizaciones,
   plantillas,
   productosFts,
+  roles,
+  sessions,
 } from "../schema";
 
 export const deleteCompanyCascade = async (empresaId: string, db: any) => {
@@ -124,6 +126,9 @@ export const deleteCompanyCascade = async (empresaId: string, db: any) => {
       console.log("Eliminando productos...");
       await trx.delete(productos).where(eq(productos.empresaId, empresaId));
 
+      console.log("Eliminando productos FTS...");
+      await trx.delete(productosFts).where(eq(productosFts.empresaId, empresaId));
+
       // 5. Eliminar Datos Maestros
       console.log("Eliminando clientes...");
       await trx.delete(clientes).where(eq(clientes.empresaId, empresaId));
@@ -182,6 +187,19 @@ export const deleteCompanyCascade = async (empresaId: string, db: any) => {
       await trx
         .delete(suscripciones)
         .where(eq(suscripciones.empresaId, empresaId));
+
+      console.log("Eliminando roles...");
+      await trx.delete(roles).where(eq(roles.empresaId, empresaId));
+
+      console.log("Eliminando sesiones de usuarios...");
+      const usersEmpresa = await trx
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.empresaId, empresaId));
+      
+      for (const user of usersEmpresa) {
+        await trx.delete(sessions).where(eq(sessions.userId, user.id));
+      }
 
       console.log("Eliminando usuarios...");
       await trx.delete(users).where(eq(users.empresaId, empresaId));

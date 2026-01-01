@@ -4,6 +4,7 @@ import db from '../../../db';
 import { categorias, productoCategorias } from '../../../db/schema';
 import { generateId } from 'lucia';
 import { createResponse } from '../../../types';
+import { normalizadorUUID } from '../../../utils/normalizadorUUID';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
@@ -11,9 +12,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!locals.user) {
       return createResponse(401, 'No autenticado');
     }
+    const {user, session} = locals;
 
     const { nombre, descripcion, color } = await request.json();
-    const empresaId = locals.user.empresaId;
+    const empresaId = user.empresaId;
     console.log('color', color);
     console.log('nombre', nombre);
     console.log('descripcion', descripcion);
@@ -32,7 +34,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       )
       .limit(1);
     console.log('isCategoriaExistente', isCategoriaExistente);
-    console.log('nombreLowerCase', nombreLowerCase);
     if (isCategoriaExistente.length > 0) {
       return createResponse(400, 'Categoria ya existe');
     }
@@ -44,16 +45,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const categoria = await db
       .insert(categorias)
       .values({
-        id: generateId(10),
+        id: normalizadorUUID('cat',15),
         nombre: nombreLowerCase,
         descripcion,
         color: color,
-        creadoPor: locals.user.id,
+        creadoPor: user.id,
         empresaId,
       })
       .returning();
 
-    return createResponse(200, 'Categoria agregada', categoria);
+    return createResponse(200, 'Categoria agregada', categoria[0]);
   } catch (error) {
     console.error('Error al agregar categoria:', error);
     return createResponse(500, 'Error al agregar categoria');

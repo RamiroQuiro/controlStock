@@ -4,6 +4,7 @@ import { generateId } from "lucia";
 import { createResponse } from "../../../types";
 import db from "../../../db";
 import { depositos, ubicaciones } from "../../../db/schema";
+import { normalizadorUUID } from "../../../utils/normalizadorUUID";
 
 // POST: Crear un nuevo depósito
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -44,10 +45,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return createResponse(409, "Ya existe un depósito con ese nombre.");
     }
 
-    const newDeposito = await db
+    const [newDeposito] = await db
       .insert(depositos)
       .values({
-        id: generateId(10),
+        id: normalizadorUUID('dep-',15),
         nombre: nombreLowerCase,
         descripcion,
         direccion,
@@ -60,7 +61,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       })
       .returning();
 
-    return createResponse(201, "Depósito creado exitosamente", newDeposito[0]);
+    return createResponse(201, "Depósito creado exitosamente", newDeposito);
   } catch (error) {
     console.error("Error al crear depósito:", error);
     return createResponse(

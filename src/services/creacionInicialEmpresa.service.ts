@@ -21,54 +21,52 @@ export async function inicializarEmpresaParaUsuario(user: any) {
   const empresaId = normalizadorUUID("empresa", 15);
 
   // 1. Crear empresa
-  const newEmpresa = (
-    await db
-      .insert(empresas)
-      .values({
-        id: empresaId,
-        created_at: new Date(),
-        razonSocial: user.razonSocial,
-        creadoPor: user.id,
-        userId: user.id,
-        activo: 1,
-        emailVerificado: true,
-        srcPhoto: "/avatarDefault.png",
-      })
-      .returning()
-  ).at(0);
+  const resEmpresa = await db
+    .insert(empresas)
+    .values({
+      id: empresaId,
+      created_at: new Date(),
+      razonSocial: user.razonSocial,
+      creadoPor: user.id,
+      userId: user.id,
+      activo: 1,
+      planId: "plan-emprendedor",
+      emailVerificado: true,
+      srcPhoto: "/avatarDefault.png",
+    } as any)
+    .returning();
+  const empresa = resEmpresa[0];
 
   // 2. Cliente y proveedor por defecto
-  const clienteFinal = (
-    await db
-      .insert(clientes)
-      .values({
-        id: normalizadorUUID("cliente", 15),
-        nombre: "consumidor final",
-        creadoPor: user.id,
-        empresaId,
-        telefono: "N/A",
-        email: "consumidor.final@tuempresa.com",
-        direccion: "N/A",
-        fechaAlta: new Date(),
-      })
-      .returning()
-  ).at(0);
+  const resCliente = await db
+    .insert(clientes)
+    .values({
+      id: normalizadorUUID("cliente", 15),
+      nombre: "consumidor final",
+      creadoPor: user.id,
+      empresaId,
+      telefono: "N/A",
+      email: "consumidor.final@tuempresa.com",
+      direccion: "N/A",
+      fechaAlta: new Date(),
+    } as any)
+    .returning();
+  const clienteFinal = resCliente[0];
 
-  const proveedorGeneral = (
-    await db
-      .insert(proveedores)
-      .values({
-        id: normalizadorUUID("proveedor", 15),
-        nombre: "proveedor general",
-        creadoPor: user.id,
-        empresaId,
-        telefono: "N/A",
-        email: "proveedor.general@tuempresa.com",
-        direccion: "N/A",
-        created_at: new Date(),
-      })
-      .returning()
-  ).at(0);
+  const resProveedor = await db
+    .insert(proveedores)
+    .values({
+      id: normalizadorUUID("proveedor", 15),
+      nombre: "proveedor general",
+      creadoPor: user.id,
+      empresaId,
+      telefono: "N/A",
+      email: "proveedor.general@tuempresa.com",
+      direccion: "N/A",
+      created_at: new Date(),
+    } as any)
+    .returning();
+  const proveedorGeneral = resProveedor[0];
 
   // 3. Punto de venta principal
   const [puntoVenta] = await db
@@ -110,11 +108,11 @@ export async function inicializarEmpresaParaUsuario(user: any) {
       estado: "emitido",
       activo: 1,
       creadoPor: user.id,
-    });
+    } as any);
 
     await db.insert(comprobanteNumeracion).values({
       empresaId,
-      tipo: comp.tipo,
+      tipo: comp.tipo as any,
       puntoVenta: 1,
       userId: user?.id,
       numeroActual: 0,

@@ -18,8 +18,8 @@ export const depositos = sqliteTable(
     encargado: text('encargado'),
 
     prioridad: integer('prioridad').default(1),
-    empresaId: text('empresaId').references(() => empresas.id),
-    creadoPor: text('creadoPor').references(() => users.id),
+    empresaId: text('empresaId').references(() => empresas.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+    creadoPor: text('creadoPor').references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }),
     fechaCreacion: integer('fechaCreacion', { mode: 'timestamp' }).default(
       sql`(strftime('%s', 'now'))`
     ),

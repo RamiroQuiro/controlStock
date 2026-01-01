@@ -18,7 +18,7 @@ export const detalleTraslados = sqliteTable("detalle_traslados", {
   // Producto
   productoId: text("producto_id")
     .notNull()
-    .references(() => productos.id),
+    .references(() => productos.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
 
   // Cantidades
   cantidadSolicitada: real("cantidad_solicitada").notNull(), // Lo que se pidió

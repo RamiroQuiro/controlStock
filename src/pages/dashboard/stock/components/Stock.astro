@@ -65,8 +65,6 @@ try {
 } catch (error) {
   console.log(error);
 }
-
-console.log("variable d eusuario locals, en stock.astro", user);
 ---
 
 <MainDashboard h1="Stock" user={user}>
@@ -97,6 +95,7 @@ console.log("variable d eusuario locals, en stock.astro", user);
       permisos={{
         puedeEditarPrecios,
         puedeComprar,
+        puedeTranslado,
         puedeRecibirTraslado,
         puedeVerHistorial,
       }}

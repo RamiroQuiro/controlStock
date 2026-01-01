@@ -49,7 +49,7 @@ export const GET: APIRoute = async ({ request, locals, cookies }) => {
         observacion: movimientosStock.observacion,
         productoNombre: productos.nombre,
         productoCodigo: productos.codigoBarra,
-        usuarioNombre: users.name,
+        usuarioNombre: users.nombre,
       })
       .from(movimientosStock)
       .leftJoin(productos, eq(movimientosStock.productoId, productos.id))

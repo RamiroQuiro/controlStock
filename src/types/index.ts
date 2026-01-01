@@ -130,7 +130,7 @@ export type Producto = {
   srcPhoto?: string; // URL de la foto del producto
   proveedorId?: string; // ID del proveedor
   codigoBarra: string; // Código de barras del producto
-  categoriasIds?: string; // Categoría del producto
+  categoriasIds?: string[]; // Categoría del producto
   marca?: string; // Marca del producto
   iva: 21 | 10.5 | 27 | 0; // IVA del producto
   impuesto: "21%" | "10.5%" | "27%" | "no aplica"; // Opciones de IVA más comunes en Argentina y "no aplica"

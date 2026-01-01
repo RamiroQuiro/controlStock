@@ -10,7 +10,7 @@ export const movimientosStock = sqliteTable('movimientosStock', {
   id: text('id').primaryKey(),
   productoId: text('productoId')
     .notNull()
-    .references(() => productos.id),
+    .references(() => productos.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   cantidad: integer('cantidad').notNull(),
   tipo: text('tipo') // 'egreso','ingreso'
     .notNull()
@@ -20,12 +20,13 @@ export const movimientosStock = sqliteTable('movimientosStock', {
     .default(sql`(strftime('%s', 'now'))`),
   userId: text('userId')
     .notNull()
-    .references(() => users.id),
-  empresaId: text('empresaId').references(() => empresas.id),
-  proveedorId: text('proveedorId').references(() => proveedores.id),
+    .references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }),
+  empresaId: text('empresaId').references(() => empresas.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+  proveedorId: text('proveedorId').references(() => proveedores.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   motivo: text('motivo'), // 'recarga', 'devolucion', 'vencimiento', 'movimiento','ajustes
   observacion: text('observacion'), // Detalles adicionales opcionales
-  clienteId: text('clienteId').references(() => clientes.id),
+  nComprobante: text('nComprobante'), // Número de comprobante asociado (opcional)
+  clienteId: text('clienteId').references(() => clientes.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
 },
 (t) => [
     index('idx_movimientos_producto_tipo').on(t.productoId, t.tipo, t.empresaId),

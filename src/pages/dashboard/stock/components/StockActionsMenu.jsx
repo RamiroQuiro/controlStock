@@ -20,25 +20,7 @@ import ContenedorHistorial from "./Traslados/ContenedorHistorial";
 import MenuDropbox from "../../../../components/organismos/MenuDropbox";
 import ModalReact from "../../../../components/moleculas/ModalReact";
 
-// Importamos los formularios
-// Nota: En Astro, los componentes .astro no se pueden importar directamente en React.
-// Necesitaremos usar los componentes React equivalentes o wrappers si son .astro.
-// Por ahora asumiremos que los formularios son componentes React o que podemos adaptarlos.
-// Si son .astro, tendremos que mantenerlos en Stock.astro y controlar su visibilidad via props,
-// pero el plan aprobada sugiere usar un wrapper React.
-// Verificaremos qué formularios son React puros.
 
-// FormularioCargaProducto es .astro, así que necesitaremos una estrategia diferente para él
-// o asumir que hay una versión React. Por ahora usaremos un placeholder o lo omitiremos del menú React
-// y lo dejaremos como botón separado si es estrictamente necesario, o mejor aún,
-// convertiremos la llamada a un componente React si es posible.
-// Revisando imports en Stock.astro: import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
-// Al ser .astro, no puede renderizarse dentro de este componente React.
-// ESTRATEGIA: Este componente manejará los modales de componentes REACT.
-// Para el componente .astro, emitiremos un evento o lo manejaremos desde fuera.
-// O MEJOR: El usuario aceptó el plan de "Crear StockActionsMenu.jsx".
-// Si FormularioCargaProducto es .astro, no podemos meterlo aquí.
-// Vamos a excluir "Crear Producto" de este menú por ahora o manejarlo via evento custom.
 
 const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
   const [activeModal, setActiveModal] = useState(null);
@@ -69,17 +51,17 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
       label: "Logística y Traslados",
       isSeparator: true,
     },
-    depositos.length > 1 && {
+    permisos.puedeTranslado && depositos.length > 1 && {
       label: "Traslado entre Sucursales",
       icon: <Truck size={18} />,
       onClick: () => setActiveModal("traslados"),
     },
-    depositos.length > 1 && {
+    permisos.puedeTranslado && depositos.length > 1 && {
       label: "Solicitar Mercadería",
       icon: <ArrowRightLeft size={18} />,
       onClick: () => setActiveModal("solicitar"),
     },
-    depositos.length > 1 && {
+    permisos.puedeTranslado && depositos.length > 1 && {
       label: "Gestionar Solicitudes",
       icon: <ClipboardList size={18} />,
       onClick: () => setActiveModal("gestionarSolicitudes"),

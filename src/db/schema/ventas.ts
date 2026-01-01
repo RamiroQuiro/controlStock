@@ -7,16 +7,16 @@ import { comprobantes } from './compobantes';
 
 export const ventas = sqliteTable('ventas', {
   id: text('id').primaryKey(),
-  userId: text('userId').references(() => users.id),
-  empresaId: text('empresaId').references(() => empresas.id),
+  userId: text('userId').references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }),
+  empresaId: text('empresaId').references(() => empresas.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   fecha: integer('fecha', { mode: 'timestamp' }) // Timestamp Unix
     .notNull()
     .default(sql`(strftime('%s', 'now'))`),
-  clienteId: text('clienteId').references(() => clientes.id),
+  clienteId: text('clienteId').references(() => clientes.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   metodoPago: text('metodoPago').default('efectivo'),
   nComprobante: text('nComprobante'),
   numeroFormateado: text('numeroFormateado'),
-  comprobanteId: text('comprobanteId').references(() => comprobantes.id),
+  comprobanteId: text('comprobanteId').references(() => comprobantes.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   tipo: text('tipo', {
     enum: ['FC_A', 'FC_B', 'FC_C', 'PR', 'NC'],
   })

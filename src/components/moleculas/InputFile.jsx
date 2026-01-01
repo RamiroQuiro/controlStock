@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { showToast } from "../../utils/toast/toastShow";
 
-export default function InputFile({ name }) {
+export default function InputFile({ name, onFileChange }) {
   const [previewUrlFrente, setPreviewUrlFrente] = useState(null);
 
   const handleImageFrente = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("image/")) {
       setPreviewUrlFrente(URL.createObjectURL(file));
+      if (onFileChange) onFileChange(file);
     } else {
       console.error("Por favor selecciona un archivo de imagen válido");
       showToast("Por favor selecciona un archivo de imagen válido", {
@@ -16,6 +17,7 @@ export default function InputFile({ name }) {
       // Limpiar el input
       event.target.value = '';
       setPreviewUrlFrente(null);
+      if (onFileChange) onFileChange(null);
     }
   };
 

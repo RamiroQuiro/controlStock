@@ -9,10 +9,10 @@ export const productoCategorias = sqliteTable(
     id: text('id').primaryKey(),
     productoId: text('productoId')
       .notNull()
-      .references(() => productos.id),
+      .references(() => productos.id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     categoriaId: text('categoriaId')
       .notNull()
-      .references(() => categorias.id),
+      .references(() => categorias.id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     created_at: integer('created_at', { mode: 'timestamp' }) // Timestamp Unix
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),

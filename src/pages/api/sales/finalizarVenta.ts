@@ -9,6 +9,8 @@ import {
   productos,
   stockActual,
   ventas,
+  sesionesCaja,
+  movimientosCaja 
 } from "../../../db/schema";
 import { nanoid } from "nanoid";
 import { and, eq, sql } from "drizzle-orm";
@@ -134,7 +136,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
         .returning();
 
       await Promise.all(
-        productosSeleccionados.map((prod) =>
+        productosSeleccionados.map((prod: any) =>
           trx.insert(detalleVentas).values({
             id: nanoid(),
             ventaId: ventaFinalizada.id,
@@ -148,7 +150,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
         )
       );
       await Promise.all(
-        productosSeleccionados.map((prod) =>
+        productosSeleccionados.map((prod: any) =>
           trx
             .update(stockActual)
             .set({
@@ -159,7 +161,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
         )
       );
       await Promise.all(
-        productosSeleccionados.map((prod) =>
+        productosSeleccionados.map((prod: any) =>
           trx.insert(movimientosStock).values({
             id: nanoid(12),
             productoId: prod.id,
@@ -186,6 +188,35 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
         })
         .from(empresas)
         .where(eq(empresas.id, empresaId));
+
+      // 5. Registrar movimiento en Caja (Solo si es efectivo y hay caja abierta)
+      if (data.metodoPago === 'efectivo') {
+        const [sesionCajaActiva] = await trx
+          .select()
+          .from(sesionesCaja)
+          .where(and(
+            eq(sesionesCaja.usuarioAperturaId, userId),
+            eq(sesionesCaja.empresaId, empresaId),
+            eq(sesionesCaja.estado, 'abierta')
+          ))
+          .limit(1);
+
+        if (sesionCajaActiva) {
+          await trx.insert(movimientosCaja).values({
+            id: nanoid(12),
+            sesionCajaId: sesionCajaActiva.id,
+            tipo: 'ingreso',
+            origen: 'venta',
+            monto: data.total, // Asumimos total, si hay vuelto/pagaCon se debería ajustar, pero data.total es el monto de venta
+            descripcion: `Venta ${numeroFormateado}`,
+            referenciaId: ventaFinalizada.id,
+            usuarioId: userId,
+            fecha: fechaVenta,
+            empresaId: empresaId,
+            comprobante: numeroFormateado
+          });
+        }
+      }
 
       return { ...ventaFinalizada, dataEmpresa };
     });

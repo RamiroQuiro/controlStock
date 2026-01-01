@@ -4,15 +4,17 @@ import db from "../../../db";
 import { ubicaciones } from "../../../db/schema";
 import { generateId } from "lucia";
 import { createResponse } from "../../../types";
+import { normalizadorUUID } from "../../../utils/normalizadorUUID";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     if (!locals.user) {
       return createResponse(401, "No autenticado");
     }
+    const {user,session} = locals;
 
     const { nombre, descripcion, depositoId, zona, capacidad,pasillo,estante,rack,nivel} = await request.json();
-    const empresaId = locals.user.empresaId;
+    const empresaId = user.empresaId;
 
     const nombreLowerCase = nombre.toLowerCase();
 
@@ -30,13 +32,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return createResponse(400, "Nombre y empresaId son requeridos");
     }
 
-    const ubicacion = await db
+    const [ubicacion] = await db
       .insert(ubicaciones)
       .values({
-        id: generateId(10),
+        id: normalizadorUUID('ubic-',15),
         nombre: nombreLowerCase,
         descripcion,
-        creadoPor: locals.user.id,
+        creadoPor: user.id,
         empresaId,
         depositoId,
         zona,

@@ -7,6 +7,7 @@ import { loader } from '../../../../../utils/loader/showLoader';
 import { Table2 } from 'lucide-react';
 import Comprobante from '../../../../../components/Comprobante/Comprobante';
 import ModalComprobante from '../../../../../components/Comprobante/ModalComprobante';
+import { actions as cajaActions } from '../../../../../context/caja.store';
 
 export default function ModalPago({
   isOpen,
@@ -153,6 +154,11 @@ export default function ModalPago({
         
         // --- IMPRESIÓN AUTOMÁTICA DEL TICKET ---
         await imprimirTicket(data.data.id);
+
+        // --- REFRESCAR ESTADO DE CAJA SI FUE EFECTIVO ---
+        if (metodoPago === 'efectivo') {
+          cajaActions.fetchEstadoCaja();
+        }
 
         loader(false);
         setVentaFinalizada(data.data);

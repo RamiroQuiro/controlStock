@@ -41,7 +41,7 @@ const FormularioCompra = ({ user, empresaId }) => {
     productos: [],
   });
 
-  // Limpiar carrito al desmontar el componente para evitar contaminación de estado
+  
   useEffect(() => {
     return () => {
       limpiarCarritoCompra();
@@ -49,17 +49,23 @@ const FormularioCompra = ({ user, empresaId }) => {
   }, []);
 
   useEffect(() => {
-    // Calcular totales basados en COSTO (pCompra)
+    // Calcular totales basados en COSTO (pCompra) asegurando números
     const sumaTotal = $productos.reduce(
-      (acc, producto) => acc + (producto.pCompra || 0) * producto.cantidad,
+      (acc, producto) => {
+        const p = Number(producto.pCompra) || 0;
+        const c = Number(producto.cantidad) || 0;
+        return acc + (p * c);
+      },
       0
     );
 
     const sumaSubtotal = $productos.reduce(
-      (acc, producto) =>
-        acc +
-        ((producto.pCompra || 0) * producto.cantidad) /
-          (1 + (producto.iva || 0) / 100),
+      (acc, producto) => {
+        const p = Number(producto.pCompra) || 0;
+        const c = Number(producto.cantidad) || 0;
+        const iva = Number(producto.iva) || 21; // Default 21%
+        return acc + (p * c) / (1 + iva / 100);
+      },
       0
     );
 
@@ -77,10 +83,15 @@ const FormularioCompra = ({ user, empresaId }) => {
     e.preventDefault();
     setError({ msg: "", status: 0 });
 
-    formulario.total = totalVenta;
-    formulario.proveedorId = proveedor.id;
-    formulario.impuesto = ivaMonto;
-    console.log(formulario);
+    const dataEnvio = {
+      ...formulario,
+      total: totalVenta,
+      proveedorId: proveedor.id,
+      impuesto: ivaMonto,
+    };
+
+    console.log("Enviando compra:", dataEnvio);
+
     try {
       setCargando(true);
       const response = await fetch(`/api/compras/comprasProv`, {
@@ -90,14 +101,14 @@ const FormularioCompra = ({ user, empresaId }) => {
           "x-user-id": user.id,
         },
         body: JSON.stringify({
-          data: formulario,
+          data: dataEnvio,
           productos: $productos,
           userId: user.id,
         }),
       });
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Error en la solicitud");
+      if (!response.ok) throw new Error(data.msg || data.error || "Error en la solicitud");
 
       showToast("Compra registrada exitosamente");
       limpiarCarritoCompra(); // Limpiar después de éxito
@@ -176,7 +187,7 @@ const FormularioCompra = ({ user, empresaId }) => {
           mostrarProductos={true}
           userId={user.id}
           empresaId={user.empresaId}
-          onProductoAgregado={agregarProductoCompra} // 🆕 Inyectar acción de compra
+          onProductoAgregado={agregarProductoCompra}
         />
         <DetallesCompras />
       </div>
@@ -191,8 +202,8 @@ const FormularioCompra = ({ user, empresaId }) => {
           Observaciones
         </label>
         <textarea
-          name="observaciones"
-          value={formulario?.observaciones}
+          name="observacion"
+          value={formulario?.observacion}
           onChange={handleChange}
           className="mt-1 block w-full p-1 rounded-lg py-0.5 border-2 focus:outline-none border-primary-100/50  focus:ring focus:border-transparent focus:ring-primary-100"
           rows="3"

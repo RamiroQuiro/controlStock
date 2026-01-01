@@ -2,7 +2,7 @@ import React from "react";
 import { CircleX, PlusCircle } from "lucide-react";
 import FormularioNuevaCategoria from "../../pages/dashboard/ajustes/components/FormularioNuevaCat";
 
-export default function BotonAgregarCat({ empresaId }) {
+export default function BotonAgregarCat({ empresaId, categoriaNombre = "", onCategoriaCreada }) {
   const [mostrarModalAgregar, setMostrarModalAgregar] = React.useState(false);
 
   const handleCerrar = () => setMostrarModalAgregar(false);
@@ -18,7 +18,12 @@ export default function BotonAgregarCat({ empresaId }) {
             >
               <CircleX />
             </button>
-            <FormularioNuevaCategoria empresaId={empresaId} onClose={() => setMostrarModalAgregar(false)} />
+            <FormularioNuevaCategoria 
+              empresaId={empresaId} 
+              onClose={() => setMostrarModalAgregar(false)} 
+              category={categoriaNombre ? { nombre: categoriaNombre } : undefined}
+              onCategoriaCreada={onCategoriaCreada}
+            />
           </div>
         </div>
       )}

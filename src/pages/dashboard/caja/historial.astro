@@ -1,0 +1,30 @@
+---
+import LayoutDash from "../../../components/layouts/LayoutDash.astro";
+import MainDashboard from "../../../components/atomos/MainDashboard.astro";
+import TablaSesionesCaja from "./components/TablaSesionesCaja";
+import { History } from "lucide-react";
+
+const { user } = Astro.locals;
+
+// Verificación básica de sesión
+if (!user) {
+  return Astro.redirect("/login");
+}
+---
+
+<LayoutDash title="Historial de Caja">
+  <MainDashboard h1="Historial y Arqueo de Caja">
+    <div slot="icono-header" class="text-indigo-600">
+      <History size={28} />
+    </div>
+
+    <div class="mb-6">
+      <p class="text-gray-500 text-sm mb-4">
+        Visualiza y audita las sesiones de caja pasadas, verifica los arqueos y
+        descarga el detalle de movimientos.
+      </p>
+
+      <TablaSesionesCaja client:load />
+    </div>
+  </MainDashboard>
+</LayoutDash>

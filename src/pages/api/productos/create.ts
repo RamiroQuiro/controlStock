@@ -11,10 +11,18 @@ import type { Producto } from '../../../types';
 import { productoCategorias } from '../../../db/schema/productoCategorias';
 import { generateId } from 'lucia';
 import { getFechaUnix } from '../../../utils/timeUtils';
+import { normalizadorUUID } from '../../../utils/normalizadorUUID';
 
-export async function POST({ request }: APIContext): Promise<Response> {
+function cleanId(id: any): string | null {
+  if (id === null || id === undefined) return null;
+  const s = String(id).trim();
+  return s === "" ? null : s;
+}
+
+export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
     const data = await request.formData();
+    const { user } = locals;
 
     // Validar campos requeridos
     const requiredFields = ['userId', 'codigoBarra', 'descripcion'];
@@ -32,7 +40,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
     }
 
     // Extraer y validar datos
-    const productoData: Producto = {
+    const productoData = {
       nombre: data.get('nombre')?.toString() || '',
       userId: data.get('userId')?.toString() || '',
       descripcion: data.get('descripcion')?.toString() || '',
@@ -40,7 +48,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
       stock: parseInt(data.get('stock')?.toString() || '0'),
       pVenta: Number(data.get('pVenta') || 0),
       pCompra: Number(data.get('pCompra') || 0),
-      categoriasIds: data.get('categoriasIds'),
+      categoriasIds: data.get('categoriasIds')?.toString() || '[]',
       deposito: data.get('deposito')?.toString() || '',
       impuesto: data.get('impuesto')?.toString() || '21%',
       empresaId: data.get('empresaId')?.toString() || '',
@@ -48,13 +56,14 @@ export async function POST({ request }: APIContext): Promise<Response> {
       iva: Number(data.get('iva') || 21),
       descuento: Number(data.get('descuento') || 0),
       modelo: data.get('modelo')?.toString() || '',
-      ubicacionId: data.get('ubicacionId')?.toString() || '',
-      depositoId: data.get('depositoId')?.toString() || '',
+      ubicacionId: cleanId(data.get('ubicacionId')),
+      depositoId: cleanId(data.get('depositoId')),
       marca: data.get('marca')?.toString() || '',
       localizacion: data.get('localizacion')?.toString() || '',
       alertaStock: Number(data.get('alertaStock') || 0),
       codigoBarra: data.get('codigoBarra')?.toString() || '',
     };
+    
     console.log('productoData ->', productoData);
     
     // Parsear categoriasIds con manejo seguro de errores
@@ -66,35 +75,22 @@ export async function POST({ request }: APIContext): Promise<Response> {
       }
     } catch (e) {
       console.error('Error al parsear categoriasIds:', e);
-      // Si hay error, inicializar como array vacío
       categoriasIds = [];
     }
     
-    console.log('categoriasIds ->', categoriasIds);
-    
-    // Validar imagen
+    // Procesar imagen
     const fotoProducto = data.get('fotoProducto') as File;
-    let rutaRelativa = '';
+    let rutaRelativa = '/element/imgs/default-product.jpg';
     
     if (fotoProducto && fotoProducto instanceof File && fotoProducto.size > 0) {
-      // Validar directorio
-      const userDir = path.join(
-        process.cwd(),
-        'element',
-        'imgs',
-        productoData.empresaId,
-        'productos'
-      );
-      
+      const userDir = path.join(process.cwd(), 'element', 'imgs', productoData.empresaId, 'productos');
       try {
         await fs.access(userDir);
       } catch (e) {
-        // Directorio no existe, crearlo
         await fs.mkdir(userDir, { recursive: true });
       }
 
-      // Procesar imagen
-      const imageId = nanoid(10);
+      const imageId = normalizadorUUID('img', 15);
       const extension = path.extname(fotoProducto.name);
       const nombreArchivo = `${imageId}${extension}`;
       const rutaGuardado = path.join(userDir, nombreArchivo);
@@ -103,32 +99,19 @@ export async function POST({ request }: APIContext): Promise<Response> {
       try {
         const buffer = await fotoProducto.arrayBuffer();
         await sharp(Buffer.from(buffer))
-          .resize(800, 800, {
-            fit: 'inside',
-            withoutEnlargement: true,
-          })
+          .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
           .jpeg({ quality: 80 })
           .toFile(rutaGuardado);
       } catch (error) {
         console.error('Error al procesar la imagen:', error);
-        return new Response(
-          JSON.stringify({
-            status: 500,
-            msg: 'Error al procesar la imagen del producto',
-          }),
-          { status: 500 }
-        );
       }
-    } else {
-      // Si no hay imagen, usar una imagen por defecto o dejar vacío
-      rutaRelativa = '/element/imgs/default-product.jpg';
     }
 
     // Crear producto en la base de datos
     const creacionProducto = await db.transaction(async (trx) => {
-      const id = nanoid(10);
+      const id = normalizadorUUID('prod-', 15);
       const fechaHoy = new Date();
-      console.log('fechaHoy ->', fechaHoy);
+
       // Insertar producto
       const [insertedProduct] = await trx
         .insert(productos)
@@ -137,6 +120,7 @@ export async function POST({ request }: APIContext): Promise<Response> {
           nombre: productoData.nombre,
           created_at: fechaHoy,
           descripcion: productoData.descripcion,
+          creadoPor: user?.id || productoData.userId,
           iva: productoData.iva,
           pCompra: productoData.pCompra,
           pVenta: productoData.pVenta,
@@ -147,50 +131,45 @@ export async function POST({ request }: APIContext): Promise<Response> {
           empresaId: productoData.empresaId,
           impuesto: productoData.impuesto,
           marca: productoData.marca,
-          stock: productoData.stock,
-          userId: productoData.userId,
-          srcPhoto: rutaRelativa,
-        })
+        } as any)
         .returning();
-        console.log('empezando a verificar relacion y exitencia de categoria ->', categoriasIds)
 
-      // Insertar relaciones con categorías si existen
+      // Insertar relaciones con categorías
       if (categoriasIds && categoriasIds.length > 0) {
-        console.log('categoriasIds ->', categoriasIds)
-        for (const categoriaId of categoriasIds) {
-          await trx.insert(productoCategorias).values({
-            id: generateId(10),
-            productoId: id,
-            categoriaId,
-          })
+        for (const cat of categoriasIds) {
+          const catIdRaw = typeof cat === 'object' && cat !== null ? cat.id : cat;
+          const cleanedCatId = cleanId(catIdRaw);
+          
+          if (cleanedCatId) {
+            await trx.insert(productoCategorias).values({
+              id: generateId(10),
+              productoId: id,
+              categoriaId: cleanedCatId,
+            });
+          }
         }
       }
       
       // Crear registro de stock
-      console.log('empezando a crear registro de stock')
       await trx.insert(stockActual).values({
-        id: nanoid(10),
+        id: normalizadorUUID('stock', 15),
         productoId: id,
         cantidad: productoData.stock,
         alertaStock: productoData.alertaStock,
-        ubicacionesId: productoData.ubicacionId,  
+        ubicacionesId: productoData.ubicacionId,
         createdAt: fechaHoy,
-        userUltimaReposicion: productoData.userId,
+        userUltimaReposicion: user?.id || productoData.userId,
         depositosId: productoData.depositoId,
         empresaId: productoData.empresaId,
-
       });
 
-      console.log('empezando a registrar movimiento de stock')
       // Registrar movimiento de stock
       await trx.insert(movimientosStock).values({
-        id: nanoid(10),
+        id: normalizadorUUID('movStock', 15),
         productoId: id,
         cantidad: productoData.stock,
-        userId: productoData.userId,
-        clienteId: null,
+        userId: user?.id || productoData.userId,
         empresaId: productoData.empresaId,
-        proveedorId: null,
         fecha: fechaHoy,
         tipo: 'ingreso',
         motivo: 'StockInicial',
@@ -198,21 +177,12 @@ export async function POST({ request }: APIContext): Promise<Response> {
 
       return insertedProduct;
     });
-// Invalida el caché de productos para este usuario
-await cache.invalidate(`stock_data_${productoData.empresaId}`);
 
-// También podríamos invalidar otros cachés relacionados
-if (productoData.empresaId) {
-  await cache.invalidate(`empresa_productos_${productoData.empresaId}`);
-}
-
-// Si tienes un caché para categorías, también lo invalidamos
-if (categoriasIds.length > 0) {
-  await cache.invalidate(`categorias_data`);
-  for (const catId of categoriasIds) {
-    await cache.invalidate(`categoria_productos_${catId}`);
-  }
-}
+    // Invalidar caché
+    await cache.invalidate(`stock_data_${productoData.empresaId}`);
+    if (productoData.empresaId) {
+      await cache.invalidate(`empresa_productos_${productoData.empresaId}`);
+    }
 
     return new Response(
       JSON.stringify({
@@ -221,14 +191,15 @@ if (categoriasIds.length > 0) {
         data: creacionProducto,
       })
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error general:', error);
 
     if (error.code === 'SQLITE_CONSTRAINT') {
       return new Response(
         JSON.stringify({
           status: 409,
-          msg: 'Ya existe un producto con ese código de barras',
+          msg: 'Error de base de datos (Restricción de integridad)',
+          error: error.message
         }),
         { status: 409 }
       );
@@ -237,7 +208,7 @@ if (categoriasIds.length > 0) {
     return new Response(
       JSON.stringify({
         status: 500,
-        msg: 'Error interno del servidor al procesar la solicitud',
+        msg: 'Error interno del servidor',
         error: error.message || 'Error desconocido',
       }),
       { status: 500 }

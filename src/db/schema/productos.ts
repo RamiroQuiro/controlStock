@@ -17,7 +17,7 @@ export const productos = sqliteTable(
     id: text("id").primaryKey(),
     nombre: text("nombre").notNull(),
     srcPhoto: text("srcPhoto"),
-    proveedorId: text("proveedorId").references(() => proveedores.id),
+    proveedorId: text("proveedorId").references(() => proveedores.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
     codigoBarra: text("codigoBarra").notNull(),
     categoria: text("categoria"),
     marca: text("marca"),
@@ -26,8 +26,8 @@ export const productos = sqliteTable(
     ubicacion: text("ubicacion").default("ubicacion 1"),
     empresaId: text("empresaId")
       .notNull()
-      .references(() => empresas.id),
-    creadoPor: text("creadoPor").references(() => users.id),
+      .references(() => empresas.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+    creadoPor: text("creadoPor").references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }),
     signoDescuento: text("signoDescuento"), // '$' o '%'
     descuento: integer("descuento", { mode: "number" }).default(0),
 

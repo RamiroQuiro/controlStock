@@ -5,7 +5,9 @@ export const comprobantes = sqliteTable("comprobantes", {
   id: text("id").primaryKey(),
   empresaId: text("empresaId").notNull(),
   ventaId: text("ventaId"), // si corresponde a una venta
-  tipo: text("tipo",{enum: ["FC_A", "FC_B", "FC_C", "PR", "NC", "RECIBO", "PRESUPUESTO"]})
+  tipo: text("tipo", {
+    enum: ["FC_A", "FC_B", "FC_C", "PR", "NC", "RECIBO", "PRESUPUESTO", "REMITO_TRASLADO"],
+  })
     .notNull()
     .default("FC_B"),
   puntoVenta: text("puntoVenta").notNull(),

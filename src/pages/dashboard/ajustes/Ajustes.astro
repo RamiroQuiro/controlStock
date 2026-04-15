@@ -1,9 +1,15 @@
 ---
-import { Settings, User, Database, Bell, Lock, Palette, ShieldCheck, BoxesIcon } from 'lucide-react';
+import { Settings, User, Database, Bell, Lock, Palette, ShieldCheck, BoxesIcon, CreditCard } from 'lucide-react';
 import MainDashboard from '../../../components/atomos/MainDashboard.astro';
 import DivBox1 from '../../../components/atomos/DivBox1.astro';
 
 const ajustesOpciones = [
+  {
+    titulo: "Mi Suscripción",
+    descripcion: "Gestiona tu plan activo, límites y facturación",
+    icono: CreditCard,
+    seccion: "suscripcion"
+  },
   {
     titulo: "Perfil de Usuario",
     descripcion: "Administra tu información personal y preferencias de cuenta",

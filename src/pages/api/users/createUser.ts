@@ -1,6 +1,6 @@
 import type { APIContext } from "astro";
 import { users } from "../../../db/schema";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { generateId } from "lucia";
 import bcrypt from "bcryptjs";
 import db from "../../../db";
@@ -68,6 +68,39 @@ export async function POST({
     );
   }
 
+  // --- VALIDACIÓN DE LÍMITES POR PLAN ---
+  const { empresas, planes } = await import("../../../db/schema");
+  
+  const [empresaData] = await db
+    .select({
+      id: empresas.id,
+      planId: empresas.planId,
+      cantidadUsuarios: empresas.cantidadUsuarios,
+      nombreFantasia: empresas.nombreFantasia,
+    })
+    .from(empresas)
+    .where(eq(empresas.id, adminUser.empresaId));
+
+  if (empresaData?.planId) {
+    const [planData] = await db
+      .select({
+        limiteUsuarios: planes.limiteUsuarios,
+        nombre: planes.nombre,
+      })
+      .from(planes)
+      .where(eq(planes.id, empresaData.planId));
+
+    if (planData && empresaData.cantidadUsuarios >= planData.limiteUsuarios) {
+      return new Response(
+        JSON.stringify({
+          data: `Límite de usuarios alcanzado (${planData.limiteUsuarios}) para tu ${planData.nombre}. Por favor, actualiza tu plan para agregar más usuarios.`,
+          status: 403,
+        })
+      );
+    }
+  }
+  // ---------------------------------------
+
   try {
     // Usamos transacción para asegurar que se cree el usuario Y se asigne el depósito
     await db.transaction(async (tx) => {
@@ -102,6 +135,14 @@ export async function POST({
           depositoId: depositoId,
         });
       }
+
+      // 3. Actualizar contador en Empresa
+      await tx
+        .update(empresas)
+        .set({
+          cantidadUsuarios: sql`${empresas.cantidadUsuarios} + 1`,
+        })
+        .where(eq(empresas.id, adminUser.empresaId));
     });
 
     return new Response(

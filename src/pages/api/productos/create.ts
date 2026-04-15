@@ -2,7 +2,7 @@ import type { APIContext } from 'astro';
 import db from '../../../db';
 import { nanoid } from 'nanoid';
 import { movimientosStock, productos, stockActual } from '../../../db/schema';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import path from 'path';
 import { promises as fs } from 'fs';
 import sharp from 'sharp';
@@ -107,10 +107,51 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       }
     }
 
+    // --- VALIDACIÓN DE LÍMITES POR PLAN ---
+    const { empresas, planes } = await import('../../../db/schema');
+    
+    const [empresaData] = await db
+      .select({
+        planId: empresas.planId,
+        cantidadProductos: empresas.cantidadProductos,
+      })
+      .from(empresas)
+      .where(eq(empresas.id, productoData.empresaId));
+
+    if (empresaData?.planId) {
+      const [planData] = await db
+        .select({
+          limiteProductos: planes.limiteProductos,
+          nombre: planes.nombre,
+        })
+        .from(planes)
+        .where(eq(planes.id, empresaData.planId));
+
+      // limiteProductos: -1 significa ilimitado
+      if (planData && planData.limiteProductos !== -1 && empresaData.cantidadProductos >= planData.limiteProductos) {
+        return new Response(
+          JSON.stringify({
+            status: 403,
+            msg: `Límite de productos alcanzado (${planData.limiteProductos}) para tu ${planData.nombre}. Por favor, actualiza tu plan.`,
+          }),
+          { status: 403 }
+        );
+      }
+    }
+    // ---------------------------------------
+
     // Crear producto en la base de datos
     const creacionProducto = await db.transaction(async (trx) => {
       const id = normalizadorUUID('prod-', 15);
       const fechaHoy = new Date();
+
+      // Incrementar contador en Empresa
+      await trx
+        .update(empresas)
+        .set({
+          cantidadProductos: sql`${empresas.cantidadProductos} + 1`,
+        })
+        .where(eq(empresas.id, productoData.empresaId));
 
       // Insertar producto
       const [insertedProduct] = await trx

@@ -79,6 +79,16 @@ export const getProductosFromDB = async (
  */
 export const deleteProductoFromDB = async (productoId: string) => {
   try {
+    const { empresas } = await import("../db/schema");
+    const { sql } = await import("drizzle-orm");
+
+    const [producto] = await db
+      .select({ empresaId: productos.empresaId })
+      .from(productos)
+      .where(eq(productos.id, productoId));
+
+    if (!producto) return true;
+
     await db.transaction(async (trx) => {
       await trx
         .delete(movimientosStock)
@@ -89,8 +99,20 @@ export const deleteProductoFromDB = async (productoId: string) => {
       await trx
         .delete(stockActual)
         .where(eq(stockActual.productoId, productoId));
+      
       await trx.delete(productos).where(eq(productos.id, productoId));
+
+      // Actualizar contador en Empresa
+      if (producto.empresaId) {
+        await trx
+          .update(empresas)
+          .set({
+            cantidadProductos: sql`${empresas.cantidadProductos} - 1`,
+          })
+          .where(eq(empresas.id, producto.empresaId));
+      }
     });
+
     return true;
   } catch (error) {
     console.error("Error al eliminar el producto de la DB:", error);

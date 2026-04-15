@@ -108,6 +108,17 @@ Para evitar contaminación de estado y preparar el terreno para eventos en tiemp
 
 ---
 
+### **Límites de Suscripción y UI** (Implementado) ✅
+
+Se robusteció el sistema de suscripciones con validación de límites en tiempo real:
+
+- **Límites por Plan:** Implementada lógica preventiva en APIs de creación de Usuarios, Sucursales (Depósitos) y Productos. Bloquea la acción si se excede el cupo del plan.
+- **Contadores de Empresa (Cache):** Se agregaron campos de contador (`cantidadUsuarios`, `cantidadSucursales`, `cantidadProductos`) en la tabla `empresas` para verificaciones de alto rendimiento.
+- **Integración UI:**
+  - Tarjeta de "Mi Suscripción" en el panel de Ajustes.
+  - Página `/dashboard/ajustes/suscripcion` con visualización de límites (barras de progreso) y comparativa de planes.
+- **Sincronización:** Los contadores se actualizan atómicamente mediante transacciones en la creación, eliminación y suspensión/activación de recursos.
+
 ## 🎯 PRÓXIMOS PASOS
 
 1.  **Logística de Sucursales (Traslados)**: Implementar UI para enviar y recibir mercadería entre sucursales, reutilizando la lógica del carrito de compras.

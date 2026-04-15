@@ -47,14 +47,71 @@ export async function PUT({ request, locals }: APIContext): Promise<Response> {
   if (suspender) {
     if (id == user?.id) {
       return new Response(
-        JSON.stringify({ data: "No puedes eliminar a ti mismo", status: 400 })
+        JSON.stringify({ data: "No puedes modificar tu propio estado", status: 400 })
       );
     }
 
-    await db.update(users).set({ activo: activo }).where(eq(users.id, id));
-    return new Response(
-      JSON.stringify({ data: "Usuario desactivado con éxito", status: 200 })
-    );
+    try {
+      const { empresas, planes } = await import("../../../db/schema");
+      const { sql } = await import("drizzle-orm");
+
+      await db.transaction(async (tx) => {
+        // Si estamos activando, verificar límites
+        if (activo === 1 && existingUser.activo === 0) {
+          const [empresaData] = await tx
+            .select({
+              planId: empresas.planId,
+              cantidadUsuarios: empresas.cantidadUsuarios,
+            })
+            .from(empresas)
+            .where(eq(empresas.id, existingUser.empresaId));
+
+          if (empresaData?.planId) {
+            const [planData] = await tx
+              .select({
+                limiteUsuarios: planes.limiteUsuarios,
+                nombre: planes.nombre,
+              })
+              .from(planes)
+              .where(eq(planes.id, empresaData.planId));
+
+            if (planData && empresaData.cantidadUsuarios >= planData.limiteUsuarios) {
+              throw new Error(`Límite de usuarios alcanzado (${planData.limiteUsuarios}) para tu ${planData.nombre}.`);
+            }
+          }
+
+          // Incrementar contador
+          await tx
+            .update(empresas)
+            .set({ cantidadUsuarios: sql`${empresas.cantidadUsuarios} + 1` })
+            .where(eq(empresas.id, existingUser.empresaId));
+        } 
+        // Si estamos desactivando
+        else if (activo === 0 && existingUser.activo === 1) {
+          await tx
+            .update(empresas)
+            .set({ cantidadUsuarios: sql`${empresas.cantidadUsuarios} - 1` })
+            .where(eq(empresas.id, existingUser.empresaId));
+        }
+
+        await tx.update(users).set({ activo: activo }).where(eq(users.id, id));
+      });
+
+      return new Response(
+        JSON.stringify({ 
+          data: activo === 1 ? "Usuario activado con éxito" : "Usuario desactivado con éxito", 
+          status: 200 
+        })
+      );
+    } catch (error: any) {
+      console.error("Error al cambiar estado de usuario:", error);
+      return new Response(
+        JSON.stringify({ 
+          data: error.message || "Error al procesar el cambio de estado", 
+          status: error.message?.includes("Límite") ? 403 : 500 
+        })
+      );
+    }
   }
 
   // Validaciones para actualización completa
@@ -177,19 +234,40 @@ export async function DELETE({
     );
   }
 
-  const [deletedUser] = await db
-    .update(users)
-    .set({ activo: 0 })
-    .where(eq(users.id, id))
-    .returning();
+  try {
+    const { empresas } = await import("../../../db/schema");
+    const { sql } = await import("drizzle-orm");
 
-  if (!deletedUser) {
+    await db.transaction(async (tx) => {
+      // 1. Desactivar usuario
+      const [deletedUser] = await tx
+        .update(users)
+        .set({ activo: 0 })
+        .where(eq(users.id, id))
+        .returning();
+
+      if (!deletedUser) {
+        throw new Error("Error al eliminar el usuario");
+      }
+
+      // 2. Decrementar contador en Empresa (solo si estaba activo)
+      if (userExist.activo === 1) {
+        await tx
+          .update(empresas)
+          .set({
+            cantidadUsuarios: sql`${empresas.cantidadUsuarios} - 1`,
+          })
+          .where(eq(empresas.id, userExist.empresaId));
+      }
+    });
+
+    return new Response(
+      JSON.stringify({ data: "Usuario eliminado con éxito", status: 200 })
+    );
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
     return new Response(
       JSON.stringify({ data: "Error al eliminar el usuario", status: 500 })
     );
   }
-
-  return new Response(
-    JSON.stringify({ data: "Usuario eliminado con éxito", status: 200 })
-  );
 }

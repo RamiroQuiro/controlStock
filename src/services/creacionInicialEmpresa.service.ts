@@ -31,6 +31,8 @@ export async function inicializarEmpresaParaUsuario(user: any) {
       userId: user.id,
       activo: 1,
       planId: "plan-emprendedor",
+      cantidadUsuarios: 1,
+      cantidadSucursales: 1,
       emailVerificado: true,
       srcPhoto: "/avatarDefault.png",
     } as any)

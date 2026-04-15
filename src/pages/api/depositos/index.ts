@@ -45,21 +45,64 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return createResponse(409, "Ya existe un depósito con ese nombre.");
     }
 
-    const [newDeposito] = await db
-      .insert(depositos)
-      .values({
-        id: normalizadorUUID('dep-',15),
-        nombre: nombreLowerCase,
-        descripcion,
-        direccion,
-        telefono,
-        email,
-        encargado,
-        capacidadTotal: capacidadTotalInt,
-        creadoPor: locals.user.id,
-        empresaId,
+    // --- VALIDACIÓN DE LÍMITES POR PLAN ---
+    const { empresas, planes } = await import("../../../db/schema");
+    const { sql } = await import("drizzle-orm");
+
+    const [empresaData] = await db
+      .select({
+        planId: empresas.planId,
+        cantidadSucursales: empresas.cantidadSucursales,
       })
-      .returning();
+      .from(empresas)
+      .where(eq(empresas.id, empresaId));
+
+    if (empresaData?.planId) {
+      const [planData] = await db
+        .select({
+          limiteSucursales: planes.limiteSucursales,
+          nombre: planes.nombre,
+        })
+        .from(planes)
+        .where(eq(planes.id, empresaData.planId));
+
+      if (planData && empresaData.cantidadSucursales >= planData.limiteSucursales) {
+        return createResponse(
+          403,
+          `Límite de sucursales alcanzado (${planData.limiteSucursales}) para tu ${planData.nombre}. Por favor, actualiza tu plan.`
+        );
+      }
+    }
+    // ---------------------------------------
+
+    const [newDeposito] = await db.transaction(async (tx) => {
+      // 1. Crear depósito
+      const [res] = await tx
+        .insert(depositos)
+        .values({
+          id: normalizadorUUID("dep-", 15),
+          nombre: nombreLowerCase,
+          descripcion,
+          direccion,
+          telefono,
+          email,
+          encargado,
+          capacidadTotal: capacidadTotalInt,
+          creadoPor: locals.user.id,
+          empresaId,
+        })
+        .returning();
+
+      // 2. Actualizar contador en Empresa
+      await tx
+        .update(empresas)
+        .set({
+          cantidadSucursales: sql`${empresas.cantidadSucursales} + 1`,
+        })
+        .where(eq(empresas.id, empresaId));
+
+      return [res];
+    });
 
     return createResponse(201, "Depósito creado exitosamente", newDeposito);
   } catch (error) {
@@ -168,7 +211,22 @@ export const DELETE: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    await db.delete(depositos).where(eq(depositos.id, id));
+    const { empresas } = await import("../../../db/schema");
+    const { sql } = await import("drizzle-orm");
+
+    await db.transaction(async (tx) => {
+      // 1. Eliminar depósito
+      await tx.delete(depositos).where(eq(depositos.id, id));
+
+      // 2. Decrementar contador en Empresa
+      await tx
+        .update(empresas)
+        .set({
+          cantidadSucursales: sql`${empresas.cantidadSucursales} - 1`,
+        })
+        .where(eq(empresas.id, locals.user.empresaId));
+    });
+
     console.log("Depósito eliminado correctamente");
     return createResponse(200, "Depósito eliminado correctamente");
   } catch (error) {

@@ -34,6 +34,8 @@ import TablaStockDepositos from "../../../components/TablaStockDepositos";
 import CategoriasSelector from "../../../../productos/components/CategoriasSelector";
 import { showToast } from "../../../../../../utils/toast/toastShow";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 type Props = {
   data: {
     productData: Producto;
@@ -46,9 +48,10 @@ type Props = {
 };
 
 export default function FormProducto({ data }: Props) {
+  const queryClient = useQueryClient();
+  
   const [form, setForm] = useState(data.productData);
   const [disableEdit, setDisableEdit] = useState(true);
-  const [busy, setBusy] = useState(false);
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState(
     data.categorias || []
   );
@@ -79,15 +82,15 @@ export default function FormProducto({ data }: Props) {
     }
   };
 
-  // Función para guardar cambios
-  const handleSave = async () => {
-    const productId = data?.productData?.id;
-    if (!productId) return;
-    try {
-      setBusy(true);
+  // ✅ 1. Migración a TanStack Query: La mutación centralizada
+  const updateProductMutation = useMutation({
+    mutationFn: async () => {
+      const productId = data?.productData?.id;
+      if (!productId) throw new Error("ID inválido");
 
-      // 1. Subir imagen si existe
       let currentSrcPhoto = form.srcPhoto;
+
+      // Subir imagen si existiera
       if (selectedFile) {
         const formDataImg = new FormData();
         formDataImg.append("productoId", productId);
@@ -98,23 +101,17 @@ export default function FormProducto({ data }: Props) {
           body: formDataImg,
         });
 
-        if (!resImg.ok) throw new Error("Error al subir imagen");
+        if (!resImg.ok) throw new Error("Error al subir la imagen");
         const dataImg = await resImg.json();
         currentSrcPhoto = dataImg.srcPhoto;
-
-        // Actualizar estado local
-        setForm((prev) => ({ ...prev, srcPhoto: currentSrcPhoto }));
+        // La actualización de form.srcPhoto la delegamos a onSuccess
       }
 
-      // Limpiar el objeto: eliminar undefined y convertir strings vacíos a null
       const cleanedForm = Object.entries(form).reduce((acc, [key, value]) => {
-        if (value !== undefined && value !== "") {
-          acc[key] = value;
-        }
+        if (value !== undefined && value !== "") acc[key] = value;
         return acc;
       }, {} as any);
 
-      // Agregar categorías y foto al objeto de actualización
       const dataToSend = {
         ...cleanedForm,
         srcPhoto: currentSrcPhoto,
@@ -129,24 +126,32 @@ export default function FormProducto({ data }: Props) {
           body: JSON.stringify(dataToSend),
         }
       );
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.msg || "Error al actualizar el producto");
+        throw new Error(errorData.msg || "Error en el servidor");
       }
-
-      showToast("Producto actualizado correctamente", {
-        background: "bg-green-500",
-      });
-    } catch (err) {
-      console.error(err);
-      showToast("Error al actualizar el producto", {
-        background: "bg-red-500",
-      });
-      throw err;
-    } finally {
-      setBusy(false);
+      
+      return currentSrcPhoto; // Se lo pasamos a success
+    },
+    onSuccess: (newPhotoUrl) => {
+      showToast("Producto actualizado correctamente", { background: "bg-green-500" });
+      if (newPhotoUrl) {
+         setForm((prev) => ({ ...prev, srcPhoto: newPhotoUrl }));
+      }
+      setDisableEdit(true);
+      
+      // Invalidar tabla de productos para que si vuelve atrás vea datos frescos
+      queryClient.invalidateQueries({ queryKey: ['productos'] });
+    },
+    onError: (error) => {
+      console.error(error);
+      showToast("Error al actualizar el producto", { background: "bg-red-500" });
     }
-  };
+  });
+
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const busy = updateProductMutation.isPending || downloadingPdf;
 
   // Función para alternar entre editar y guardar
   const handleEdit = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -158,21 +163,21 @@ export default function FormProducto({ data }: Props) {
     }
     // Estamos editando -> guardamos
     try {
-      await handleSave();
-      setDisableEdit(true);
+      await updateProductMutation.mutateAsync();
+      // onSuccess() maneja el setDisableEdit(true)
     } catch {
-      // Si hubo error, no cerramos edición
       setDisableEdit(false);
     }
   };
 
   // 9) Descargar PDF
-  const handleDownloadPdf = async () => {
+  const handleDownloadPdf = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     const productId = data?.productData?.id;
     if (!productId) return;
 
     try {
-      setBusy(true);
+      setDownloadingPdf(true);
       const res = await fetch(`/api/productos/generarPdf/${productId}`, {
         method: "GET",
         headers: { "xx-user-id": data?.productData?.userId },
@@ -193,7 +198,7 @@ export default function FormProducto({ data }: Props) {
       console.error("Error al generar PDF:", err);
       // showToast?.("Error al generar PDF", { background: "bg-red-500" });
     } finally {
-      setBusy(false);
+      setDownloadingPdf(false);
     }
   };
 
@@ -264,10 +269,9 @@ export default function FormProducto({ data }: Props) {
               </div>
               <Textarea
                 className="w-full"
-                label="Descripción"
                 name="descripcion"
                 value={form.descripcion}
-                onChange={handleChange}
+                onChange={handleChange as any}
                 disabled={disableEdit}
                 placeholder="Descripción"
               />
@@ -291,7 +295,7 @@ export default function FormProducto({ data }: Props) {
                 <Selector
                   labelOption="Unidad de Medida"
                   name="unidadMedida"
-                  defaultSelect={form.unidadMedida}
+                  defaultSelect={Boolean(form.unidadMedida)}
                   options={[
                     { id: "unidad", name: "Unidad", value: "unidad" },
                     {
@@ -501,7 +505,7 @@ export default function FormProducto({ data }: Props) {
                   <p className="text-primary-textoTitle">Precio de Costo</p>
                 </div>
                 <p className="font-bold text-2xl trakin text-primary-textoTitle">
-                  {formateoMoneda.format(form?.pCompra)}
+                  {formateoMoneda.format(Number(form?.pCompra) || 0)}
                 </p>
               </Card>
               <Card>
@@ -510,7 +514,7 @@ export default function FormProducto({ data }: Props) {
                   <p className="text-primary-textoTitle">Motnto Iva</p>
                 </div>
                 <p className="font-bold text-2xl trakin text-primary-textoTitle">
-                  {formateoMoneda.format(form?.iva)}
+                  {formateoMoneda.format(Number(form?.iva) || 0)}
                 </p>
               </Card>
               <Card>
@@ -519,7 +523,7 @@ export default function FormProducto({ data }: Props) {
                   <p className="text-primary-textoTitle">Precio de Venta</p>
                 </div>
                 <p className="font-bold text-2xl trakin text-primary-textoTitle">
-                  {formateoMoneda.format(form?.pVenta)}
+                  {formateoMoneda.format(Number(form?.pVenta) || 0)}
                 </p>
               </Card>
               <Card>
@@ -528,7 +532,7 @@ export default function FormProducto({ data }: Props) {
                   <p className="text-primary-textoTitle">Margen Ganancia</p>
                 </div>
                 <p className="font-bold text-2xl trakin text-primary-textoTitle">
-                  {formateoMoneda.format(form?.pCompra)}
+                  {formateoMoneda.format(Number(form?.pCompra) || 0)}
                 </p>
               </Card>
             </CardContent>

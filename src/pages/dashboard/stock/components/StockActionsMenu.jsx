@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import {
-  PackagePlus,
   ShoppingCart,
   Tags,
   Truck,
-  ArrowRightLeft,
-  ClipboardList,
   History,
   PackageCheck,
   Menu,
@@ -13,8 +10,6 @@ import {
 import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
 import FormularioCompra from "./FormularioCompra";
 import FormularioTraslado from "./Traslados/FormularioTraslado";
-import FormularioSolicitud from "./Traslados/FormularioSolicitud";
-import TablaSolicitudes from "./Traslados/TablaSolicitudes";
 import ContenedorRecepcion from "./Traslados/ContenedorRecepcion";
 import ContenedorHistorial from "./Traslados/ContenedorHistorial";
 import MenuDropbox from "../../../../components/organismos/MenuDropbox";
@@ -27,14 +22,9 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
 
   const closeModal = () => setActiveModal(null);
 
-  const items = [
-    // Gestión de Productos
+  const tieneLogistica = permisos.puedeTranslado || permisos.puedeRecibirTraslado || permisos.puedeVerHistorial;
 
-    // {
-    //   label: "Crear Nuevo Producto",
-    //   icon: <PackagePlus size={18} />,
-    //   onClick: () => setActiveModal("crearProducto"), // Esto requeriría refactorizar FormularioCargaProducto a React
-    // },
+  const items = [
     permisos.puedeEditarPrecios && {
       label: "Modificar Precios",
       icon: <Tags size={18} />,
@@ -46,8 +36,8 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
       onClick: () => setActiveModal("comprar"),
     },
 
-    // Logística
-    {
+    // Logística (Solo mostrar separador si tiene algún permiso de logística)
+    tieneLogistica && {
       label: "Logística y Traslados",
       isSeparator: true,
     },
@@ -55,16 +45,6 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
       label: "Traslado entre Sucursales",
       icon: <Truck size={18} />,
       onClick: () => setActiveModal("traslados"),
-    },
-    permisos.puedeTranslado && depositos.length > 1 && {
-      label: "Solicitar Mercadería",
-      icon: <ArrowRightLeft size={18} />,
-      onClick: () => setActiveModal("solicitar"),
-    },
-    permisos.puedeTranslado && depositos.length > 1 && {
-      label: "Gestionar Solicitudes",
-      icon: <ClipboardList size={18} />,
-      onClick: () => setActiveModal("gestionarSolicitudes"),
     },
     permisos.puedeRecibirTraslado && {
       label: "Recibir Mercadería",
@@ -77,6 +57,9 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
       onClick: () => setActiveModal("historial"),
     },
   ].filter(Boolean); // Filtrar items nulos/falsos
+
+  // Si no hay ninguna acción disponible para el usuario, ni siquiera renderizar el botón
+  if (items.length === 0) return null;
 
   return (
     <>
@@ -123,32 +106,6 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
             empresaId={user.empresaId}
             depositos={depositos}
           />
-        </ModalReact>
-      )}
-
-      {/* Solicitar Mercadería */}
-      {activeModal === "solicitar" && (
-        <ModalReact
-          title="Solicitar Mercadería"
-          onClose={closeModal}
-          className="md:min-w-[50vw]"
-        >
-          <FormularioSolicitud
-            user={user}
-            empresaId={user.empresaId}
-            depositos={depositos}
-          />
-        </ModalReact>
-      )}
-
-      {/* Gestionar Solicitudes */}
-      {activeModal === "gestionarSolicitudes" && (
-        <ModalReact
-          title="Gestionar Solicitudes de Mercadería"
-          onClose={closeModal}
-          className="md:min-w-[70vw]"
-        >
-          <TablaSolicitudes user={user} />
         </ModalReact>
       )}
 

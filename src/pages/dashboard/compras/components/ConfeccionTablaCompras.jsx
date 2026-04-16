@@ -1,21 +1,24 @@
 import { SearchCheck } from "lucide-react";
-import DivReact from "../../../../components/atomos/DivReact";
 import Table from "../../../../components/tablaComponentes/Table";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import formatDate from "../../../../utils/formatDate";
 import { useState } from "react";
-import { columnasComprasTodas, columnasVentasTodas } from "../../../../utils/columnasTables";
+import {
+  columnasComprasTodas,
+  columnasVentasTodas,
+} from "../../../../utils/columnasTables";
 import ContenedorVisorCompras from "./ContenedorVisorCompras";
+import { Card } from "../../../../components/organismos/Card";
 
 export default function ConfeccionTablaCompras({ data }) {
-  const [seleccionador, setseleccionador] = useState(data[0])
-  const selectRegistro=(e)=>{
-    setseleccionador(e)
-  }
+  const [seleccionador, setseleccionador] = useState(data[0]);
+  const selectRegistro = (e) => {
+    setseleccionador(e);
+  };
   const newArray = data?.map((compra, i) => {
     const fecha = formatDate(compra.fecha);
     return {
-      id:compra.id,
+      id: compra.id,
       "N°": i + 1,
       nComprobante: compra.nComprobante,
       proveedor: compra.proveedor,
@@ -25,7 +28,6 @@ export default function ConfeccionTablaCompras({ data }) {
       total: formateoMoneda.format(compra.total),
       acciones: (
         <div className="flex items-center justify-center gap-2 w-full">
-         
           <button
             id="verVenta"
             onClick={() =>
@@ -46,11 +48,17 @@ export default function ConfeccionTablaCompras({ data }) {
 
   return (
     <div className="w-full flex items-start relative   justify-between gap-3">
-      <Table columnas={columnasComprasTodas} arrayBody={newArray} onClickRegistro={selectRegistro} />
+      <Card>
+        <Table
+          columnas={columnasComprasTodas}
+          arrayBody={newArray}
+          onClickRegistro={selectRegistro}
+        />
+      </Card>
       <div className="flex items-center justify-center gap-2 w-1/3 sticky top-4">
-             <DivReact>
-              <ContenedorVisorCompras compraId={seleccionador?.id}/>
-        </DivReact>
+        <Card>
+          <ContenedorVisorCompras compraId={seleccionador?.id} />
+        </Card>
       </div>
     </div>
   );

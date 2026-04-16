@@ -103,7 +103,7 @@ export default function FormularioNuevaUbicacion({ ubicacion, depositos, onSave,
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-          <InputComponenteJsx id="nombre" name="nombre" value={formData.nombre} handleChange={handleChange} placeholder="Ej: Fila A-1"  />
+          <InputComponenteJsx id="nombre" name="nombre" value={formData.nombre} handleChange={handleChange} placeholder="Ej: Fila A-1" type="text" disable={false} tab={0} className="" />
           
         </div>
         <div>
@@ -127,31 +127,31 @@ export default function FormularioNuevaUbicacion({ ubicacion, depositos, onSave,
 
          <div>
           <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">Zona</label>
-          <InputComponenteJsx placeholder="Zona o área (ej: Zona A, Refrigeración)" id="zona" name="zona" type="text" value={formData.zona} handleChange={handleChange} />
+          <InputComponenteJsx placeholder="Zona o área (ej: Zona A, Refrigeración)" id="zona" name="zona" type="text" value={formData.zona} handleChange={handleChange} disable={false} tab={0} className="" />
         </div>
       <p className="text-sm font-medium text-gray-700 -mb-2">Localizacion</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
          <div>
           <label htmlFor="pasillo" className="block text-xs text-gray-600">Pasillo</label>
-          <InputComponenteJsx placeholder="Pasillo" id="pasillo" name="pasillo" type="number" value={formData.pasillo} handleChange={handleChange} />
+          <InputComponenteJsx placeholder="Pasillo" id="pasillo" name="pasillo" type="number" value={formData.pasillo} handleChange={handleChange} disable={false} tab={0} className="" />
         </div>
         <div>
           <label htmlFor="estante" className="block text-xs text-gray-600">Estante</label>
-          <InputComponenteJsx id="estante" name="estante" type="number" value={formData.estante} handleChange={handleChange} />
+          <InputComponenteJsx id="estante" name="estante" type="number" value={formData.estante} handleChange={handleChange} disable={false} tab={0} className="" placeholder="" />
         </div>
         <div>
           <label htmlFor="rack" className="block text-xs text-gray-600">Rack</label>
-          <InputComponenteJsx id="rack" name="rack" type="number" value={formData.rack} handleChange={handleChange} />
+          <InputComponenteJsx id="rack" name="rack" type="number" value={formData.rack} handleChange={handleChange} disable={false} tab={0} className="" placeholder="" />
         </div>
         <div>
           <label htmlFor="nivel" className="block text-xs text-gray-600">Nivel</label>
-          <InputComponenteJsx id="nivel" name="nivel" type="number" value={formData.nivel} handleChange={handleChange} />
+          <InputComponenteJsx id="nivel" name="nivel" type="number" value={formData.nivel} handleChange={handleChange} disable={false} tab={0} className="" placeholder="" />
         </div>
       </div>
 
       <div>
         <label htmlFor="capacidadTotal" className="block text-sm font-medium text-gray-700 mb-1">Capacidad Total (unidades)</label>
-        <InputComponenteJsx id="capacidadTotal" name="capacidadTotal" type="number" value={formData.capacidadTotal} handleChange={handleChange} placeholder="Ej: 100" />
+        <InputComponenteJsx id="capacidadTotal" name="capacidadTotal" type="number" value={formData.capacidadTotal} handleChange={handleChange} placeholder="Ej: 100" disable={false} tab={0} className="" />
       </div>
 
       {errorMessage && (

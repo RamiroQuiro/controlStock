@@ -10,9 +10,7 @@ import {
 } from "../../../../../db/schema";
 import { eq, and } from "drizzle-orm";
 import LayoutDash from "../../../../../components/layouts/LayoutDash.astro";
-import FormProducto from "./componentes/FormProducto";
-import HistorialMovimientosDetalleProducto from "../../components/HistorialMovimientosDetalleProducto";
-import TablaStockDepositos from "../../components/TablaStockDepositos";
+import PerfilProductoWrapper from "./componentes/PerfilProductoWrapper";
 
 // 1. Proteger la ruta y obtener datos del usuario desde la sesión
 const { user } = Astro.locals;
@@ -90,17 +88,5 @@ const perfilProductoData = {
 ---
 
 <LayoutDash title={`Perfil de ${productData?.nombre || "Producto"}`}>
-  <div class="flex w-full item-center flex-col gap-4 p-8 justify-between">
-    <FormProducto client:load data={perfilProductoData} />
-    <div class="w-full">
-      <TablaStockDepositos
-        client:load
-        stockDetalle={perfilProductoData?.stockDetalle}
-      />
-    </div>
-    <HistorialMovimientosDetalleProducto
-      client:load
-      productoId={productData?.id}
-    />
-  </div>
+  <PerfilProductoWrapper client:load data={perfilProductoData} />
 </LayoutDash>

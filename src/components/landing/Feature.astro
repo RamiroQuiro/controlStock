@@ -1,41 +1,41 @@
 ---
-import DivBox1 from '../atomos/DivBox1.astro';
+import Card from "../organismos/Card.astro";
 
 const features = [
   {
-    title: 'Gestión de Inventario',
+    title: "Gestión de Inventario",
     description:
-      'Control total sobre tu stock con alertas de bajo inventario y seguimiento en tiempo real.',
-    icon: 'image',
+      "Control total sobre tu stock con alertas de bajo inventario y seguimiento en tiempo real.",
+    icon: "image",
   },
   {
-    title: 'Punto de Venta Intuitivo',
+    title: "Punto de Venta Intuitivo",
     description:
-      'Interfaz rápida y amigable para procesar ventas sin complicaciones.',
-    icon: 'shopping-cart',
+      "Interfaz rápida y amigable para procesar ventas sin complicaciones.",
+    icon: "shopping-cart",
   },
   {
-    title: 'Reportes Detallados',
+    title: "Reportes Detallados",
     description:
-      'Analiza el rendimiento de tu negocio con informes personalizables.',
-    icon: 'chart',
+      "Analiza el rendimiento de tu negocio con informes personalizables.",
+    icon: "chart",
   },
   {
-    title: 'Gestión de Clientes',
+    title: "Gestión de Clientes",
     description:
-      'Base de datos completa de tus clientes para optimizar relaciones y ventas.',
-    icon: 'users',
+      "Base de datos completa de tus clientes para optimizar relaciones y ventas.",
+    icon: "users",
   },
   {
-    title: 'Multiusuario',
-    description: 'Diferentes niveles de acceso para tu equipo de trabajo.',
-    icon: 'user',
+    title: "Multiusuario",
+    description: "Diferentes niveles de acceso para tu equipo de trabajo.",
+    icon: "user",
   },
   {
-    title: 'Acceso Multidispositivo',
+    title: "Acceso Multidispositivo",
     description:
-      'Accede desde cualquier dispositivo y lugar con conexión a internet.',
-    icon: 'devices',
+      "Accede desde cualquier dispositivo y lugar con conexión a internet.",
+    icon: "devices",
   },
 ];
 ---
@@ -55,7 +55,7 @@ const features = [
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {
         features.map((feature, index) => (
-          <DivBox1>
+          <Card>
             <div class="h-12 w-12 bg-primary-500/70 rounded-lg flex items-center justify-center mb-4">
               <div class="text-primary-600 font-bold">{index + 1}</div>
             </div>
@@ -63,7 +63,7 @@ const features = [
               {feature.title}
             </h3>
             <p class="text-primary-texto">{feature.description}</p>
-          </DivBox1>
+          </Card>
         ))
       }
     </div>

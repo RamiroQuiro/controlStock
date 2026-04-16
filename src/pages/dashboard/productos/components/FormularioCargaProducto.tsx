@@ -52,6 +52,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
   // 🎯 NUEVO: Estado para errores específicos por campo
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [validando, setValidando] = useState<Record<string, boolean>>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
   const [localDepositos, setLocalDepositos] = useState<Deposito[]>(depositos);
   const [localUbicaciones, setLocalUbicaciones] =
@@ -126,14 +127,18 @@ const FormularioCargaProducto: React.FC<Props> = ({
       return newFormData;
     });
 
+    // Limpiar errores generales y de campo al escribir
+    if (generalError) setGeneralError(null);
+    if (errores[name]) {
+      setErrores(prev => ({ ...prev, [name]: "" }));
+    }
+
     // 🎯 VALIDACIONES EN TIEMPO REAL
     if (name === "codigoBarra") {
-      setErrores((prev) => ({ ...prev, codigoBarra: "" }));
       setTimeout(() => validarCodigoBarra(value), 500);
     }
 
     if (name === "nombre") {
-      setErrores((prev) => ({ ...prev, nombre: "" }));
       setTimeout(() => validarNombre(value), 500);
     }
 
@@ -147,8 +152,6 @@ const FormularioCargaProducto: React.FC<Props> = ({
           pVenta:
             "⚠️ El precio de venta no puede ser menor al precio de compra",
         }));
-      } else {
-        setErrores((prev) => ({ ...prev, pVenta: "" }));
       }
     }
 
@@ -160,8 +163,6 @@ const FormularioCargaProducto: React.FC<Props> = ({
           ...prev,
           stock: `⚠️ Stock inicial (${stock}) es menor que la alerta (${alerta})`,
         }));
-      } else {
-        setErrores((prev) => ({ ...prev, stock: "" }));
       }
     }
   };
@@ -231,6 +232,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
       }
     } catch (err: any) {
       console.error("Error al guardar:", err);
+      setGeneralError(err.message);
       showToast("error", err.message);
     } finally {
       setIsSubmitting(false);
@@ -241,7 +243,8 @@ const FormularioCargaProducto: React.FC<Props> = ({
     setFormData(initialFormData);
     setSelectedFile(null);
     setCategoriasIds([]);
-    setErrores({}); // 🎯 Limpiar errores al resetear
+    setErrores({}); 
+    setGeneralError(null);
   };
 
   const filteredUbicaciones = formData.depositoId
@@ -261,10 +264,26 @@ const FormularioCargaProducto: React.FC<Props> = ({
     }));
   };
 
-  // 🎯 COMPONENTE COMPLETO CON TODOS LOS CAMPOS
   return (
-    <div className="p-4 bg-white w-f rounded-lg shadow-md">
+    <div className="p-4 bg-white w-full rounded-lg shadow-md max-h-[85vh] overflow-y-auto">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {/* Banner de error general */}
+        {generalError && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-2 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 text-red-700">
+                <p className="text-sm font-bold">Atención </p>
+                <p className="text-xs">{generalError}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* SECCIÓN 1: FOTO, CÓDIGO, NOMBRE, DESCRIPCIÓN */}
         <div className="flex flex-col md:flex-row gap-6 w-full">
           <div className="md:col-span-1 flex flex-col items-center">

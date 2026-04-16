@@ -6,6 +6,8 @@ import {
   empresas,
   productos,
   ventas,
+  presupuesto,
+  detallePresupuesto,
 } from "../db/schema";
 import type { ComprobanteDetalle } from "../types";
 
@@ -44,18 +46,16 @@ export const traerVentasEmpresa = async (empresaId: string) => {
 
 export const traerVentaId = async (ventaId: string) => {
   try {
-    const ventaDB = await db
+    // 1. Intentar buscar en la tabla de Ventas
+    let comprobanteDB = await db
       .select({
-        // Datos de la venta
-        venta: ventas,
+        comprobante: ventas,
         empresa: empresas,
-        // Datos del cliente
         cliente: {
           nombre: clientes.nombre,
           dni: clientes.dni,
           direccion: clientes.direccion,
         },
-        // Datos del producto y detalles
         detalleId: detalleVentas.id,
         cantidad: detalleVentas.cantidad,
         precioUnitario: detalleVentas.precio,
@@ -72,68 +72,101 @@ export const traerVentaId = async (ventaId: string) => {
       .innerJoin(empresas, eq(ventas.empresaId, empresas.id))
       .where(eq(ventas.id, ventaId));
 
-    if (!ventaDB.length) return null;
+    // 2. Si no se encuentra en ventas, intentar buscar en Presupuestos
+    if (!comprobanteDB.length) {
+      comprobanteDB = await db
+        .select({
+          comprobante: presupuesto,
+          empresa: empresas,
+          cliente: {
+            nombre: clientes.nombre,
+            dni: clientes.dni,
+            direccion: clientes.direccion,
+          },
+          detalleId: detallePresupuesto.id,
+          cantidad: detallePresupuesto.cantidad,
+          precioUnitario: detallePresupuesto.precioUnitario,
+          impuesto: detallePresupuesto.impuesto || 0,
+          subtotal: detallePresupuesto.subtotal || 0,
+          descuento: detallePresupuesto.descuento || 0,
+          descripcion: productos.descripcion,
+          iva: productos.iva || 0,
+        })
+        .from(presupuesto)
+        .innerJoin(detallePresupuesto, eq(detallePresupuesto.presupuestoId, presupuesto.id))
+        .innerJoin(productos, eq(detallePresupuesto.productoId, productos.id))
+        .innerJoin(clientes, eq(presupuesto.clienteId, clientes.id))
+        .innerJoin(empresas, eq(presupuesto.empresaId, empresas.id))
+        .where(eq(presupuesto.id, ventaId));
+    }
 
-    // Estructuramos la respuesta
-    const venta: ComprobanteDetalle = {
-      id: ventaDB[0].venta.id,
-      fecha: ventaDB[0].venta.fecha,
+    if (!comprobanteDB.length) return null;
+
+    const primerRegistro = comprobanteDB[0];
+
+    // Estructuramos la respuesta unficada
+    const comprobante: ComprobanteDetalle = {
+      id: primerRegistro.comprobante.id,
+      codigo: (primerRegistro.comprobante as any).codigo || "",
+      numeroFormateado: primerRegistro.comprobante.numeroFormateado || "",
+      puntoVenta: primerRegistro.comprobante.puntoVenta || "",
+      empresaId: primerRegistro.comprobante.empresaId || "",
+      fecha: primerRegistro.comprobante.fecha,
+      tipo: (primerRegistro.comprobante as any).tipo || (primerRegistro.comprobante as any).tipoComprobante || "",
+      subtotal: primerRegistro.comprobante.total - primerRegistro.comprobante.impuesto - primerRegistro.comprobante.descuento,
+      impuesto: primerRegistro.comprobante.impuesto || 0,
+      descuento: primerRegistro.comprobante.descuento || 0,
+      total: primerRegistro.comprobante.total || 0,
+      expira_at: (primerRegistro.comprobante as any).expira_at,
       dataEmpresa: {
-        razonSocial: ventaDB[0].empresa.razonSocial,
-        direccion: ventaDB[0].empresa.direccion || "",
-        documento: ventaDB[0].empresa.documento || 0 ,
-        telefono: ventaDB[0].empresa.telefono || "",
-        email: ventaDB[0].empresa.email || "",
-        logo: ventaDB[0].empresa.srcPhoto || "",
+        razonSocial: primerRegistro.empresa.razonSocial,
+        direccion: primerRegistro.empresa.direccion || "",
+        documento: primerRegistro.empresa.documento || 0,
+        telefono: primerRegistro.empresa.telefono || "",
+        email: primerRegistro.empresa.email || "",
+        logo: primerRegistro.empresa.srcPhoto || "",
       },
       cliente: {
-        nombre: ventaDB[0].cliente.nombre,
-        dni: ventaDB[0].cliente.dni?.toString() || "",
-        direccion: ventaDB[0].cliente.direccion || "",
+        nombre: primerRegistro.cliente.nombre,
+        dni: primerRegistro.cliente.dni?.toString() || "",
+        direccion: primerRegistro.cliente.direccion || "",
       },
       comprobante: {
-        numero: ventaDB[0].venta.nComprobante || 0 ,
-        tipo: ventaDB[0].venta.tipo,
-        fecha: ventaDB[0].venta.fecha,
-        metodoPago: ventaDB[0].venta.metodoPago || "EFECTIVO",
-        nCheque: ventaDB[0].venta.nCheque || "",
-        vencimientoCheque: ventaDB[0].venta.vencimientoCheque || "",
-        subtotal:ventaDB[0].venta.total - ventaDB[0].venta.impuesto - ventaDB[0].venta.descuento,
-        numeroFormateado: ventaDB[0].venta.numeroFormateado || "",
-        puntoVenta: ventaDB[0].venta.puntoVenta,
-        impuesto: ventaDB[0].venta.impuesto || 0,
-        descuento: ventaDB[0].venta.descuento || 0,
-        total: ventaDB[0].venta.total || 0,
+        numero: (primerRegistro.comprobante as any).nComprobante || (primerRegistro.comprobante as any).numero || 0,
+        numeroFormateado: primerRegistro.comprobante.numeroFormateado || "",
+        tipo: (primerRegistro.comprobante as any).tipo || (primerRegistro.comprobante as any).tipoComprobante || "",
+        fecha: primerRegistro.comprobante.fecha,
+        metodoPago: (primerRegistro.comprobante as any).metodoPago || "EFECTIVO",
+        nCheque: (primerRegistro.comprobante as any).nCheque || "",
+        vencimientoCheque: (primerRegistro.comprobante as any).vencimientoCheque || "",
+        subtotal: primerRegistro.comprobante.total - primerRegistro.comprobante.impuesto - primerRegistro.comprobante.descuento,
+        puntoVenta: primerRegistro.comprobante.puntoVenta,
+        impuesto: primerRegistro.comprobante.impuesto || 0,
+        descuento: primerRegistro.comprobante.descuento || 0,
+        total: primerRegistro.comprobante.total || 0,
+        expira_at: (primerRegistro.comprobante as any).expira_at,
       },
-      items: ventaDB.map((item) => {
-        const precioSubtotal =
-          item.precioUnitario - (item.precioUnitario * item.iva) / 100;
-
-        return {
-          id: item.detalleId,
-          descripcion: item.descripcion,
-          cantidad: item.cantidad,
-          precioUnitario: item.precioUnitario,
-          impuesto: item.impuesto || 0,
-          iva: item.iva || 0,
-          descuento: item.descuento || 0,
-          subtotal: item.subtotal,
-        };
-      }),
+      items: comprobanteDB.map((item) => ({
+        id: item.detalleId,
+        descripcion: item.descripcion,
+        cantidad: item.cantidad,
+        precioUnitario: item.precioUnitario,
+        impuesto: item.impuesto || 0,
+        iva: item.iva || 0,
+        descuento: item.descuento || 0,
+        subtotal: item.subtotal,
+      })),
       totales: {
-        subtotal:
-          ventaDB[0].venta.total || 0 -
-          ventaDB[0].venta.impuesto || 0 +
-          ventaDB[0].venta.descuento || 0,
-        impuesto: ventaDB[0].venta.impuesto || 0,
-        descuento: ventaDB[0].venta.descuento || 0,
-        total: ventaDB[0].venta.total || 0,
+        subtotal: primerRegistro.comprobante.total - primerRegistro.comprobante.impuesto + primerRegistro.comprobante.descuento,
+        impuesto: primerRegistro.comprobante.impuesto || 0,
+        descuento: primerRegistro.comprobante.descuento || 0,
+        total: primerRegistro.comprobante.total || 0,
       },
     };
-console.log('venta ->', venta)
-    return venta;
+
+    return comprobante as any;
   } catch (error) {
-    console.error("Error al obtener la venta:", error);
-    throw new Error("Error al obtener los detalles de la venta");
+    console.error("Error al obtener el comprobante:", error);
+    throw new Error("Error al obtener los detalles del comprobante");
   }
 };

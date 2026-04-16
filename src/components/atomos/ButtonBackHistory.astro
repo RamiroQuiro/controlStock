@@ -1,10 +1,26 @@
 ---
-import { ArrowBigLeft, ArrowBigLeftDash, ArrowBigLeftDashIcon, ArrowBigRight, ArrowLeft, ArrowLeftSquareIcon, LucideArrowBigLeft, LucideArrowBigLeftDash } from "lucide-react";
-
-
+import {
+  ArrowBigLeft,
+  ArrowBigLeftDash,
+  ArrowBigLeftDashIcon,
+  ArrowBigRight,
+  ArrowLeft,
+  ArrowLeftSquareIcon,
+  LucideArrowBigLeft,
+  LucideArrowBigLeftDash,
+} from "lucide-react";
+const { pathname } = Astro.url;
+const segments = pathname.split("/").filter(Boolean);
+const isSubRoute = segments.length > 2;
 ---
 
-<div onclick="history.back()" class="p-1 cursor-pointer flex items-center border rounded-lg hover:shadow-md  duration-150  group bg-primary-bg-componentes border-gray-200/70 ">
- <ArrowLeft>
-  <p class="text-xs pr-2">Volver</p>
-</div>
+{
+  isSubRoute && (
+    <div
+      onclick="history.back()"
+      class="p-1 ml-3 cursor-pointer flex items-center border rounded-lg hover:shadow-md duration-150 group bg-primary-bg-componentes border-gray-200/70"
+    >
+      <ArrowLeft />
+    </div>
+  )
+}

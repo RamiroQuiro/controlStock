@@ -1,20 +1,21 @@
-import type { APIRoute } from 'astro';
-import { ComprobanteService } from '../../../services/comprobante.service';
-import { traerVentaId } from '../../../services/ventastodas.service';
+import type { APIRoute } from "astro";
+import { ComprobanteService } from "../../../services/comprobante.service";
+import { traerVentaId } from "../../../services/ventastodas.service";
+import { createResponse } from "../../../types";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const { ventaId } = await request.json();
 
     if (!ventaId) {
-      return new Response('Falta el ID de la venta', { status: 400 });
+      return createResponse(400, "Falta el ID de la venta", null);
     }
 
     // 1. Obtener los datos completos de la venta
     const dataVenta = await traerVentaId(ventaId);
 
     if (!dataVenta) {
-      return new Response('Venta no encontrada', { status: 404 });
+      return createResponse(404, "Venta no encontrada", null);
     }
 
     // 2. Generar el HTML del ticket
@@ -25,12 +26,11 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(html, {
       status: 200,
       headers: {
-        'Content-Type': 'text/html',
+        "Content-Type": "text/html",
       },
     });
-
   } catch (error) {
-    console.error('Error generando el ticket:', error);
-    return new Response('Error interno del servidor', { status: 500 });
+    console.error("Error generando el ticket:", error);
+    return createResponse(500, "Error interno del servidor", null);
   }
 };

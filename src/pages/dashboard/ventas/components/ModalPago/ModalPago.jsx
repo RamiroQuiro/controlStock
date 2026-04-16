@@ -8,6 +8,7 @@ import { Table2 } from 'lucide-react';
 import Comprobante from '../../../../../components/Comprobante/Comprobante';
 import ModalComprobante from '../../../../../components/Comprobante/ModalComprobante';
 import { actions as cajaActions } from '../../../../../context/caja.store';
+import ModalReact from '../../../../../components/moleculas/ModalReact';
 
 export default function ModalPago({
   isOpen,
@@ -45,14 +46,17 @@ export default function ModalPago({
   
   const montoRecibidoRef = useRef(null);
 
-  const handlePagaCon = (e) => {
-    const montoIngresado = Number(e.target.value);
-    const total = montoIngresado - totalVenta;
-    setVueltoCalculo(total);
-    setFormularioVenta({ ...formularioVenta, total: total });
+  const vueltoCalculadoReal = () => {
+    const totalConDescuento = totalVenta * (1 - (formularioVenta.descuento || 0) / 100);
+    return totalConDescuento;
   };
 
-  // --- EFECTOS SECUNDARIOS ---
+  const handlePagaCon = (e) => {
+    const montoIngresado = Number(e.target.value);
+    const vuelto = montoIngresado - vueltoCalculadoReal();
+    setVueltoCalculo(vuelto);
+  };
+
 
   // Efecto para el autofoco en el campo de monto recibido
   useEffect(() => {
@@ -132,37 +136,39 @@ export default function ModalPago({
   const finalizarCompra = async () => {
     loader(true);
     setEsPresupuesto('comprobante');
-    if (totalVenta == 0) {
-      showToast('monto total 0', { background: 'bg-primary-400' });
-      return;
+    const totalFinalReal = vueltoCalculadoReal();
+
+    if (totalFinalReal <= 0 && totalVenta !== 0) {
+      // Just a small sanity check
     }
+
     try {
       const responseFetch = await fetch('/api/sales/finalizarVenta', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productos: $productos,
-          totalVenta,
+          totalVenta: totalFinalReal,
           userId: user.id,
           empresaId: user.empresaId,
-          data: formularioVenta,
+          data: { ...formularioVenta, total: totalFinalReal },
         }),
       });
       const data = await responseFetch.json();
       if (data.status == 200) {
         showToast(data.msg, { background: 'bg-green-600' });
         
-        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET ---
-        await imprimirTicket(data.data.id);
+        loader(false);
+        setVentaFinalizada(data.data);
+        setMostrarComprobante(true);
 
         // --- REFRESCAR ESTADO DE CAJA SI FUE EFECTIVO ---
         if (metodoPago === 'efectivo') {
           cajaActions.fetchEstadoCaja();
         }
 
-        loader(false);
-        setVentaFinalizada(data.data);
-        setMostrarComprobante(true);
+        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET EN BACKGROUND ---
+        imprimirTicket(data.data.id).catch(err => console.error(err));
       }
     } catch (error) {
       console.log(error);
@@ -197,12 +203,12 @@ export default function ModalPago({
       if (data.status == 200) {
         showToast(data.msg, { background: 'bg-green-600' });
         
-        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET ---
-        await imprimirTicket(data.data.id);
-
         loader(false);
         setVentaFinalizada(data.data);
         setMostrarComprobante(true);
+
+        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET EN BACKGROUND ---
+        imprimirTicket(data.data.id).catch(err => console.error(err));
       }
     } catch (error) {
       console.log(error);
@@ -226,29 +232,21 @@ export default function ModalPago({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-        <div className="bg-white relative h-4/5 rounded-lg py-4 px-6 md:h-[95vh] md:w-full z-50 max-w-2xl md:mb-0 mb-24 animate-aparecer">
-        <div className='w-full flex items-start justify-between mb-2'>
-
-          <h2 className="text-2xl font-semibold ">Finalizar Venta</h2>
-              
-              {/* Agregar selector de tipo de comprobante */}
-              <div className=" flex items-center md:w-1/3 justify-start gap-">
-                <label className="text-xs block w-fit">Tipo de Comp.</label>
-                <select
-                  name="tipoComprobante"
-                  value={formularioVenta.tipoComprobante}
-                  onChange={handleChange}
-                  className="w-full border text-sm rounded-lg p-1 bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
-                >
-                  <option value="FC_B">Factura B</option>
-                  <option value="FC_A">Factura A</option>
-                  <option value="FC_C">Factura C</option>
-                  <option value="PR">Presupuesto</option>
-                  <option value="NT">Nota Credito</option>
-                </select>
-              </div>
-
+      <ModalReact title="Finalizar Venta" onClose={() => setModalConfirmacion(false)} id="pago">
+        <div className="flex items-center w-full justify-between gap-3 mb-6 bg-gray-50 p-3 rounded-lg border">
+          <label className="text-sm font-semibold block w-fit">Tipo de Comprobante:</label>
+          <select
+            name="tipoComprobante"
+            value={formularioVenta.tipoComprobante}
+            onChange={handleChange}
+            className="w-1/2 border text-sm rounded-lg p-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
+          >
+            <option value="FC_B">Factura B</option>
+            <option value="FC_A">Factura A</option>
+            <option value="FC_C">Factura C</option>
+            <option value="PR">Presupuesto</option>
+            <option value="NT">Nota de Crédito</option>
+          </select>
         </div>
           <div className=" flex flex-col h-full w-full overflow-y-auto pb-10">
             {/* Sección Cliente */}
@@ -448,8 +446,7 @@ export default function ModalPago({
               Confirmar Venta
             </button>
           </div>
-        </div>
-      </div>
+      </ModalReact>
       {/* Modal de comprobante */}
       {mostrarComprobante && (
         <ModalComprobante

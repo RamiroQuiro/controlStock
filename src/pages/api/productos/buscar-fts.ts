@@ -1,10 +1,9 @@
 import type { APIRoute } from "astro";
 
-import { like, eq, or, sql, and } from "drizzle-orm";
+import { like, eq, or, and } from "drizzle-orm";
 import db from "../../../db";
 import {
   productos,
-  productosFts,
   proveedores,
   stockActual,
   depositos,
@@ -43,23 +42,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     let productosResult: any[] = [];
 
-    // 🔵 1 — FTS si query > 2 chars
-    if (query.length > 2) {
-      productosResult = await db
-        .select(camposProducto)
-        .from(productosFts)
-        .innerJoin(productos, eq(productosFts.id, productos.id))
-        .where(
-          and(
-            sql`productos_fts MATCH ${query + "*"}`,
-            eq(productos.empresaId, empresaId)
-          )
-        )
-        .orderBy(sql`rank`)
-        .limit(20);
-    }
-
-    // 🔵 2 — Fallback a LIKE si no hay resultados FTS o query corta
+    // 🔵 1 — Búsqueda Optimizada nativa LIKE (Ultra veloz con Local Replicas)
     if (productosResult.length === 0) {
       productosResult = await db
         .select(camposProducto)

@@ -114,6 +114,32 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 };
 
+// GET: Obtener todos los depósitos de la empresa
+export const GET: APIRoute = async ({ request, locals }) => {
+  try {
+    const { user } = locals;
+    const empresaId = user?.empresaId;
+
+    if (!empresaId) {
+      return createResponse(400, "ID de empresa requerido o usuario no autenticado");
+    }
+
+    const depositosDB = await db
+      .select()
+      .from(depositos)
+      .where(eq(depositos.empresaId, empresaId));
+
+    if (depositosDB.length === 0) {
+      return createResponse(205, "No se encontraron depósitos", []);
+    }
+
+    return createResponse(200, "Depósitos encontrados", depositosDB);
+  } catch (error) {
+    console.error("Error al buscar depósitos:", error);
+    return createResponse(500, "Error crítico al buscar depósitos");
+  }
+};
+
 // PUT: Actualizar un depósito existente
 export const PUT: APIRoute = async ({ request, locals }) => {
   if (!locals.user) {

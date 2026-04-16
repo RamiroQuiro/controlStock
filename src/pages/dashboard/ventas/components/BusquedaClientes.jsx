@@ -3,57 +3,39 @@ import { armandoNewArray } from '../../../../utils/newArrayTable';
 import { clienteColumns } from '../../../../utils/columnasTables';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 import { SearchCode } from 'lucide-react';
-import { showToast } from '../../../../utils/toast/toastShow';
-import { loader } from '../../../../utils/loader/showLoader';
 import Table from '../../../../components/tablaComponentes/Table';
+import { useQuery } from '@tanstack/react-query';
 
 export default function BusquedaClientes({ onClose, setCliente, empresaId }) {
-  const [clientesEncontrados, setClientesEncontrados] = useState([]);
   const [inputBusqueda, setInputBusqueda] = useState('');
-  const [resultados, setResultados] = useState([]);
 
   const handleChange = (e) => {
     e.preventDefault();
     setInputBusqueda(e.target.value);
   };
 
-  const handleCliente = async (e) => {
-    loader(true);
-    if (inputBusqueda.trim() === '') {
-      setResultados([]); // Resetea resultados si el input está vacío
-      return;
-    }
-
-    if (inputBusqueda.length >= 3) {
-      try {
-        const responseFetch = await fetch(
-          `/api/clientes/buscarCliente?search=${inputBusqueda}`,
-          {
-            method: 'GET',
-            headers: {
-              'xx-empresa-id': empresaId,
-            },
-          }
-        );
-        const data = await responseFetch.json();
-
-        if (data.status === 200) {
-          setClientesEncontrados(data.data); // Suponiendo que `data.clientes` es un array
-          loader(false);
-        } else {
-          setResultados([]);
-          loader(false);
-          showToast(data.msg, { background: 'bg-primary-400' });
+  const { data: clientesEncontrados = [], isFetching } = useQuery({
+    queryKey: ['busquedaClientes', inputBusqueda, empresaId],
+    queryFn: async () => {
+      if (inputBusqueda.length < 3) return [];
+      const responseFetch = await fetch(
+        `/api/clientes/buscarCliente?search=${inputBusqueda}`,
+        {
+          method: 'GET',
+          headers: {
+            'xx-empresa-id': String(empresaId),
+          },
         }
-        loader(false);
-      } catch (error) {
-        console.error('Error en la búsqueda de clientes:', error);
-        loader(false);
-        setResultados([]);
-        showToast('Error al buscar clientes', { background: 'bg-red-500' });
+      );
+      const data = await responseFetch.json();
+      if (data.status === 200) {
+        return data.data || [];
       }
-    }
-  };
+      return [];
+    },
+    enabled: inputBusqueda.length >= 3,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const newArray = armandoNewArray(clientesEncontrados, [
     'nombre',
@@ -63,30 +45,28 @@ export default function BusquedaClientes({ onClose, setCliente, empresaId }) {
   ]);
 
   const clickRegistro = (e) => {
-    console.log(e);
     onClose(false);
     setCliente(e);
   };
 
   return (
-    <div className="flex flex-col  items-start justify-normal w-full h-full p-5">
-      <h2 className="text-3xl font-semibold mb-">Busqueda de clientes</h2>
+    <div className="flex flex-col items-start justify-normal w-full h-full p-5">
+      <h2 className="text-3xl font-semibold mb-3">Busqueda de clientes</h2>
       <div className="w-full my-3 inline-flex gap-3">
         <InputComponenteJsx
           tab={1}
           name={'cliente'}
           type={'search'}
-          placeholder={'Buscar cliente...'}
+          placeholder={'Escriba nombre o DNI (min. 3 letras)...'}
           handleChange={handleChange}
         />
-        <button
-          tabIndex={2}
-          onClick={handleCliente}
-          id={'btnBusquedaCliente'}
-          className="bg-gray-400 focus:border-primary-100/50 border focus:ring text-white flex items-center justify-center px-2 w-10 py-0.5 rounded-full hover:bg-primary-100/80 duration-150"
-        >
-          <SearchCode className="w-6 h-6" />
-        </button>
+        <div className="flex items-center justify-center px-2 w-10 py-0.5">
+          {isFetching ? (
+            <div className="animate-spin border-4 border-primary-100 border-t-transparent rounded-full w-6 h-6" />
+          ) : (
+            <SearchCode className="w-6 h-6 text-gray-400" />
+          )}
+        </div>
       </div>
 
       <Table

@@ -268,6 +268,7 @@ export class ComprobanteService {
               </div>
             </div>
   
+            ${data.comprobante.tipo !== 'PRESUPUESTO' ? `
             <div class="info-fiscal">
               ${
                 data.comprobante.cae
@@ -283,6 +284,14 @@ export class ComprobanteService {
                 Este comprobante fue generado electrónicamente. Consulte su validez en www.afip.gob.ar
               </div>
             </div>
+            ` : `
+            <div class="info-fiscal">
+              <div>
+                <b>Documento no válido como factura</b>.<br>
+                Este presupuesto tiene una validez de 5 días desde su fecha de emisión.
+              </div>
+            </div>
+            `}
           </div>
           <div class="footer">
           <p><b>Gracias por su compra</b></p>
@@ -587,7 +596,7 @@ export class ComprobanteService {
     descuentos: number;
     total: number;
   }) {
-    const { id, fecha, cliente, empresa, comprobante, items } = data;
+    const { id, fecha, cliente, empresa, comprobante, items, subtotal, impuestos, descuentos, total } = data;
 
     return `
   <!DOCTYPE html>
@@ -701,23 +710,23 @@ export class ComprobanteService {
       <table class="totales">
         <tr>
           <td>Subtotal:</td>
-          <td style="text-align:right">${formateoMoneda.format(totales.subtotal)}</td>
+          <td style="text-align:right">${formateoMoneda.format(subtotal)}</td>
         </tr>
         ${
-          totales.descuentos > 0
+          descuentos > 0
             ? `<tr>
                 <td>Descuentos:</td>
-                <td style="text-align:right">-${formateoMoneda.format(totales.descuentos)}</td>
+                <td style="text-align:right">-${formateoMoneda.format(descuentos)}</td>
               </tr>`
             : ''
         }
         <tr>
           <td>IVA:</td>
-          <td style="text-align:right">${formateoMoneda.format(totales.impuestos)}</td>
+          <td style="text-align:right">${formateoMoneda.format(impuestos)}</td>
         </tr>
         <tr class="total">
           <td>Total:</td>
-          <td style="text-align:right">${formateoMoneda.format(totales.total)}</td>
+          <td style="text-align:right">${formateoMoneda.format(total)}</td>
         </tr>
       </table>
     </div>

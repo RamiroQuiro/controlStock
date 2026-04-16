@@ -77,7 +77,7 @@ export default function FormularioNuevoDeposito({
           data.msg || (deposito ? "Depósito actualizado" : "Depósito creado"),
         );
         onSave(); // Ejecutamos el callback para cerrar el modal y refrescar
-        handleDepositoAgregado(data);
+        handleDepositoAgregado(data.data);
       } else {
         setErrorMessage(data.msg || "Ocurrió un error");
         showToast("error", data.msg || "Ocurrió un error");
@@ -112,7 +112,10 @@ export default function FormularioNuevoDeposito({
             value={formData.nombre}
             handleChange={handleChange}
             placeholder="Ej: Depósito Central"
-            required
+            type="text"
+            disable={false}
+            tab={0}
+            className=""
           />
         </div>
         <div>
@@ -128,6 +131,10 @@ export default function FormularioNuevoDeposito({
             value={formData.encargado}
             handleChange={handleChange}
             placeholder="Ej: Juan Pérez"
+            type="text"
+            disable={false}
+            tab={0}
+            className=""
           />
         </div>
       </div>
@@ -162,6 +169,10 @@ export default function FormularioNuevoDeposito({
           value={formData.direccion}
           handleChange={handleChange}
           placeholder="Ej: Av. Siempre Viva 123"
+          type="text"
+          disable={false}
+          tab={0}
+          className=""
         />
       </div>
 
@@ -180,6 +191,9 @@ export default function FormularioNuevoDeposito({
             value={formData.telefono}
             handleChange={handleChange}
             placeholder="Ej: +54 9 11 1234-5678"
+            disable={false}
+            tab={0}
+            className=""
           />
         </div>
         <div>
@@ -196,6 +210,9 @@ export default function FormularioNuevoDeposito({
             value={formData.email}
             handleChange={handleChange}
             placeholder="Ej: contacto@deposito.com"
+            disable={false}
+            tab={0}
+            className=""
           />
         </div>
       </div>
@@ -214,6 +231,9 @@ export default function FormularioNuevoDeposito({
           value={formData.capacidadTotal}
           handleChange={handleChange}
           placeholder="Ej: 10000"
+          disable={false}
+          tab={0}
+          className=""
         />
       </div>
 

@@ -6,8 +6,13 @@ if (!import.meta.env.TURSO_DB_URL || !import.meta.env.TURSO_DB_AUTH_TOKEN) {
 }
 
 const client = createClient({
-  url: import.meta.env.TURSO_DB_URL,
+  // URL local donde se guardará la copia súper rápida (se crea sola)
+  url: "file:replica.db", 
+  // La URL real de Turso a la que nos sincronizamos
+  syncUrl: import.meta.env.TURSO_DB_URL, 
   authToken: import.meta.env.TURSO_DB_AUTH_TOKEN,
+  // Sincroniza cambios traídos por otros usuarios cada 60 segundos
+  syncInterval: 60, 
 });
 
 import * as schema from "./schema";

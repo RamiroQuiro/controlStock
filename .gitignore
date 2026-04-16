@@ -28,3 +28,8 @@ pnpm-debug.log*
 # ignorar carpeta de imagenes
 element/imgs/
 !element/imgs/.gitkeep
+
+replica.db
+replica.db-info
+replica.db-shm
+replica.db-wal

@@ -66,29 +66,33 @@ export interface ComprobanteDetalle {
   numeroFormateado: string;
   puntoVenta: string;
   empresaId: string;
-  fecha: string;
+  fecha: string | Date;
   tipo: string;
   subtotal: number;
-  impuesto: string;
-  descuento: string;
+  impuesto: string | number;
+  descuento: string | number;
   total: number;
-  expira_at: string;
+  expira_at?: string | Date;
   cliente: {
     nombre: string;
     dni: string;
     direccion: string;
+    documento?: string | number;
+    condicionIva?: string;
   };
   dataEmpresa: {
     razonSocial: string;
     direccion: string;
-    documento: number;
+    documento: number | string;
     telefono: string;
     email: string;
-    web: string;
+    web?: string;
     logo: string;
+    condicionIva?: string;
+    colorAsset?: string;
   };
   comprobante: {
-    numero: string;
+    numero: string | number;
     numeroFormateado: string;
     presupuesto?: string;
     metodoPago?: string;
@@ -101,8 +105,8 @@ export interface ComprobanteDetalle {
     iva?: number;
     nTransferencia?: string;
     descuento?: number;
-    fecha?: string;
-    expira_at?: string;
+    fecha?: string | Date;
+    expira_at?: string | Date;
     total?: number;
     cae?: string;
     cae_vto?: string;

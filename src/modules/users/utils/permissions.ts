@@ -37,9 +37,14 @@ export function tienePermiso(
       PERMISOS.STOCK_VER,
       PERMISOS.PRODUCTOS_VER,
       PERMISOS.PRODUCTOS_CREAR,
-      PERMISOS.PRODUCTOS_EDITAR,
+      /* Se quitó PRODUCTOS_EDITAR para que no modifiquen precios */
       PERMISOS.PROVEEDORES_VER,
       PERMISOS.STOCK_AJUSTAR,
+      // Nuevos permisos de logística agregados:
+      PERMISOS.TRASLADO_CREAR,
+      PERMISOS.TRASLADO_RECIBIR,
+      PERMISOS.TRASLADO_VER,
+      PERMISOS.ORDEN_COMPRA_CREAR, 
     ],
   };
 

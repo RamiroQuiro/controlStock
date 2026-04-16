@@ -3,6 +3,7 @@ import { useCaja } from '../../../../hook/useCaja';
 import { formateoMoneda } from '../../../../utils/formateoMoneda';
 import Button from '../../../../components/atomos/Button';
 import Input from '../../../../components/atomos/Input';
+import { Card } from '../../../../components/organismos/Card';
 
 export default function PanelCajaReact() {
   const { caja, loading, abrirCaja, cerrarCaja, registrarMovimiento } = useCaja();
@@ -53,7 +54,7 @@ export default function PanelCajaReact() {
   // Renderizado para Caja Cerrada
   if (caja.estado === 'cerrada' && !loading) {
     return (
-      <div className="h-full w-full flex flex-col justify-center">
+      <Card className="h-full w-full flex flex-col justify-center">
         <div className="flex justify-between items-center mb-2">
           <div>
             <h3 className="font-bold text-gray-700">🔒 Caja Cerrada</h3>
@@ -88,13 +89,13 @@ export default function PanelCajaReact() {
             </div>
           </div>
         )}
-      </div>
+      </Card>
     );
   }
 
   // Renderizado para Caja Abierta (o Loading inicial, mostrando estructura base)
   return (
-    <div className="h-full w-full flex flex-col justify-between">
+    <Card className="h-full w-full flex flex-col justify-between">
       <div className="flex justify-between items-start mb-2">
         <div>
           <h3 className="font-bold text-emerald-800 flex items-center gap-2">
@@ -207,6 +208,6 @@ export default function PanelCajaReact() {
         </div>
       )}
 
-    </div>
+    </Card>
   );
 }

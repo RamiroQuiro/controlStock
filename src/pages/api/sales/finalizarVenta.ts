@@ -13,16 +13,14 @@ import {
   movimientosCaja 
 } from "../../../db/schema";
 import { nanoid } from "nanoid";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { agregarCeros } from "../../../lib/calculos";
-import { getFechaUnix } from "../../../utils/timeUtils";
 
 export async function POST({ request, locals }: APIContext): Promise<Response> {
   try {
     const {
       productos: productosSeleccionados,
       userId,
-
       data,
     } = await request.json();
     const { user } = locals;
@@ -52,16 +50,21 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       );
     }
 
+    // --- OPTIMIZACIÓN 1: Chequear stock en Bulk (1 sola query) ---
+    const productIds = productosSeleccionados.map((p) => p.id);
+    const stockExistenteDB = await db
+      .select({ productoId: stockActual.productoId, stock: stockActual.cantidad })
+      .from(stockActual)
+      .where(inArray(stockActual.productoId, productIds));
+
+    // Validar en local
     for (const prod of productosSeleccionados) {
-      const [productoDB] = await db
-        .select({ stock: stockActual.cantidad })
-        .from(stockActual)
-        .where(eq(stockActual.productoId, prod.id));
-      if (!productoDB || productoDB.stock < prod.cantidad) {
+      const dbItem = stockExistenteDB.find((s) => s.productoId === prod.id);
+      if (!dbItem || dbItem.stock < prod.cantidad) {
         return new Response(
           JSON.stringify({
             status: 409,
-            msg: `Stock insuficiente para ${prod.nombre}. Stock: ${productoDB?.stock || 0}`,
+            msg: `Stock insuficiente para ${prod.nombre}. Stock: ${dbItem?.stock || 0}`,
           }),
           { status: 409 }
         );
@@ -111,6 +114,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
           estado: "emitido",
         })
         .returning();
+        
       const [ventaFinalizada] = await trx
         .insert(ventas)
         .values({
@@ -135,20 +139,21 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
         })
         .returning();
 
-      await Promise.all(
-        productosSeleccionados.map((prod: any) =>
-          trx.insert(detalleVentas).values({
-            id: nanoid(),
-            ventaId: ventaFinalizada.id,
-            productoId: prod.id,
-            empresaId,
-            nComprobante: numeroFormateado,
-            cantidad: prod.cantidad,
-            precio: prod.pVenta,
-            subtotal: prod.cantidad * prod.pVenta,
-          })
-        )
-      );
+      // --- OPTIMIZACIÓN 2: Inserciones en lote (Bulk Inserts) ---
+      const detallesValues = productosSeleccionados.map((prod: any) => ({
+        id: nanoid(),
+        ventaId: ventaFinalizada.id,
+        productoId: prod.id,
+        empresaId,
+        nComprobante: numeroFormateado,
+        cantidad: prod.cantidad,
+        precio: prod.pVenta,
+        subtotal: prod.cantidad * prod.pVenta,
+      }));
+      await trx.insert(detalleVentas).values(detallesValues);
+
+      // --- OPTIMIZACIÓN 3: Bulk Update de Stock usando subconsultas o Promise.all plano ---
+      // Drizzle SQLite bulk update no mapea limpio, así que usamos Promise.all pero ahora que la DB es replica local no ahoga.
       await Promise.all(
         productosSeleccionados.map((prod: any) =>
           trx
@@ -160,22 +165,21 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             .where(eq(stockActual.productoId, prod.id))
         )
       );
-      await Promise.all(
-        productosSeleccionados.map((prod: any) =>
-          trx.insert(movimientosStock).values({
-            id: nanoid(12),
-            productoId: prod.id,
-            cantidad: prod.cantidad,
-            tipo: "egreso",
-            fecha: fechaVenta,
-            userId,
-            empresaId,
-            motivo: "venta",
-            clienteId,
-            nComprobante: numeroFormateado,
-          })
-        )
-      );
+
+      // --- OPTIMIZACIÓN 4: Movimientos Stock en Bulk ---
+      const movimientosValues = productosSeleccionados.map((prod: any) => ({
+        id: nanoid(12),
+        productoId: prod.id,
+        cantidad: prod.cantidad,
+        tipo: "egreso",
+        fecha: fechaVenta,
+        userId,
+        empresaId,
+        motivo: "venta",
+        clienteId,
+        nComprobante: numeroFormateado,
+      }));
+      await trx.insert(movimientosStock).values(movimientosValues);
 
       const [dataEmpresa] = await trx
         .select({

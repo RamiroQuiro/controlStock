@@ -1,5 +1,6 @@
-import { CircleX, XCircle } from 'lucide-react';
-import React from 'react';
+import { CircleX } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function ModalReact({
   onClose,
@@ -8,7 +9,16 @@ export default function ModalReact({
   title,
   id,
 }) {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       style={{ margin: 0, position: 'fixed' }}
       className="fixed top-0 left-0 mt-0 w-full h-screen z-[80] bg-black bg-opacity-50 flex items-center  justify-center backdrop-blur-sm"
@@ -31,6 +41,7 @@ export default function ModalReact({
         </div>
         <div className="p-6 overflow-y-auto flex-grow">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

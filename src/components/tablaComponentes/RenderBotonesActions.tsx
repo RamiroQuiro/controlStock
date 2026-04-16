@@ -1,6 +1,6 @@
-import BotonEditar from '../moleculas/BotonEditar';
-import BotonEliminar from '../moleculas/BotonEliminar';
-import { dataFormularioContexto } from '../../context/store';
+import BotonEditar from "../moleculas/BotonEditar";
+import BotonEliminar from "../moleculas/BotonEliminar";
+import { dataFormularioContexto } from "../../context/store";
 import {
   CircleMinus,
   CirclePlus,
@@ -11,9 +11,9 @@ import {
   MinusCircle,
   Tag,
   Target,
-} from 'lucide-react';
-import BotonDesactivar from '../moleculas/BotonDesactivar';
-import { loader } from '../../utils/loader/showLoader';
+} from "lucide-react";
+import BotonDesactivar from "../moleculas/BotonDesactivar";
+import { loader } from "../../utils/loader/showLoader";
 
 //   botonera de acciones
 export const RenderActionsProductos = (data) => (
@@ -128,12 +128,12 @@ export const RenderActionsUsers = (data) => {
     loader(true);
 
     try {
-      await fetch('/api/users/editUser', {
-        method: 'PUT',
+      await fetch("/api/users/editUser", {
+        method: "PUT",
         body: JSON.stringify({
           id: data?.id,
           suspender: true,
-          activo: data.activo == 'activo' ? 0 : 1,
+          activo: data.activo == "activo" ? 0 : 1,
         }),
       });
       loader(false);
@@ -145,7 +145,7 @@ export const RenderActionsUsers = (data) => {
   console.log(data);
   return (
     <div className="flex gap-2 pr-5 justify-end items-center text-xs">
-      {data.rol !== 'admin' && (
+      {data.rol !== "admin" && (
         <>
           <BotonEditar handleClick={() => handleEditModal(data)} />
           <BotonDesactivar
@@ -225,6 +225,28 @@ export const RenderActionsProveedores = (data) => {
       >
         <Delete className="w-4 h-6" />
       </button>
+    </div>
+  );
+};
+
+export const RenderActionsVentasTodas = (data) => {
+  return (
+    <div className="flex gap-2 pr-5 justify-end items-center text-xs">
+      <button
+        className="text-white bg-green-600/70 hover:text-white   px-1 py-0.5 rounded hover:bg-green-400/80 duration-150"
+        onClick={() => (window.location.href = `/dashboard/ventas/${data.id}`)}
+      >
+        <Edit2 className="w-4 h-6" />
+      </button>
+      {/* <button
+        className="bg-primary-400 text-white  px-1 py-0.5 rounded hover:bg-primary-400/80 duration-150"
+        onClick={(e) => {
+          e.stopPropagation();
+          alert(`Eliminar: ${data.id}`);
+        }}
+      >
+        <Delete className="w-4 h-6" />
+      </button> */}
     </div>
   );
 };

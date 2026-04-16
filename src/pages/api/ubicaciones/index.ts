@@ -57,15 +57,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 };
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const url = new URL(request.url);
     const query = url.searchParams.get("search")?.toLowerCase();
-    const empresaId = request.headers.get("xx-empresa-id");
     const isAll = url.searchParams.get("all");
+    const { user } = locals;
+
+    const empresaId = user?.empresaId;
 
     if (!empresaId) {
-      return createResponse(400, "ID de empresa requerido");
+      return createResponse(400, "ID de empresa requerido o usuario no autenticado");
     }
 
     let whereCondition = eq(ubicaciones.empresaId, empresaId);

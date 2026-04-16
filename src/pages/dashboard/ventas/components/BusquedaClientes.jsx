@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import Table from '../../../../components/tablaComponentes/Table';
 import { armandoNewArray } from '../../../../utils/newArrayTable';
 import { clienteColumns } from '../../../../utils/columnasTables';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
 import { SearchCode } from 'lucide-react';
 import { showToast } from '../../../../utils/toast/toastShow';
 import { loader } from '../../../../utils/loader/showLoader';
+import Table from '../../../../components/tablaComponentes/Table';
 
 export default function BusquedaClientes({ onClose, setCliente, empresaId }) {
   const [clientesEncontrados, setClientesEncontrados] = useState([]);

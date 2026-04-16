@@ -1,20 +1,21 @@
 ---
 import { Plus, Users } from "lucide-react";
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import Card from "../../../../components/organismos/Card.astro";
+import Texto from "../../../../components/atomos/Texto";
 import TablaUsuarios from "./TablaUsuarios.astro";
 
 const {user}=Astro.locals
 ---
-<DivBox1 styleDiv="w-full">
-    <div class="flex justify-between items-center gap-2">
+<Card styleDiv="w-full">
+    <div class="flex justify-between items-center gap-2 mb-4">
       <div class="flex items-center gap-2">
         <Users className="w-8 h-8 text-primary-100 " />
-        <h2 class="text-xl font-semibold text-primary-textoTitle">
+        <Texto as="h2" variant="h2">
           Usuarios
-        </h2>
+        </Texto>
       </div>
 
     </div>
 
     <TablaUsuarios userId={user?.id} />
-  </DivBox1>
+  </Card>

@@ -1,6 +1,6 @@
 ---
-import Button1 from '../../../components/atomos/Button1.astro';
-import DivBox1 from '../../../components/atomos/DivBox1.astro';
+import Button from '../../../components/atomos/Button.astro';
+import Card from '../../../components/organismos/Card.astro';
 import MainDashboard from '../../../components/atomos/MainDashboard.astro';
 import ConfeccionTabla from './ConfeccionTabla';
 import Modal from '../../../components/moleculas/Modal.astro';
@@ -26,23 +26,17 @@ if (!user) {
         />
       </Modal>
       <a href="/api/ajustes/exportarDatos?tipo=clientes">
-        <Button1
-          id="btnExportar"
-          class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
-        >
+        <Button id="btnExportar">
           Exportar CSV
-        </Button1>
+        </Button>
       </a>
-      <Button1
-        id="btnExportarPDF"
-        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
-      >
+      <Button id="btnExportarPDF">
         Exportar PDF
-      </Button1>
+      </Button>
     </div>
   </div>
 
-  <DivBox1 styleDiv="w-full">
+  <Card styleDiv="w-full">
     <div class="md:mb-4 mb-2 flex flex-wrap md:flex-nowrap md:gap-4 gap-2">
       <input
         type="text"
@@ -74,7 +68,7 @@ if (!user) {
       client:load
       userId={user?.id}
     />
-  </DivBox1>
+  </Card>
 </MainDashboard>
 
 <script>

@@ -8,7 +8,7 @@ import {
 import { eq, and, sql } from "drizzle-orm";
 import db from "../../../db";
 import LayoutDash from "../../../components/layouts/LayoutDash.astro";
-import PerfilProducto from "../../../components/organismos/PerfilProducto";
+
 import {
   Card,
   CardContent,
@@ -40,8 +40,8 @@ const [productosResult, depositosDB, ubicacionesDB, stockResult, stockDetalle] =
       .where(
         and(
           eq(productosSchema.id, productoId),
-          eq(productosSchema.empresaId, empresaId)
-        )
+          eq(productosSchema.empresaId, empresaId),
+        ),
       )
       .limit(1),
 
@@ -75,7 +75,7 @@ const [productosResult, depositosDB, ubicacionesDB, stockResult, stockDetalle] =
       .from(stockActual)
       .leftJoin(
         depositosSchema,
-        eq(stockActual.depositosId, depositosSchema.id)
+        eq(stockActual.depositosId, depositosSchema.id),
       )
       .where(eq(stockActual.productoId, productoId)),
   ]);

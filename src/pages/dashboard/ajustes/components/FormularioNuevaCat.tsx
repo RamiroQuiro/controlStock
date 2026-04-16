@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
-import Button3 from "../../../../components/atomos/Button3.jsx";
 import { showToast } from "../../../../utils/toast/toastShow.js";
 import { categoriasStore } from "../../../../context/store.js";
 import type { Categoria } from "../../../../types/index.js";
 import LoaderReact from "../../../../utils/loader/LoaderReact.jsx";
+import Button from "../../../../components/atomos/Button";
 
 interface Category {
   id: string;
@@ -72,7 +72,7 @@ export default function FormularioNuevaCategoria({
         if (category) {
           // Modo edición: reemplazar elemento
           updatedData = currentData.map((cat: any) =>
-            cat.id === savedCategory.id ? savedCategory : cat
+            cat.id === savedCategory.id ? savedCategory : cat,
           );
         } else {
           // Modo creación: añadir elemento
@@ -175,7 +175,7 @@ export default function FormularioNuevaCategoria({
         </div>
       )}
       <div className="flex justify-end space-x-3 pt-4">
-        <Button3
+        <Button
           className="hover:bg-primary-400/80 bg-primary-400 py-1 text-white"
           onClick={handleCancel}
           disabled={loading}
@@ -183,8 +183,8 @@ export default function FormularioNuevaCategoria({
           id="btn-cancelar-cat"
         >
           Cancelar
-        </Button3>
-        <Button3
+        </Button>
+        <Button
           className="hover:bg-primary-100/80 bg-primary-100 py-1 text-white"
           onClick={handleGuardarCategoria}
           disabled={loading}
@@ -192,7 +192,7 @@ export default function FormularioNuevaCategoria({
           id="btn-guardar-cat"
         >
           {category ? "Actualizar" : "Guardar"}
-        </Button3>
+        </Button>
       </div>
     </form>
   );

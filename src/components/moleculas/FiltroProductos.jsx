@@ -523,10 +523,15 @@ export default function FiltroProductosV3({
                       {/* Precio y stock */}
                       <div className="text-right whitespace-nowrap">
                         <div className="text-sm font-semibold text-green-600">
-                          {formateoMoneda.format(producto.pVenta)}
+                          {modoCompra
+                            ? formateoMoneda.format(producto.pCompra || 0)
+                            : formateoMoneda.format(producto.pVenta || 0)}
+                        </div>
+                        <div className="text-xs text-gray-400 leading-none">
+                          {modoCompra ? 'costo' : 'precio'}
                         </div>
                         <div
-                          className={`text-xs ${
+                          className={`text-xs mt-0.5 ${
                             tieneStock
                               ? "text-gray-500"
                               : "text-red-500 font-semibold"
@@ -534,14 +539,27 @@ export default function FiltroProductosV3({
                         >
                           Stock: {stock}
                         </div>
+                        {/* 🆕 Desglose por sucursal para admin */}
+                        {Array.isArray(producto.stock?.stockPorDeposito) && producto.stock.stockPorDeposito.length > 1 && (
+                          <div className="mt-1 text-left text-[10px] text-blue-600 border-t border-blue-100 pt-1 space-y-0.5">
+                          {producto.stock.stockPorDeposito.map((dep) => (
+                              <div key={dep.depositoId} className="flex items-center justify-between gap-1">
+                                <span className="truncate max-w-[80px] text-gray-500">{dep.depositoNombre || 'Sin nombre'} {dep.principal ? '★' : ''}</span>
+                                <span className="font-bold text-blue-700">{dep.cantidad}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {/* Acción rápida */}
-                    {tieneStock && (
+                    {/* Acción rápida — siempre visible en modoCompra */}
+                    {(tieneStock || modoCompra) && (
                       <div className="mt-2 flex justify-end">
-                        <button className="text-xs bg-blue-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                          Agregar ✓
+                        <button className={`text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity text-white ${
+                          modoCompra ? 'bg-indigo-500' : 'bg-blue-500'
+                        }`}>
+                          {modoCompra ? 'Agregar a compra ✓' : 'Agregar ✓'}
                         </button>
                       </div>
                     )}

@@ -1,19 +1,24 @@
----
-import DivBox1 from "../../../components/atomos/DivBox1.astro";
-import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import LayoutDash from "../../../components/layouts/LayoutDash.astro";
-import FormularioCliente from "./[proveedorId]/components/FormularioCliente";
+import MainDashboard from "../../../components/atomos/MainDashboard.astro";
+import Card from "../../../components/organismos/Card.astro";
+import Texto from "../../../components/atomos/Texto";
+import FormularioProveedor from "./[proveedorId]/components/FormularioProveedor";
+
+const { user } = Astro.locals;
 ---
 
-<LayoutDash title="Nuevo Cliente">
-  <MainDashboard h1="Nuevo Cliente">
-    <DivBox1 styleDiv="w-full">
-      <h2 class="text-primary-textoTitle text-xl">Complete los datos</h2>
+<LayoutDash title="Nuevo Proveedor">
+  <MainDashboard h1="Nuevo Proveedor">
+    <Card styleDiv="w-full">
+      <Texto as="h2" variant="h2">Complete los datos</Texto>
       <div class="bg-primary-bg-componentes p-2 rounded-lg shadow-md w-full flex flex-col items-center justify-center py-5">
-
-        
-        <FormularioCliente client:load />
+        <FormularioProveedor 
+          client:load 
+          modo="crear" 
+          userId={user?.id || ""} 
+          empresaId={user?.empresaId || ""} 
+        />
       </div>
-    </DivBox1>
+    </Card>
   </MainDashboard>
 </LayoutDash>

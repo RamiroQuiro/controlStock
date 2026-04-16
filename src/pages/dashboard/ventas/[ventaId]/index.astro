@@ -2,7 +2,7 @@
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
 import {traerVentaId} from '../../../../services/ventastodas.service';
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import Card from "../../../../components/organismos/Card.astro";
 import VentaDetalle from "../components/VentaDetalle";
 const {ventaId}=Astro.params as {ventaId:string}
 
@@ -12,9 +12,8 @@ console.log('esta es la venta con el id',ventaDB)
 
 <LayoutDash title=`Venta ${ventaId}`>
     <MainDashboard>
-        <DivBox1 styleDiv="h-full">
-
-            <VentaDetalle client:load {...ventaDB}/>
-        </DivBox1>
+        <Card styleDiv="h-full">
+            {ventaDB && <VentaDetalle client:load {...ventaDB as any}/>}
+        </Card>
     </MainDashboard>
 </LayoutDash>

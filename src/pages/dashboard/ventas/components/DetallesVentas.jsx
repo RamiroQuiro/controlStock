@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@nanostores/react";
-import Table from "../../../../components/tablaComponentes/Table";
+
 import { RenderActionsVentas } from "../../../../components/tablaComponentes/RenderBotonesActions";
 import {
   filtroBusqueda,
@@ -12,6 +12,7 @@ import {
   eliminarProducto,
 } from "../../../../context/venta.store";
 import ModalCliente from "./ModalCliente";
+import Table from "../../../../components/tablaComponentes/Table";
 
 export default function DetallesVentasV2() {
   const $filtro = useStore(filtroBusqueda).filtro;

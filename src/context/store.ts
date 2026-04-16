@@ -1,13 +1,19 @@
 import { atom } from "nanostores";
 
-const reportPDF = atom({ cabecera: {}, columnas: [], arrayBody: [] });
+interface ReportPDFState {
+  cabecera: Record<string, any>;
+  columnas: any[];
+  arrayBody: any[];
+}
 
-const columnSelectTable = atom({ asc: true, seleccion: "" });
+const reportPDF = atom<ReportPDFState>({ cabecera: {}, columnas: [], arrayBody: [] });
+
+const columnSelectTable = atom<{ asc: boolean; seleccion: any }>({ asc: true, seleccion: "" });
 
 // Store para estadísticas del dashboard con estado inicial
-const statsDashStore = atom({ loading: true, data: null, error: null });
+const statsDashStore = atom<{ loading: boolean; data: any; error: string | null }>({ loading: true, data: null, error: null });
 
-const fetchStatsData = async (userId, empresaId) => {
+const fetchStatsData = async (userId: string, empresaId: string) => {
   statsDashStore.set({ loading: true, data: null, error: null }); // Indicar que está cargando
   try {
     const response = await fetch("/api/statesDash/stadisticasDash", {
@@ -21,9 +27,9 @@ const fetchStatsData = async (userId, empresaId) => {
 
     const data = await response.json();
     statsDashStore.set({ loading: false, data, error: null });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching stats:", error);
-    statsDashStore.set({ loading: false, data: null, error: error.message });
+    statsDashStore.set({ loading: false, data: null, error: error?.message || String(error) });
   }
 };
 
@@ -31,7 +37,11 @@ const dataFormularioContexto = atom({
   isEdit: false,
 });
 
-const perfilProducto = atom({
+const perfilProducto = atom<{
+  loading: boolean;
+  data: any;
+  error: string | null;
+}>({
   loading: true,
   data: {
     productData: {},
@@ -40,7 +50,7 @@ const perfilProducto = atom({
   error: null,
 });
 
-const fetchProducto = async (productoId) => {
+const fetchProducto = async (productoId: string | undefined) => {
   if (!productoId) return;
 
   perfilProducto.set({ loading: true, data: null, error: null });
@@ -61,33 +71,41 @@ const fetchProducto = async (productoId) => {
       data: data.data,
       error: null,
     });
-  } catch (err) {
+  } catch (err: any) {
     perfilProducto.set({
       loading: false,
       data: null,
-      error: err.message,
+      error: err?.message || String(err),
     });
   }
 };
 
-const categoriasStore = atom({
+const categoriasStore = atom<{
+  loading: boolean;
+  data: any;
+  error: string | null;
+}>({
   loading: true,
   data: null,
   error: null,
 });
 
-const rolesStore = atom({
+const rolesStore = atom<{
+  loading: boolean;
+  data: any;
+  error: string | null;
+}>({
   loading: true,
   data: { userDB: [], rolesDB: [] },
   error: null,
 });
 
-const fetchRolesData = async (userId) => {
+const fetchRolesData = async (userId: string | undefined) => {
   rolesStore.set({ loading: true, data: null, error: null });
   try {
     const response = await fetch("/api/users/getUsers", {
       headers: {
-        "xx-user-id": userId,
+        "xx-user-id": userId || "",
       },
     });
     const data = await response.json();
@@ -102,18 +120,22 @@ const fetchRolesData = async (userId) => {
   }
 };
 
-const tiendaStore = atom({
+const tiendaStore = atom<{
+  loading: boolean;
+  data: any;
+  error: string | null;
+}>({
   loading: true,
   data: { empresa: {}, productos: [], configuracionEmpresa: {} },
   error: null,
 });
 
-const fetchTiendaData = async (empresaId) => {
+const fetchTiendaData = async (empresaId: string | undefined) => {
   tiendaStore.set({ loading: true, data: null, error: null });
   try {
     const response = await fetch(`/api/tienda/${empresaId}`, {
       headers: {
-        "xx-empresa-id": empresaId,
+        "xx-empresa-id": empresaId || "",
       },
     });
     const data = await response.json();
@@ -129,12 +151,12 @@ const fetchTiendaData = async (empresaId) => {
   }
 };
 
-const usuarioActivo = atom({});
+const usuarioActivo = atom<any>({});
 
 // Store para el carrito de compras
 const IVA = 0.21;
 
-function compararOpciones(a, b) {
+function compararOpciones(a: any, b: any) {
   if (!a && !b) return true;
   if (!a || !b) return false;
 

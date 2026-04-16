@@ -1,0 +1,16 @@
+---
+import { cn } from "../../lib/cn";
+
+interface Props {
+  class?: string;
+  styleDiv?: string;
+}
+
+const { class: className, styleDiv } = Astro.props;
+---
+
+<div class={cn("rounded-lg border w-full p-6 bg-white text-card-foreground shadow-sm", styleDiv, className)}>
+  <div class="flex flex-col gap-y-2 items-start w-full justify-between">
+    <slot />
+  </div>
+</div>

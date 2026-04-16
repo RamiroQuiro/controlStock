@@ -1,12 +1,12 @@
 ---
-import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import Card from '../../../../components/organismos/Card.astro';
 import SalaEspera from './SalaEspera';
 
 const { user, session } = Astro.locals;
 ---
 
-<DivBox1 styleDiv="w-[35%]">
+<Card styleDiv="w-[35%]">
   <div class="text-center w-full capitalize">
     <SalaEspera user={user} client:load />
   </div>
-</DivBox1>
+</Card>

@@ -76,8 +76,7 @@ const TablaStockDepositos = ({ stockDetalle }) => {
     { label: "Reservado Offline", selector: (row) => row.reservado },
     { label: "Disponible Online", selector: (row) => row.disponibleOnline },
     { label: "Alerta Stock", selector: (row) => row.alertaStock },
-    { label: "Estado", selector: (row) => row.estado },
-    { label: "Acciones", selector: (row) => row.acciones },
+    { label: "Estado", selector: (row: any) => row.estado },
   ];
 
   const arrayBody = stockDetalle.map((item) => {
@@ -177,7 +176,7 @@ const TablaStockDepositos = ({ stockDetalle }) => {
           <div className="text-right">
             {stockDetalle.reduce(
               (acc, curr) => acc + getValue(curr, "reservado"),
-              0
+              0,
             )}
           </div>
           <div className="text-right text-blue-600">

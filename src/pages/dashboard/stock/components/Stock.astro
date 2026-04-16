@@ -1,10 +1,10 @@
 ---
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
-import H2 from "../../../../components/atomos/H2.astro";
+import Card from "../../../../components/organismos/Card.astro";
+import Texto from "../../../../components/atomos/Texto";
 import ListradoProductos from "./ListradoProductos.astro";
 import Modal from "../../../../components/moleculas/Modal.astro";
-import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto.astro";
+import FormularioCargaProducto from "../../productos/components/FormularioCargaProducto";
 import StockActionsMenu from "./StockActionsMenu";
 import ContenedorStock from "./ContenedorStock.astro";
 import ContenedorTablaTopEgreso from "./ContenedorTablaTopEgreso";
@@ -33,17 +33,17 @@ const usuarioConRol = {
 
 const puedeCrearProducto = tienePermiso(
   usuarioConRol,
-  PERMISOS.PRODUCTOS_CREAR
+  PERMISOS.PRODUCTOS_CREAR,
 );
 const puedeEditarPrecios = tienePermiso(
   usuarioConRol,
-  PERMISOS.PRODUCTOS_EDITAR
+  PERMISOS.PRODUCTOS_EDITAR,
 );
 const puedeComprar = tienePermiso(usuarioConRol, PERMISOS.ORDEN_COMPRA_CREAR);
 const puedeTranslado = tienePermiso(usuarioConRol, PERMISOS.TRASLADO_CREAR);
 const puedeRecibirTraslado = tienePermiso(
   usuarioConRol,
-  PERMISOS.TRASLADO_RECIBIR
+  PERMISOS.TRASLADO_RECIBIR,
 );
 const puedeVerHistorial = tienePermiso(usuarioConRol, PERMISOS.TRASLADO_VER);
 
@@ -81,6 +81,7 @@ try {
           title="Crear Nuevo Producto"
         >
           <FormularioCargaProducto
+            client:load
             depositos={depositos}
             ubicaciones={ubicaciones}
           />
@@ -108,13 +109,15 @@ try {
   <div class="flex md:flex-row flex-col w-full gap-6 items-start justify-start">
     <ListradoProductos />
 
-    <DivBox1 styleDiv="md:w-1/3 w-full space-y-6">
+    <Card styleDiv="md:w-1/3 w-full space-y-6">
       {/* MÁS VENDIDOS - MÁS VISIBLE */}
       <div
         class="w-full bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200"
       >
         <div class="flex items-center justify-between gap-2 mb-3">
-          <H2 class="text-green-800">🏆 Más Vendidos</H2>
+          <Texto as="h2" variant="h2" className="text-green-800"
+            >🏆 Más Vendidos</Texto
+          >
           <span
             class="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full"
           >
@@ -133,7 +136,9 @@ try {
         class="w-full bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200"
       >
         <div class="flex items-center justify-between gap-2 mb-3">
-          <H2 class="text-orange-800">📉 Huesos (Sin Movimiento)</H2>
+          <Texto as="h2" variant="h2" className="text-orange-800"
+            >📉 Huesos (Sin Movimiento)</Texto
+          >
           <span
             class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded-full"
           >
@@ -148,7 +153,9 @@ try {
         class="w-full bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200"
       >
         <div class="flex items-center justify-between gap-2 mb-3">
-          <H2 class="text-blue-800">📊 Últimos Movimientos</H2>
+          <Texto as="h2" variant="h2" className="text-blue-800"
+            >📊 Últimos Movimientos</Texto
+          >
           <span
             class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full"
           >
@@ -157,6 +164,6 @@ try {
         </div>
         <TablaMovimientosStock client:visible />
       </div>
-    </DivBox1>
+    </Card>
   </div>
 </MainDashboard>

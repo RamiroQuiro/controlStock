@@ -1,17 +1,17 @@
 import { useRef, useState } from 'react';
 import { Download, Upload, FileText, FileDown } from 'lucide-react';
-import DivReact from '../../../../components/atomos/DivReact';
+import { Card } from '../../../../components/organismos/Card';
 
 // Pequeño componente para las tarjetas para no repetir código
 const ActionCard = ({ icon: Icon, title, description, children }) => (
-  <DivReact className="rounded-lg p-6 flex flex-col text-center items-center shadow-md hover:bg-primary-bg-componentes hover:shadow  duration-300">
+  <Card className="rounded-lg p-6 flex flex-col text-center items-center shadow-md hover:bg-primary-bg-componentes hover:shadow  duration-300">
     <Icon className="w-12 h-12 text-primary-100 mb-4" />
     <h3 className="text-lg font-semibold text-primary-textoTitle mb-2">
       {title}
     </h3>
     <p className="text-gray-400 text-sm mb-6 flex-grow">{description}</p>
     {children}
-  </DivReact>
+  </Card>
 );
 
 export default function GestionDatosOpciones() {

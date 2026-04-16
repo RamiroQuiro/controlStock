@@ -1,11 +1,8 @@
 import CardProductosStock from "./CardProductosStock";
 import { useStore } from "@nanostores/react";
-import SkeletorCarProductos from "./SkeletorCarProductos";
 import { useEffect, useState } from "react";
-import {
-  stockStore,
-  fetchListadoProductos,
-} from "../../../../context/stock.store";
+import { fetchListadoProductos, stockStore } from "../../../../context/stock.store";
+
 
 // Debounce hook
 const useDebounce = (value, delay) => {
@@ -46,24 +43,17 @@ const ConfeccionListadoProductos = ({ empresaId }) => {
     }
   };
 
-  // 🎯 LÓGICA DE FILTRADO (Solo estado, la búsqueda ya viene filtrada del server)
+  // 🎯 LÓGICA DE FILTRADO — stock ya viene agregado de todas las sucursales
   const productosProcesados =
     productos?.filter((prod) => {
-      // Filtro por estado (client-side sobre los resultados traídos)
-      let matchStatus = true;
-      if (filterStatus === "agotado") {
-        matchStatus = prod.stock === 0;
-      } else if (filterStatus === "bajo") {
-        matchStatus = prod.stock > 0 && prod.stock <= prod.alertaStock;
-      }
-      return matchStatus && prod.stock !== undefined;
+      if (filterStatus === "agotado") return (prod.stock ?? 0) === 0;
+      if (filterStatus === "bajo") return (prod.stock ?? 0) > 0 && (prod.stock ?? 0) <= (prod.alertaStock ?? 5);
+      return prod.stock !== undefined; // "todos"
     }) || [];
 
-  // Conteos (sobre lo cargado actualmente)
-  const countAgotados = productos?.filter((p) => p.stock === 0).length || 0;
-  const countBajo =
-    productos?.filter((p) => p.stock > 0 && p.stock <= p.alertaStock).length ||
-    0;
+  // Conteos
+  const countAgotados = productos?.filter((p) => (p.stock ?? 0) === 0).length || 0;
+  const countBajo = productos?.filter((p) => (p.stock ?? 0) > 0 && (p.stock ?? 0) <= (p.alertaStock ?? 5)).length || 0;
 
   return (
     <div className="flex w-full flex-col gap-4">

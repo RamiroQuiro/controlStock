@@ -1,6 +1,7 @@
 ---
 import MainDashboard from '../../../../components/atomos/MainDashboard.astro';
-import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import Card from '../../../../components/organismos/Card.astro';
+import Texto from '../../../../components/atomos/Texto';
 import {
   Building2,
   MapPin,
@@ -126,10 +127,10 @@ try {
         )
     ).at(0);
     return {
-      categorias: categoriasData.cantidad,
-      ubicaciones: ubicacionesData.cantidad,
-      depositos: depositosData.cantidad,
-      productos: productosData.cantidad,
+      categorias: categoriasData?.cantidad || 0,
+      ubicaciones: ubicacionesData?.cantidad || 0,
+      depositos: depositosData?.cantidad || 0,
+      productos: productosData?.cantidad || 0,
     };
   };
   dataDB = await traerDataDB();
@@ -147,37 +148,28 @@ try {
   subtitle="Gestiona todos los aspectos relacionados con tu inventario y depositos"
 >
   <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
-    <DivBox1>
-      <div class="text-2xl font-bold text-blue-600">
-        {
-          stockConfigItemsConDatos.find((item) => item.id === 'categorias')
-            ?.count
-        }
-      </div>
-      <div class="text-sm font-semibold text-gray-600">Categorías Activas</div>
-    </DivBox1>
-    <DivBox1>
-      <div class="text-2xl font-bold text-green-600">
-        {
-          stockConfigItemsConDatos.find((item) => item.id === 'ubicaciones')
-            ?.count
-        }
-      </div>
-      <div class="text-sm font-semibold text-gray-600">Ubicaciones</div>
-    </DivBox1>
-    <DivBox1>
-      <div class="text-2xl font-bold text-purple-600">
-        {
-          stockConfigItemsConDatos.find((item) => item.id === 'depositos')
-            ?.count
-        }
-      </div>
-      <div class="text-sm font-semibold text-gray-600">Depósitos</div>
-    </DivBox1>
-    <DivBox1>
-      <div class="text-2xl font-bold text-gray-600">{dataDB.productos}</div>
-      <div class="text-sm font-semibold text-gray-600">Productos Total</div>
-    </DivBox1>
+    <Card>
+      <Texto variant="h1" className="text-blue-600">
+        {stockConfigItemsConDatos.find((item) => item.id === 'categorias')?.count}
+      </Texto>
+      <Texto variant="subtitle">Categorías Activas</Texto>
+    </Card>
+    <Card>
+      <Texto variant="h1" className="text-green-600">
+        {stockConfigItemsConDatos.find((item) => item.id === 'ubicaciones')?.count}
+      </Texto>
+      <Texto variant="subtitle">Ubicaciones</Texto>
+    </Card>
+    <Card>
+      <Texto variant="h1" className="text-purple-600">
+        {stockConfigItemsConDatos.find((item) => item.id === 'depositos')?.count}
+      </Texto>
+      <Texto variant="subtitle">Depósitos</Texto>
+    </Card>
+    <Card>
+      <Texto variant="h1" className="text-gray-600">{dataDB?.productos}</Texto>
+      <Texto variant="subtitle">Productos Total</Texto>
+    </Card>
   </div>
   <!-- ver si colocamos algunos stats con info rapida -->
   <div class="grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-3 gap-4">

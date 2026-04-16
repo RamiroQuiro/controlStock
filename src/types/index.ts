@@ -1,8 +1,8 @@
 export type Rol = "admin" | "vendedor" | "repositor";
 export type TipoUsuario = "empleado" | "cliente" | "proveedor";
 
-export const createResponse = (status: number, msg: string, data = null) => {
-  return new Response(JSON.stringify({ status, msg, data }), {
+export const createResponse = (status: number, msg: string, data?: any) => {
+  return new Response(JSON.stringify({ status, msg, data: data ?? null }), {
     status: status >= 400 ? status : 200,
     headers: { "Content-Type": "application/json" },
   });
@@ -200,12 +200,28 @@ interface APIEndpoints {
   // };
 }
 
+interface Pago {
+  id: string;
+  monto: number;
+  fecha: number;
+  metodoPago: string;
+  referencia?: string;
+}
+
 interface CuentaCorriente {
   clienteId: string;
   balance: number;
   limiteCredito: number;
   historialPagos: Pago[];
   estado: "activo" | "suspendido";
+}
+
+interface Pago {
+  id: string;
+  monto: number;
+  fecha: number;
+  metodoPago: string;
+  referencia?: string;
 }
 
 interface CuentaCorriente {
@@ -428,4 +444,18 @@ export interface Categoria {
   creadoPor: string;
   created_at: string;
   cantidadProductos: number;
+}
+
+export interface Documentos {
+  id: string;
+  nombre: string;
+  tipo: 'laboratorios' | 'rayosx' | 'prescripcion' | 'derivacion' | 'electrocardiograma' | 'otros';
+  estado: 'pendiente' | 'revisar' | 'archivado';
+  tamaño: string;
+  created_at: string | number;
+  url: string;
+}
+
+export interface DocumentosAdjuntosProps {
+  documentos: Documentos[];
 }

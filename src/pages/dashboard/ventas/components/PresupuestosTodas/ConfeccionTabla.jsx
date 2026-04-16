@@ -4,8 +4,8 @@ import { columnasVentasTodas } from '../../../../../utils/columnasTables';
 import formatDate from '../../../../../utils/formatDate';
 import { SearchCheck } from 'lucide-react';
 import { formateoMoneda } from '../../../../../utils/formateoMoneda';
-import DivReact from '../../../../../components/atomos/DivReact';
 import ContenedorVisorDetallePresupuesto from './ContenedorVisorDetallePresupuesto';
+import { Card } from '../../../../../components/organismos/Card';
 
 export default function ConfeccionTabla({ userId, empresaId }) {
   const [seleccionador, setSeleccionador] = useState({
@@ -95,11 +95,11 @@ export default function ConfeccionTabla({ userId, empresaId }) {
         )}
       </div>
       <div className="md:flex items-center justify-center gap-2 w-1/3 hidden sticky top-4">
-        <DivReact>
+        <Card>
           <ContenedorVisorDetallePresupuesto
             presupuestoId={seleccionador?.id}
           />
-        </DivReact>
+        </Card>
       </div>
     </div>
   );

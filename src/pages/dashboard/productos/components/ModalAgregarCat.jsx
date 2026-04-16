@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import ModalReact from '../../../../components/moleculas/ModalReact';
 import InputComponenteJsx from '../../dashboard/componente/InputComponenteJsx';
-import BotonGuardar from '../../../../components/atomos/BotonGuardar';
 import { useCategorias } from '../../../../hook/useCategorias';
+import Button from '../../../../components/atomos/Button';
 
 export default function ModalAgregarCat({
   onClose,
@@ -76,7 +76,7 @@ export default function ModalAgregarCat({
           />
         </div>
         <div className="w-full flex items-center justify-center">
-          <BotonGuardar type="submit">Agregar</BotonGuardar>
+          <Button type="submit">Agregar</Button>
         </div>
       </form>
     </ModalReact>

@@ -1,6 +1,6 @@
 ---
-import Button1 from '../../../components/atomos/Button1.astro';
-import DivBox1 from '../../../components/atomos/DivBox1.astro';
+import Button from '../../../components/atomos/Button.astro';
+import Card from '../../../components/organismos/Card.astro';
 import MainDashboard from '../../../components/atomos/MainDashboard.astro';
 import ConfeccionTabla from './ConfeccionTabla';
 import Modal from '../../../components/moleculas/Modal.astro';
@@ -22,12 +22,12 @@ const { user } = Astro.locals;
           empresaId={user?.empresaId}
         />
       </Modal>
-      <Button1 id="btnExportarPDF"> Exportar PDF </Button1>
-      <Button1 id="btnExportar"> Exportar CSV </Button1>
+      <Button id="btnExportarPDF"> Exportar PDF </Button>
+      <Button id="btnExportar"> Exportar CSV </Button>
     </div>
   </div>
 
-  <DivBox1 styleDiv="w-full">
+  <Card styleDiv="w-full">
     <div class="mb-4 flex gap-4">
       <input
         type="text"
@@ -54,12 +54,8 @@ const { user } = Astro.locals;
       </select>
     </div>
 
-    <ConfeccionTabla
-      client:load
-      empresaId={user?.empresaId}
-      userId={user?.id}
     />
-  </DivBox1>
+  </Card>
 </MainDashboard>
 
 <script>

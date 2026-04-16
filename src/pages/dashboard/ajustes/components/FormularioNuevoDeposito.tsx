@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Button3 from "../../../../components/atomos/Button3";
+import Button from "../../../../components/atomos/Button";
 import { showToast } from "../../../../utils/toast/toastShow.js";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx.jsx";
 
@@ -23,7 +23,12 @@ interface Props {
   handleDepositoAgregado: (deposito: any) => void;
 }
 
-export default function FormularioNuevoDeposito({ deposito, onSave, onCancel, handleDepositoAgregado }: Props) {
+export default function FormularioNuevoDeposito({
+  deposito,
+  onSave,
+  onCancel,
+  handleDepositoAgregado,
+}: Props) {
   const [formData, setFormData] = useState<Deposito>({
     id: "",
     nombre: "",
@@ -43,9 +48,11 @@ export default function FormularioNuevoDeposito({ deposito, onSave, onCancel, ha
     }
   }, [deposito]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleGuardarDeposito = async (e: React.FormEvent) => {
@@ -65,7 +72,10 @@ export default function FormularioNuevoDeposito({ deposito, onSave, onCancel, ha
       const data = await response.json();
 
       if (response.ok) {
-        showToast("success", data.msg || (deposito ? "Depósito actualizado" : "Depósito creado"));
+        showToast(
+          "success",
+          data.msg || (deposito ? "Depósito actualizado" : "Depósito creado"),
+        );
         onSave(); // Ejecutamos el callback para cerrar el modal y refrescar
         handleDepositoAgregado(data);
       } else {
@@ -80,44 +90,131 @@ export default function FormularioNuevoDeposito({ deposito, onSave, onCancel, ha
   };
 
   return (
-    <form onSubmit={handleGuardarDeposito} className="flex flex-col gap-4 p-6 bg-white rounded-lg w-full max-w-lg mx-auto">
-      <h2 className="text-xl font-semibold mb-4">{deposito ? "Editar Depósito" : "Crear Nuevo Depósito"}</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-          <InputComponenteJsx id="nombre" name="nombre" value={formData.nombre} handleChange={handleChange} placeholder="Ej: Depósito Central" required />
-        </div>
-        <div>
-          <label htmlFor="encargado" className="block text-sm font-medium text-gray-700 mb-1">Encargado</label>
-          <InputComponenteJsx id="encargado" name="encargado" value={formData.encargado} handleChange={handleChange} placeholder="Ej: Juan Pérez" />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-        <textarea id="descripcion" name="descripcion" className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary" value={formData.descripcion} onChange={handleChange} placeholder="Información adicional sobre el depósito" />
-      </div>
-
-      <div>
-        <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-        <InputComponenteJsx id="direccion" name="direccion" value={formData.direccion} handleChange={handleChange} placeholder="Ej: Av. Siempre Viva 123" />
-      </div>
+    <form
+      onSubmit={handleGuardarDeposito}
+      className="flex flex-col gap-4 p-6 bg-white rounded-lg w-full max-w-lg mx-auto"
+    >
+      <h2 className="text-xl font-semibold mb-4">
+        {deposito ? "Editar Depósito" : "Crear Nuevo Depósito"}
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-          <InputComponenteJsx id="telefono" name="telefono" type="tel" value={formData.telefono} handleChange={handleChange} placeholder="Ej: +54 9 11 1234-5678" />
+          <label
+            htmlFor="nombre"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Nombre
+          </label>
+          <InputComponenteJsx
+            id="nombre"
+            name="nombre"
+            value={formData.nombre}
+            handleChange={handleChange}
+            placeholder="Ej: Depósito Central"
+            required
+          />
         </div>
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <InputComponenteJsx id="email" name="email" type="email" value={formData.email} handleChange={handleChange} placeholder="Ej: contacto@deposito.com" />
+          <label
+            htmlFor="encargado"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Encargado
+          </label>
+          <InputComponenteJsx
+            id="encargado"
+            name="encargado"
+            value={formData.encargado}
+            handleChange={handleChange}
+            placeholder="Ej: Juan Pérez"
+          />
         </div>
       </div>
 
       <div>
-        <label htmlFor="capacidadTotal" className="block text-sm font-medium text-gray-700 mb-1">Capacidad Total (unidades)</label>
-        <InputComponenteJsx id="capacidadTotal" name="capacidadTotal" type="number" value={formData.capacidadTotal} handleChange={handleChange} placeholder="Ej: 10000" />
+        <label
+          htmlFor="descripcion"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Descripción
+        </label>
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary"
+          value={formData.descripcion}
+          onChange={handleChange}
+          placeholder="Información adicional sobre el depósito"
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="direccion"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Dirección
+        </label>
+        <InputComponenteJsx
+          id="direccion"
+          name="direccion"
+          value={formData.direccion}
+          handleChange={handleChange}
+          placeholder="Ej: Av. Siempre Viva 123"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            htmlFor="telefono"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Teléfono
+          </label>
+          <InputComponenteJsx
+            id="telefono"
+            name="telefono"
+            type="tel"
+            value={formData.telefono}
+            handleChange={handleChange}
+            placeholder="Ej: +54 9 11 1234-5678"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Email
+          </label>
+          <InputComponenteJsx
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            handleChange={handleChange}
+            placeholder="Ej: contacto@deposito.com"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label
+          htmlFor="capacidadTotal"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Capacidad Total (unidades)
+        </label>
+        <InputComponenteJsx
+          id="capacidadTotal"
+          name="capacidadTotal"
+          type="number"
+          value={formData.capacidadTotal}
+          handleChange={handleChange}
+          placeholder="Ej: 10000"
+        />
       </div>
 
       {errorMessage && (
@@ -127,8 +224,10 @@ export default function FormularioNuevoDeposito({ deposito, onSave, onCancel, ha
       )}
 
       <div className="flex justify-end space-x-3 pt-4">
-        <Button3 onClick={onCancel}>Cancelar</Button3>
-        <Button3 onClick={handleGuardarDeposito}>{deposito ? "Actualizar" : "Guardar"}</Button3>
+        <Button onClick={onCancel}>Cancelar</Button>
+        <Button onClick={handleGuardarDeposito}>
+          {deposito ? "Actualizar" : "Guardar"}
+        </Button>
       </div>
     </form>
   );

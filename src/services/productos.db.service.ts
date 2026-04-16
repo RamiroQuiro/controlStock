@@ -8,7 +8,7 @@ import {
   detalleVentas,
   productoCategorias,
 } from "../db/schema";
-import type { Producto, NewProducto } from "../types";
+import type { Producto } from "../types";
 import { normalizadorUUID } from "../utils/normalizadorUUID";
 
 /**
@@ -17,10 +17,11 @@ import { normalizadorUUID } from "../utils/normalizadorUUID";
 
 /**
  * Obtiene productos de una empresa, opcionalmente filtrados por un término y tipo de búsqueda.
+ * El stock se agrega a través de TODAS las sucursales/depósitos.
  * @param empresaId - El ID de la empresa.
  * @param query - El término de búsqueda (opcional).
  * @param tipo - El tipo de búsqueda, ej. 'codigoBarra' para búsqueda exacta (opcional).
- * @returns Una lista de productos con detalles de stock y proveedor.
+ * @returns Una lista de productos con el stock total y desglose por depósito.
  */
 export const getProductosFromDB = async (
   empresaId: string,
@@ -28,17 +29,8 @@ export const getProductosFromDB = async (
   tipo?: string | null
 ) => {
   try {
-    const baseQuery = db
-      .select({
-        producto: productos,
-        stock: stockActual,
-        proveedor: proveedores,
-      })
-      .from(productos)
-      .leftJoin(stockActual, eq(productos.id, stockActual.productoId))
-      .leftJoin(proveedores, eq(productos.proveedorId, proveedores.id));
-
-    const conditions = [eq(productos.empresaId, empresaId)];
+    // 1. Obtener productos filtrados (sin join de stock para evitar filas duplicadas)
+    const conditions: any[] = [eq(productos.empresaId, empresaId)];
 
     if (query) {
       if (tipo === "codigoBarra") {
@@ -56,14 +48,74 @@ export const getProductosFromDB = async (
       }
     }
 
-    const result = await baseQuery.where(and(...conditions));
+    const productosResult = await db
+      .select({ producto: productos, proveedor: proveedores })
+      .from(productos)
+      .leftJoin(proveedores, eq(productos.proveedorId, proveedores.id))
+      .where(and(...conditions));
 
-    return result.map(({ producto, stock, proveedor }) => {
-      console.log(`📦 Producto ${producto.nombre} - pCompra: ${producto.pCompra}`);
+    if (productosResult.length === 0) return [];
+
+    // 2. Obtener stock de TODAS las sucursales para esta empresa de una sola vez
+    const { depositos } = await import("../db/schema");
+    const stockRows = await db
+      .select({
+        productoId: stockActual.productoId,
+        cantidad: stockActual.cantidad,
+        alertaStock: stockActual.alertaStock,
+        reservado: stockActual.reservado,
+        depositoId: stockActual.depositosId,
+        depositoNombre: depositos.nombre,
+        depositoPrincipal: depositos.principal,
+      })
+      .from(stockActual)
+      .leftJoin(depositos, eq(stockActual.depositosId, depositos.id))
+      .where(eq(stockActual.empresaId, empresaId));
+
+    // 3. Agrupar stock por productoId en memoria
+    const productoIds = new Set(productosResult.map((r) => r.producto.id));
+    const stockMap = new Map<string, {
+      totalCantidad: number;
+      alertaStock: number;
+      stockPorDeposito: Array<{
+        depositoId: string | null;
+        depositoNombre: string | null;
+        cantidad: number;
+        principal: boolean;
+      }>;
+    }>();
+
+    for (const row of stockRows) {
+      if (!productoIds.has(row.productoId)) continue;
+      const prev = stockMap.get(row.productoId) ?? {
+        totalCantidad: 0,
+        alertaStock: row.alertaStock ?? 5,
+        stockPorDeposito: [],
+      };
+      prev.totalCantidad += row.cantidad ?? 0;
+      if (row.depositoId) {
+        prev.stockPorDeposito.push({
+          depositoId: row.depositoId,
+          depositoNombre: row.depositoNombre,
+          cantidad: row.cantidad ?? 0,
+          principal: row.depositoPrincipal ?? false,
+        });
+      }
+      stockMap.set(row.productoId, prev);
+    }
+
+    // 4. Combinar producto + stock agregado
+    return productosResult.map(({ producto, proveedor }) => {
+      const stockData = stockMap.get(producto.id);
+      console.log(`📦 ${producto.nombre} | stock total: ${stockData?.totalCantidad ?? 0} unidades en ${stockData?.stockPorDeposito.length ?? 0} sucursal(es)`);
       return {
         ...producto,
-        stock: stock,
-        proveedor: proveedor,
+        proveedor,
+        stock: {
+          cantidad: stockData?.totalCantidad ?? 0,
+          alertaStock: stockData?.alertaStock ?? 5,
+          stockPorDeposito: stockData?.stockPorDeposito ?? [],
+        },
       };
     });
   } catch (error) {

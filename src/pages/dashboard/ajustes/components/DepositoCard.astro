@@ -1,9 +1,10 @@
 ---
 import { Badge, Building2, CircleX, Edit, Trash2 } from "lucide-react";
 import FormularioNuevoDeposito from "./FormularioNuevoDeposito";
-import Button4 from "../../../../components/atomos/Button4.astro";
+import Button from "../../../../components/atomos/Button.astro";
 import ConfirmDialog from "../../../../components/atomos/ConfirmDialog.astro";
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import Card from "../../../../components/organismos/Card.astro";
+import Texto from "../../../../components/atomos/Texto";
 
 interface Depot {
   id: string;
@@ -48,14 +49,14 @@ const occupancyBadgeClass = getOccupancyBadgeClass(occupancyPercentage);
 const occupancyBarClass = getOccupancyBarClass(occupancyPercentage);
 ---
 
-<DivBox1>
+<Card>
   <div class="flex items-center justify-between w-full">
     <div class="flex items-center space-x-3">
       <div class="p-2 rounded-lg bg-blue-500 text-white">
         <Building2 className="h-5 w-5" />
       </div>
       <div>
-        <h2 class="text-xl text-primary-textoTitle font-semibold">{depot.nombre}</h2>
+        <Texto as="h2" variant="h2">{depot.nombre}</Texto>
         <p class="text-sm text-gray-500">{depot.direccion}</p>
       </div>
     </div>
@@ -113,16 +114,16 @@ const occupancyBarClass = getOccupancyBarClass(occupancyPercentage);
         </div>
       )
     }
-    <div class="flex space-x-2">
-      <Button4 id={`editar-${depot.id}`}>
+    <div class="flex gap-2">
+      <Button variant="outline" id={`editar-${depot.id}`}>
         <Edit className="h-4 w-4" />
-      </Button4>
-      <Button4>
+      </Button>
+      <Button variant="outline">
         {depot.activo ? 'Desactivar' : 'Activar'}
-      </Button4>
-      <Button4 id={`delete-${depot.id}`}>
+      </Button>
+      <Button variant="outline" id={`delete-${depot.id}`}>
         <Trash2 className="h-4 w-4 text-red-600" />
-      </Button4>
+      </Button>
     </div>
   </div>
   <dialog
@@ -145,7 +146,7 @@ const occupancyBarClass = getOccupancyBarClass(occupancyPercentage);
     title="Confirmar Eliminación"
     message={`¿Estás seguro de que quieres eliminar el depósito "${depot.nombre}"? Esta acción no se puede deshacer. Nota: El depósito debe estar vacío para ser eliminado.`}
   />
-</DivBox1>
+</Card>
 <script define:vars={{ depot }}>
   const btnEditar = document.getElementById(`editar-${depot.id}`);
   const dialogEditar = document.getElementById(`dialog-editar-${depot.id}`);

@@ -28,40 +28,14 @@ export default function ConfeccionTabla({productosData}) {
     }, [$filtro, productosData]); // Ejecutar cada vez que cambie $filtro o productosData
   
     const columnas = [
-      { label: 'N°', id: 1, selector: (row, index) => index + 1},
-      { label: 'codigo de barra', id: 2, selector: row => row.codigoBarra },
-      { label: 'descripcion', id: 3, selector: row => row.descripcion },
-      { label: 'categoria', id: 4, selector: row => row.categoria },
-      { label: 'P.Compra', id: 5, selector: row => row.pCompra },
-      { label: 'P.Venta', id: 6, selector: row => row.pVenta },
-      { label: 'Stock', id: 7, selector: row => row.Stock },
-      { label: 'Actualizacion', id: 8, selector: row => row.Actualizacion },
-      {
-        label: 'Acciones',
-        id: 7,
-        selector: row => (
-          <div className="flex gap-x-2">
-            <button
-              className="bg-blue-500 text-white px-2 py-1 rounded"
-              onClick={() => handleEdit(row?.id)}
-            >
-              Editar
-            </button>
-            <button
-              className="bg-red-500 text-white px-2 py-1 rounded"
-              onClick={() => handleDelete(row?.id)}
-            >
-              Eliminar
-            </button>
-            <button
-              className="bg-green-500 text-white px-2 py-1 rounded"
-              onClick={() => handleAtender(row?.id)}
-            >
-              Atender
-            </button>
-          </div>
-        ),
-      },
+      { label: 'N°', id: 1, selector: (row, index) => index + 1 },
+      { label: 'Código', id: 2, selector: 'codigoBarra' },
+      { label: 'Descripción', id: 3, selector: 'descripcion' },
+      { label: 'Categoría', id: 4, selector: 'categoria' },
+      { label: 'P. Compra', id: 5, selector: 'pCompra' },
+      { label: 'P. Venta', id: 6, selector: 'pVenta' },
+      { label: 'Stock', id: 7, selector: 'stock' },
+      { label: 'Actualización', id: 8, selector: 'ultimaActualizacion' },
     ];
   
     return (

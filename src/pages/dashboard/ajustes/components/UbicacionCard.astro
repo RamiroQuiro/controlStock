@@ -1,9 +1,10 @@
 ---
 import { MapPin, Badge, Building2, Edit, Trash2, CircleX } from "lucide-react";
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
-import Button4 from "../../../../components/atomos/Button4.astro";
+import Card from "../../../../components/organismos/Card.astro";
+import Button from "../../../../components/atomos/Button.astro";
 import ConfirmDialog from "../../../../components/atomos/ConfirmDialog.astro";
 import FormularioNuevaUbicacion from "./FormularioNuevaUbicacion";
+import Texto from "../../../../components/atomos/Texto";
 import formatDate from "../../../../utils/formatDate";
 
 interface Ubicacion {
@@ -37,7 +38,7 @@ const occupancyPercentage = getOccupancyPercentage(
 );
 ---
 
-<DivBox1  styleDiv="hover:shadow-lg transition-shadow w-full p-6">
+<Card styleDiv="hover:shadow-lg transition-shadow w-full p-6">
   <div class="flex flex-col gap-y-2 items-start w-full justify-between">
     <div class="flex items-center justify-between w-full">
       <div class="flex items-center space-x-3 w-full">
@@ -45,7 +46,7 @@ const occupancyPercentage = getOccupancyPercentage(
           <MapPin className="h-4 w-4" />
         </div>
         <div>
-            <h2 class="text-xl text-primary-textoTitle capitalize font-semibold">{item.nombre}</h2>
+          <Texto as="h2" variant="h2" className="capitalize">{item.nombre}</Texto>
         </div>
       </div>
       <Badge className={item.activo ? "secondary" : "outline"}>
@@ -98,16 +99,16 @@ const occupancyPercentage = getOccupancyPercentage(
       <span>Creada: {formatDate(item.created_at)}</span>
     </div>
 
-    <div class="flex space-x-2">
-      <Button4 id={`editar-${item.id}`}>
+    <div class="flex gap-2">
+      <Button variant="outline" id={`editar-${item.id}`}>
         <Edit className="h-4 w-4" />
-      </Button4>
-      <Button4 id={`activar-${item.id}`}>
+      </Button>
+      <Button variant="outline" id={`activar-${item.id}`}>
         {item.activo ? "Desactivar" : "Activar"}
-      </Button4>
-      <Button4 id={`delete-${item.id}`} class="text-red-600 hover:text-red-700">
+      </Button>
+      <Button variant="outline" id={`delete-${item.id}`}>
         <Trash2 className="h-4 w-4 text-red-600" />
-      </Button4>
+      </Button>
     </div>
   </div>
   <dialog
@@ -131,7 +132,7 @@ const occupancyPercentage = getOccupancyPercentage(
     message="¿Estás seguro de eliminar esta ubicación?"
     onConfirm={() => deleteLocation(item.id)}
   />
-</DivBox1>
+</Card>
 <script define:vars={{ item }}>
     const btnEditar = document.getElementById(`editar-${item.id}`);
     const dialogEditar = document.getElementById(`dialog-editar-${item.id}`);

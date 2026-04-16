@@ -1,7 +1,7 @@
 ---
-import { Menu } from 'lucide-react';
-import Button1 from '../atomos/Button1.astro';
-import ProStockApp from '../atomos/ProStockApp.astro';
+import { Menu } from "lucide-react";
+import Button1 from "../atomos/Button.astro";
+import ProStockApp from "../atomos/ProStockApp.astro";
 ---
 
 <nav
@@ -76,9 +76,9 @@ import ProStockApp from '../atomos/ProStockApp.astro';
 </nav>
 
 <script>
-  const btnMobil = document.getElementById('toggleMenu');
-  const menu = document.getElementById('mobileMenu');
-  btnMobil.addEventListener('click', () => {
-    menu.classList.toggle('hidden');
+  const btnMobil = document.getElementById("toggleMenu");
+  const menu = document.getElementById("mobileMenu");
+  btnMobil.addEventListener("click", () => {
+    menu.classList.toggle("hidden");
   });
 </script>

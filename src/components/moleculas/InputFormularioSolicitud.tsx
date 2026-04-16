@@ -1,6 +1,19 @@
 import { EggIcon, Eye, EyeClosed } from 'lucide-react';
 import React from 'react';
 
+interface Props {
+  name: string;
+  placeholder: string;
+  type: string;
+  id: string;
+  children: React.ReactNode;
+  onchange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+  value: any;
+  className?: string;
+  isMoney?: boolean;
+  disabled?: boolean;
+}
+
 export default function InputFormularioSolicitud({
   name,
   placeholder,
@@ -12,20 +25,22 @@ export default function InputFormularioSolicitud({
   className,
   isMoney,
   disabled,
-}) {
-  const visiblePass = (e) => {
+}: Props) {
+  const visiblePass = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const input = document.getElementById(id);
-    if (input.type === 'password') {
-      input.type = 'text';
-    } else {
-      input.type = 'password';
+    const input = document.getElementById(id) as HTMLInputElement | null;
+    if (input) {
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
     }
   };
   return (
     <div className="relative w-full  group">
       <label
-        for={id}
+        htmlFor={id}
         className=" top-0 left-0 group-hover:text-primary-100/50 duration-300 ring-0 valid:ring-0 py-1  focus:outline-none outline-none z-20 text-sm text-primary-textoTitle font-semibold  "
       >
         {children}

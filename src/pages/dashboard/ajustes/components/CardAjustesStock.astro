@@ -1,13 +1,13 @@
 ---
-import Button2 from '../../../../components/atomos/Button2.astro';
-import Button3 from '../../../../components/atomos/Button3.astro';
-import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import Button from '../../../../components/atomos/Button.astro';
+import Card from '../../../../components/organismos/Card.astro';
+import Texto from '../../../../components/atomos/Texto';
 
 const { item } = Astro.props;
 const Icon = item.icon;
 ---
 
-<DivBox1
+<Card
   styleDiv={`hover:shadow-lg duration-300 transition-all space-y-3 cursor-pointer ${
     item.status === 'coming-soon' ? 'opacity-75' : ''
   }`}
@@ -19,9 +19,7 @@ const Icon = item.icon;
           <Icon className="w-7 h-7 group-hover:scale-110  duration-300 " />
         </div>
         <div>
-          <h3 class="text-lg text-primary-textoTitle font-medium">
-            {item.title}
-          </h3>
+          <Texto as="h3" variant="h2">{item.title}</Texto>
         </div>
       </div>
       <!-- {getStatusBadge(item.status)} -->
@@ -37,12 +35,14 @@ const Icon = item.icon;
         {item.count}
         {item.count === 1 ? 'elemento' : 'elementos'}
       </div>
-      <Button3
-      disabled={item.status === 'coming-soon'}>
+      <Button
+        variant="outline"
+        disabled={item.status === 'coming-soon'}
+      >
         <a href={`/dashboard/ajustes/stock/${item.id}`}>
           {item.status === 'coming-soon' ? 'Próximamente' : 'Gestionar'}
         </a>
-      </Button3>
+      </Button>
     </div>
   </div>
-</DivBox1>
+</Card>

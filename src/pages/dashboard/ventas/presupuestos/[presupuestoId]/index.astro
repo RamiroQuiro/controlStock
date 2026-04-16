@@ -1,5 +1,5 @@
 ---
-import DivBox1 from '../../../../../components/atomos/DivBox1.astro';
+import Card from '../../../../../components/organismos/Card.astro';
 import MainDashboard from '../../../../../components/atomos/MainDashboard.astro';
 import LayoutDash from '../../../../../components/layouts/LayoutDash.astro';
 import { traerPresupuestoId } from '../../../../../services/presupuestos.service';
@@ -13,8 +13,8 @@ console.log('esta es la venta con el id', presupuestoDB);
 
 <LayoutDash title={`Presupuesto ${presupuestoId}`}>
   <MainDashboard>
-    <DivBox1 styleDiv="h-full">
-      <VentaDetalle client:load {...presupuestoDB} />
-    </DivBox1>
+    <Card styleDiv="h-full">
+      <VentaDetalle client:load {...presupuestoDB as any} />
+    </Card>
   </MainDashboard>
 </LayoutDash>

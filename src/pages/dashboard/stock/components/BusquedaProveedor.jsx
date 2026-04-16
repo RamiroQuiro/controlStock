@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Table from "../../../../components/tablaComponentes/Table";
 import { armandoNewArray } from "../../../../utils/newArrayTable";
 import { proveedorColumns } from "../../../../utils/columnasTables";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx";
 import { SearchCode } from "lucide-react";
 import { showToast } from "../../../../utils/toast/toastShow";
+import Table from "../../../../components/tablaComponentes/Table";
 
 export default function BusquedaProveedor({ onClose, setProveedor }) {
   const [proveedoresEncontrados, setProveedoresEncontrados] = useState([]);

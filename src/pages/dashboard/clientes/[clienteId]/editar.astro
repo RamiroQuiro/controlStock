@@ -1,19 +1,18 @@
 ---
 import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
-import FormularioEdicion from "../components/FormularioEdicion";
-import Button1 from "../../../../components/atomos/Button1.astro";
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import db from "../../../../db";
 import { clientes } from "../../../../db/schema/clientes";
 import { eq } from "drizzle-orm";
-import db from "../../../../db";
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import Card from "../../../../components/organismos/Card.astro";
+import Texto from "../../../../components/atomos/Texto";
 import FormularioCliente from "../components/FormularioCliente";
 
 const { clienteId } = Astro.params;
 
 // Obtener datos del cliente
 const cliente = (
-  await db.select().from(clientes).where(eq(clientes.id, clienteId))
+  await db.select().from(clientes).where(eq(clientes.id, clienteId || ""))
 ).at(0);
 
 if (!cliente) {
@@ -23,13 +22,19 @@ if (!cliente) {
 
 <LayoutDash title={`Editar Cliente - ${cliente.nombre}`}>
   <MainDashboard h1="Edicion de datos del cliente">
-    <DivBox1 styleDiv="w-full">
-      <h2 class="text-primary-textoTitle text-xl">Datos del cliente</h2>
+    <Card styleDiv="w-full">
+      <Texto as="h2" variant="h2">Datos del cliente</Texto>
       <div
         class="bg-primary-bg-componentes p-2 rounded-lg shadow-md w-full flex flex-col items-center justify-center py-5"
       >
-        <FormularioCliente modo="editar" client:load cliente={cliente} />
+        <FormularioCliente 
+          modo="editar" 
+          client:load 
+          cliente={cliente as any} 
+          userId={Astro.locals.user?.id || ""}
+          empresaId={Astro.locals.user?.empresaId || ""}
+        />
       </div>
-    </DivBox1>
+    </Card>
   </MainDashboard>
 </LayoutDash>

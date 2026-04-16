@@ -1,10 +1,13 @@
-import DivReact from '../../../../components/atomos/DivReact'
-import Table from '../../../../components/tablaComponentes/Table'
-import { calcularStockInicial, obtenerMovimientosOrdenados } from '../../../../utils/detallesProducto';
+import Table from "../../../../components/tablaComponentes/Table";
+import {
+  calcularStockInicial,
+  obtenerMovimientosOrdenados,
+} from "../../../../utils/detallesProducto";
 import { useEffect, useState } from "react";
 import { HistoryIcon, TrendingDown, TrendingUp } from "lucide-react";
-import formatDate from '../../../../utils/formatDate';
-import { detallesProductosColumns } from '../../../../utils/columnasTables';
+import formatDate from "../../../../utils/formatDate";
+import { detallesProductosColumns } from "../../../../utils/columnasTables";
+import { Card } from "../../../../components/organismos/Card";
 
 export default function HistorialMovimientosDetalleProducto({ productoId }) {
   const [movimientos, setMovimientos] = useState([]);
@@ -14,18 +17,18 @@ export default function HistorialMovimientosDetalleProducto({ productoId }) {
     if (!productoId) return;
     setLoading(true);
 
-    const fetching=async()=>{
+    const fetching = async () => {
       try {
-        const response=await fetch(`/api/movimientos/producto/${productoId}`)
-        const data=await response.json()
-        console.log(data)
-        setMovimientos(data.stockMovimiento)
-        setLoading(false)
+        const response = await fetch(`/api/movimientos/producto/${productoId}`);
+        const data = await response.json();
+        console.log(data);
+        setMovimientos(data.stockMovimiento);
+        setLoading(false);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
-    fetching()
+    };
+    fetching();
   }, [productoId]);
 
   const movimientosOrdenados = obtenerMovimientosOrdenados(movimientos);
@@ -62,7 +65,7 @@ export default function HistorialMovimientosDetalleProducto({ productoId }) {
   });
 
   return (
-    <DivReact>
+    <Card>
       <h3 className="flex items-center gap-4 text-lg font-semibold text-gray-700 mb-2">
         <HistoryIcon /> Historial de Movimiento
       </h3>
@@ -84,7 +87,6 @@ export default function HistorialMovimientosDetalleProducto({ productoId }) {
           />
         </div>
       )}
-    </DivReact>
+    </Card>
   );
 }
-

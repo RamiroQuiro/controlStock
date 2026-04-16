@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import DivReact from '../../../../components/atomos/DivReact';
 import { formateoMoneda } from '../../../../utils/formateoMoneda';
+import { Card } from '../../../../components/organismos/Card';
 
 export default function StatsDashboard({
   textColor,
@@ -42,7 +42,7 @@ export default function StatsDashboard({
   }, [dataInfo]);
   console.log('dataInfo ->', descripcion);
   return (
-    <DivReact className="md:w-1/4 w-1/2 ">
+    <Card className="md:w-1/4 w-1/2 ">
       <div className=" flex w-ful items-center gap-2">
         <Icon className={`${textColor} w-8 h-8`} />
         <h2 className="text-base text-gray-600">{h2}</h2>
@@ -61,6 +61,6 @@ export default function StatsDashboard({
           {descripcion}
         </span>
       </div>
-    </DivReact>
+    </Card>
   );
 }

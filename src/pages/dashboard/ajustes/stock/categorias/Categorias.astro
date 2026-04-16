@@ -1,7 +1,6 @@
 ---
 import { count, eq, sql } from 'drizzle-orm';
-import Button1 from '../../../../../components/atomos/Button1.astro';
-import DivBox1 from '../../../../../components/atomos/DivBox1.astro';
+import Button from '../../../../../components/atomos/Button.astro';
 import MainDashboard from '../../../../../components/atomos/MainDashboard.astro';
 import Modal from '../../../../../components/moleculas/Modal.astro';
 import db from '../../../../../db';
@@ -33,18 +32,12 @@ if (user?.empresaId) {
       <Modal label="Crear" id="crearCategoria" title="Crear nueva categoría">
         <FormularioNuevaCat client:load />
       </Modal>
-      <Button1
-        id="btnExportarPDF"
-        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
-      >
+      <Button id="btnExportarPDF">
         Exportar PDF
-      </Button1>
-      <Button1
-        id="btnExportar"
-        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
-      >
+      </Button>
+      <Button id="btnExportar">
         Exportar CSV
-      </Button1>
+      </Button>
     </div>
   </div>
 

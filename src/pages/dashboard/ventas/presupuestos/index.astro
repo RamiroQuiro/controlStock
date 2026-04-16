@@ -1,12 +1,10 @@
 ---
-import Button1 from "../../../../components/atomos/Button1.astro"
-import MainDashboard from "../../../../components/atomos/MainDashboard.astro"
-import LayoutDash from "../../../../components/layouts/LayoutDash.astro"
-import ConfeccionTabla from "../components/PresupuestosTodas/ConfeccionTabla"
+import Button from "../../../../components/atomos/Button.astro";
+import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
+import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
+import ConfeccionTabla from "../components/PresupuestosTodas/ConfeccionTabla";
 
-
-
-const {user}=Astro.locals
+const { user } = Astro.locals;
 ---
 
 <LayoutDash title="Presupuestos">
@@ -16,18 +14,18 @@ const {user}=Astro.locals
       class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
     >
       <div class="flex gap-3">
-        <Button1 id="btnExportarPDF"> Exportar PDF </Button1>
-        <Button1 id="btnExportar"> Exportar CSV </Button1>
+        <Button id="btnExportarPDF"> Exportar PDF </Button>
+        <Button id="btnExportar"> Exportar CSV </Button>
       </div>
     </div>
 
-    <div class=" w-full h-auto pb-10">
+    <div class="w-full h-auto pb-10">
       <div class="md:mb-4 mb-2 flex flex-wrap md:flex-nowrap md:gap-4 gap-2">
         <input
           type="text"
           id="buscarCliente"
           placeholder="Buscar cliente..."
-          class="w-full max-w-xs md:px-4  px-2 py-2 text-xs md:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
+          class="w-full max-w-xs md:px-4 px-2 py-2 text-xs md:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100/50"
         />
         <select
           id="filtroCategoria"
@@ -47,17 +45,18 @@ const {user}=Astro.locals
           <option value="inactivo">Inactivo</option>
         </select>
       </div>
-  
 
-      <ConfeccionTabla client:load userId={user?.id} empresaId={user?.empresaId} />
+      <ConfeccionTabla
+        client:load
+        userId={user?.id}
+        empresaId={user?.empresaId}
+      />
     </div>
   </MainDashboard>
 </LayoutDash>
 <script>
-import { downloadLoader } from "../../../../utils/loader/showDownloadLoader";
-import { showToast } from "../../../../utils/toast/toastShow";
-
-
+  import { downloadLoader } from "../../../../utils/loader/showDownloadLoader";
+  import { showToast } from "../../../../utils/toast/toastShow";
 
   // Manejador para el botón de exportar
   document

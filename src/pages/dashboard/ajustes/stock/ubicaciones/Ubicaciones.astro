@@ -1,7 +1,8 @@
 ---
 import { eq, sql } from "drizzle-orm";
-import Button1 from "../../../../../components/atomos/Button1.astro";
-import DivBox1 from "../../../../../components/atomos/DivBox1.astro";
+import Button from "../../../../../components/atomos/Button.astro";
+import Card from "../../../../../components/organismos/Card.astro";
+import Texto from "../../../../../components/atomos/Texto";
 import MainDashboard from "../../../../../components/atomos/MainDashboard.astro";
 import Modal from "../../../../../components/moleculas/Modal.astro";
 import db from "../../../../../db";
@@ -42,7 +43,7 @@ try {
       created_at: ubicaciones.fechaCreacion,
     })
     .from(ubicaciones)
-    .where(eq(ubicaciones.empresaId, user?.empresaId))
+    .where(eq(ubicaciones.empresaId, user?.empresaId || ""))
     .groupBy(ubicaciones.id);
 let depositosDB = await db
     .select({
@@ -50,9 +51,10 @@ let depositosDB = await db
       nombre: depositos.nombre,
     })
     .from(depositos)
-    .where(eq(depositos.empresaId, user?.empresaId))
+    .where(eq(depositos.empresaId, user?.empresaId || ""))
     .groupBy(depositos.id);
     depositosData = depositosDB;
+    // @ts-ignore
   ubicacionesData = ubicacionesConConteo;
 } catch (error) {
   console.error("Error al obtener ubicaciones:", error);
@@ -66,42 +68,42 @@ let depositosDB = await db
   >
     <div class="flex gap-3">
       <Modal label="Crear" id="crearUbicacion">
-        <FormularioNuevaUbicacion depositos={depositosData} client:load />
+        <FormularioNuevaUbicacion 
+          depositos={depositosData} 
+          onSave={() => window.location.reload()} 
+          onCancel={() => {}} 
+          handleUbicacionAgregada={() => window.location.reload()}
+          client:load 
+        />
       </Modal>
-      <Button1
-        id="btnExportarPDF"
-        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
-      >
+      <Button id="btnExportarPDF">
         Exportar PDF
-      </Button1>
-      <Button1
-        id="btnExportar"
-        class="px-4 py-2 bg-primary-texto text-white rounded-lg hover:bg-primary-texto/80 transition-colors"
-      >
+      </Button>
+      <Button id="btnExportar">
         Exportar CSV
-      </Button1>
+      </Button>
     </div>
   </div>
     <div class="flex flex-col gap-y-2 items-start w-full justify-between">
 
     <!-- ver si colocamos algunos stats con info rapida -->
     <div class="grid grid-cols-1 w-full my-5 md:grid-cols-4 gap-4">
-        <DivBox1>
-          <div class="text-2xl font-bold text-blue-600">{ubicacionesData.length}</div>
-          <div class="text-sm font-semibold text-gray-600">Total Ubicaciones</div>
-        </DivBox1>
-        <DivBox1>
-          <div class="text-2xl font-bold text-green-600">{ubicacionesData.filter((ubicacion) => ubicacion.activo).length}</div>
-          <div class="text-sm font-semibold text-gray-600">Activas</div>
-        </DivBox1>
-        <DivBox1>
-          <div class="text-2xl font-bold text-neutral-600">{ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0)}</div>
-          <div class="text-sm font-semibold text-gray-600">Total Productos</div>
-        </DivBox1>
-        <DivBox1>
-          <div class="text-2xl font-bold text-purple-600">{ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0)/ubicacionesData.length}</div>
-          <div class="text-sm font-semibold text-gray-600">Promedio por Ubicación</div>
-        </DivBox1>
+        <Card>
+          <Texto variant="h1" className="text-blue-600">{ubicacionesData.length}</Texto>
+          <Texto variant="subtitle">Total Ubicaciones</Texto>
+        </Card>
+        <Card>
+          <Texto variant="h1" className="text-green-600">{ubicacionesData.filter((ubicacion) => ubicacion.activo).length}</Texto>
+          <Texto variant="subtitle">Activas</Texto>
+        </Card>
+        <Card>
+          <Texto variant="h1" className="text-neutral-600">{ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0)}</Texto>
+          <Texto variant="subtitle">Total Productos</Texto>
+        </Card>
+        <Card>
+          <Texto variant="h1" className="text-purple-600">{(ubicacionesData.reduce((total, ubicacion) => total + ubicacion.cantidadProductos, 0) / (ubicacionesData.length || 1)).toFixed(1)}</Texto>
+          <Texto variant="subtitle">Promedio por Ubicación</Texto>
+        </Card>
     </div>
     <div
       class="grid grid-cols-1  w-full md:grid-cols-2 lg:grid-cols-3 gap-4"

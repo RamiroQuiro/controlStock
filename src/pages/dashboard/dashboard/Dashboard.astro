@@ -1,15 +1,14 @@
 ---
-import DivBox1 from "../../../components/atomos/DivBox1.astro";
 import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import ProductosMasVendidos from "../../../components/dashboard/ProductosMasVendidos";
 import RendimientoCategoria from "../../../components/dashboard/RendimientoCategoria";
 import ResumenVentas from "../../../components/dashboard/ResumenVentas";
 import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
 import ContenedorStats from "./componente/ContenedorStats";
-import PanelCaja from "./componente/PanelCaja.astro";
 import PanelCajasAdmin from "./componente/PanelCajasAdmin";
 import AnalisisIA from "../../../components/dashboard/AnalisisIA";
 import { ArrowDownCircleIcon, Brain } from "lucide-react";
+import Card from "../../../components/organismos/Card.astro";
 
 const { user } = Astro.locals;
 
@@ -37,39 +36,39 @@ if (!user || !userId) {
   <div
     class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
   >
-    <DivBox1 styleDiv="md:w-4/6 w-full items-stretch">
+    <Card styleDiv="md:w-4/6 w-full items-stretch">
       <ResumenVentas
         userId={userId}
         empresaId={user.empresaId}
         client:visible
       />
-    </DivBox1>
+    </Card>
 
-    <DivBox1 styleDiv="md:w-2/6 w-full items-stretch">
+    <Card styleDiv="md:w-2/6 w-full items-stretch">
       <ProductosMasVendidos
         userId={userId}
         empresaId={user.empresaId}
         client:visible
       />
-    </DivBox1>
+    </Card>
   </div>
-  <DivBox1 styleDiv="w-full items-stretch">
+  <Card styleDiv="w-full items-stretch">
     <PanelCajasAdmin client:load userRole={user.rol} />
-  </DivBox1>
+  </Card>
   {/* Segunda fila de gráficos */}
   <div
     class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"
   >
-    <DivBox1 styleDiv="md:w-2/5 w-full">
+    <Card styleDiv="md:w-2/5 w-full">
       <RendimientoCategoria
         userId={userId}
         empresaId={user.empresaId}
         client:load
       />
-    </DivBox1>
-    <DivBox1 styleDiv="md:w-3/5 w-full">
+    </Card>
+    <Card styleDiv="md:w-3/5 w-full">
       <UltimasTransacciones client:visible />
-    </DivBox1>
+    </Card>
   </div>
 
   {/* Footer */}

@@ -1,5 +1,5 @@
 ---
-import DivBox1 from "../../../../components/atomos/DivBox1.astro";
+import Card from "../../../../components/organismos/Card.astro";
 import MainDashboard from "../../../../components/atomos/MainDashboard.astro";
 import LayoutDash from "../../../../components/layouts/LayoutDash.astro";
 import NotificacionesOpciones from "../components/NotificacionesOpciones";
@@ -9,8 +9,8 @@ const {user}=Astro.locals
 
 <LayoutDash title="Notificaciones" dataCliente={user} userData={user}>
   <MainDashboard h1="Notificaciones">
-    <DivBox1 styleDiv="w-full min-h-[80vh] flex items-center">
+    <Card styleDiv="w-full min-h-[80vh] flex items-center">
         <NotificacionesOpciones client:load/>
-    </DivBox1>
+    </Card>
   </MainDashboard>
 </LayoutDash>

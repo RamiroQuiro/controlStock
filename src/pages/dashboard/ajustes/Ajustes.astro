@@ -1,7 +1,8 @@
 ---
 import { Settings, User, Database, Bell, Lock, Palette, ShieldCheck, BoxesIcon, CreditCard } from 'lucide-react';
 import MainDashboard from '../../../components/atomos/MainDashboard.astro';
-import DivBox1 from '../../../components/atomos/DivBox1.astro';
+import Card from '../../../components/organismos/Card.astro';
+import Texto from '../../../components/atomos/Texto';
 
 const ajustesOpciones = [
   {
@@ -65,12 +66,12 @@ const ajustesOpciones = [
 <MainDashboard h1="Ajustes" subtitle="Administra tus ajustes de la empresa">
   <div class="flex flex-wrap gap-2  justify-start">
     {ajustesOpciones.map((opcion) => (
-      <DivBox1 styleDiv="md:w-[32.5%] w-full">
+      <Card styleDiv="md:w-[32.5%] w-full">
         <div class="flex items-center mb-4">
           <opcion.icono className="w-10 h-10 text-primary-100 mr-4 group-hover:text-primary-200 transition-colors" />
-          <h2 class="text-xl font-semibold text-primary-textoTitle">{opcion.titulo}</h2>
+          <Texto as="h2" variant="h2">{opcion.titulo}</Texto>
         </div>
-        <p class="text-gray-600 mb-4">{opcion.descripcion}</p>
+        <Texto variant="body" className="mb-4">{opcion.descripcion}</Texto>
         <a 
           href={`/dashboard/ajustes/${opcion.seccion}`} 
           class="text-primary-100 hover:text-primary-200 flex items-center"
@@ -80,7 +81,7 @@ const ajustesOpciones = [
             <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
         </a>
-      </DivBox1>
+      </Card>
     ))}
   </div>
 </MainDashboard>

@@ -1,8 +1,9 @@
 ---
 import { Documentos, DocumentosAdjuntosProps } from "../../types/index";
-import Button1 from "../atomos/Button1.astro";
+import Button from "../atomos/Button.astro";
 import ContenedorTitleBotonera from "../atomos/ContenedorTitleBotonera.astro";
-import DivBox1 from "../atomos/DivBox1.astro";
+import Card from "./Card.astro";
+import Texto from "../atomos/Texto";
 import FormularioArchivosAdjuntos from "./FormularioArchivosAdjuntos";
 import ModalArchivosAdjuntos from "../moleculas/ModalArchivosAdjuntos.astro";
 import ContenedorTablaArchivosAdjuntos from "./ContenedorTablaArchivosAdjuntos.astro";
@@ -13,11 +14,11 @@ const { documentos } = Astro.props as DocumentosAdjuntosProps;
 
 ---
 
-<DivBox1>
+<Card>
   <ContenedorTitleBotonera>
-    <h2 class="text-lg font-semibold">Arhivos Adjuntos</h2>
+    <Texto as="h2" variant="h2">Archivos Adjuntos</Texto>
     <div class="flex items-center gap-2">
-       <Button1>ver más</Button1>
+       <Button variant="outline">ver más</Button>
        <ModalArchivosAdjuntos>
         <FormCont title="agregar documento" >
           
@@ -30,4 +31,4 @@ const { documentos } = Astro.props as DocumentosAdjuntosProps;
   <div class="overflow-x-auto w-full">
     <ContenedorTablaArchivosAdjuntos documentos={documentos} />
   </div>
-</DivBox1>
+</Card>

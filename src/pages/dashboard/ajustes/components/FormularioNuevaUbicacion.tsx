@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Button3 from "../../../../components/atomos/Button3";
+import { Button } from "../../../../components/atomos/Button";
 import { showToast } from "../../../../utils/toast/toastShow.js";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx.jsx";
 import { loader } from "../../../../utils/loader/showLoader.js";
@@ -161,8 +161,8 @@ export default function FormularioNuevaUbicacion({ ubicacion, depositos, onSave,
       )}
 
       <div className="flex justify-end space-x-3 pt-4">
-        <Button3 onClick={onCancel}>Cancelar</Button3>
-        <Button3 onClick={handleGuardarUbicacion}>{ubicacion ? "Actualizar" : "Guardar"}</Button3>
+        <Button variant="outline" onClick={onCancel}>Cancelar</Button>
+        <Button onClick={handleGuardarUbicacion}>{ubicacion ? "Actualizar" : "Guardar"}</Button>
       </div>
     </form>
   );

@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { showToast } from "../../../../utils/toast/toastShow";
 import InputFile from "../../../../components/moleculas/InputFile";
 import CategoriasSelector from "./CategoriasSelector";
-import Button3 from "../../../../components/atomos/Button3.jsx"; // Asumiendo que Button3 es un componente React
-import Button5 from "../../../../components/atomos/Button5.jsx";
 import BotonAgregarDeposito from "../../../../components/moleculas/BotonAgregarDepositojsx.jsx";
 import InputComponenteJsx from "../../dashboard/componente/InputComponenteJsx.jsx";
 import BotonAgregarUbicacion from "../../../../components/moleculas/BotonAgregarUbicacion.jsx";
@@ -67,7 +65,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
 
     try {
       const res = await fetch(
-        `/api/productos/verificar-codigo?codigo=${codigo}&empresaId=${empresaId}`
+        `/api/productos/verificar-codigo?codigo=${codigo}&empresaId=${empresaId}`,
       );
       const data = await res.json();
 
@@ -93,7 +91,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
 
     try {
       const res = await fetch(
-        `/api/productos/verificar-nombre?nombre=${encodeURIComponent(nombre)}&empresaId=${empresaId}`
+        `/api/productos/verificar-nombre?nombre=${encodeURIComponent(nombre)}&empresaId=${empresaId}`,
       );
       const data = await res.json();
 
@@ -116,7 +114,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
 

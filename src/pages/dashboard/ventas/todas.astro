@@ -1,5 +1,5 @@
 ---
-import Button1 from "../../../components/atomos/Button1.astro";
+import Button from "../../../components/atomos/Button.astro";
 import MainDashboard from "../../../components/atomos/MainDashboard.astro";
 import LayoutDash from "../../../components/layouts/LayoutDash.astro";
 import ConfeccionTabla from "./components/VentasTodas/ConfeccionTabla";
@@ -14,8 +14,8 @@ const {user}=Astro.locals
       class="flex items-center justify-end pb-2 gap-2 pr-6 w-full"
     >
       <div class="flex gap-3">
-        <Button1 id="btnExportarPDF"> Exportar PDF </Button1>
-        <Button1 id="btnExportar"> Exportar CSV </Button1>
+        <Button id="btnExportarPDF"> Exportar PDF </Button>
+        <Button id="btnExportar"> Exportar CSV </Button>
       </div>
     </div>
 

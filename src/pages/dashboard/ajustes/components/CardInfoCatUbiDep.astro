@@ -1,7 +1,8 @@
 ---
 import { Tag, Edit, Trash2, CircleX } from 'lucide-react';
-import Button4 from '../../../../components/atomos/Button4.astro';
-import DivBox1 from '../../../../components/atomos/DivBox1.astro';
+import Button from '../../../../components/atomos/Button.astro';
+import Card from '../../../../components/organismos/Card.astro';
+import Texto from '../../../../components/atomos/Texto';
 import FormularioNuevaCategoria from './FormularioNuevaCat';
 import formatDate from '../../../../utils/formatDate';
 import BotonDeleteCategoria from './BotonDeleteCategoria.astro';
@@ -28,7 +29,7 @@ const formProps = {
 };
 ---
 
-<DivBox1
+<Card
   styleDiv={`hover:shadow-lg duration-300 transition-all gap-4 cursor-pointer ${
     item.activo ? '' : 'opacity-75'
   }`}
@@ -47,9 +48,9 @@ const formProps = {
             )
           }
           <div>
-            <h3 class="text-lg text-primary-textoTitle capitalize font-medium">
+            <Texto as="h3" variant="h2" className="capitalize">
               {item.nombre}
-            </h3>
+            </Texto>
           </div>
         </div>
         <span
@@ -72,10 +73,10 @@ const formProps = {
         </span>
       </div>
     </div>
-    <div class="flex space- gap-2">
-      <Button4 id={`editar-${type}-${item.id}`}>
+    <div class="flex gap-2">
+      <Button variant="outline" id={`editar-${type}-${item.id}`}>
         <Edit className="h-4 w-4" />
-      </Button4>
+      </Button>
       <BotonDesactivarCat item={item} client:load />
       <BotonDeleteCategoria item={item} type={type} />
     </div>
@@ -95,7 +96,7 @@ const formProps = {
     </form>
     <FormularioNuevaCategoria category={item} client:load />
   </dialog>
-</DivBox1>
+</Card>
 <script define:vars={{ item, type }}>
   const btnEditar = document.getElementById(`editar-${type}-${item.id}`);
   btnEditar?.addEventListener('click', () => {

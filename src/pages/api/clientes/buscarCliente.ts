@@ -32,6 +32,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
         dni: clientes.dni,
         celular: clientes.telefono,
         email: clientes.email,
+        saldoPendiente: clientes.saldoPendiente,
+        limiteCredito: clientes.limiteCredito,
       })
       .from(clientes)
       .where(

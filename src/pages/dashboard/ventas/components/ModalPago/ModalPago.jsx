@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { CreditCard } from "lucide-react";
 import { showToast } from "../../../../../utils/toast/toastShow";
 import ClientesSelect from "../ClientesSelect";
 import MetodoDePago from "./MetodoDePago";

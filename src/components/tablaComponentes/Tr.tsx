@@ -15,28 +15,35 @@ interface Props {
   columnas: Columna[];
 }
 
-export default function Tr({ id, data, styleTr, onClick, renderBotonActions, columnas }: Props) {
+export default function Tr({
+  id,
+  data,
+  styleTr,
+  onClick,
+  renderBotonActions,
+  columnas,
+}: Props) {
   return (
     <tr
       onClick={() => onClick && onClick(data)}
       id={id}
       className={`
-        ${styleTr || ''} 
+        ${styleTr || ""} 
+        ${onClick ? "cursor-pointer" : ""}
         group transition-all duration-200 
         hover:bg-primary-100/5 
-        ${data.activo === false ? 'opacity-60 bg-gray-50/50' : 'bg-transparent'}
+        ${data.activo === false ? "opacity-60 bg-gray-50/50" : "bg-transparent"}
       `}
     >
       {columnas?.map((col, i) => {
-        const value = typeof col.selector === 'function' ? col.selector(data) : data[col.selector];
-        
-        return (
-          <Td key={i}>
-            {col.cell ? col.cell(data) : value}
-          </Td>
-        );
+        const value =
+          typeof col.selector === "function"
+            ? col.selector(data)
+            : data[col.selector];
+
+        return <Td key={i}>{col.cell ? col.cell(data) : value}</Td>;
       })}
-      
+
       {renderBotonActions && (
         <td className="px-4 py-3 text-right sticky right-0 bg-transparent group-hover:bg-primary-bg-claro/50 transition-colors">
           <div className="flex justify-end gap-2">

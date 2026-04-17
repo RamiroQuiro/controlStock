@@ -11,6 +11,7 @@ import ModalCliente from "../../ventas/components/ModalCliente";
 import BusquedaClientes from "../../ventas/components/BusquedaClientes";
 import BusquedaProveedor from "../../stock/components/BusquedaProveedor";
 import ReactQueryProvider from "../../../../context/ReactQueryProvider";
+import { Card } from "../../../../components/organismos/Card";
 
 export default function AccionesRapidas({ empresaId }) {
   const [modalType, setModalType] = useState(null); // 'cliente', 'proveedor', 'producto', 'gasto'
@@ -59,7 +60,7 @@ export default function AccionesRapidas({ empresaId }) {
       <div className="w-full">
         <div className="flex flex-wrap gap-4">
           {actions.map((action) => (
-            <button
+            <Card
               key={action.id}
               onClick={() => {
                 if (action.id === "producto") {
@@ -72,7 +73,7 @@ export default function AccionesRapidas({ empresaId }) {
                 }
                 setModalType(action.id);
               }}
-              className="flex-1 min-w-[200px] flex items-center gap-4 p-4 bg-white rounded-2xl border-2 border-transparent hover:border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+              className={`flex-1 min-w-[200px] flex items-center gap-4 p-4 hover:${action.bgColor} cursor-pointer bg-white  hover:border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group`}
             >
               <div
                 className={`p-3 rounded-xl ${action.bgColor} ${action.textColor} group-hover:scale-110 duration-300`}
@@ -87,7 +88,7 @@ export default function AccionesRapidas({ empresaId }) {
                   {action.description}
                 </p>
               </div>
-            </button>
+            </Card>
           ))}
         </div>
 
@@ -98,7 +99,7 @@ export default function AccionesRapidas({ empresaId }) {
               <BusquedaClientes
                 onClose={() => setModalType(null)}
                 setCliente={(c) => {
-                  window.location.href = `/dashboard/clientes/perfil/${c.id}`;
+                  window.location.href = `/dashboard/clientes/${c.id}`;
                 }}
                 empresaId={empresaId}
               />

@@ -10,7 +10,10 @@ import {
   stockActual,
   ventas,
   sesionesCaja,
-  movimientosCaja 
+  movimientosCaja,
+  clientes,
+  movimientosCuentaCorriente,
+  deudasProductos
 } from "../../../db/schema";
 import { nanoid } from "nanoid";
 import { and, eq, inArray, sql } from "drizzle-orm";
@@ -51,7 +54,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     }
 
     // --- OPTIMIZACIÓN 1: Chequear stock en Bulk (1 sola query) ---
-    const productIds = productosSeleccionados.map((p) => p.id);
+    const productIds = productosSeleccionados.map((p: any) => p.id);
     const stockExistenteDB = await db
       .select({ productoId: stockActual.productoId, stock: stockActual.cantidad })
       .from(stockActual)
@@ -211,7 +214,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             sesionCajaId: sesionCajaActiva.id,
             tipo: 'ingreso',
             origen: 'venta',
-            monto: data.total, // Asumimos total, si hay vuelto/pagaCon se debería ajustar, pero data.total es el monto de venta
+            monto: data.total,
             descripcion: `Venta ${numeroFormateado}`,
             referenciaId: ventaFinalizada.id,
             usuarioId: userId,
@@ -219,6 +222,121 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
             empresaId: empresaId,
             comprobante: numeroFormateado
           });
+        }
+      }
+
+      // 6. Registrar en Cuenta Corriente (Si es Fiado)
+      if (data.metodoPago === 'fiado') {
+        const montoEntregado = Number(data.montoEntregadoFiado || 0);
+        const saldoAFiar = data.total - montoEntregado;
+
+        // Registrar ingreso en caja si entregaron algo de efectivo
+        if (montoEntregado > 0) {
+          const [sesionCajaActiva] = await trx
+            .select()
+            .from(sesionesCaja)
+            .where(and(
+              eq(sesionesCaja.usuarioAperturaId, userId),
+              eq(sesionesCaja.empresaId, empresaId),
+              eq(sesionesCaja.estado, 'abierta')
+            ))
+            .limit(1);
+
+          if (sesionCajaActiva) {
+            await trx.insert(movimientosCaja).values({
+              id: nanoid(12),
+              sesionCajaId: sesionCajaActiva.id,
+              tipo: 'ingreso',
+              origen: 'pago_cuenta_corriente',
+              monto: montoEntregado,
+              descripcion: `Entrega Efectivo - Venta ${numeroFormateado}`,
+              referenciaId: ventaFinalizada.id,
+              usuarioId: userId,
+              fecha: fechaVenta,
+              empresaId: empresaId,
+              comprobante: numeroFormateado
+            });
+          }
+        }
+
+        // Obtener saldo actual
+        const [clienteDB] = await trx
+          .select({ saldoPendiente: clientes.saldoPendiente })
+          .from(clientes)
+          .where(and(eq(clientes.id, clienteId), eq(clientes.empresaId, empresaId)))
+          .limit(1);
+
+        const saldoActual = clienteDB?.saldoPendiente || 0;
+        const nuevoSaldo = saldoActual + saldoAFiar;
+
+        // Actualizar saldo del cliente
+        await trx
+          .update(clientes)
+          .set({ saldoPendiente: nuevoSaldo })
+          .where(and(eq(clientes.id, clienteId), eq(clientes.empresaId, empresaId)));
+
+        // Registrar movimiento de la VENTA (Total)
+        const movimientoVentaId = nanoid(12);
+        await trx.insert(movimientosCuentaCorriente).values({
+          id: movimientoVentaId,
+          clienteId,
+          empresaId,
+          ventaId: ventaFinalizada.id,
+          monto: data.total,
+          tipo: 'DEUDA',
+          saldoResultante: saldoActual + data.total,
+          observaciones: `Venta Fiado ${numeroFormateado}`,
+          fecha: fechaVenta,
+        });
+
+        // Registrar movimiento del PAGO PARCIAL (si hubo entrega)
+        if (montoEntregado > 0) {
+          await trx.insert(movimientosCuentaCorriente).values({
+            id: nanoid(12),
+            clienteId,
+            empresaId,
+            ventaId: ventaFinalizada.id,
+            monto: montoEntregado,
+            tipo: 'PAGO',
+            saldoResultante: nuevoSaldo,
+            observaciones: `Entrega Efectivo - Venta ${numeroFormateado}`,
+            fecha: fechaVenta,
+          });
+        }
+
+        // 6.2 Registrar items en deudas_productos para seguimiento por cantidad (Anti-inflación)
+        let montoAReducirParaItems = montoEntregado;
+        const deudasItems = productosSeleccionados.map((prod: any) => {
+          let cantidadPagada = 0;
+          if (montoAReducirParaItems > 0) {
+            const valorTotalItem = prod.cantidad * prod.pVenta;
+            if (montoAReducirParaItems >= valorTotalItem) {
+              cantidadPagada = prod.cantidad;
+              montoAReducirParaItems -= valorTotalItem;
+            } else {
+              cantidadPagada = montoAReducirParaItems / prod.pVenta;
+              montoAReducirParaItems = 0;
+            }
+          }
+          const cantidadPendiente = prod.cantidad - cantidadPagada;
+
+          if (cantidadPendiente > 0) {
+            return {
+              id: nanoid(12),
+              clienteId,
+              productoId: prod.id,
+              empresaId,
+              cantidadPendiente,
+              precioVentaOriginal: prod.pVenta,
+              ventaId: ventaFinalizada.id,
+              fecha: fechaVenta
+            };
+          }
+          return null;
+        }).filter(Boolean);
+
+        if (deudasItems.length > 0) {
+          await trx.insert(deudasProductos).values(deudasItems);
         }
       }
 
@@ -232,7 +350,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
         data: ventaDB,
       })
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return new Response(
       JSON.stringify({

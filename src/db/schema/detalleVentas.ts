@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, integer, text, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, integer, text, index, real } from "drizzle-orm/sqlite-core";
 import { empresas, productos, ventas } from "../schema";
 
 export const detalleVentas = sqliteTable(
@@ -24,7 +24,7 @@ export const detalleVentas = sqliteTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    cantidad: integer("cantidad").notNull(),
+    cantidad: real("cantidad").notNull(),
     precio: integer("precio").notNull(), // Precio unitario en el momento de la venta
     impuesto: integer("impuesto", { mode: "number" }).notNull().default(0), // Impuesto aplicado al producto
     descuento: integer("descuento", { mode: "number" }).notNull().default(0), // Descuento aplicado al producto

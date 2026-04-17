@@ -4,6 +4,8 @@ type Props = {
   name: string;
   labelOption?: string;
   defaultSelect: boolean;
+  value?: string | number;
+  disabled?: boolean;
   options: { id: string; name?: string; value: string; nombre?: string }[];
   handleSelect: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 };
@@ -12,6 +14,8 @@ export default function Selector({
   name,
   labelOption,
   defaultSelect,
+  value,
+  disabled,
   options,
   handleSelect,
 }: Props) {
@@ -24,9 +28,11 @@ export default function Selector({
         {labelOption}
       </label>
       <select
-        onSelect={handleSelect}
+        onChange={handleSelect}
         name={name}
         id={name}
+        value={value}
+        disabled={disabled}
         className={`p-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-primary-100 focus:border-primary-100 placeholder:text-gray-400 transition`}
       >
         {defaultSelect ? (

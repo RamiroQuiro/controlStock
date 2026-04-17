@@ -1,4 +1,9 @@
 import { atom } from "nanostores";
+import type { Producto } from "../types";
+
+export interface ProductoCarrito extends Producto {
+  cantidad: number;
+}
 
 export const busqueda = atom({
   productosBuscados: null,
@@ -8,11 +13,11 @@ export const filtroBusqueda = atom({
   filtro: "",
 });
 
-export const productosSeleccionadosVenta = atom([]);
+export const productosSeleccionadosVenta = atom<ProductoCarrito[]>([]);
 
 // --- Acciones del Carrito de Venta ---
 
-export function agregarProductoVenta(producto) {
+export function agregarProductoVenta(producto: Producto) {
   const productos = productosSeleccionadosVenta.get();
   const productoExistente = productos.find(
     (p) => p.codigoBarra === producto.codigoBarra
@@ -25,12 +30,12 @@ export function agregarProductoVenta(producto) {
     // Si es un producto nuevo, lo añadimos al array con cantidad 1
     productosSeleccionadosVenta.set([
       ...productos,
-      { ...producto, cantidad: 1 },
+      { ...producto, cantidad: 1 } as ProductoCarrito,
     ]);
   }
 }
 
-export function sumarCantidad(codigoBarra) {
+export function sumarCantidad(codigoBarra: string) {
   const productos = productosSeleccionadosVenta.get();
   const nuevosProductos = productos.map((p) =>
     p.codigoBarra === codigoBarra ? { ...p, cantidad: p.cantidad + 1 } : p
@@ -38,7 +43,7 @@ export function sumarCantidad(codigoBarra) {
   productosSeleccionadosVenta.set(nuevosProductos);
 }
 
-export function restarCantidad(codigoBarra) {
+export function restarCantidad(codigoBarra: string) {
   const productos = productosSeleccionadosVenta.get();
 
   const producto = productos.find((p) => p.codigoBarra === codigoBarra);
@@ -54,7 +59,7 @@ export function restarCantidad(codigoBarra) {
   }
 }
 
-export function eliminarProducto(codigoBarra) {
+export function eliminarProducto(codigoBarra: string) {
   const productos = productosSeleccionadosVenta.get();
   const nuevosProductos = productos.filter(
     (p) => p.codigoBarra !== codigoBarra
@@ -62,17 +67,24 @@ export function eliminarProducto(codigoBarra) {
   productosSeleccionadosVenta.set(nuevosProductos);
 }
 
-export function setCantidad(codigoBarra, cantidad) {
+export function setCantidad(codigoBarra: string, cantidad: string | number) {
   const productos = productosSeleccionadosVenta.get();
-  const nuevaCantidad = Number(cantidad);
+  
+  // Normalizamos el valor: convertimos coma en punto para que Number() lo entienda
+  const valorLimpio = cantidad.toString().replace(",", ".");
+  const nuevaCantidad = cantidad === "" ? 0 : Number(valorLimpio);
 
-  if (nuevaCantidad <= 0) {
-    eliminarProducto(codigoBarra);
-    return;
-  }
+  // Si no es un número válido (ej: solo pusieron un punto o coma), no actualizamos o ponemos 0
+  if (isNaN(nuevaCantidad)) return;
 
   const nuevosProductos = productos.map((p) =>
     p.codigoBarra === codigoBarra ? { ...p, cantidad: nuevaCantidad } : p
   );
   productosSeleccionadosVenta.set(nuevosProductos);
+}
+
+export function limpiarVenta() {
+  productosSeleccionadosVenta.set([]);
+  busqueda.set({ productosBuscados: null });
+  filtroBusqueda.set({ filtro: "" });
 }

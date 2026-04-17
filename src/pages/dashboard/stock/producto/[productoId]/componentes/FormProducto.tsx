@@ -296,17 +296,31 @@ export default function FormProducto({ data }: Props) {
                   labelOption="Unidad de Medida"
                   name="unidadMedida"
                   defaultSelect={Boolean(form.unidadMedida)}
+                  value={form.unidadMedida}
+                  disabled={disableEdit}
                   options={[
                     { id: "unidad", name: "Unidad", value: "unidad" },
                     {
                       id: "kilogramos",
                       name: "Kilogramos",
-                      value: "kilogramos",
+                      value: "kg",
                     },
-                    { id: "litros", name: "Litros", value: "litros" },
-                    { id: "decena", name: "Decena", value: "decena" },
+                    { id: "gramos", name: "Gramos", value: "gr" },
+                    { id: "litros", name: "Litros", value: "lt" },
+                    { id: "metros", name: "Metros", value: "mt" },
                   ]}
                   handleSelect={handleChange}
+                />
+              </div>
+              <div className="flex w-full flex-col md:flex-row gap-3">
+                <Input
+                  label="Fecha de Vencimiento"
+                  name="fechaVencimiento"
+                  type="date"
+                  value={form.fechaVencimiento ? new Date(form.fechaVencimiento).toISOString().split('T')[0] : ""}
+                  onChange={handleChange}
+                  disabled={disableEdit}
+                  placeholder="Fecha de Vencimiento"
                 />
               </div>
             </CardContent>
@@ -408,11 +422,10 @@ export default function FormProducto({ data }: Props) {
                   name="iva"
                   defaultSelect={false}
                   options={[
-                    {
-                      id: "iva",
-                      name: "iva",
-                      value: "iva",
-                    },
+                    { id: "0", name: "0%", value: "0" },
+                    { id: "10.5", name: "10.5%", value: "10.5" },
+                    { id: "21", name: "21%", value: "21" },
+                    { id: "27", name: "27%", value: "27" },
                   ]}
                   handleSelect={handleChange}
                 />
@@ -440,7 +453,7 @@ export default function FormProducto({ data }: Props) {
                     name="fechaInicioOferta"
                     type="date"
                     disabled={!form.isOferta}
-                    value={form.fechaInicioOferta}
+                    value={form.fechaInicioOferta ? new Date(form.fechaInicioOferta).toISOString().split('T')[0] : ""}
                     onChange={handleChange}
                     placeholder="Fecha de Inicio"
                   />
@@ -449,7 +462,7 @@ export default function FormProducto({ data }: Props) {
                     name="fechaFinOferta"
                     type="date"
                     disabled={!form.isOferta}
-                    value={form.fechaFinOferta}
+                    value={form.fechaFinOferta ? new Date(form.fechaFinOferta).toISOString().split('T')[0] : ""}
                     onChange={handleChange}
                     placeholder="Fecha de Fin"
                   />
@@ -511,10 +524,12 @@ export default function FormProducto({ data }: Props) {
               <Card>
                 <div className="flex items-center gap-1">
                   <PocketKnife className="stroke-primary-100" />
-                  <p className="text-primary-textoTitle">Motnto Iva</p>
+                  <p className="text-primary-textoTitle">Monto IVA</p>
                 </div>
                 <p className="font-bold text-2xl trakin text-primary-textoTitle">
-                  {formateoMoneda.format(Number(form?.iva) || 0)}
+                  {formateoMoneda.format(
+                    Number(form?.pVenta || 0) - (Number(form?.pVenta || 0) / (1 + (Number(form?.iva || 21) / 100)))
+                  )}
                 </p>
               </Card>
               <Card>
@@ -532,7 +547,7 @@ export default function FormProducto({ data }: Props) {
                   <p className="text-primary-textoTitle">Margen Ganancia</p>
                 </div>
                 <p className="font-bold text-2xl trakin text-primary-textoTitle">
-                  {formateoMoneda.format(Number(form?.pCompra) || 0)}
+                  {formateoMoneda.format((Number(form?.pVenta) || 0) - (Number(form?.pCompra) || 0))}
                 </p>
               </Card>
             </CardContent>

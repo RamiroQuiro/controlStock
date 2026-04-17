@@ -42,6 +42,8 @@ const FormularioCargaProducto: React.FC<Props> = ({
     pVenta: "",
     iva: "21",
     stock: 0,
+    unidadMedida: "unidad",
+    fechaVencimiento: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -530,16 +532,15 @@ const FormularioCargaProducto: React.FC<Props> = ({
             >
               Precio Compra
             </label>
-            <InputComponenteJsx
+            <input
               type="number"
               name="pCompra"
               id="pCompra"
+              step="any"
               value={formData.pCompra}
-              handleChange={handleChange}
-              className=""
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
               placeholder="0.00"
-              disable={isSubmitting}
-              tab={0}
             />
           </div>
 
@@ -554,6 +555,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
               type="number"
               name="pVenta"
               id="pVenta"
+              step="any"
               value={formData.pVenta}
               onChange={handleChange}
               className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
@@ -585,6 +587,27 @@ const FormularioCargaProducto: React.FC<Props> = ({
               <option value="0">No Aplica</option>
             </select>
           </div>
+
+          <div>
+            <label
+              htmlFor="unidadMedida"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Unidad de Medida
+            </label>
+            <select
+              name="unidadMedida"
+              value={formData.unidadMedida}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+            >
+              <option value="unidad">Unidad</option>
+              <option value="kg">Kilogramos</option>
+              <option value="gr">Gramos</option>
+              <option value="lt">Litros</option>
+              <option value="mt">Metros</option>
+            </select>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 border-t pt-6">
@@ -599,6 +622,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
               type="number"
               name="stock"
               id="stock"
+              step="any"
               value={formData.stock}
               onChange={handleChange}
               className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
@@ -618,16 +642,32 @@ const FormularioCargaProducto: React.FC<Props> = ({
             >
               Alerta Stock
             </label>
-            <InputComponenteJsx
+            <input
               type="number"
               name="alertaStock"
               id="alertaStock"
-              value={formData.alertaStock.toString()}
-              handleChange={handleChange}
-              className=""
+              step="any"
+              value={formData.alertaStock}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
               placeholder="0"
-              disable={isSubmitting}
-              tab={0}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="fechaVencimiento"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Fecha de Vencimiento
+            </label>
+            <input
+              type="date"
+              name="fechaVencimiento"
+              id="fechaVencimiento"
+              value={formData.fechaVencimiento}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
             />
           </div>
         </div>

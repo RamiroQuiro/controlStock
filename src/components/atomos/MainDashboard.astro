@@ -1,5 +1,6 @@
 ---
 import ButtonBackHistory from "./ButtonBackHistory.astro";
+import Texto from "./Texto";
 
 const { title, h1, subtitle, icon } = Astro.props;
 
@@ -23,9 +24,12 @@ const { user } = Astro.locals;
             <Icon className="w-6 text-primary-100  stroke-primary-100" />
           )}
           {/* <ArrowLeftCircle/> */}
-          <h1 class="text-xl  font-semibold text-primary-textoTitle  capitalize">
+          <Texto
+            as="h2"
+            className="text-sm   font-semibold text-primary-textoTitle  capitalize"
+          >
             {h1}
-          </h1>
+          </Texto>
         </div>
       )
     }

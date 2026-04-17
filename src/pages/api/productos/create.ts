@@ -88,6 +88,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       localizacion: data.get("localizacion")?.toString() || "",
       alertaStock: Number(data.get("alertaStock") || 0),
       codigoBarra: data.get("codigoBarra")?.toString() || "",
+      unidadMedida: data.get("unidadMedida")?.toString() || "unidad",
+      fechaVencimiento: data.get("fechaVencimiento")?.toString() || null,
     };
 
     // 1. Validar que la empresa existe
@@ -232,6 +234,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
           empresaId: productoData.empresaId, // Ya validado
           impuesto: productoData.impuesto,
           marca: productoData.marca,
+          unidadMedida: productoData.unidadMedida,
+          fechaVencimiento: productoData.fechaVencimiento ? new Date(productoData.fechaVencimiento) : null,
         })
         .returning();
 

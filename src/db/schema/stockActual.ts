@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text, unique, real } from 'drizzle-orm/sqlite-core';
 import { productos } from './productos';
 import { users } from './users';
 import { empresas } from './empresas';
@@ -12,7 +12,7 @@ export const stockActual = sqliteTable('stockActual', {
   productoId: text('productoId')
     .notNull()
     .references(() => productos.id, { onUpdate: 'cascade', onDelete: 'restrict' }), // Relación con productos
-  cantidad: integer('cantidad').notNull().default(0), // Cantidad actual en stock
+  cantidad: real('cantidad').notNull().default(0), // Cantidad actual en stock
   alertaStock: integer('alertaStock').notNull().default(5), // Mínimo antes de alertar
   ubicacionesId: text('ubicacionesId').references(() => ubicaciones.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   depositosId: text('depositosId').references(() => depositos.id, { onUpdate: 'cascade', onDelete: 'restrict' }),

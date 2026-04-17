@@ -1,14 +1,17 @@
-import { useEffect, useState, useRef } from 'react';
-import { showToast } from '../../../../../utils/toast/toastShow';
-import ClientesSelect from '../ClientesSelect';
-import MetodoDePago from './MetodoDePago';
-import { formateoMoneda } from '../../../../../utils/formateoMoneda';
-import { loader } from '../../../../../utils/loader/showLoader';
-import { Table2 } from 'lucide-react';
-import Comprobante from '../../../../../components/Comprobante/Comprobante';
-import ModalComprobante from '../../../../../components/Comprobante/ModalComprobante';
-import { actions as cajaActions } from '../../../../../context/caja.store';
-import ModalReact from '../../../../../components/moleculas/ModalReact';
+import { useEffect, useState, useRef } from "react";
+import { showToast } from "../../../../../utils/toast/toastShow";
+import ClientesSelect from "../ClientesSelect";
+import MetodoDePago from "./MetodoDePago";
+import { formateoMoneda } from "../../../../../utils/formateoMoneda";
+import Comprobante from "../../../../../components/Comprobante/Comprobante";
+import { actions as cajaActions } from "../../../../../context/caja.store";
+import ModalReact from "../../../../../components/moleculas/ModalReact";
+import { limpiarVenta } from "../../../../../context/venta.store";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ComprobanteService } from "../../../../../services/comprobante.service";
+import Button from "../../../../../components/atomos/Button";
+
+const comprobanteService = new ComprobanteService();
 
 export default function ModalPago({
   isOpen,
@@ -20,34 +23,35 @@ export default function ModalPago({
   ivaMonto,
 }) {
   const [cliente, setCliente] = useState({
-    nombre: 'consumidor final',
-    dni: '00000000',
-    celular: '0000000000',
+    nombre: "consumidor final",
+    dni: "00000000",
+    celular: "0000000000",
     id: user?.clienteDefault,
   });
   const [formularioVenta, setFormularioVenta] = useState({
     clienteId: cliente.id,
     descuento: 0,
-    tipoComprobante: 'FC_B',
+    tipoComprobante: "FC_B",
     puntoVenta: user.puntoVenta || 1,
-    metodoPago: 'efectivo',
+    metodoPago: "efectivo",
     nComprobante: 0,
-    fotoComprobante: '',
+    fotoComprobante: "",
     nCheque: 0,
     vencimientoCheque: 0,
     total: totalVenta,
   });
   const [vueltoCalculo, setVueltoCalculo] = useState(0);
-  const [metodoPago, setMetodoPago] = useState('efectivo');
+  const [metodoPago, setMetodoPago] = useState("efectivo");
   const [descuento, setDescuento] = useState(0);
   const [mostrarComprobante, setMostrarComprobante] = useState(false);
   const [ventaFinalizada, setVentaFinalizada] = useState({});
-  const [esPresupuesto, setEsPresupuesto] = useState('comprobante');
-  
+  const [esPresupuesto, setEsPresupuesto] = useState("comprobante");
+  const queryClient = useQueryClient();
   const montoRecibidoRef = useRef(null);
 
   const vueltoCalculadoReal = () => {
-    const totalConDescuento = totalVenta * (1 - (formularioVenta.descuento || 0) / 100);
+    const totalConDescuento =
+      totalVenta * (1 - (formularioVenta.descuento || 0) / 100);
     return totalConDescuento;
   };
 
@@ -57,34 +61,12 @@ export default function ModalPago({
     setVueltoCalculo(vuelto);
   };
 
-
   // Efecto para el autofoco en el campo de monto recibido
   useEffect(() => {
-    if (metodoPago === 'efectivo' && montoRecibidoRef.current) {
+    if (metodoPago === "efectivo" && montoRecibidoRef.current) {
       montoRecibidoRef.current.focus();
     }
   }, [metodoPago]);
-
-  // Efecto para manejar los atajos de teclado F10 (Confirmar) y F7 (Presupuesto)
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'F10') {
-        event.preventDefault();
-        finalizarCompra();
-      }
-      if (event.key === 'F7') {
-        event.preventDefault();
-        guardarPresupuesto();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    // Limpieza: remover el event listener cuando el modal se cierra
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []); // El array vacío asegura que se ejecute solo una vez
 
   // Efecto para actualizar el clienteId en el formulario cuando el cliente cambia
   useEffect(() => {
@@ -94,127 +76,130 @@ export default function ModalPago({
     }));
   }, [cliente]);
 
-  // --- LÓGICA DE IMPRESIÓN ---
-
   // Función para imprimir el ticket de venta
   const imprimirTicket = async (ventaId) => {
     try {
-      // 1. Solicitar el HTML del ticket a la API
-      const response = await fetch('/api/comprobantes/generar-ticket', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/comprobantes/generar-ticket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ventaId }),
       });
 
-      if (!response.ok) {
-        throw new Error('Error al generar el HTML del ticket');
-      }
-
+      if (!response.ok) throw new Error("Error al generar el HTML del ticket");
       const htmlTicket = await response.text();
-
-      // 2. Crear un iframe oculto para la impresión
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
       document.body.appendChild(iframe);
-
-      // 3. Escribir el HTML en el iframe y llamar a la impresión
       iframe.contentDocument.write(htmlTicket);
       iframe.contentDocument.close();
       iframe.contentWindow.print();
-
-      // 4. Limpiar el iframe después de un tiempo
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 1000);
-
+      setTimeout(() => document.body.removeChild(iframe), 1000);
     } catch (error) {
-      console.error('Error al imprimir el ticket:', error);
-      showToast('Error al imprimir ticket', { background: 'bg-red-500' });
+      console.error("Error al imprimir el ticket:", error);
+      showToast("Error al imprimir ticket", { background: "bg-red-500" });
     }
   };
+
+  // Mutaciones de React Query
+  const mutationVenta = useMutation({
+    mutationFn: async (datosVenta) => {
+      const response = await fetch("/api/sales/finalizarVenta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosVenta),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.msg || "Error al finalizar la venta");
+      }
+      return response.json();
+    },
+    onSuccess: (res) => {
+      showToast(res.msg, { background: "bg-green-600" });
+      setVentaFinalizada(res.data);
+      setMostrarComprobante(true);
+      if (metodoPago === "efectivo") cajaActions.fetchEstadoCaja();
+      imprimirTicket(res.data.id).catch((err) => console.error(err));
+      queryClient.invalidateQueries({ queryKey: ["productos"] });
+    },
+    onError: (error) => {
+      showToast(error.message, { background: "bg-red-500" });
+    },
+  });
+
+  const mutationPresupuesto = useMutation({
+    mutationFn: async (datosPresupuesto) => {
+      const response = await fetch("/api/sales/presupuestar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosPresupuesto),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.msg || "Error al presupuestar");
+      }
+      return response.json();
+    },
+    onSuccess: (res) => {
+      showToast(res.msg, { background: "bg-green-600" });
+      setVentaFinalizada(res.data);
+      setMostrarComprobante(true);
+      imprimirTicket(res.data.id).catch((err) => console.error(err));
+    },
+    onError: (error) => {
+      showToast(error.message, { background: "bg-red-500" });
+    },
+  });
+
+  const loading = mutationVenta.isPending || mutationPresupuesto.isPending;
+
+  // Efecto para manejar los atajos de teclado F10 (Confirmar) y F7 (Presupuesto)
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (mostrarComprobante) return;
+      if (event.key === "F10") {
+        event.preventDefault();
+        finalizarCompra();
+      }
+      if (event.key === "F7") {
+        event.preventDefault();
+        guardarPresupuesto();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [loading, mostrarComprobante]);
 
   const finalizarCompra = async () => {
-    loader(true);
-    setEsPresupuesto('comprobante');
+    if (loading || mostrarComprobante) return;
+    setEsPresupuesto("comprobante");
     const totalFinalReal = vueltoCalculadoReal();
 
-    if (totalFinalReal <= 0 && totalVenta !== 0) {
-      // Just a small sanity check
-    }
-
-    try {
-      const responseFetch = await fetch('/api/sales/finalizarVenta', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productos: $productos,
-          totalVenta: totalFinalReal,
-          userId: user.id,
-          empresaId: user.empresaId,
-          data: { ...formularioVenta, total: totalFinalReal },
-        }),
-      });
-      const data = await responseFetch.json();
-      if (data.status == 200) {
-        showToast(data.msg, { background: 'bg-green-600' });
-        
-        loader(false);
-        setVentaFinalizada(data.data);
-        setMostrarComprobante(true);
-
-        // --- REFRESCAR ESTADO DE CAJA SI FUE EFECTIVO ---
-        if (metodoPago === 'efectivo') {
-          cajaActions.fetchEstadoCaja();
-        }
-
-        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET EN BACKGROUND ---
-        imprimirTicket(data.data.id).catch(err => console.error(err));
-      }
-    } catch (error) {
-      console.log(error);
-      loader(false);
-      showToast('error al transaccionar', { background: 'bg-primary-400' });
-    }
+    mutationVenta.mutate({
+      productos: $productos,
+      totalVenta: totalFinalReal,
+      userId: user.id,
+      empresaId: user.empresaId,
+      data: { ...formularioVenta, total: totalFinalReal },
+    });
   };
+
   const guardarPresupuesto = async () => {
-    loader(true);
-    setEsPresupuesto('presupuesto');
+    if (loading || mostrarComprobante) return;
+    setEsPresupuesto("presupuesto");
     if (totalVenta == 0) {
-      showToast('monto total 0', {
-        background: 'bg-primary-400',
-      });
+      showToast("monto total 0", { background: "bg-primary-400" });
       return;
     }
-    try {
-      const responseFetch = await fetch('/api/sales/presupuestar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productos: $productos,
-          totalVenta,
-          userId: user.id,
-          empresaId: user.empresaId,
-          data: formularioVenta,
-        }),
-      });
-      const data = await responseFetch.json();
-      if (data.status == 200) {
-        showToast(data.msg, { background: 'bg-green-600' });
-        
-        loader(false);
-        setVentaFinalizada(data.data);
-        setMostrarComprobante(true);
 
-        // --- IMPRESIÓN AUTOMÁTICA DEL TICKET EN BACKGROUND ---
-        imprimirTicket(data.data.id).catch(err => console.error(err));
-      }
-    } catch (error) {
-      console.log(error);
-      loader(false);
-      showToast('error al transaccionar', { background: 'bg-primary-400' });
-    }
+    mutationPresupuesto.mutate({
+      productos: $productos,
+      totalVenta,
+      userId: user.id,
+      empresaId: user.empresaId,
+      data: formularioVenta,
+    });
   };
 
   const handleChange = (e) => {
@@ -230,131 +215,263 @@ export default function ModalPago({
     setFormularioVenta({ ...formularioVenta, metodoPago: metodo });
   };
 
+  const dataComprobante = mostrarComprobante
+    ? {
+        codigo: ventaFinalizada?.codigo || ventaFinalizada?.id,
+        id: ventaFinalizada?.id,
+        fecha: ventaFinalizada.fecha,
+        numeroFormateado: ventaFinalizada.numeroFormateado,
+        puntoVenta: ventaFinalizada.puntoVenta,
+        tipo: ventaFinalizada.tipo,
+        empresaId: ventaFinalizada.empresaId,
+        cliente: cliente,
+        comprobante: {
+          numero: ventaFinalizada.numero,
+          tipo: ventaFinalizada.tipo,
+          puntoVenta: ventaFinalizada.puntoVenta,
+          numeroFormateado: ventaFinalizada.numeroFormateado,
+          fecha: ventaFinalizada.fecha,
+          fechaEmision: ventaFinalizada.fechaEmision,
+          clienteId: ventaFinalizada.clienteId,
+          total: ventaFinalizada.total,
+          estado: ventaFinalizada.estado,
+        },
+        dataEmpresa: {
+          razonSocial: ventaFinalizada.dataEmpresa?.razonSocial,
+          documento: ventaFinalizada.dataEmpresa?.documento,
+          direccion: ventaFinalizada.dataEmpresa?.direccion,
+          telefono: ventaFinalizada.dataEmpresa?.telefono,
+          email: ventaFinalizada.dataEmpresa?.email,
+          web: ventaFinalizada.dataEmpresa?.web,
+          logo: ventaFinalizada.dataEmpresa?.logo,
+        },
+        items: $productos.map((p) => ({
+          producto: p.nombre,
+          cantidad: p.cantidad,
+          precioUnitario: p.pVenta,
+          subtotal: p.cantidad * p.pVenta,
+          impuesto: p.iva,
+          descripcion: p.descripcion,
+        })),
+        esPresupuesto: esPresupuesto,
+        subtotal,
+        impuestos: ivaMonto,
+        descuentos: totalVenta * (formularioVenta.descuento / 100),
+        total: totalVenta * (1 - formularioVenta.descuento / 100),
+        expira_at:
+          esPresupuesto === "presupuesto" ? ventaFinalizada.expira_at : null,
+      }
+    : null;
+
   return (
-    <>
-      <ModalReact title="Finalizar Venta" onClose={() => setModalConfirmacion(false)} id="pago">
-        <div className="flex items-center w-full justify-between gap-3 mb-6 bg-gray-50 p-3 rounded-lg border">
-          <label className="text-sm font-semibold block w-fit">Tipo de Comprobante:</label>
-          <select
-            name="tipoComprobante"
-            value={formularioVenta.tipoComprobante}
-            onChange={handleChange}
-            className="w-1/2 border text-sm rounded-lg p-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
-          >
-            <option value="FC_B">Factura B</option>
-            <option value="FC_A">Factura A</option>
-            <option value="FC_C">Factura C</option>
-            <option value="PR">Presupuesto</option>
-            <option value="NT">Nota de Crédito</option>
-          </select>
+    <ModalReact
+      title={
+        mostrarComprobante
+          ? esPresupuesto === "presupuesto"
+            ? "Presupuesto Generado"
+            : "Venta Exitosa"
+          : "Finalizar Venta"
+      }
+      onClose={() => {
+        if (mostrarComprobante) {
+          limpiarVenta();
+        }
+        setModalConfirmacion(false);
+      }}
+      id="pago"
+    >
+      {mostrarComprobante ? (
+        <div className="md:h-[75vh] h-[85vh] overflow-y-auto">
+          <Comprobante
+            onClose={() => {
+              limpiarVenta();
+              setModalConfirmacion(false);
+            }}
+            esPresupuesto={esPresupuesto === "presupuesto"}
+            data={dataComprobante}
+            onPrint={() =>
+              comprobanteService.imprimirComprobante(dataComprobante)
+            }
+            onDownload={() => comprobanteService.descargarPDF(dataComprobante)}
+            onShare={() =>
+              comprobanteService.compartirComprobante(
+                ventaFinalizada.codigo || ventaFinalizada.id,
+              )
+            }
+          />
         </div>
-          <div className=" flex flex-col h-full w-full overflow-y-auto pb-10">
+      ) : (
+        <div className="flex flex-col h-full relative">
+          <div className="flex items-center w-full justify-between gap-3 mb-6 bg-gray-50 p-3 rounded-lg border">
+            <label className="text-sm font-semibold block w-fit">
+              Tipo de Comprobante:
+            </label>
+            <select
+              name="tipoComprobante"
+              value={formularioVenta.tipoComprobante}
+              onChange={handleChange}
+              className="w-1/2 border text-sm rounded-lg p-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
+            >
+              <option value="FC_B">Factura B</option>
+              <option value="FC_A">Factura A</option>
+              <option value="FC_C">Factura C</option>
+              <option value="PR">Presupuesto</option>
+              <option value="NT">Nota de Crédito</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col h-full w-full overflow-y-auto pb-20">
             {/* Sección Cliente */}
             <div className="mb-6">
-              <h3 className=" ">Cliente</h3>
+              <h3 className="font-bold mb-2">Cliente</h3>
               <ClientesSelect
                 cliente={cliente}
                 setCliente={setCliente}
                 empresaId={user.empresaId}
               />
-          
-              {cliente.id !== '1' && (
+
+              {cliente.id !== "1" && (
                 <div className="mt-2 text-sm w-full flex items-start justify-normal gap-3 text-gray-600">
                   <p>DNI: {cliente.dni}</p>
                   <p>Dirección: {cliente.direccion}</p>
-                  <p>Celular: {cliente.direccion}</p>
+                  <p>Celular: {cliente.celular}</p>
                 </div>
               )}
             </div>
 
             {/* Sección Método de Pago */}
             <div className="mb-6">
-              <h3 className="text-lg mb-2">Método de Pago</h3>
-              <div className="flex flex-wrap  gap-3 mb-4">
-                {['efectivo', 'transferencia', 'cheque', 'deposito'].map(
-                  (metodo) => (
-                    <button
-                      key={metodo}
-                      onClick={() => clickMetodoPago(metodo)}
-                      className={`md:px-4 px-2 md:py-2 py-1 rounded-lg capitalize ${
-                        metodoPago === metodo
-                          ? 'bg-primary-100 text-white'
-                          : 'bg-gray-100'
-                      }`}
-                    >
-                      {metodo}
-                    </button>
-                  )
-                )}
+              <h3 className="text-lg font-bold mb-2">Método de Pago</h3>
+              <div className="flex flex-wrap gap-3 mb-4">
+                {[
+                  "efectivo",
+                  "transferencia",
+                  "fiado",
+                  "cheque",
+                  "deposito",
+                ].map((metodo) => (
+                  <button
+                    key={metodo}
+                    onClick={() => clickMetodoPago(metodo)}
+                    className={`md:px-4 px-2 md:py-2 py-1 rounded-lg capitalize transition-colors ${
+                      metodoPago === metodo
+                        ? "bg-primary-100 text-white"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
+                  >
+                    {metodo}
+                  </button>
+                ))}
               </div>
 
-              {/* Campos según método de pago */}
-              {metodoPago === 'efectivo' && (
-                <div className="flex gap-4 w-full">
-                  <div className="flex-1 w-full">
-                    <label className="text-sm">Monto recibido</label>
+              {metodoPago === "fiado" && (
+                <div className="space-y-4 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <label className="text-sm font-semibold mb-1 block text-blue-800">
+                        Monto entregado en Efectivo (opcional)
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                        onChange={(e) => {
+                          const pago = Number(e.target.value);
+                          setFormularioVenta((prev) => ({
+                            ...prev,
+                            montoEntregadoFiado: pago,
+                          }));
+                        }}
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div className="text-right">
+                      <label className="text-sm font-semibold mb-1 block text-blue-800">
+                        Saldo a cuenta corriente
+                      </label>
+                      <p className="text-xl font-mono text-blue-900 font-bold">
+                        {formateoMoneda.format(
+                          Math.max(
+                            0,
+                            vueltoCalculadoReal() -
+                              (formularioVenta.montoEntregadoFiado || 0),
+                          ),
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-600 italic">
+                    * El monto entregado se registrará como un "Pago" inmediato
+                    y el resto como "Deuda".
+                  </p>
+                </div>
+              )}
+
+              {metodoPago === "efectivo" && (
+                <div className="flex gap-4 w-full bg-gray-50 p-4 rounded-lg border">
+                  <div className="flex-1">
+                    <label className="text-sm font-semibold mb-1 block">
+                      Monto recibido
+                    </label>
                     <input
-                      ref={montoRecibidoRef} // Asignar la referencia al input
+                      ref={montoRecibidoRef}
                       type="number"
-                      className="w-full border rounded-lg p-2"
+                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary-100 outline-none"
                       onChange={handlePagaCon}
+                      placeholder="0.00"
                     />
                   </div>
-                  <div className="flex-">
-                    <label className="text-sm">Vuelto</label>
-                    <p className="md:text-2xl text-xl font-mono">
+                  <div className="text-right">
+                    <label className="text-sm font-semibold mb-1 block">
+                      Vuelto
+                    </label>
+                    <p
+                      className={`md:text-2xl text-xl font-mono ${vueltoCalculo < 0 ? "text-red-500" : "text-green-600"}`}
+                    >
                       {formateoMoneda.format(vueltoCalculo)}
                     </p>
                   </div>
                 </div>
               )}
 
-              {['transferencia', 'deposito'].includes(metodoPago) && (
-                <div className="space-y-1">
+              {["transferencia", "deposito"].includes(metodoPago) && (
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg border">
                   <div>
-                    <label className="text-sm">Número de comprobante</label>
+                    <label className="text-sm font-semibold mb-1 block">
+                      Número de comprobante
+                    </label>
                     <input
                       type="text"
                       onChange={handleChange}
                       name="nComprobante"
-                      className="w-full border rounded-lg p-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm">Comprobante de pago</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="w-full border rounded-lg p-2"
-                      onChange={(e) =>
-                        setFormularioVenta({
-                          ...formularioVenta,
-                          fotoComprobante: e.target.files[0],
-                        })
-                      }
+                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary-100 outline-none"
+                      placeholder="Ej: 12345678"
                     />
                   </div>
                 </div>
               )}
 
-              {metodoPago === 'cheque' && (
-                <div className="space-y-1">
+              {metodoPago === "cheque" && (
+                <div className="space-y-4 bg-gray-50 p-4 rounded-lg border">
                   <div>
-                    <label className="text-sm">Número de cheque</label>
+                    <label className="text-sm font-semibold mb-1 block">
+                      Número de cheque
+                    </label>
                     <input
                       type="text"
                       onChange={handleChange}
                       name="nCheque"
-                      className="w-full border rounded-lg p-2"
+                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary-100 outline-none"
                     />
                   </div>
                   <div>
-                    <label className="text-sm">Fecha de vencimiento</label>
+                    <label className="text-sm font-semibold mb-1 block">
+                      Fecha de vencimiento
+                    </label>
                     <input
                       type="date"
                       onChange={handleChange}
                       name="vencimientoCheque"
-                      className="w-full border rounded-lg p-2"
+                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary-100 outline-none"
                     />
                   </div>
                 </div>
@@ -362,106 +479,98 @@ export default function ModalPago({
             </div>
 
             {/* Sección Descuento */}
-            <div className="mb-4 border-t pt-4">
+            <div className="mb-6 border-t pt-4">
               <div className="flex items-end gap-4">
                 <div className="flex-1">
-                  <label className="text-sm mb-1 block">Descuento manual</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      name="descuento"
-                      className="w-24 border rounded-lg p-2"
-                      value={formularioVenta.descuento}
-                      onChange={handleChange}
-                    />
-                    <span className="text-sm text-gray-500">%</span>
-                  </div>
+                  <label className="text-sm font-semibold mb-1 block">
+                    Descuento manual (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    name="descuento"
+                    className="w-24 border rounded-lg p-2 focus:ring-2 focus:ring-primary-100 outline-none"
+                    value={formularioVenta.descuento}
+                    onChange={handleChange}
+                  />
                 </div>
                 <div className="text-right">
-                  <span className="text-sm text-gray-500 block">
-                    Monto descuento
+                  <span className="text-sm text-gray-500 block italic">
+                    Monto a descontar
                   </span>
-                  <span className="text-lg font-mono">
+                  <span className="text-lg font-mono text-red-500">
                     -
                     {formateoMoneda.format(
-                      totalVenta * (formularioVenta.descuento / 100)
+                      totalVenta * (formularioVenta.descuento / 100),
                     )}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Actualizar el Resumen y Totales */}
-            <div className="border-t pt-4 mb-10 md:mb-2">
-              <div className="flex justify-between mb-2">
+            {/* Resumen Final */}
+            <div className="border-t-2 pt-4 bg-gray-50 p-4 rounded-lg">
+              <div className="flex justify-between mb-1 text-gray-600">
                 <span>Subtotal:</span>
                 <span>{formateoMoneda.format(subtotal)}</span>
               </div>
-              <div className="flex justify-between mb-2">
+              <div className="flex justify-between mb-1 text-gray-600">
                 <span>IVA:</span>
                 <span>{formateoMoneda.format(ivaMonto)}</span>
               </div>
               {formularioVenta.descuento > 0 && (
-                <div className="flex justify-between mb-2 text-primary-100">
+                <div className="flex justify-between mb-1 text-red-500 font-medium">
                   <span>Descuento ({formularioVenta.descuento}%):</span>
                   <span>
                     -
                     {formateoMoneda.format(
-                      totalVenta * (formularioVenta.descuento / 100)
+                      totalVenta * (formularioVenta.descuento / 100),
                     )}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between text-xl font-bold">
+              <div className="flex justify-between text-2xl font-bold text-primary-100 mt-2 pt-2 border-t border-gray-200">
                 <span>Total Final:</span>
                 <span>
                   {formateoMoneda.format(
-                    totalVenta * (1 - formularioVenta.descuento / 100)
+                    totalVenta * (1 - formularioVenta.descuento / 100),
                   )}
                 </span>
               </div>
             </div>
           </div>
-          {/* Botones de acción */}
-          <div className="flex absolute bottom-2 left-0 h-10 w-full justify-end gap-3 bg-white pr-5 ">
-            <button
+
+          {/* Botonera Flotante */}
+          <div className="absolute bottom-0 left-0 w-full bg-white border-t p-4 flex justify-end gap-3 z-10">
+            <Button
+              variant="cancel"
               onClick={() => setModalConfirmacion(false)}
-              className="md:px-4 px-1 md:py-2 py-1 rounded-lg bg-gray-200"
+              disabled={loading}
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               onClick={guardarPresupuesto}
-              className="md:px-4 px-1 md:py-2 py-1 rounded-lg bg-primary-texto hover:bg-primary-texto/80 text-white"
+              disabled={loading}
             >
-              Presupuesto
-            </button>
-
-            <button
+              {loading && esPresupuesto === "presupuesto"
+                ? "Procesando..."
+                : "Presupuesto"}
+            </Button>
+            <Button
+              variant="green"
               onClick={finalizarCompra}
-              className="md:px-4 px-1 md:py-2 py-1 rounded-lg bg-primary-100 hover:bg-primary-100/80 text-white"
+              disabled={loading}
             >
-              Confirmar Venta
-            </button>
+              {loading && esPresupuesto === "comprobante"
+                ? "Procesando..."
+                : "Confirmar Venta"}
+            </Button>
           </div>
-      </ModalReact>
-      {/* Modal de comprobante */}
-      {mostrarComprobante && (
-        <ModalComprobante
-          setModalConfirmacion={setModalConfirmacion}
-          $productos={$productos}
-          cliente={cliente}
-          descuento={descuento}
-          esPresupuesto={esPresupuesto}
-          ivaMonto={ivaMonto}
-          totalVenta={totalVenta}
-          ventaFinalizada={ventaFinalizada}
-          subtotal={subtotal}
-          key={21}
-        />
+        </div>
       )}
-    </>
+    </ModalReact>
   );
 }

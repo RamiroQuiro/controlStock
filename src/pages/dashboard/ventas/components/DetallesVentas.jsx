@@ -14,6 +14,42 @@ import {
 import ModalCliente from "./ModalCliente";
 import Table from "../../../../components/tablaComponentes/Table";
 
+const InputCantidad = ({ prod }) => {
+  const [localVal, setLocalVal] = useState(prod.cantidad);
+
+  // Sincronizar con el store si cambia desde afuera (ej: sumar/restar)
+  useEffect(() => {
+    setLocalVal(prod.cantidad);
+  }, [prod.cantidad]);
+
+  const handleChangeLocal = (e) => {
+    const val = e.target.value.replace(/[^0-9.,]/g, "");
+    setLocalVal(val);
+
+    // Si el valor es un número válido (no termina en punto/coma ni está vacío), actualizamos el store
+    if (val !== "" && !val.endsWith(".") && !val.endsWith(",")) {
+      setCantidad(prod.codigoBarra, val);
+    }
+  };
+
+  const handleBlur = () => {
+    // Al salir, nos aseguramos de que el store tenga el valor final limpio
+    setCantidad(prod.codigoBarra, localVal);
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={localVal}
+      onChange={handleChangeLocal}
+      onBlur={handleBlur}
+      onClick={(e) => e.stopPropagation()}
+      className="w-20 p-1 border rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-100 bg-white text-black font-mono font-bold"
+    />
+  );
+};
+
 export default function DetallesVentasV2() {
   const $filtro = useStore(filtroBusqueda).filtro;
   const $productosSeleccionados = useStore(productosSeleccionadosVenta);
@@ -27,7 +63,6 @@ export default function DetallesVentasV2() {
     { label: "Precio", id: 6, selector: (row) => row.precio },
     { label: "Stock", id: 7, selector: (row) => row.stock },
     { label: "Cantidad", id: 7, selector: (row) => row.cantidad },
-    { label: "Acciones", id: 8, selector: "" },
   ];
 
   useEffect(() => {
@@ -47,18 +82,9 @@ export default function DetallesVentasV2() {
         categoria: prod.categoria,
         precio: prod.pVenta,
         stock: prod.stock,
-        cantidad: (
-          <input
-            type="number"
-            min="1"
-            value={prod.cantidad}
-            onChange={(e) => setCantidad(prod.codigoBarra, e.target.value)}
-            onClick={(e) => e.stopPropagation()}
-            className="w-20 p-1 border rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-100 bg-white text-black"
-          />
-        ),
+        cantidad: <InputCantidad prod={prod} />,
       })),
-    [$productosSeleccionados]
+    [$productosSeleccionados],
   );
 
   return (

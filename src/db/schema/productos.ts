@@ -58,6 +58,7 @@ export const productos = sqliteTable(
     unidadMedida: text("unidadMedida").default("unidad"),
     isEcommerce: integer("isEcommerce", { mode: "boolean" }).default(false),
     precioMinimoVenta: integer("precioMinimoVenta", { mode: "number" }),
+    fechaVencimiento: integer("fechaVencimiento", { mode: "timestamp" }),
     imagenes: text("imagenes", { mode: "json" }).default("[]"),
     etiquetas: text("etiquetas", { mode: "json" }).default("[]"),
     peso: integer("peso", { mode: "number" }).default(0),

@@ -152,8 +152,9 @@ export type Producto = {
   empresaId?: string; // ID de la empresa
   creadoPor?: string; // ID del usuario que creó el producto
   activo: boolean; // Estado del producto (activo/inactivo)
-  unidadMedida?: "unidad" | "litros" | "kilogramos" | "decena"; // Unidad de medida (unidad, kg, litro, etc.)
+  unidadMedida?: "unidad" | "lt" | "kg" | "gr" | "mt" | "decena"; // Unidad de medida (unidad, kg, litro, etc.)
   precioMinimoVenta?: number; // Precio mínimo de venta del producto
+  fechaVencimiento?: Date | string | number; // Fecha de vencimiento del producto
   userUpdate?: string; // ID del usuario que actualizó el producto
   ultimaActualizacion: number; // Timestamp Unix de la última actualización
   created_at: number; // Timestamp Unix de la creación del producto
@@ -293,8 +294,9 @@ export interface IProductoForm {
   pVenta?: number;
   utilidad?: number;
   stock: number;
-  unidadMedida?: "unidad" | "litros" | "kilogramos" | "decena";
+  unidadMedida?: "unidad" | "lt" | "kg" | "gr" | "mt" | "decena";
   precioMinimoVenta?: number;
+  fechaVencimiento?: Date | string | number;
 }
 
 export interface IMovimientoStockForm {

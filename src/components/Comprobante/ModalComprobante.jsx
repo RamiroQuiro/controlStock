@@ -60,7 +60,7 @@ export default function ModalComprobante({
   };
 
   const handleClose = () => {
-    window.location.reload();
+    setModalConfirmacion(false);
   };
 
   const handleModalClick = (e) => {

@@ -1,11 +1,11 @@
 import React from "react";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
-import DivReact from "../../../../components/atomos/DivReact";
 import formatDate from "../../../../utils/formatDate";
+import { Card } from "../../../../components/organismos/Card";
 
-export default function HistorialCompras({ compras,loading }) {
+export default function HistorialCompras({ compras, loading }) {
   return (
-    <DivReact>
+    <Card>
       <h2 className="text-xl font-semibold mb-4">Historial de Compras</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full">
@@ -18,43 +18,47 @@ export default function HistorialCompras({ compras,loading }) {
             </tr>
           </thead>
           <tbody>
-            {
-              loading?
+            {loading ? (
               <tr>
-                <td colSpan="4" className="py-3 text-center font-semibold animate-pulse bg-primary-bg-componentes">Cargando...</td>
+                <td
+                  colSpan="4"
+                  className="py-3 text-center font-semibold animate-pulse bg-primary-bg-componentes"
+                >
+                  Cargando...
+                </td>
               </tr>
-              :
-            compras.map((compra) => (
-              <tr key={compra.id} className="border-b">
-              <td className="py-3">
-                  {formatDate(compra.fecha)}
-                  </td>
-                  <td className="py-3">{formateoMoneda.format(compra.total)}</td>
+            ) : (
+              compras.map((compra) => (
+                <tr key={compra.id} className="border-b">
+                  <td className="py-3">{formatDate(compra.fecha)}</td>
                   <td className="py-3">
-                  <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                      compra.estado === "completado"
-                      ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                        }`}
-                  >
-                    {compra.estado}
-                  </span>
+                    {formateoMoneda.format(compra.total)}
                   </td>
                   <td className="py-3">
-                  <a
-                    href={`/dashboard/ventas/${compra.id}`}
-                    className="text-blue-600 hover:text-blue-800"
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        compra.estado === "completado"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
                     >
-                    Ver detalle
+                      {compra.estado}
+                    </span>
+                  </td>
+                  <td className="py-3">
+                    <a
+                      href={`/dashboard/ventas/${compra.id}`}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      Ver detalle
                     </a>
-                    </td>
-                    </tr>
-                  ))
-                }
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-    </DivReact>
+    </Card>
   );
 }

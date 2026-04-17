@@ -30,3 +30,6 @@ export { suscripciones } from "./suscripciones";
 export { traslados } from "./traslados";
 export { detalleTraslados } from "./detalleTraslados";
 export { cajas, sesionesCaja, movimientosCaja } from "./caja";
+export { movimientosCuentaCorriente } from "./cuentasCorrientes";
+export { gastos } from "./gastos";
+export { deudasProductos } from "./deudasProductos";

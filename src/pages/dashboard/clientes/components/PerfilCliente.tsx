@@ -1,10 +1,11 @@
 import { useState, useEffect, use } from "react";
 import { formateoMoneda } from "../../../../utils/formateoMoneda";
 import EstadisticasCliente from "./EstadisticasCliente";
-import DivReact from "../../../../components/atomos/DivReact";
+
 import HistorialCompras from "./HistorialCompras";
 import DetalleCliente from "./DetalleCliente";
 import ContenedorEstadisticaCliente from "./ContenedorEstadisticaCliente";
+import CuentaCorriente from "./CuentaCorriente";
 
 interface Cliente {
   id: string;
@@ -56,10 +57,10 @@ export default function PerfilCliente({ cliente }: { cliente: Cliente }) {
       const data = await response.json();
       setCompras(data.compras);
       setEstadisticas(data.estadisticas);
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
       console.error("Error al cargar historial:", error);
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -70,10 +71,20 @@ export default function PerfilCliente({ cliente }: { cliente: Cliente }) {
         <DetalleCliente cliente={cliente} />
 
         {/* Estadísticas */}
-        <ContenedorEstadisticaCliente loading={loading} estadisticas={estadisticas} />
+        <ContenedorEstadisticaCliente
+          loading={loading}
+          estadisticas={estadisticas}
+        />
       </div>
+      {/* Cuenta Corriente / Libretita */}
+      <div className="w-full">
+        <CuentaCorriente clienteId={cliente.id} userId={cliente.userId} />
+      </div>
+
       {/* Historial de Compras */}
-      <HistorialCompras compras={compras} loading={loading} />
+      <div className="w-full">
+        <HistorialCompras compras={compras} loading={loading} />
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import DetallesVentas from "./DetallesVentas";
 import CarritoVenta from "./CarritoVenta";
 import { ShoppingCart } from "lucide-react";
 import PanelCajaReact from "../../dashboard/componente/PanelCajaReact";
+import { Card } from "../../../../components/organismos/Card";
 
 type Props = {
   user: any;
@@ -25,10 +26,10 @@ export default function VentasWrapper({ user }: Props) {
             />
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full mt-2">
+          <Card>
             <h2 className="text-xl font-bold text-gray-800 mb-3">Resultado</h2>
             <DetallesVentas />
-          </div>
+          </Card>
         </div>
 
         {/* Columna Derecha: Panel de Caja y Carrito */}

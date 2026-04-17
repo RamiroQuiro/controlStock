@@ -71,7 +71,7 @@ const userWithRole = {
 
 <sidebar
   id="sidebar"
-  class="expanded fixed md:relative duration-300 group h- items-stretch print:hidden overflow-hidden bottom-0 bg-primary-textoTitle text-primary-bg-claro z-40 md:top-0 left-0 md:w-[3vw] w-screen bg--bg-componentes md:h-screen flex md: pb-2 flex-col items- md:px-0 px-4 justify-normal md:gap- md:pt-16"
+  class="expanded fixed bottom-0 left-0 w-screen md:sticky md:top-0 md:h-screen md:w-[3vw] duration-300 group items-stretch print:hidden overflow-hidden bg-primary-textoTitle text-primary-bg-claro z-50 flex pb-2 flex-col md:px-0 px-4 justify-normal md:pt-16"
 >
   <button
     id="collapse-button"
@@ -111,22 +111,24 @@ const userWithRole = {
 </sidebar>
 
 <script>
-  const btnCollaps = document.getElementById("collapse-button");
-  const sidebar = document.getElementById("sidebar");
-  const logo = document.getElementById("logo");
+  const btnCollaps = document.getElementById("collapse-button") as HTMLButtonElement | null;
+  const sidebar = document.getElementById("sidebar") as HTMLElement | null;
   const spanesSiedebar = document.querySelectorAll(".spanSidebar");
+
   btnCollaps?.addEventListener("click", () => {
+    if (!sidebar) return;
+    
     if (sidebar.style.width === "10vw") {
       btnCollaps.style.transform = "rotate(0deg)";
-      sidebar.style.width = "3vw"; // Ancho expandido
+      sidebar.style.width = "3vw";
       spanesSiedebar.forEach((span) => {
-        span.style.opacity = "0";
+        (span as HTMLElement).style.opacity = "0";
       });
     } else {
       btnCollaps.style.transform = "rotate(180deg)";
-      sidebar.style.width = "10vw"; // Ancho colapsado
+      sidebar.style.width = "10vw";
       spanesSiedebar.forEach((span) => {
-        span.style.opacity = "100";
+        (span as HTMLElement).style.opacity = "1";
       });
     }
   });

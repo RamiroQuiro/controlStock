@@ -6,6 +6,7 @@ import ResumenVentas from "../../../components/dashboard/ResumenVentas";
 import UltimasTransacciones from "../../../components/dashboard/UltimasTransacciones";
 import ContenedorStats from "./componente/ContenedorStats";
 import PanelCajasAdmin from "./componente/PanelCajasAdmin";
+import AccionesRapidas from "./componente/AccionesRapidas";
 import AnalisisIA from "../../../components/dashboard/AnalisisIA";
 import { ArrowDownCircleIcon, Brain } from "lucide-react";
 import Card from "../../../components/organismos/Card.astro";
@@ -32,6 +33,9 @@ if (!user || !userId) {
     <AnalisisIA client:load />
   </details> -->
   <ContenedorStats client:load />
+  
+  <AccionesRapidas client:load empresaId={user.empresaId} />
+
   {/* Gráficos principales */}
   <div
     class="flex md:flex-nowrap flex-wrap items-stretch justify-normal gap-2 w-full"

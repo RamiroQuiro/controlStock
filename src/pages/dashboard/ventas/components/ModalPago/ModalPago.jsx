@@ -263,6 +263,9 @@ export default function ModalPago({
       }
     : null;
 
+  const deudaProyectada = (cliente?.saldoPendiente || 0) + (vueltoCalculadoReal() - (formularioVenta.montoEntregadoFiado || 0));
+  const superaLimite = (cliente?.limiteCredito > 0) && (deudaProyectada > cliente.limiteCredito);
+
   return (
     <ModalReact
       title={
@@ -399,6 +402,21 @@ export default function ModalPago({
                       </p>
                     </div>
                   </div>
+                  {superaLimite && (
+                    <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-center gap-3 animate-pulse">
+                      <div className="bg-orange-100 p-2 rounded-full text-orange-600">
+                        <CreditCard className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-orange-800 uppercase">Límite Superado</p>
+                        <p className="text-[11px] text-orange-700">
+                          Deuda proyectada: <strong>{formateoMoneda.format(deudaProyectada)}</strong> 
+                          (Límite: {formateoMoneda.format(cliente.limiteCredito)})
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-xs text-blue-600 italic">
                     * El monto entregado se registrará como un "Pago" inmediato
                     y el resto como "Deuda".

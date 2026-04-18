@@ -23,7 +23,6 @@ export { empresaConfigTienda } from "./empresaConfigTienda";
 export { comprobanteNumeracion } from "./comprobanteNumeracion";
 export { comprobantes } from "./compobantes";
 export { puntosDeVenta } from "./puntosDeVentas";
-// export { productosFts } from "./productos_fts"; // Excluido intencionalmente de Drizzle Kit (Manejado con SQL nativo)
 export { usuariosDepositos } from "./usuariosDepositos";
 export { planes } from "./planes";
 export { suscripciones } from "./suscripciones";
@@ -33,3 +32,6 @@ export { cajas, sesionesCaja, movimientosCaja } from "./caja";
 export { movimientosCuentaCorriente } from "./cuentasCorrientes";
 export { gastos } from "./gastos";
 export { deudasProductos } from "./deudasProductos";
+export * from "./recetas";
+export * from "./precios";
+export * from "./logistica";

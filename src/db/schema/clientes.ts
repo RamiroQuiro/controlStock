@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
 import { users } from './users';
 import { empresas } from './empresas';
+import { listasPrecios } from './precios';
 
 export const clientes = sqliteTable(
   'clientes',
@@ -30,6 +31,7 @@ export const clientes = sqliteTable(
     descuentoPreferencial: integer('descuentoPreferencial', {
       mode: 'number',
     }).default(0),
+    listaPrecioId: text('listaPrecioId').references(() => listasPrecios.id),
   },
   (t) => [
     // Único para DNI y empresa

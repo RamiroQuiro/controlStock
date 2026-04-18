@@ -68,6 +68,12 @@ export const productos = sqliteTable(
     descripcionCorta: text("descripcionCorta"),
     palabrasSEO: text("palabrasSEO"),
     userUpdate: text("userUpdate"),
+
+    // 🍞 CAMPOS PARA PANADERÍA / PRODUCCIÓN
+    codigoPlu: integer("codigoPlu", { mode: "number" }),
+    esInsumo: integer("esInsumo", { mode: "boolean" }).default(false),
+    usaReceta: integer("usaReceta", { mode: "boolean" }).default(false),
+
     ultimaActualizacion: integer("ultimaActualizacion", { mode: "timestamp" })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
@@ -94,6 +100,9 @@ export const productos = sqliteTable(
 
     // Búsqueda por código de barras + empresa
     index("idx_producto_codigo_barra_empresa").on(t.codigoBarra, t.empresaId),
+
+    // Búsqueda por PLU + Empresa (Balanzas)
+    index("idx_producto_plu_empresa").on(t.codigoPlu, t.empresaId),
 
     // 🏪 ÍNDICES DE INVENTARIO Y STOCK
     // Para consultas de stock bajo y alertas

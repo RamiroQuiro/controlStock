@@ -6,6 +6,8 @@ import {
   History,
   PackageCheck,
   Menu,
+  ChefHat,
+  ClipboardList,
 } from "lucide-react";
 import FormularioModificacionPrecios from "./FormularioModificacionPrecios";
 import FormularioCompra from "./FormularioCompra";
@@ -23,6 +25,7 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
   const closeModal = () => setActiveModal(null);
 
   const tieneLogistica = permisos.puedeTranslado || permisos.puedeRecibirTraslado || permisos.puedeVerHistorial;
+  const tienePanaderia = permisos.puedeCrearProduccion || permisos.puedeCrearReceta || permisos.puedeVerRecetas;
 
   const items = [
     permisos.puedeEditarPrecios && {
@@ -35,8 +38,24 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
       icon: <ShoppingCart size={18} />,
       onClick: () => setActiveModal("comprar"),
     },
+    
+    // Panadería (NUEVO)
+    tienePanaderia && {
+      label: "Producción y Panadería",
+      isSeparator: true,
+    },
+    permisos.puedeCrearProduccion && {
+      label: "Registrar Producción",
+      icon: <ChefHat size={18} className="text-orange-500" />,
+      onClick: () => setActiveModal("produccion"),
+    },
+    permisos.puedeVerRecetas && {
+        label: "Recetas y Fórmulas",
+        icon: <ClipboardList size={18} className="text-blue-500" />,
+        onClick: () => setActiveModal("recetas"),
+    },
 
-    // Logística (Solo mostrar separador si tiene algún permiso de logística)
+    // Logística
     tieneLogistica && {
       label: "Logística y Traslados",
       isSeparator: true,
@@ -56,7 +75,7 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
       icon: <History size={18} />,
       onClick: () => setActiveModal("historial"),
     },
-  ].filter(Boolean); // Filtrar items nulos/falsos
+  ].filter(Boolean);
 
   // Si no hay ninguna acción disponible para el usuario, ni siquiera renderizar el botón
   if (items.length === 0) return null;
@@ -128,6 +147,38 @@ const StockActionsMenu = ({ user, depositos, ubicaciones, permisos }) => {
           className="md:min-w-[70vw]"
         >
           <ContenedorHistorial user={user} />
+        </ModalReact>
+      )}
+
+      {/* Producción (NUEVO) */}
+      {activeModal === "produccion" && (
+        <ModalReact
+          title="Registrar Producción"
+          onClose={closeModal}
+          className="md:min-w-[50vw]"
+        >
+          <div className="p-8 text-center text-gray-500">
+             <ChefHat size={48} className="mx-auto mb-4 text-orange-400" />
+             <p className="text-xl font-bold">Módulo de Producción</p>
+             <p>Aquí el panadero registrará los amasados diarios.</p>
+             <p className="text-sm mt-2 italic">(Próximamente)</p>
+          </div>
+        </ModalReact>
+      )}
+
+      {/* Recetas (NUEVO) */}
+      {activeModal === "recetas" && (
+        <ModalReact
+          title="Gestión de Recetas y Fórmulas"
+          onClose={closeModal}
+          className="md:min-w-[60vw]"
+        >
+          <div className="p-8 text-center text-gray-500">
+             <ClipboardList size={48} className="mx-auto mb-4 text-blue-400" />
+             <p className="text-xl font-bold">Gestión de Recetas</p>
+             <p>Definición de insumos y rendimientos por producto.</p>
+             <p className="text-sm mt-2 italic">(Próximamente)</p>
+          </div>
         </ModalReact>
       )}
     </>

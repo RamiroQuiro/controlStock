@@ -46,6 +46,13 @@ const puedeRecibirTraslado = tienePermiso(
   PERMISOS.TRASLADO_RECIBIR,
 );
 const puedeVerHistorial = tienePermiso(usuarioConRol, PERMISOS.TRASLADO_VER);
+const puedeVerRecetas = tienePermiso(usuarioConRol, PERMISOS.RECETAS_VER);
+const puedeCrearReceta = tienePermiso(usuarioConRol, PERMISOS.RECETAS_CREAR);
+const puedeVerProduccion = tienePermiso(usuarioConRol, PERMISOS.PRODUCCION_VER);
+const puedeCrearProduccion = tienePermiso(
+  usuarioConRol,
+  PERMISOS.PRODUCCION_CREAR,
+);
 
 let depositos: any[] = [];
 let ubicaciones: any[] = [];
@@ -139,7 +146,7 @@ try {
       >
         <div class="flex items-center justify-between gap-2 mb-3">
           <Texto as="h2" variant="h2" className="text-orange-800"
-            >📉 Huesos (Sin Movimiento)</Texto
+            >📉 Sin Movimiento / Baja Rotación</Texto
           >
           <span
             class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded-full"

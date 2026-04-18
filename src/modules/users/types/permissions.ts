@@ -36,6 +36,12 @@ export const PERMISOS = {
   ORDEN_COMPRA_CREAR: "crear_orden_compra",
   ORDEN_COMPRA_VER: "ver_orden_compra",
 
+  // Producción y Panadería
+  PRODUCCION_VER: "ver_produccion",
+  PRODUCCION_CREAR: "crear_produccion",
+  RECETAS_VER: "ver_recetas",
+  RECETAS_CREAR: "crear_recetas",
+
   // Configuración
   EMPRESA_CONFIG: "configurar_empresa",
 } as const;

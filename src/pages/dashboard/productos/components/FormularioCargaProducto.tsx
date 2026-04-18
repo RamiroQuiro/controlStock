@@ -132,7 +132,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
     // Limpiar errores generales y de campo al escribir
     if (generalError) setGeneralError(null);
     if (errores[name]) {
-      setErrores(prev => ({ ...prev, [name]: "" }));
+      setErrores((prev) => ({ ...prev, [name]: "" }));
     }
 
     // 🎯 VALIDACIONES EN TIEMPO REAL
@@ -245,7 +245,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
     setFormData(initialFormData);
     setSelectedFile(null);
     setCategoriasIds([]);
-    setErrores({}); 
+    setErrores({});
     setGeneralError(null);
   };
 
@@ -274,8 +274,16 @@ const FormularioCargaProducto: React.FC<Props> = ({
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-2 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-red-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3 text-red-700">
@@ -297,62 +305,64 @@ const FormularioCargaProducto: React.FC<Props> = ({
 
           <div className="md:col-span-2 flex flex-col gap-4 w-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* CÓDIGO DE BARRA CON VALIDACIÓN */}
-                <div>
+              {/* CÓDIGO DE BARRA CON VALIDACIÓN */}
+              <div>
                 <label
-                    htmlFor="codigoBarra"
-                    className="block text-sm font-medium text-gray-700"
+                  htmlFor="codigoBarra"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                    Código de Barra ✅
+                  Código de Barra
                 </label>
                 <div className="relative">
-                    <input
+                  <input
                     type="text"
                     name="codigoBarra"
                     id="codigoBarra"
                     value={formData.codigoBarra}
                     onChange={handleChange}
                     className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
-                        errores.codigoBarra
+                      errores.codigoBarra
                         ? "border-red-500 bg-red-50"
                         : validando.codigoBarra
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-300"
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-300"
                     }`}
                     required
-                    />
-                    {validando.codigoBarra && (
+                  />
+                  {validando.codigoBarra && (
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                     </div>
-                    )}
+                  )}
                 </div>
                 {errores.codigoBarra && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                     {errores.codigoBarra}
-                    </p>
+                  </p>
                 )}
-                </div>
+              </div>
 
-                {/* PLU BALANZA (NUEVO) */}
-                <div>
+              {/* PLU BALANZA (NUEVO) */}
+              <div>
                 <label
-                    htmlFor="codigoPlu"
-                    className="block text-sm font-medium text-blue-700"
+                  htmlFor="codigoPlu"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                    Plu Balanza (Opcional) ⚖️
+                  Plu Balanza (Opcional)
                 </label>
                 <input
-                    type="number"
-                    name="codigoPlu"
-                    id="codigoPlu"
-                    value={formData.codigoPlu}
-                    onChange={handleChange}
-                    placeholder="Ej: 5"
-                    className="mt-1 block w-full p-2 border border-blue-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  type="number"
+                  name="codigoPlu"
+                  id="codigoPlu"
+                  value={formData.codigoPlu}
+                  onChange={handleChange}
+                  placeholder="Ej: 5"
+                  className="mt-1 block w-full p-2 border border-blue-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
-                <p className="text-[10px] text-gray-400 mt-1">Número de memoria en la balanza</p>
-                </div>
+                <p className="text-[10px] text-gray-400 mt-1">
+                  Número de memoria en la balanza
+                </p>
+              </div>
             </div>
 
             {/* NOMBRE CON VALIDACIÓN */}
@@ -361,7 +371,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 htmlFor="nombre"
                 className="block text-sm font-medium text-gray-700"
               >
-                Nombre ✅
+                Nombre
               </label>
               <div className="relative">
                 <input
@@ -374,8 +384,8 @@ const FormularioCargaProducto: React.FC<Props> = ({
                     errores.nombre
                       ? "border-red-500 bg-red-50"
                       : validando.nombre
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-300"
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300"
                   }`}
                   required
                 />
@@ -398,7 +408,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
                 htmlFor="descripcion"
                 className="block text-sm font-medium text-gray-700"
               >
-                Descripción ✅
+                Descripción
               </label>
               <textarea
                 id="descripcion"
@@ -571,7 +581,7 @@ const FormularioCargaProducto: React.FC<Props> = ({
               htmlFor="pVenta"
               className="block text-sm font-medium text-gray-700"
             >
-              Precio Venta ✅
+              Precio Venta
             </label>
             <input
               type="number"

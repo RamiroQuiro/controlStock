@@ -67,7 +67,8 @@ export default function DetallesVentasV2() {
 
   useEffect(() => {
     if ($filtro && Object.keys($filtro).length > 0) {
-      agregarProductoVenta($filtro);
+      // Pasamos el producto y la cantidadManual (si existe, viene de la balanza)
+      agregarProductoVenta($filtro, $filtro.cantidadManual);
       filtroBusqueda.set({ filtro: "" });
     }
   }, [$filtro]);

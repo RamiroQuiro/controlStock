@@ -35,6 +35,11 @@ export const getProductosFromDB = async (
     if (query) {
       if (tipo === "codigoBarra") {
         conditions.push(eq(productos.codigoBarra, query));
+      } else if (tipo === "codigoPlu") {
+        const pluNumber = parseInt(query);
+        if (!isNaN(pluNumber)) {
+          conditions.push(eq(productos.codigoPlu, pluNumber));
+        }
       } else {
         conditions.push(
           or(

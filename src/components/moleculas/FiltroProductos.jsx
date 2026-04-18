@@ -37,7 +37,7 @@ export default function FiltroProductosV3({
   userId,
   empresaId,
   modoCompra = false,
-  onProductoAgregado = null, 
+  onProductoAgregado = null,
 }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -103,9 +103,47 @@ export default function FiltroProductosV3({
     setTipoBusqueda(tipo);
 
     try {
-      
+      // ⚖️ LÓGICA DE BALANZA (EAN-13 Variable)
+      // Ejemplo: 20 00105 00750 2 -> Prefijo 20, PLU 105, Peso 0.750kg
+      if (
+        query.length === 13 &&
+        (query.startsWith("20") || query.startsWith("02"))
+      ) {
+        console.log("Detectado código de BALANZA");
+        const plu = query.substring(2, 7); // 5 dígitos del PLU
+        const pesoRaw = query.substring(7, 12); // 5 dígitos del Peso
+        const pesoCalculado = parseInt(pesoRaw) / 1000; // Asumimos 3 decimales (estándar)
+
+        console.log("Buscando por PLU:", plu, "Peso:", pesoCalculado);
+
+        const resPlu = await fetch(
+          `/api/productos/productos?search=${plu}&tipo=codigoPlu`,
+          {
+            method: "GET",
+            headers: {
+              "x-user-id": userId,
+              "xx-empresa-id": empresaId,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        const dataPlu = await resPlu.json();
+
+        if (dataPlu.data && dataPlu.data.length > 0) {
+          const producto = dataPlu.data[0];
+          console.log("Producto de balanza encontrado:", producto.nombre);
+          setProductoAgregado(producto);
+          setEstado("agregando");
+          setTimeout(() => {
+            handleClick(producto, pesoCalculado);
+          }, 100);
+          return;
+        }
+      }
+
       if (agregarAutomatico && tipo === "codigo") {
-        console.log("🚀 Búsqueda EXACTA por código activada");
+        console.log("Búsqueda EXACTA por código activada");
 
         const resExacta = await fetch(
           `/api/productos/productos?search=${query}&tipo=codigoBarra`,
@@ -116,39 +154,37 @@ export default function FiltroProductosV3({
               "xx-empresa-id": empresaId,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         const dataExacta = await resExacta.json();
-        console.log("📦 Resultado búsqueda exacta:", dataExacta);
-
+        console.log("Resultado búsqueda exacta:", dataExacta);
 
         if (dataExacta.data && dataExacta.data.length > 0) {
           const producto = dataExacta.data[0];
           const stock = producto.stock?.cantidad ?? producto.stock ?? 0;
 
-          console.log("✅ Producto encontrado - Stock:", stock);
+          console.log("Producto encontrado - Stock:", stock);
 
           if (modoCompra || stock > 0) {
-            console.log("🎯 AUTO-AGREGANDO PRODUCTO:", producto.nombre);
+            console.log("AUTO-AGREGANDO PRODUCTO:", producto.nombre);
             setProductoAgregado(producto);
             setEstado("agregando");
 
             setTimeout(() => {
               handleClick(producto);
             }, 100);
-            return; 
+            return;
           } else {
             console.log("❌ Producto sin stock");
             alert(`❌ ${producto.nombre} no tiene stock disponible`);
-       
           }
         } else {
           console.log("❌ No se encontró producto por código exacto");
         }
       }
 
-      console.log("🔍 Realizando búsqueda normal FTS");
+      console.log("Realizando búsqueda normal FTS");
       const resFTS = await fetch(
         `/api/productos/buscar-fts?search=${encodeURIComponent(query)}`,
         {
@@ -157,7 +193,7 @@ export default function FiltroProductosV3({
             "xx-user-id": userId,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const dataFTS = await resFTS.json();
@@ -202,7 +238,7 @@ export default function FiltroProductosV3({
     }
   };
 
-  const handleClick = (producto) => {
+  const handleClick = (producto, overrideCantidad = null) => {
     console.log("🛒 Agregando producto:", producto.nombre);
 
     const processedProduct = {
@@ -212,9 +248,18 @@ export default function FiltroProductosV3({
     };
 
     if (onProductoAgregado) {
-      onProductoAgregado(processedProduct);
+      if (overrideCantidad) {
+        // Si viene un peso de balanza
+        onProductoAgregado(processedProduct, overrideCantidad);
+      } else {
+        onProductoAgregado(processedProduct);
+      }
     } else {
-      filtroBusqueda.set({ filtro: processedProduct });
+      // Si usa el store directo (filtroBusqueda es un atom que dispara un efecto)
+      // Ajustamos el objeto para que el consumidor sepa la cantidad
+      filtroBusqueda.set({
+        filtro: { ...processedProduct, cantidadManual: overrideCantidad },
+      });
     }
 
     setEstado("agregado");
@@ -528,7 +573,7 @@ export default function FiltroProductosV3({
                             : formateoMoneda.format(producto.pVenta || 0)}
                         </div>
                         <div className="text-xs text-gray-400 leading-none">
-                          {modoCompra ? 'costo' : 'precio'}
+                          {modoCompra ? "costo" : "precio"}
                         </div>
                         <div
                           className={`text-xs mt-0.5 ${
@@ -540,26 +585,37 @@ export default function FiltroProductosV3({
                           Stock: {stock}
                         </div>
                         {/* 🆕 Desglose por sucursal para admin */}
-                        {Array.isArray(producto.stock?.stockPorDeposito) && producto.stock.stockPorDeposito.length > 1 && (
-                          <div className="mt-1 text-left text-[10px] text-blue-600 border-t border-blue-100 pt-1 space-y-0.5">
-                          {producto.stock.stockPorDeposito.map((dep) => (
-                              <div key={dep.depositoId} className="flex items-center justify-between gap-1">
-                                <span className="truncate max-w-[80px] text-gray-500">{dep.depositoNombre || 'Sin nombre'} {dep.principal ? '★' : ''}</span>
-                                <span className="font-bold text-blue-700">{dep.cantidad}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {Array.isArray(producto.stock?.stockPorDeposito) &&
+                          producto.stock.stockPorDeposito.length > 1 && (
+                            <div className="mt-1 text-left text-[10px] text-blue-600 border-t border-blue-100 pt-1 space-y-0.5">
+                              {producto.stock.stockPorDeposito.map((dep) => (
+                                <div
+                                  key={dep.depositoId}
+                                  className="flex items-center justify-between gap-1"
+                                >
+                                  <span className="truncate max-w-[80px] text-gray-500">
+                                    {dep.depositoNombre || "Sin nombre"}{" "}
+                                    {dep.principal ? "★" : ""}
+                                  </span>
+                                  <span className="font-bold text-blue-700">
+                                    {dep.cantidad}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                       </div>
                     </div>
 
                     {/* Acción rápida — siempre visible en modoCompra */}
                     {(tieneStock || modoCompra) && (
                       <div className="mt-2 flex justify-end">
-                        <button className={`text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity text-white ${
-                          modoCompra ? 'bg-indigo-500' : 'bg-blue-500'
-                        }`}>
-                          {modoCompra ? 'Agregar a compra ✓' : 'Agregar ✓'}
+                        <button
+                          className={`text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity text-white ${
+                            modoCompra ? "bg-indigo-500" : "bg-blue-500"
+                          }`}
+                        >
+                          {modoCompra ? "Agregar a compra ✓" : "Agregar ✓"}
                         </button>
                       </div>
                     )}

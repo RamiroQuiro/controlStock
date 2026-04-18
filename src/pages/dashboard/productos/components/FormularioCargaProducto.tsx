@@ -296,41 +296,63 @@ const FormularioCargaProducto: React.FC<Props> = ({
           </div>
 
           <div className="md:col-span-2 flex flex-col gap-4 w-full">
-            {/* CÓDIGO DE BARRA CON VALIDACIÓN */}
-            <div>
-              <label
-                htmlFor="codigoBarra"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Código de Barra ✅
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="codigoBarra"
-                  id="codigoBarra"
-                  value={formData.codigoBarra}
-                  onChange={handleChange}
-                  className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
-                    errores.codigoBarra
-                      ? "border-red-500 bg-red-50"
-                      : validando.codigoBarra
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300"
-                  }`}
-                  required
-                />
-                {validando.codigoBarra && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* CÓDIGO DE BARRA CON VALIDACIÓN */}
+                <div>
+                <label
+                    htmlFor="codigoBarra"
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    Código de Barra ✅
+                </label>
+                <div className="relative">
+                    <input
+                    type="text"
+                    name="codigoBarra"
+                    id="codigoBarra"
+                    value={formData.codigoBarra}
+                    onChange={handleChange}
+                    className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                        errores.codigoBarra
+                        ? "border-red-500 bg-red-50"
+                        : validando.codigoBarra
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-300"
+                    }`}
+                    required
+                    />
+                    {validando.codigoBarra && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                    </div>
+                    )}
+                </div>
+                {errores.codigoBarra && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    {errores.codigoBarra}
+                    </p>
                 )}
-              </div>
-              {errores.codigoBarra && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  {errores.codigoBarra}
-                </p>
-              )}
+                </div>
+
+                {/* PLU BALANZA (NUEVO) */}
+                <div>
+                <label
+                    htmlFor="codigoPlu"
+                    className="block text-sm font-medium text-blue-700"
+                >
+                    Plu Balanza (Opcional) ⚖️
+                </label>
+                <input
+                    type="number"
+                    name="codigoPlu"
+                    id="codigoPlu"
+                    value={formData.codigoPlu}
+                    onChange={handleChange}
+                    placeholder="Ej: 5"
+                    className="mt-1 block w-full p-2 border border-blue-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="text-[10px] text-gray-400 mt-1">Número de memoria en la balanza</p>
+                </div>
             </div>
 
             {/* NOMBRE CON VALIDACIÓN */}
@@ -352,8 +374,8 @@ const FormularioCargaProducto: React.FC<Props> = ({
                     errores.nombre
                       ? "border-red-500 bg-red-50"
                       : validando.nombre
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300"
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-300"
                   }`}
                   required
                 />

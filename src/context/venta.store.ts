@@ -17,28 +17,28 @@ export const productosSeleccionadosVenta = atom<ProductoCarrito[]>([]);
 
 // --- Acciones del Carrito de Venta ---
 
-export function agregarProductoVenta(producto: Producto) {
+export function agregarProductoVenta(producto: Producto, cantidad: number = 1) {
   const productos = productosSeleccionadosVenta.get();
   const productoExistente = productos.find(
     (p) => p.codigoBarra === producto.codigoBarra
   );
 
   if (productoExistente) {
-    // Si el producto ya existe, simplemente incrementamos su cantidad
-    sumarCantidad(producto.codigoBarra);
+    // Si el producto ya existe, sumamos la cantidad (puede ser 1 o el peso de la balanza)
+    sumarCantidad(producto.codigoBarra, cantidad);
   } else {
-    // Si es un producto nuevo, lo añadimos al array con cantidad 1
+    // Si es un producto nuevo, lo añadimos al array con la cantidad especificada
     productosSeleccionadosVenta.set([
       ...productos,
-      { ...producto, cantidad: 1 } as ProductoCarrito,
+      { ...producto, cantidad: cantidad } as ProductoCarrito,
     ]);
   }
 }
 
-export function sumarCantidad(codigoBarra: string) {
+export function sumarCantidad(codigoBarra: string, cantidad: number = 1) {
   const productos = productosSeleccionadosVenta.get();
   const nuevosProductos = productos.map((p) =>
-    p.codigoBarra === codigoBarra ? { ...p, cantidad: p.cantidad + 1 } : p
+    p.codigoBarra === codigoBarra ? { ...p, cantidad: p.cantidad + cantidad } : p
   );
   productosSeleccionadosVenta.set(nuevosProductos);
 }

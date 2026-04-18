@@ -24,7 +24,7 @@ export async function POST({
       JSON.stringify({
         data: "faltan campos requeridos",
         status: 400,
-      })
+      }),
     );
   }
   if (password.length < 6) {
@@ -32,7 +32,7 @@ export async function POST({
       JSON.stringify({
         data: "contraseña mayor a 6 caracteres",
         status: 400,
-      })
+      }),
     );
   }
 
@@ -49,7 +49,7 @@ export async function POST({
         JSON.stringify({
           msg: "Email o razón social ya registrado y verificado",
           status: 400,
-        })
+        }),
       );
     } else {
       // Usuario existe pero NO está verificado → reenviar email de confirmación
@@ -63,13 +63,13 @@ export async function POST({
       const template = getTemplate(
         `${existingUser.nombre} ${existingUser.apellido}`,
         tokenConfirmacionEmail,
-        hostUrl
+        hostUrl,
       );
       try {
         await sendMailer(
           existingUser.email,
           "Confirmación de Cuenta controlStock",
-          template
+          template,
         );
       } catch (error) {
         console.log(error);
@@ -77,14 +77,14 @@ export async function POST({
           JSON.stringify({
             msg: "Error al enviar el email de confirmacion",
             status: 500,
-          })
+          }),
         );
       }
       return new Response(
         JSON.stringify({
           msg: "El usuario ya existe pero no está verificado. Se reenvió el email de confirmación.",
           status: 200,
-        })
+        }),
       );
     }
   }
@@ -125,7 +125,7 @@ export async function POST({
   const template = getTemplate(
     `${nombre} ${apellido}`,
     tokenConfirmacionEmail,
-    hostUrl
+    hostUrl,
   );
 
   try {
@@ -135,7 +135,7 @@ export async function POST({
       JSON.stringify({
         msg: "Email de confirmacion enviado, revise su correo",
         status: 200,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -143,7 +143,7 @@ export async function POST({
       JSON.stringify({
         msg: "Error al enviar el email de confirmacion",
         status: 500,
-      })
+      }),
     );
   }
 }

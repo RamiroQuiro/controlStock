@@ -17,7 +17,10 @@ export const productos = sqliteTable(
     id: text("id").primaryKey(),
     nombre: text("nombre").notNull(),
     srcPhoto: text("srcPhoto"),
-    proveedorId: text("proveedorId").references(() => proveedores.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+    proveedorId: text("proveedorId").references(() => proveedores.id, {
+      onUpdate: "cascade",
+      onDelete: "restrict",
+    }),
     codigoBarra: text("codigoBarra").notNull(),
     categoria: text("categoria"),
     marca: text("marca"),
@@ -26,8 +29,14 @@ export const productos = sqliteTable(
     ubicacion: text("ubicacion").default("ubicacion 1"),
     empresaId: text("empresaId")
       .notNull()
-      .references(() => empresas.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
-    creadoPor: text("creadoPor").references(() => users.id, { onUpdate: 'cascade', onDelete: 'set null' }),
+      .references(() => empresas.id, {
+        onUpdate: "cascade",
+        onDelete: "restrict",
+      }),
+    creadoPor: text("creadoPor").references(() => users.id, {
+      onUpdate: "cascade",
+      onDelete: "set null",
+    }),
     signoDescuento: text("signoDescuento"), // '$' o '%'
     descuento: integer("descuento", { mode: "number" }).default(0),
 
@@ -46,10 +55,10 @@ export const productos = sqliteTable(
       mode: "timestamp",
     }).default(sql`(strftime('%s', 'now'))`),
     fechaFinOferta: integer("fechaFinOferta", { mode: "timestamp" }).default(
-      sql`(strftime('%s', 'now'))`
+      sql`(strftime('%s', 'now'))`,
     ),
     reservadoOffLine: integer("reservadoOffLine", { mode: "number" }).default(
-      0
+      0,
     ),
     reservadoOnline: integer("reservadoOnline", { mode: "number" }).default(0),
     alertaStock: integer("alertaStock", { mode: "number" }).default(10),
@@ -69,7 +78,6 @@ export const productos = sqliteTable(
     palabrasSEO: text("palabrasSEO"),
     userUpdate: text("userUpdate"),
 
-    // 🍞 CAMPOS PARA PANADERÍA / PRODUCCIÓN
     codigoPlu: integer("codigoPlu", { mode: "number" }),
     esInsumo: integer("esInsumo", { mode: "boolean" }).default(false),
     usaReceta: integer("usaReceta", { mode: "boolean" }).default(false),
@@ -88,7 +96,7 @@ export const productos = sqliteTable(
       t.nombre,
       t.marca,
       t.modelo,
-      t.empresaId
+      t.empresaId,
     ),
 
     // 🎯 ÍNDICES PRINCIPALES PARA BÚSQUEDAS CRÍTICAS
@@ -116,7 +124,7 @@ export const productos = sqliteTable(
     index("idx_producto_ventas_utilidad").on(
       t.empresaId,
       t.ventasTotales,
-      t.utilidad
+      t.utilidad,
     ),
 
     // Para búsquedas por categoría y marca
@@ -127,7 +135,7 @@ export const productos = sqliteTable(
       t.empresaId,
       t.isOferta,
       t.activo,
-      t.fechaFinOferta
+      t.fechaFinOferta,
     ),
 
     // 🛒 ÍNDICES PARA E-COMMERCE
@@ -136,7 +144,7 @@ export const productos = sqliteTable(
       t.empresaId,
       t.isEcommerce,
       t.activo,
-      t.estadoPublicacion
+      t.estadoPublicacion,
     ),
 
     // 🔄 ÍNDICES DE AUDITORÍA Y MANTENIMIENTO
@@ -159,9 +167,9 @@ export const productos = sqliteTable(
     index("idx_productos_empresa_activo_actualizacion").on(
       t.empresaId,
       t.activo,
-      t.ultimaActualizacion
+      t.ultimaActualizacion,
     ),
 
     index("idx_productos_empresa_activo_id").on(t.empresaId, t.activo, t.id),
-  ]
+  ],
 );
